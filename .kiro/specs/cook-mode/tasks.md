@@ -17,7 +17,7 @@ Rules for every task:
   - Files: `package.json`, `package-lock.json`, `src/app/env.smoke.test.tsx`.
   - Satisfies: R23.7, R26.1.
 
-- [ ] 2. One computation for the verify box and the percentage URL
+- [x] 2. One computation for the verify box and the percentage URL
   - Test first: extend `src/ingest/verify-url.test.ts`. `verifyRegion(input)` returns `{box: [x, y, w, h], approximate}` in page-frame px; `verifyUrl(input).url` equals the percentage form of that box (4 decimals); the three committed `verifyUrl` strings of `public/recipes/quinces-marmalade/recipe.json` are reproduced exactly from the committed `pageBox`, frame 1601×2052 and `deskewDeg` 1.6 of `content/recipes/quinces-marmalade/lines.json`; the box is clipped to the frame; with no deskew the box equals `pageBox` as `[x, y, w, h]`.
   - Implement: `verifyRegion()` in `src/ingest/bundle.ts`; `verifyUrl()` calls it and formats the result. No output of `verifyUrl` changes.
   - Files: `src/ingest/bundle.ts`, `src/ingest/verify-url.test.ts`.

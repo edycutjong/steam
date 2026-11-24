@@ -13,11 +13,11 @@ export interface VerifyInput {
 const pct4 = (v: number): string => Math.min(100, Math.max(0, v)).toFixed(4)
 
 /**
- * `<imageService>/pct:x,y,w,h/full/0/default.jpg` for the same pixels on the archive's server (R23.3).
- * Percentages of the page frame, so the link is the same for any download size. After an applied deskew the box is
- * mapped back to the original page by rotating its corners and taking their bounding box, and flagged approximate (R23.4).
+ * The rectangle of the note on the page frame as `[x, y, w, h]` px (R21.2). After an applied deskew the box is mapped back
+ * to the original page by rotating its corners and taking their bounding box, and flagged approximate (R23.4). Clipped to the frame.
+ * `verifyUrl` turns this same box into percentages, so the percentage link and `verifyBox` come from one computation (R21.3).
  */
-export function verifyUrl(i: VerifyInput): { url: string; approximate: boolean } {
+export function verifyRegion(i: Omit<VerifyInput, 'imageService'>): { box: [number, number, number, number]; approximate: boolean } {
   let [x0, y0, x1, y1] = i.pageBox
   const { width: W, height: H } = i.frame
   let approximate = false
@@ -41,10 +41,14 @@ export function verifyUrl(i: VerifyInput): { url: string; approximate: boolean }
   const cy0 = Math.max(0, y0)
   const cx1 = Math.min(W, x1)
   const cy1 = Math.min(H, y1)
-  const x = (cx0 / W) * 100
-  const y = (cy0 / H) * 100
-  const w = ((cx1 - cx0) / W) * 100
-  const h = ((cy1 - cy0) / H) * 100
+  return { box: [cx0, cy0, cx1 - cx0, cy1 - cy0], approximate }
+}
+
+/** `<imageService>/pct:x,y,w,h/full/0/default.jpg` for the same pixels on the archive's server (R23.3): percentages of the page frame. */
+export function verifyUrl(i: VerifyInput): { url: string; approximate: boolean } {
+  const { box, approximate } = verifyRegion(i)
+  const { width: W, height: H } = i.frame
+  const [x, y, w, h] = [(box[0] / W) * 100, (box[1] / H) * 100, (box[2] / W) * 100, (box[3] / H) * 100]
   return { url: `${i.imageService}/pct:${pct4(x)},${pct4(y)},${pct4(w)},${pct4(h)}/full/0/default.jpg`, approximate }
 }
 
