@@ -25,3 +25,12 @@ Options: `BENCH_MS=<ms>` changes the duration (default 15000). `BENCH_ANGLE=<bac
 ## Reading the numbers
 
 The committed run used whatever backend Chromium chose on that machine; the `gpuRenderer` field says which. Frame times are quantised by the display clock (about 16.7 ms), so p50 and p95 sit on that value. Run the command on the machine you care about and compare its own file.
+
+## Committed runs
+
+| File | Backend (`gpuRenderer`) | Command | Result |
+| --- | --- | --- | --- |
+| `steam-renderer.json` | ANGLE SwiftShader (software GL; Chromium's default in this headless run) | `npm run bench` | ~59.5-59.8 fps average, 3-6 frames under 55 per profile → fails the zero-slow-frame criterion |
+| `steam-renderer-metal.json` | ANGLE Metal, Apple M1 Max (hardware GPU, not throttled) | `BENCH_ANGLE=metal npm run bench`, then the file renamed | 901 frames per profile at 60 fps, 0 frames under 55 on all three profiles |
+
+Both are the same machine and build. The Pixel 5 profile throttles the CPU only (4×), never the GPU, so it is not a real phone: a physical-device run is still owed. `derive` (one-time, on load) took 345.9 ms under 4× CPU, over the 50 ms budget in R15.5 (task 39 moves it into a Web Worker).
