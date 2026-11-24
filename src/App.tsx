@@ -23,13 +23,13 @@ export default function App({ loader = loadShelf, store }: Props) {
   const route = useRoute()
   const [shelf, setShelf] = useState<ShelfState>({ state: 'loading' })
   const [message, setMessage] = useState('')
-  const timer = useRef(0)
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const storeP = useMemo(() => store ?? defaultStore(), [store])
 
   const announce = useCallback((m: string): void => {
-    window.clearTimeout(timer.current)
+    clearTimeout(timer.current)
     setMessage('')
-    timer.current = window.setTimeout(() => setMessage(m), 30)
+    timer.current = setTimeout(() => setMessage(m), 30)
   }, [])
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function App({ loader = loadShelf, store }: Props) {
     })
     return () => {
       live = false
-      window.clearTimeout(timer.current)
+      clearTimeout(timer.current)
     }
   }, [loader, announce])
 

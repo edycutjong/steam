@@ -217,7 +217,7 @@ Rules for every task:
   - Files: `src/app/components/ArchiveSlip.tsx`, `src/app/components/ReadingText.tsx`, `src/app/components/*.test.tsx`, `src/app/app.css`.
   - Satisfies: R3.1 to R3.9, R6.3, R6.4, R25.5.
 
-- [ ] 33. Shelf screen
+- [x] 33. Shelf screen
   - Test first: `src/app/Shelf.test.tsx` (happy-dom, injected loader returning the real bundle read from disk): title, intro line exact, one card with the thumbnail attributes (`loading="lazy"`, width 1601, height 2052, the alt text), title link to `#/r/quinces-marmalade`, slip, buttons "Cook it" and "Watch it at ×12"; no element with text "upload" or "Add a page"; "Cook it" deletes the saved session (fake store) and navigates to `#/r/quinces-marmalade/cook`; "Watch it at ×12" navigates to `…/cook?pace=12`; after leaving, `introSeen` is true and the line is the standing muted one; an empty result shows "No recipe could be loaded."; the opening state shows "Opening the shelf…" in the live region; buttons are at least 48×48 (computed style from the class).
   - Implement `Shelf.tsx`.
   - Files: `src/app/Shelf.tsx`, `src/app/Shelf.test.tsx`, `src/app/app.css`.

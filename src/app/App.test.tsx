@@ -95,6 +95,16 @@ describe('App shell and routes (R1, R15.8, R23.6)', () => {
     await go('#/r/quinces-marmalade/cook')
     expect(document.activeElement).not.toBe(host.querySelector('h1'))
   })
+  it('the live region says "Opening the shelf…" while bundles load', async () => {
+    location.hash = '#/'
+    await act(async () => {
+      root = createRoot(host)
+      root.render(createElement(App, { loader: () => new Promise<never>(() => {}), store: openStore(null) }))
+      await vi.advanceTimersByTimeAsync(100)
+    })
+    await act(async () => { await vi.advanceTimersByTimeAsync(100) }) // the effect that announces runs when the first act exits
+    expect(host.querySelector('[role="status"]')!.textContent).toBe('Opening the shelf…')
+  })
   it('exactly one live region exists', async () => {
     await open('#/')
     expect(host.querySelectorAll('[role="status"], [aria-live]').length).toBe(1)
