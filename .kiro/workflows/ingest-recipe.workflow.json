@@ -1,0 +1,40 @@
+{
+  "name": "ingest-recipe",
+  "description": "Two isolated readers transcribe the line strips of one recipe page in parallel, then a command watch runs the gate (P1-P6) over their files",
+  "inputs": {
+    "recipe": "string"
+  },
+  "steps": [
+    {
+      "type": "parallel",
+      "id": "readers",
+      "joinPolicy": "allSettled",
+      "branches": [
+        {
+          "type": "step",
+          "id": "scribe",
+          "agent": "scribe",
+          "prompt": "Read the recipe {{recipe}}. Its folder is content/recipes/{{recipe}}/. Read content/recipes/{{recipe}}/lines.json and every strip image content/recipes/{{recipe}}/strips/line-<i>.png it lists, then write your reading, steps and judgement notes to content/recipes/{{recipe}}/agent/scribe.json as your instructions describe. Write no other file."
+        },
+        {
+          "type": "step",
+          "id": "second-reader",
+          "agent": "second-reader",
+          "prompt": "Read the recipe {{recipe}}. Its folder is content/recipes/{{recipe}}/. Read content/recipes/{{recipe}}/lines.json and every strip image content/recipes/{{recipe}}/strips/line-<i>.png it lists, then write your transcription to content/recipes/{{recipe}}/agent/second.json as your instructions describe. Write no other file."
+        }
+      ]
+    },
+    {
+      "type": "watch",
+      "id": "gate",
+      "handler": "command",
+      "config": {
+        "command": "npx tsx tools/steam-ingest/cli.ts gate --once",
+        "recipe": "{{recipe}}",
+        "pollIntervalSec": 10,
+        "commandTimeoutSec": 120
+      },
+      "idleTimeoutSec": 600
+    }
+  ]
+}
