@@ -101,7 +101,7 @@ Rules for every task:
 
 ## D. The scheduler and P7
 
-- [ ] 15. Scheduler core: start, deep link, elapsed, scheduled reveal
+- [x] 15. Scheduler core: start, deep link, elapsed, scheduled reveal
   - Test first: `src/cook/scheduler.test.ts`. `start` on a plan whose step 0 has a step-entry note emits `reveal {cause: scheduled}` at the start wall time; with a note due at 60 s at pace 1, a tick at 59 999 ms emits nothing and a tick at 60 000 emits one reveal, and a second tick emits nothing. `deepLink` at step 4 with `leadMs` 10 000: a tick at 9 999 ms emits nothing, at 10 000 ms emits the reveal; with `lead` 0 it emits at once. The hold applies to the initial step only. `elapsedMs` with paces [1 then 4 then 12] equals the sum of pace × dt; a wall time lower than `lastWall` changes nothing; events before the first event, and `start`, `deepLink`, `restore` after it, change nothing but `lastWall`.
   - Implement `initialState`, `reduce` (`start`, `deepLink`, `tick`), `elapsedMs`, `noteState`.
   - Files: `src/cook/scheduler.ts`, `src/cook/scheduler.test.ts`.
