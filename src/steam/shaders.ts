@@ -90,7 +90,7 @@ export function clearCurve(alpha: number, half: number = CLEAR_HALF): number {
 }
 
 /** Ember seen through the clear glass: gain far from the pot, gain at the pot, and the falloff exp(-d^2 K) (D13). */
-export const THROUGH_FAR = 0.3
+export const THROUGH_FAR = 0.4
 export const THROUGH_NEAR = 1.1
 export const THROUGH_K = 1.0
 
@@ -100,12 +100,15 @@ export const STROKE_LUMA_MAX = 0.92
 /** Write-on leading edge: feather = TOI_SOFT * FEATHER_K in toi units, about 9 texels along the hero's path (D15). */
 export const FEATHER_K = 0.8
 
+/** Condensation grain amplitude as a fraction of the fog colour (D16). */
+export const GRAIN_A = 0.08
+
 export const FOG_MAX = 0.94
 export const CH_GAIN = 1.0
 export const RIM_K = 6.0
 export const HEAD_R = 11.0
 export const HEAD_A = 0.42
-export const STREAK_A = 0.1
+export const STREAK_A = 0.12
 /** Streak half-width, CSS px (D10): the visible band is ~10 px. */
 export const STREAK_HALF_CSS = 5.0
 export const SWEEP_SOFT = 0.35
@@ -168,11 +171,14 @@ const float STREAK_HALF = ${STREAK_HALF_CSS.toFixed(1)};
 const float SWEEP_SOFT = ${SWEEP_SOFT.toFixed(2)};
 const float FEATHER_K = ${FEATHER_K.toFixed(2)};
 const float TOI_SOFT = ${TOI_SOFT.toFixed(4)};
-const float RESIDUAL_CLEAR = 0.78;
+const float RESIDUAL_CLEAR = 0.72;
 const float THROUGH_FAR = ${THROUGH_FAR.toFixed(2)};
 const float THROUGH_NEAR = ${THROUGH_NEAR.toFixed(2)};
 const float THROUGH_K = ${THROUGH_K.toFixed(2)};
 const float STROKE_LUMA_MAX = ${STROKE_LUMA_MAX.toFixed(2)};
+const float GRAIN_A = ${GRAIN_A.toFixed(2)};
+const float DROP_CELL_CSS = 26.0;
+const float DROP_KEEP_OUT_CSS = 28.0;
 const float BLOOM_A = 0.26;
 const float CLEAR_MID = ${CLEAR_MID.toFixed(2)};
 const float CLEAR_HALF_THIN = ${CLEAR_HALF_THIN.toFixed(2)};
@@ -196,6 +202,13 @@ vec3 kitchen(vec2 uv) {
   vec3 c = uBg + uAfter * potGlow(uv) * 0.62 * flick;
   c += uAfter * 0.05 * exp(-pow(uv.y - 1.0, 2.0) * 9.0);
   return c;
+}
+
+float vnoise1(float x) {
+  float i = floor(x);
+  float f = fract(x);
+  float u = f * f * (3.0 - 2.0 * f);
+  return mix(hash(vec2(i, 7.7)), hash(vec2(i + 1.0, 7.7)), u);
 }
 
 float edgeMask(vec2 uv) {
@@ -249,8 +262,14 @@ vec3 addBeadsAndStreak(vec3 col, vec2 uv, vec2 fragPx, float fogD) {
   float sv = uv.x * 0.8 + uv.y * 1.2;
   // Perpendicular distance from the streak line in device px, then a soft gaussian falloff.
   float dpx = (sv - 0.55) / length(vec2(0.8 / uRes.x, 1.2 / uRes.y));
-  float streak = exp(-pow(dpx / (STREAK_HALF * uDpr), 2.0)) * (1.0 - smoothstep(0.2, 0.45, uv.y));
-  col = mix(col, uInk, min(streak, STREAK_A));
+  // A run-down streak (D16): the width wanders along its length, the opacity breathes, and both ends fade out.
+  float along = uv.x * 1.2 - uv.y * 0.8;
+  float nw = vnoise1(along * 6.0 + 3.0);
+  float no = vnoise1(along * 11.0 + 40.0);
+  float halfW = STREAK_HALF * uDpr * mix(0.55, 1.45, nw);
+  float streak = exp(-pow(dpx / halfW, 2.0));
+  float ends = smoothstep(0.0, 0.08, uv.y) * (1.0 - smoothstep(0.2, 0.45, uv.y)) * smoothstep(0.02, 0.14, uv.x);
+  col = mix(col, uInk, STREAK_A * streak * ends * mix(0.55, 1.0, no));
 
   // Beads on the bottom rail. Density falls away from the rail.
   float rail = (1.0 - uv.y) / BEAD_ZONE;
@@ -353,9 +372,12 @@ void main() {
   // The ember lights the whole written stroke, faint ink included. Scaling it by clearS let the dark room
   // through partly cleared (faint) ink, which read as dark smudges inside strokes (D9).
   float emberM = smoothstep(0.0, 0.5, clearS);
-  behind += uAfter * CH_GAIN * emberM * anchor;
+  behind += uAfter * CH_GAIN * emberM * anchor * (0.8 + 0.4 * fogD);
 
-  vec3 fog = uBefore * (0.78 + 0.22 * fogD);
+  // Fine static condensation grain (D16), a different speck from pass 1's flicker. Same function everywhere,
+  // so it cannot outline the note.
+  float grain = hash(floor(fragPx / max(1.0, 0.8 * px)) + 91.7) - 0.5;
+  vec3 fog = uBefore * (0.78 + 0.22 * fogD) * (1.0 + GRAIN_A * grain);
   fog = mix(fog, glassEdgeTint(fog), edgeMask(vUv));
   // Fog piles up just outside the edge of written ink.
   float outside = 1.0 - clearS;
@@ -382,6 +404,34 @@ void main() {
       float hg = exp(-dot(dv, dv) / (HEAD_R * HEAD_R));
       col = mix(col, mix(uGhost, uMoon, 0.5), hg * HEAD_A * uHead);
     }
+  }
+
+  // Sparse condensation droplets in the fog, only away from the note: outside every group rect plus a keep-out
+  // margin, outside the hull, and never on a cleared stroke (D16).
+  {
+    float cellD = DROP_CELL_CSS * px;
+    vec2 idD = floor(fragPx / cellD);
+    float hD = hash(idD + 5.3);
+    float hD2 = hash(idD + 61.1);
+    float hD3 = hash(idD + 23.9);
+    float railD = (1.0 - vUv.y) / BEAD_ZONE;
+    float keep = 1.0;
+    for (int i = 0; i < 2; i++) {
+      if (i >= uGroupCount) break;
+      vec4 dst = uGroupDst[i];
+      float m = DROP_KEEP_OUT_CSS * px;
+      if (fragPx.x > dst.x - m && fragPx.x < dst.z + m && fragPx.y > dst.y - m && fragPx.y < dst.w + m) keep = 0.0;
+    }
+    keep *= (1.0 - step(0.01, hullF)) * step(1.0, railD) * (1.0 - step(0.5, clearS));
+    vec2 cD = (idD + 0.2 + 0.6 * vec2(hD2, hD3)) * cellD;
+    float rD = (2.0 + 2.4 * hD2) * px;
+    float dD = length(fragPx - cD);
+    float inD = (1.0 - smoothstep(rD - 0.8 * px, rD, dD)) * step(0.93, hD) * keep;
+    float ringD = smoothstep(rD * 0.55, rD, dD) * inD;
+    col = mix(col, uBg, ringD * 0.5);
+    col = mix(col, col + uAfter * 0.14 * (0.4 + 0.6 * low), inD * (1.0 - ringD) * 0.8);
+    float hlD = exp(-pow(length(fragPx - (cD - vec2(0.35 * rD))) / (0.32 * rD), 2.0)) * inD;
+    col += mix(uGhost, uMoon, 0.6) * 0.4 * hlD;
   }
 
   col = addBeadsAndStreak(col, vUv, fragPx, fogD);

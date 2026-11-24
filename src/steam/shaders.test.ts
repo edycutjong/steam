@@ -19,7 +19,7 @@ describe('composite constants', () => {
     // Pot at (0.5, 1.18); the top centre of the pane is 1.18 away, the bottom centre 0.18.
     const gain = (d: number): number => THROUGH_FAR + (THROUGH_NEAR - THROUGH_FAR) * Math.exp(-d * d * THROUGH_K)
     expect(gain(0.18)).toBeGreaterThan(gain(1.18) * 1.8)
-    expect(gain(1.18)).toBeLessThan(0.55)
+    expect(gain(1.18)).toBeLessThan(0.6)
   })
   it('makes the edge crisper in thick fog than in thin fog (D13)', () => {
     expect(CLEAR_HALF_THICK).toBeLessThan(CLEAR_HALF_THIN)
