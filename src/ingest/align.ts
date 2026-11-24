@@ -138,3 +138,78 @@ export function noteAlignment(parts: PartAlignment[]): NoteAlignment {
   for (const p of partial) if (RANK[p.method] < RANK[weakest]) weakest = p.method
   return { alignment: weakest, granularity: weakest === 'lines' ? 'lines' : 'words' }
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Scoring against the hero fixture (R20). The fixture boxes are read only here and cut no pixel.
+
+export interface FixtureWord {
+  word: string
+  box: [number, number, number, number]
+}
+
+const norm = (w: string): string => w.toLowerCase().replace(/[.,;:!?]+$/, '')
+
+/** Index in `shown` tokens where the fixture words start, matched in order ignoring case and trailing punctuation (R20.1). */
+export function matchFixtureWords(shownText: string, words: FixtureWord[]): number | null {
+  const t = shownText.split(/\s+/).filter(Boolean).map(norm)
+  const f = words.map((w) => norm(w.word))
+  for (let s = 0; s + f.length <= t.length; s++) if (f.every((w, k) => t[s + k] === w)) return s
+  return null
+}
+
+export interface WordScore {
+  word: string
+  recall: number
+  precision: number
+  rawPx: number
+  maskPx: number
+}
+export interface FixtureScore {
+  words: WordScore[]
+  /** |rawInk ∩ ∪boxes ∩ lit| / |rawInk ∩ ∪boxes| (R27.4). */
+  recall: number
+}
+
+/**
+ * `raw` is the fixture frame's rawInk; `lit(x, y)` says whether the shipped note has alpha > 0 at a fixture-frame pixel;
+ * `maskWords` lists the note's mask pixels in the fixture frame with their word number in `shownText`.
+ * Box j is compared with shown word `offset + j`.
+ */
+export function scoreAgainstFixture(
+  raw: Uint8Array,
+  width: number,
+  words: FixtureWord[],
+  offset: number,
+  lit: (x: number, y: number) => boolean,
+  maskWords: { x: number; y: number; word: number }[],
+): FixtureScore {
+  const inBox = (b: [number, number, number, number], x: number, y: number) => x >= b[0] && x < b[2] && y >= b[1] && y < b[3]
+  const scores: WordScore[] = words.map((w, j) => {
+    let rawPx = 0
+    let kept = 0
+    const [x0, y0, x1, y1] = w.box
+    for (let y = y0; y < y1; y++)
+      for (let x = x0; x < x1; x++)
+        if (raw[y * width + x]) {
+          rawPx++
+          if (lit(x, y)) kept++
+        }
+    const mine = maskWords.filter((p) => p.word === offset + j)
+    const inside = mine.filter((p) => inBox(w.box, p.x, p.y)).length
+    return { word: w.word, recall: rawPx ? kept / rawPx : 0, precision: mine.length ? inside / mine.length : 0, rawPx, maskPx: mine.length }
+  })
+  // union of boxes
+  let tot = 0
+  let kept = 0
+  const xs0 = Math.min(...words.map((w) => w.box[0]))
+  const ys0 = Math.min(...words.map((w) => w.box[1]))
+  const xs1 = Math.max(...words.map((w) => w.box[2]))
+  const ys1 = Math.max(...words.map((w) => w.box[3]))
+  for (let y = ys0; y < ys1; y++)
+    for (let x = xs0; x < xs1; x++) {
+      if (!raw[y * width + x] || !words.some((w) => inBox(w.box, x, y))) continue
+      tot++
+      if (lit(x, y)) kept++
+    }
+  return { words: scores, recall: tot ? kept / tot : 0 }
+}

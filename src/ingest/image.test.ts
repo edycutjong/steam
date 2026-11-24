@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { crop, pixelSha256, resampleArea, rotate, scaleOf, toGray, type Gray, type Rgba } from './image.ts'
+import { crop, pixelSha256, resampleArea, rotate, rotatedPoint, scaleOf, toGray, type Gray, type Rgba } from './image.ts'
 
 const rgba = (w: number, h: number, f: (x: number, y: number) => [number, number, number, number]): Rgba => {
   const data = new Uint8Array(w * h * 4)
@@ -87,5 +87,20 @@ describe('rotate', () => {
     }
     expect(rowOf(150)).toBeGreaterThan(rowOf(50))
     expect((rowOf(150) - rowOf(50)) / 100).toBeCloseTo(Math.tan((10 * Math.PI) / 180), 1)
+  })
+})
+
+describe('rotatedPoint', () => {
+  it('is where rotate() moves a dark source pixel', () => {
+    const g = gray(101, 81, (x, y) => (x === 80 && y === 20 ? 0 : 255))
+    for (const deg of [-3, 1.6, 4]) {
+      const r = rotate(g, deg)
+      let best = 0
+      for (let i = 0; i < r.data.length; i++) if (r.data[i]! < r.data[best]!) best = i
+      const [px, py] = rotatedPoint(80, 20, deg, 101, 81)
+      expect(Math.abs(px - (best % 101))).toBeLessThanOrEqual(1)
+      expect(Math.abs(py - Math.floor(best / 101))).toBeLessThanOrEqual(1)
+    }
+    expect(rotatedPoint(3, 4, 0, 10, 10)).toEqual([3, 4])
   })
 })

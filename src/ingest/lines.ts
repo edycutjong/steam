@@ -250,10 +250,10 @@ export interface Region {
 
 /**
  * R5.3, R5.4. The block with the most lines (the first on a tie), or the `block`-th (0-based, top to bottom) when a
- * curator names one. Rows run from the block's first ink row to its last, extended by P/2 and clipped at the rules.
- * `rowInk` is the per-row ink count of the page's line-finding ink.
+ * curator names one. Rows run from the core band top of the block's first line to the core band bottom of its last
+ * line, extended by P/2, and clipped at the neighbouring rules. Half-open [y0, y1).
  */
-export function chooseRegion(blocks: Block[], rowInk: Float64Array, pitch: number, block?: number): Region {
+export function chooseRegion(blocks: Block[], lines: FoundLine[], pitch: number, block?: number): Region {
   if (blocks.length === 0) throw new Error('no block of lines found on the page')
   let bi = 0
   if (block !== undefined) {
@@ -261,16 +261,14 @@ export function chooseRegion(blocks: Block[], rowInk: Float64Array, pitch: numbe
     bi = block
   } else blocks.forEach((b, i) => (b.lineIdx.length > blocks[bi]!.lineIdx.length ? (bi = i) : undefined))
   const b = blocks[bi]!
-  let top = b.yMin
-  while (top <= b.yMax && !rowInk[top]) top++
-  let bot = b.yMax
-  while (bot >= top && !rowInk[bot]) bot--
+  const first = lines[b.lineIdx[0]!]!
+  const last = lines[b.lineIdx[b.lineIdx.length - 1]!]!
   const half = Math.round(pitch / 2)
   return {
     blockIndex: bi,
     selectedBy: block === undefined ? 'default' : 'curator',
-    y0: Math.max(b.yMin, top - half),
-    y1: Math.min(b.yMax + 1, bot + 1 + half),
+    y0: Math.max(b.yMin, first.core[0] - half),
+    y1: Math.min(b.yMax + 1, last.core[1] + 1 + half),
   }
 }
 

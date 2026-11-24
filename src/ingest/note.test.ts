@@ -48,7 +48,7 @@ function wordBoundaries(p: ReturnType<typeof page>, line: number, s: number) {
 function build(p: ReturnType<typeof page>, parts: BuiltPart[], s = 0.2) {
   return buildNote({
     noteId: 'n', step: 1, span: 'x', shownText: 'x', granularity: 'words', alignment: 'auto', credit: 'Wellcome Collection',
-    scan: p.scan, gray: p.gray, raw: p.raw, own: p.own, bands: p.bands, s, resampled: false, parts,
+    scan: p.scan, gray: p.gray, raw: p.raw, pageInk: p.ink, own: p.own, bands: p.bands, s, resampled: false, parts,
     ownership: noteOwnership(p.own, p.labels, 'n', noteMask(p.own, p.bands, s, parts)),
   })
 }
@@ -172,7 +172,7 @@ describe('buildNote (R21)', () => {
     expect(q.ink[hy * q.c.w + hx]).toBe(0)
     const withFaint = buildNote({
       noteId: 'n', step: 1, span: 'x', shownText: 'x', granularity: 'words', alignment: 'auto', credit: 'c',
-      scan: faint.scan, gray: faint.gray, raw: q.raw, own: q.own, bands: q.bands, s: 0.2, resampled: false, parts: [part(1, 1, 2, bq)],
+      scan: faint.scan, gray: faint.gray, raw: q.raw, pageInk: q.ink, own: q.own, bands: q.bands, s: 0.2, resampled: false, parts: [part(1, 1, 2, bq)],
       ownership: noteOwnership(q.own, q.labels, 'n', plain.mask),
     })
     const a = withFaint.png.data[((hy - withFaint.pageBox[1]) * withFaint.png.width + hx - withFaint.pageBox[0]) * 4 + 3]!

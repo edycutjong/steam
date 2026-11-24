@@ -122,3 +122,31 @@ export function pixelSha256(img: Rgba): string {
   buf.set(img.data, 8)
   return sha256Hex(buf)
 }
+
+/** `rotate` applied to every channel of an RGBA image; alpha is rotated too and padded opaque. */
+export function rotateRgba(img: Rgba, deg: number, fill: [number, number, number] = [255, 255, 255]): Rgba {
+  if (deg === 0) return { ...img, data: img.data.slice() }
+  const n = img.width * img.height
+  const out = new Uint8Array(n * 4)
+  for (let c = 0; c < 4; c++) {
+    const ch = new Uint8Array(n)
+    for (let i = 0; i < n; i++) ch[i] = img.data[i * 4 + c]!
+    const r = rotate({ width: img.width, height: img.height, data: ch }, deg, c === 3 ? 255 : fill[c]!)
+    for (let i = 0; i < n; i++) out[i * 4 + c] = r.data[i]!
+  }
+  return { width: img.width, height: img.height, data: out }
+}
+
+/**
+ * Where a source pixel (x, y) lands in `rotate(g, deg)` (the inverse of the sampling map used there).
+ * Used to carry fixture-frame coordinates into the analysis frame after an applied deskew.
+ */
+export function rotatedPoint(x: number, y: number, deg: number, width: number, height: number): [number, number] {
+  if (deg === 0) return [x, y]
+  const a = (deg * Math.PI) / 180
+  const cx = (width - 1) / 2
+  const cy = (height - 1) / 2
+  const ax = x - cx
+  const ay = y - cy
+  return [cx + ax * Math.cos(a) - ay * Math.sin(a), cy + ax * Math.sin(a) + ay * Math.cos(a)]
+}

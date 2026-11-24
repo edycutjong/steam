@@ -164,7 +164,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/props.ts`, `src/ingest/props.test.ts`.
   - Satisfies: R26.1 to R26.3, R13.4.
 
-- [ ] 28. P4: fidelity, recall and the p0c replay
+- [x] 28. P4: fidelity, recall and the p0c replay
   - Test first: `fidelity.prop.test.ts` (P4 a to c); `fidelity.test.ts` replays each box of `fixtures/p0c-eyeread-boxes.json` as a note mask over `fixtures/p0033.jpg` ink and expects `checkP4` to fail for the boxes that overlap a neighbouring line; `scoreAgainstFixture` on a synthetic mask gives per-word recall and precision; `recallThreshold` is read from the fixture; fixture boxes are never used to cut pixels.
   - Implement `checkP4`, `scoreAgainstFixture` in `src/ingest/props.ts` and `src/ingest/align.ts`.
   - Files: `src/ingest/props.ts`, `src/ingest/align.ts`, `src/ingest/fidelity.prop.test.ts`, `src/ingest/fidelity.test.ts`.

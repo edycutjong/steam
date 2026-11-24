@@ -300,6 +300,8 @@ export interface NoteBuildInput {
   gray: Gray
   /** `gray < T_sauvola` over the page (R6.3). */
   raw: Uint8Array
+  /** Every binarised ink pixel of the page, owned or not (R6.2): what faint pixels must keep 1 px away from. */
+  pageInk: Uint8Array
   own: Ownership
   bands: Bands
   s: number
@@ -431,7 +433,7 @@ export function buildNote(inp: NoteBuildInput): BuiltNote {
   const gray: Gray = { width: cw, height: ch, data: cropOf(inp.gray.data) }
   const m = cropOf(mask)
   const inkC = new Uint8Array(cw * ch)
-  for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) inkC[y * cw + x] = own.owner[(y + py0) * W + x + px0]! >= 0 ? 1 : 0
+  for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) inkC[y * cw + x] = own.owner[(y + py0) * W + x + px0]! >= 0 || inp.pageInk[(y + py0) * W + x + px0] ? 1 : 0
   const other = new Uint8Array(cw * ch)
   for (let i = 0; i < other.length; i++) other[i] = inkC[i]! && !m[i] ? 1 : 0
   const near1 = dilate(other, cw, ch, 1)
