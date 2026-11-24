@@ -255,7 +255,7 @@ Rules for every task:
   - Files: `src/app/useCookSession.ts`, `src/app/useCookSession.test.tsx`, `src/cook/clock.ts`.
   - Satisfies: R12.7, R18.2, R18.4, R18.5, R19.1, R19.3, R19.5, R26.4, R9.5.
 
-- [ ] 39. Step panel and timer
+- [x] 39. Step panel and timer
   - Test first: `StepPanel.test.tsx`: shows "Step 4 of 5" and the step text built from `lines[lineIdx[]]` with marks; the text node has the class that sets at least 24 px and, under the 1025 px media rule, at least 34 px (read from the CSS text); the panel has a focusable, labelled scroll region. `CountUpTimer.test.tsx`: the display equals `formatElapsed(elapsedMs(...))` for the fake clock; after a simulated 3-hour freeze the first render shows the full time; the colour class is `--muted` except with a pending reveal due within 10 s of wall time at any pace; `role="timer"` and no live announcement.
   - Implement `StepPanel.tsx`, `CountUpTimer.tsx`.
   - Files: `src/app/components/StepPanel.tsx`, `src/app/components/CountUpTimer.tsx`, `src/app/components/*.test.tsx`, `src/app/cook.css`.
