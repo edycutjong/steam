@@ -17,7 +17,8 @@
     "ingest:gate": "tsx tools/steam-ingest/cli.ts gate quinces-marmalade",
     "props": "tsx tools/steam-ingest/cli.ts gate --all --verify",
     "catalog": "tsx tools/steam-ingest/cli.ts catalog",
-    "steam-ingest": "tsx tools/steam-ingest/cli.ts"
+    "steam-ingest": "tsx tools/steam-ingest/cli.ts",
+    "measure:ingest": "tsx scripts/measure-ingest.ts"
   },
   "dependencies": {
     "@fontsource/dm-mono": "^5.3.0",

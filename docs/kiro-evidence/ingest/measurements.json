@@ -31,6 +31,716 @@
     "slant": 0.8,
     "source": "steam-ingest fetch quinces-marmalade --fallback-to-fixture (live API answered), then segment quinces-marmalade, then segment --block 1"
   },
+  "gate": {
+    "automaticOwnership": {
+      "alignment": [
+        {
+          "alignment": "auto",
+          "granularity": "words",
+          "note": "full-ripe",
+          "parts": [
+            {
+              "auto": "accepted: 7 boundaries",
+              "line": 1,
+              "method": "auto",
+              "s": 0.8
+            }
+          ]
+        },
+        {
+          "alignment": "lines",
+          "granularity": "lines",
+          "note": "when-tender",
+          "parts": [
+            {
+              "auto": "alignment ambiguous: 6th widest run 12, next 12, 1.5 x median of the rest 8.5 = 12.75",
+              "line": 7,
+              "method": "lines",
+              "s": 0.8
+            },
+            {
+              "auto": "accepted: 7 boundaries",
+              "line": 8,
+              "method": "auto",
+              "s": 0.8
+            }
+          ]
+        },
+        {
+          "alignment": "lines",
+          "granularity": "lines",
+          "note": "looks-red-smooth",
+          "parts": [
+            {
+              "auto": "alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 8 = 12",
+              "line": 9,
+              "method": "lines",
+              "s": 0.8
+            },
+            {
+              "auto": "alignment ambiguous: 6th widest run 15, next 15, 1.5 x median of the rest 11 = 16.5",
+              "line": 10,
+              "method": "lines",
+              "s": 0.8
+            }
+          ]
+        }
+      ],
+      "contrast": [
+        {
+          "crops": [
+            {
+              "contrast": 85,
+              "crop": "full-ripe",
+              "size": [
+                236,
+                114
+              ]
+            },
+            {
+              "contrast": 84,
+              "crop": "full-ripe/line 1",
+              "size": [
+                172,
+                50
+              ]
+            }
+          ],
+          "note": "full-ripe"
+        },
+        {
+          "crops": [
+            {
+              "contrast": 84,
+              "crop": "when-tender",
+              "size": [
+                1475,
+                219
+              ]
+            },
+            {
+              "contrast": 84,
+              "crop": "when-tender/line 7",
+              "size": [
+                1221,
+                95
+              ]
+            },
+            {
+              "contrast": 85,
+              "crop": "when-tender/line 8",
+              "size": [
+                1387,
+                85
+              ]
+            }
+          ],
+          "note": "when-tender"
+        },
+        {
+          "crops": [
+            {
+              "contrast": 84,
+              "crop": "looks-red-smooth",
+              "size": [
+                1276,
+                215
+              ]
+            },
+            {
+              "contrast": 84,
+              "crop": "looks-red-smooth/line 9",
+              "size": [
+                1212,
+                71
+              ]
+            },
+            {
+              "contrast": 86,
+              "crop": "looks-red-smooth/line 10",
+              "size": [
+                1173,
+                95
+              ]
+            }
+          ],
+          "note": "looks-red-smooth"
+        }
+      ],
+      "goldCheck": {
+        "differing": [],
+        "equal": 11,
+        "informational": true,
+        "of": 11
+      },
+      "litPx": {
+        "notes/note-full-ripe.png": 3109,
+        "notes/note-looks-red-smooth.png": 43546,
+        "notes/note-when-tender.png": 44941
+      },
+      "ownership": {
+        "autoPass": 0,
+        "reviewedPass": 0
+      },
+      "pathCoverage": [
+        {
+          "note": "full-ripe",
+          "pathPx": 295,
+          "skeletonPx": 295
+        },
+        {
+          "note": "when-tender",
+          "pathPx": 5015,
+          "skeletonPx": 5015
+        },
+        {
+          "note": "looks-red-smooth",
+          "pathPx": 4774,
+          "skeletonPx": 4774
+        }
+      ],
+      "recall": [
+        {
+          "automatic": {
+            "notUsed": "line 9: alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 8 = 12; line 10: alignment ambiguous: 6th widest run 15, next 15, 1.5 x median of the rest 11 = 16.5",
+            "rejectedCandidate": {
+              "boundaries": [
+                {
+                  "boundaries": [
+                    320,
+                    356,
+                    649,
+                    948,
+                    1088,
+                    1230,
+                    1265,
+                    1298
+                  ],
+                  "line": 9
+                },
+                {
+                  "boundaries": [
+                    430,
+                    634,
+                    805,
+                    1039,
+                    1096,
+                    1382
+                  ],
+                  "line": 10
+                }
+              ],
+              "recall": 0.8177029804727647,
+              "words": [
+                {
+                  "maskPx": 138,
+                  "precision": 0,
+                  "rawPx": 1107,
+                  "recall": 0,
+                  "word": "till"
+                },
+                {
+                  "maskPx": 300,
+                  "precision": 0.15,
+                  "rawPx": 309,
+                  "recall": 0.6051779935275081,
+                  "word": "it"
+                },
+                {
+                  "maskPx": 2373,
+                  "precision": 0.9852507374631269,
+                  "rawPx": 2650,
+                  "recall": 0.929811320754717,
+                  "word": "Looks"
+                },
+                {
+                  "maskPx": 1005,
+                  "precision": 0.8069651741293532,
+                  "rawPx": 828,
+                  "recall": 1,
+                  "word": "red"
+                },
+                {
+                  "maskPx": 1403,
+                  "precision": 0.39344262295081966,
+                  "rawPx": 566,
+                  "recall": 0.9929328621908127,
+                  "word": "&"
+                },
+                {
+                  "maskPx": 1773,
+                  "precision": 0.8584320360970107,
+                  "rawPx": 2324,
+                  "recall": 1,
+                  "word": "smooth"
+                }
+              ]
+            }
+          },
+          "frame": "fixture frame; shipped alpha looked up through the applied deskew rotation (1.6 deg, nearest pixel)",
+          "note": "looks-red-smooth",
+          "shipped": {
+            "alignment": "lines",
+            "recall": 0.9802158273381295,
+            "words": [
+              {
+                "maskPx": 0,
+                "precision": null,
+                "rawPx": 1107,
+                "recall": 0.981029810298103,
+                "word": "till"
+              },
+              {
+                "maskPx": 0,
+                "precision": null,
+                "rawPx": 309,
+                "recall": 0.6051779935275081,
+                "word": "it"
+              },
+              {
+                "maskPx": 0,
+                "precision": null,
+                "rawPx": 2650,
+                "recall": 0.9973584905660378,
+                "word": "Looks"
+              },
+              {
+                "maskPx": 0,
+                "precision": null,
+                "rawPx": 828,
+                "recall": 1,
+                "word": "red"
+              },
+              {
+                "maskPx": 0,
+                "precision": null,
+                "rawPx": 566,
+                "recall": 0.9929328621908127,
+                "word": "&"
+              },
+              {
+                "maskPx": 0,
+                "precision": null,
+                "rawPx": 2324,
+                "recall": 1,
+                "word": "smooth"
+              }
+            ]
+          },
+          "threshold": 0.85
+        }
+      ],
+      "results": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": true,
+        "P5": true,
+        "P6": true
+      },
+      "reviewed": [],
+      "segmentSplits": 16,
+      "splitShares": [
+        {
+          "flagged": [
+            1794062
+          ],
+          "maskPx": 1545,
+          "note": "full-ripe",
+          "share": 0.22006472491909385,
+          "splitPx": 340,
+          "status": "failed"
+        },
+        {
+          "flagged": [
+            2287181,
+            2324313,
+            2551877
+          ],
+          "maskPx": 20887,
+          "note": "when-tender",
+          "share": 0.049600229808014554,
+          "splitPx": 1036,
+          "status": "failed"
+        },
+        {
+          "flagged": [
+            2551877,
+            2658036,
+            2765987
+          ],
+          "maskPx": 20819,
+          "note": "looks-red-smooth",
+          "share": 0.10932321437148758,
+          "splitPx": 2276,
+          "status": "failed"
+        }
+      ],
+      "state": "fail"
+    },
+    "deskewApplied": true,
+    "deskewDeg": 1.6,
+    "lineCount": 12,
+    "readers": [
+      "fallback"
+    ],
+    "reviewedOwnership": {
+      "alignment": [
+        {
+          "alignment": "auto",
+          "granularity": "words",
+          "note": "full-ripe",
+          "parts": [
+            {
+              "auto": "accepted: 7 boundaries",
+              "line": 1,
+              "method": "auto",
+              "s": 0.8
+            }
+          ]
+        },
+        {
+          "alignment": "auto",
+          "granularity": "words",
+          "note": "when-tender",
+          "parts": [
+            {
+              "auto": "accepted: 6 boundaries",
+              "line": 7,
+              "method": "auto",
+              "s": 0.8
+            },
+            {
+              "auto": "accepted: 7 boundaries",
+              "line": 8,
+              "method": "auto",
+              "s": 0.8
+            }
+          ]
+        },
+        {
+          "alignment": "lines",
+          "granularity": "lines",
+          "note": "looks-red-smooth",
+          "parts": [
+            {
+              "auto": "alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 9 = 13.5",
+              "line": 9,
+              "method": "lines",
+              "s": 0.8
+            },
+            {
+              "auto": "alignment ambiguous: 6th widest run 15, next 15, 1.5 x median of the rest 11 = 16.5",
+              "line": 10,
+              "method": "lines",
+              "s": 0.8
+            }
+          ]
+        }
+      ],
+      "contrast": [
+        {
+          "crops": [
+            {
+              "contrast": 82,
+              "crop": "full-ripe",
+              "size": [
+                236,
+                144
+              ]
+            },
+            {
+              "contrast": 82,
+              "crop": "full-ripe/line 1",
+              "size": [
+                172,
+                80
+              ]
+            }
+          ],
+          "note": "full-ripe"
+        },
+        {
+          "crops": [
+            {
+              "contrast": 111,
+              "crop": "when-tender",
+              "size": [
+                1475,
+                170
+              ]
+            },
+            {
+              "contrast": 90,
+              "crop": "when-tender/line 7",
+              "size": [
+                126,
+                77
+              ]
+            },
+            {
+              "contrast": null,
+              "crop": "when-tender/line 8",
+              "reason": "no background",
+              "size": [
+                1,
+                10
+              ]
+            }
+          ],
+          "note": "when-tender"
+        },
+        {
+          "crops": [
+            {
+              "contrast": 84,
+              "crop": "looks-red-smooth",
+              "size": [
+                1276,
+                215
+              ]
+            },
+            {
+              "contrast": 84,
+              "crop": "looks-red-smooth/line 9",
+              "size": [
+                1212,
+                71
+              ]
+            },
+            {
+              "contrast": 85,
+              "crop": "looks-red-smooth/line 10",
+              "size": [
+                1173,
+                99
+              ]
+            }
+          ],
+          "note": "looks-red-smooth"
+        }
+      ],
+      "goldCheck": {
+        "differing": [],
+        "equal": 11,
+        "informational": true,
+        "of": 11
+      },
+      "litPx": {
+        "notes/note-full-ripe.png": 3594,
+        "notes/note-looks-red-smooth.png": 43546,
+        "notes/note-when-tender.png": 2630
+      },
+      "ownership": {
+        "autoPass": 1,
+        "reviewedPass": 2
+      },
+      "pathCoverage": [
+        {
+          "note": "full-ripe",
+          "pathPx": 366,
+          "skeletonPx": 366
+        },
+        {
+          "note": "when-tender",
+          "pathPx": 287,
+          "skeletonPx": 287
+        },
+        {
+          "note": "looks-red-smooth",
+          "pathPx": 4784,
+          "skeletonPx": 4784
+        }
+      ],
+      "recall": [
+        {
+          "automatic": {
+            "notUsed": "line 9: alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 9 = 13.5; line 10: alignment ambiguous: 6th widest run 15, next 15, 1.5 x median of the rest 11 = 16.5",
+            "rejectedCandidate": {
+              "boundaries": [
+                {
+                  "boundaries": [
+                    320,
+                    356,
+                    649,
+                    948,
+                    1088,
+                    1230,
+                    1265,
+                    1298
+                  ],
+                  "line": 9
+                },
+                {
+                  "boundaries": [
+                    430,
+                    634,
+                    805,
+                    1039,
+                    1096,
+                    1382
+                  ],
+                  "line": 10
+                }
+              ],
+              "recall": 0.8177029804727647,
+              "words": [
+                {
+                  "maskPx": 138,
+                  "precision": 0,
+                  "rawPx": 1107,
+                  "recall": 0,
+                  "word": "till"
+                },
+                {
+                  "maskPx": 300,
+                  "precision": 0.15,
+                  "rawPx": 309,
+                  "recall": 0.6051779935275081,
+                  "word": "it"
+                },
+                {
+                  "maskPx": 2373,
+                  "precision": 0.9852507374631269,
+                  "rawPx": 2650,
+                  "recall": 0.929811320754717,
+                  "word": "Looks"
+                },
+                {
+                  "maskPx": 1190,
+                  "precision": 0.6815126050420168,
+                  "rawPx": 828,
+                  "recall": 1,
+                  "word": "red"
+                },
+                {
+                  "maskPx": 1403,
+                  "precision": 0.39344262295081966,
+                  "rawPx": 566,
+                  "recall": 0.9929328621908127,
+                  "word": "&"
+                },
+                {
+                  "maskPx": 1773,
+                  "precision": 0.8584320360970107,
+                  "rawPx": 2324,
+                  "recall": 1,
+                  "word": "smooth"
+                }
+              ]
+            }
+          },
+          "frame": "fixture frame; shipped alpha looked up through the applied deskew rotation (1.6 deg, nearest pixel)",
+          "note": "looks-red-smooth",
+          "shipped": {
+            "alignment": "lines",
+            "recall": 0.9802158273381295,
+            "words": [
+              {
+                "maskPx": 0,
+                "precision": null,
+                "rawPx": 1107,
+                "recall": 0.981029810298103,
+                "word": "till"
+              },
+              {
+                "maskPx": 0,
+                "precision": null,
+                "rawPx": 309,
+                "recall": 0.6051779935275081,
+                "word": "it"
+              },
+              {
+                "maskPx": 0,
+                "precision": null,
+                "rawPx": 2650,
+                "recall": 0.9973584905660378,
+                "word": "Looks"
+              },
+              {
+                "maskPx": 0,
+                "precision": null,
+                "rawPx": 828,
+                "recall": 1,
+                "word": "red"
+              },
+              {
+                "maskPx": 0,
+                "precision": null,
+                "rawPx": 566,
+                "recall": 0.9929328621908127,
+                "word": "&"
+              },
+              {
+                "maskPx": 0,
+                "precision": null,
+                "rawPx": 2324,
+                "recall": 1,
+                "word": "smooth"
+              }
+            ]
+          },
+          "threshold": 0.85
+        }
+      ],
+      "results": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true,
+        "P5": false,
+        "P6": true
+      },
+      "reviewed": [
+        {
+          "components": 1,
+          "note": "full-ripe",
+          "reviewer": "Kiro (agent), turn-18"
+        },
+        {
+          "components": 3,
+          "note": "looks-red-smooth",
+          "reviewer": "Kiro (agent), turn-18"
+        }
+      ],
+      "segmentSplits": 16,
+      "splitShares": [
+        {
+          "flagged": [
+            1794062
+          ],
+          "maskPx": 1545,
+          "note": "full-ripe",
+          "share": 0.22006472491909385,
+          "splitPx": 340,
+          "status": "reviewed"
+        },
+        {
+          "flagged": [],
+          "maskPx": 1362,
+          "note": "when-tender",
+          "share": 0,
+          "splitPx": 0,
+          "status": "auto"
+        },
+        {
+          "flagged": [
+            2551877,
+            2658036,
+            2765987
+          ],
+          "maskPx": 20819,
+          "note": "looks-red-smooth",
+          "share": 0.10932321437148758,
+          "splitPx": 2276,
+          "status": "reviewed"
+        }
+      ],
+      "state": "fail"
+    },
+    "slant": 0.8,
+    "source": "npx tsx scripts/measure-ingest.ts quinces-marmalade (pure runGate in memory on content/recipes/quinces-marmalade)"
+  },
   "segment": {
     "blockCount": 2,
     "blockIndex": 1,

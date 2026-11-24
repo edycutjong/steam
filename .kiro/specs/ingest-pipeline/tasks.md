@@ -265,7 +265,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `content/recipes/quinces-marmalade/ownership-review.json`.
   - Satisfies: R13.1 to R13.7.
 
-- [ ] 45. Measurements and evidence
+- [x] 45. Measurements and evidence
   - Add `scripts/measure-ingest.ts` (reproducible) that writes the per-stage figures to `docs/kiro-evidence/ingest/measurements.json`: line count, splits, split shares, alignment outcome, recall, path coverage, contrast. No figure is written by hand.
   - Add `docs/kiro-evidence/ingest/README.md` listing each figure and the command that produced it (numbers copied from the JSON only).
   - Files: `scripts/measure-ingest.ts`, `docs/kiro-evidence/ingest/`.
