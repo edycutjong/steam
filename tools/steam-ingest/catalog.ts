@@ -2,7 +2,7 @@
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
-import { Fallback, Gate, Merged, NoteJson, Review, Scribe, Source, Timing, type Catalog, type RecipeBundle } from '../../src/data/schema.ts'
+import { Fallback, Gate, Lines, Merged, NoteJson, Review, Scribe, Source, Timing, type Catalog, type RecipeBundle } from '../../src/data/schema.ts'
 import { buildRecipeBundle, personaWords } from '../../src/ingest/bundle.ts'
 import { pixelSha256 } from '../../src/ingest/image.ts'
 import { PROPS_VERSION } from '../../src/ingest/props.ts'
@@ -52,13 +52,16 @@ export function verifyRecipe(root: string, id: string): Verdict {
   if (failed.length) return refuse(`notes ${failed.map((n) => n.noteId).join(', ')} have flagged components without a review decision`)
   const gateSha256 = sha256(gateBytes)
   const fallback = gate.readers?.[0] === 'fallback'
+  let review: { reviewedBy: string; reviewedAt: string } | undefined
   if (!fallback) {
     const rp = join(dir, 'review.json')
     if (!existsSync(rp)) return refuse('agent-transcribed recipe without review.json')
     const rv = Review.safeParse(JSON.parse(readFileSync(rp, 'utf8')))
     if (!rv.success) return refuse(`review.json invalid: ${rv.error.issues[0]?.path.join('.')}: ${rv.error.issues[0]?.message}`)
     if (rv.data.gateSha256 !== gateSha256) return refuse('review.json reviewed another gate.json (gateSha256 mismatch)')
+    review = { reviewedBy: rv.data.reviewedBy, reviewedAt: rv.data.reviewedAt }
   }
+  const lines = Lines.parse(JSON.parse(readFileSync(join(dir, 'lines.json'), 'utf8')))
   const source = Source.parse(JSON.parse(readFileSync(join(dir, 'source.json'), 'utf8')))
   const merged = Merged.parse(JSON.parse(readFileSync(join(dir, 'merged.json'), 'utf8')))
   const reader = fallback ? Fallback.parse(JSON.parse(readFileSync(join(dir, 'fallback/reading.json'), 'utf8'))) : Scribe.parse(JSON.parse(readFileSync(join(dir, 'agent/scribe.json'), 'utf8')))
@@ -70,6 +73,7 @@ export function verifyRecipe(root: string, id: string): Verdict {
   const timing = existsSync(tp) ? Timing.parse(JSON.parse(readFileSync(tp, 'utf8'))) : undefined
   const b = buildRecipeBundle({
     id, title: reader.title, source, gate, gateSha256, merged, steps: reader.steps, notes, timing,
+    frame: lines.frame, deskew: { deg: lines.deskewDeg, applied: lines.deskewApplied }, ...(review ? { review } : {}),
     ...(fallback ? { by: (reader as Fallback).by } : {}),
   })
   if (!b.ok) return refuse(b.error)

@@ -133,6 +133,12 @@
       "splitStatus": "reviewed",
       "step": 1,
       "verifyApproximate": true,
+      "verifyBox": [
+        835.2181963202376,
+        1077.1250979972042,
+        405.1994317720588,
+        167.13575507444648
+      ],
       "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:52.1685,52.4915,25.3091,8.1450/full/0/default.jpg"
     },
     {
@@ -226,6 +232,12 @@
       "splitStatus": "reviewed",
       "step": 5,
       "verifyApproximate": true,
+      "verifyBox": [
+        277.96092611550836,
+        1585.7872700901758,
+        1254.7060686030268,
+        220.8295298019666
+      ],
       "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:17.3617,77.2801,78.3701,10.7617/full/0/default.jpg"
     },
     {
@@ -319,6 +331,12 @@
       "splitStatus": "auto",
       "step": 4,
       "verifyApproximate": true,
+      "verifyBox": [
+        264.5136022777156,
+        1458.3621176217498,
+        1291.6916428595198,
+        221.862630434739
+      ],
       "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:16.5218,71.0703,80.6803,10.8120/full/0/default.jpg"
     }
   ],
@@ -338,10 +356,25 @@
     ],
     "reviewedPass": 2
   },
+  "review": {
+    "reviewedAt": "2026-11-25",
+    "reviewedBy": "Claude Code builder agent (autopilot P1b), not a human"
+  },
   "source": {
+    "canvas": {
+      "height": 4737,
+      "id": "https://iiif.wellcomecollection.org/presentation/b18419665/canvases/b18419665_MS_1810_0033.JP2",
+      "width": 3695
+    },
     "canvasIndex": 32,
     "credit": "Wellcome Collection",
     "date": "c. 1750 (IIIF manifest)",
+    "frame": {
+      "height": 2052,
+      "scaleX": 1,
+      "scaleY": 1,
+      "width": 1601
+    },
     "imageService": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2",
     "institution": "Wellcome Collection",
     "licence": {

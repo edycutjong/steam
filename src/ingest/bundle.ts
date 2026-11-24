@@ -80,6 +80,11 @@ export interface BundleInput {
   steps: { n: number; lineIdx: number[]; text: string }[]
   notes: NoteJson[]
   timing?: Timing
+  /** lines.json: the page frame and the deskew, so each note's verifyBox comes from the same computation as its verifyUrl (R21.3). */
+  frame: { width: number; height: number }
+  deskew: { deg: number; applied: boolean }
+  /** review.json reviewedBy and reviewedAt; absent for a fallback reading. */
+  review?: { reviewedBy: string; reviewedAt: string }
 }
 
 /** Pure: builds and validates recipe.json; refuses a bad timing.json (R36.3). */
@@ -114,6 +119,7 @@ export function buildRecipeBundle(i: BundleInput): { ok: true; bundle: Bundle } 
       groups: n.groups,
       splitShare: n.splitShare,
       splitStatus: n.splitStatus,
+      verifyBox: verifyRegion({ pageBox: n.pageBox, frame: i.frame, deskewDeg: i.deskew.deg, deskewApplied: i.deskew.applied }).box,
       verifyUrl: n.verifyUrl,
       verifyApproximate: n.verifyApproximate,
       reveal: 'traced left to right from the ink',
@@ -123,7 +129,7 @@ export function buildRecipeBundle(i: BundleInput): { ok: true; bundle: Bundle } 
   const bundle = {
     id: i.id,
     title: i.title,
-    source: i.source,
+    source: { ...i.source, frame: i.source.frame ?? { width: i.frame.width, height: i.frame.height, scaleX: 1, scaleY: 1 } },
     transcription: {
       readers: i.merged.readers,
       ...(i.by ? { by: i.by } : {}),
@@ -136,6 +142,7 @@ export function buildRecipeBundle(i: BundleInput): { ok: true; bundle: Bundle } 
     notes,
     gateSha256: i.gateSha256,
     ownership: { autoPass: i.gate.ownership?.autoPass ?? 0, reviewedPass: i.gate.ownership?.reviewedPass ?? 0, reviewed: i.gate.reviewed ?? [] },
+    ...(i.review ? { review: { reviewedBy: i.review.reviewedBy, reviewedAt: i.review.reviewedAt } } : {}),
   }
   const v = RecipeBundle.safeParse(bundle)
   if (!v.success) return { ok: false, error: `recipe.json: ${v.error.issues.map((x) => `${x.path.join('.')}: ${x.message}`).join('; ')}` }

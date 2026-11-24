@@ -164,9 +164,10 @@ describe('schemas part 2', () => {
   const provenance = { institution: source.institution, shelfmark: source.shelfmark, page: source.page, date: source.date, licence: source.licence, credit: source.credit }
   const { noteId: _n, source: _s, trace: _t, ...rest } = note
   void _n, void _s, void _t
-  const bnote = { ...rest, id: 'looks-red-smooth', checkAt: { seconds: 0, source: 'step-entry', basis: 'the manuscript gives no time; the note arrives with its step' }, files: { png: 'a', toi: 'b', json: 'c' }, reveal: 'traced left to right from the ink', provenance }
+  const bnote = { ...rest, id: 'looks-red-smooth', checkAt: { seconds: 0, source: 'step-entry', basis: 'the manuscript gives no time; the note arrives with its step' }, files: { png: 'a', toi: 'b', json: 'c' }, verifyBox: [1, 2, 30, 40], reveal: 'traced left to right from the ink', provenance }
   const bundle = {
-    id: 'quinces-marmalade', title: 'To make Marmalade of Quinces', source,
+    id: 'quinces-marmalade', title: 'To make Marmalade of Quinces',
+    source: { ...source, canvas: { id: 'c', width: 3695, height: 4737 }, frame: { width: 1601, height: 2052, scaleX: 1, scaleY: 1 } },
     transcription: { readers: ['fallback'], by: 'x', disagreements: [], corrections: [] },
     lines: [{ i: 0, merged: 'a', primary: 'a' }], steps: [{ n: 1, lineIdx: [1], text: 'a' }], notes: [bnote], gateSha256: H,
     ownership: { autoPass: 0, reviewedPass: 1, reviewed: [{ note: 'looks-red-smooth', components: 4, reviewer: 'r' }] },
@@ -181,6 +182,21 @@ describe('schemas part 2', () => {
     void _c
     expect(RecipeBundle.safeParse({ ...bundle, notes: [noCheck] }).success).toBe(false)
     expect(RecipeBundle.safeParse({ ...bundle, notes: [{ ...bnote, checkAt: { seconds: 0, source: 'cook', basis: 'x' } }] }).success).toBe(false)
+  })
+  it('RecipeBundle needs source.canvas, source.frame, verifyBox and, for agent readers, review (R21.7)', () => {
+    const b = bundle as Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
+    const { canvas: _c, ...noCanvas } = b.source
+    const { frame: _f, ...noFrame } = b.source
+    void _c, void _f
+    expect(RecipeBundle.safeParse({ ...b, source: noCanvas }).success).toBe(false)
+    expect(RecipeBundle.safeParse({ ...b, source: noFrame }).success).toBe(false)
+    const { verifyBox: _v, ...noBox } = bnote
+    void _v
+    expect(RecipeBundle.safeParse({ ...b, notes: [noBox] }).success).toBe(false)
+    const agents = { ...b, transcription: { ...b.transcription, readers: ['scribe', 'second-reader'], by: undefined } }
+    expect(RecipeBundle.safeParse(agents).success).toBe(false)
+    expect(RecipeBundle.safeParse({ ...agents, review: { reviewedBy: 'x', reviewedAt: '2026-11-25' } }).success).toBe(true)
+    expect(RecipeBundle.safeParse(b).success).toBe(true) // a fallback bundle needs no review
   })
   it('CheckAt rejects negative seconds; Merged and Catalog accept their shapes', () => {
     expect(CheckAt.safeParse({ seconds: -0.5, source: 'step-entry', basis: 'x' }).success).toBe(false)

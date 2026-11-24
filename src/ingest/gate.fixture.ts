@@ -39,6 +39,7 @@ export const SOURCE = {
   licence: { id: 'pdm', label: 'Public Domain Mark', url: 'https://creativecommons.org/share-your-work/public-domain/pdm/' },
   credit: 'Wellcome Collection',
   retrieved: '2026-11-25',
+  canvas: { id: 'https://iiif.wellcomecollection.org/presentation/b18419665/canvases/b18419665_0033.jp2', width: 3695, height: 4737 },
 }
 
 /** `noRuns`: the words of line 3 ("boil it till it") are separate components with no empty column run of 4 px between them. */

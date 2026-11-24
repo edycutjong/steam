@@ -283,6 +283,8 @@ export const BundleNote = z.strictObject({
   groups: z.array(NoteGroup).min(1),
   splitShare: z.number().min(0).max(1),
   splitStatus: SplitStatus,
+  /** The rectangle `verifyUrl` is the percentage form of: [x, y, w, h] in page-frame px, deskew-aware, clipped (R21.2). */
+  verifyBox: tuple4.refine(([, , w, h]) => w > 0 && h > 0, 'verifyBox must have a positive width and height'),
   verifyUrl: z.string().url(),
   verifyApproximate: z.boolean(),
   reveal: z.literal('traced left to right from the ink'),
@@ -292,7 +294,8 @@ export const BundleNote = z.strictObject({
 export const RecipeBundle = z.strictObject({
   id: RecipeId,
   title: nonEmpty,
-  source: Source,
+  /** A bundle's source always carries the IIIF canvas and the page frame (R21.1, R21.2). */
+  source: Source.required({ canvas: true, frame: true }),
   transcription: z.strictObject({
     readers: z.union([z.tuple([z.literal('scribe'), z.literal('second-reader')]), z.tuple([z.literal('fallback')])]),
     by: z.string().optional(),
@@ -305,7 +308,9 @@ export const RecipeBundle = z.strictObject({
   notes: z.array(BundleNote),
   gateSha256: hex64,
   ownership: z.strictObject({ autoPass: int0, reviewedPass: int0, reviewed: z.array(z.strictObject({ note: RecipeId, components: int0, reviewer: nonEmpty })) }),
-})
+  /** Who reviewed the transcription, verbatim from review.json. Absent only when the reader is the labelled fallback (R3.6). */
+  review: z.strictObject({ reviewedBy: nonEmpty, reviewedAt: nonEmpty }).optional(),
+}).refine((b) => b.transcription.readers[0] === 'fallback' || b.review !== undefined, { message: 'review is required unless the reader is the fallback', path: ['review'] })
 export type RecipeBundle = z.infer<typeof RecipeBundle>
 
 export const Catalog = z.array(z.strictObject({ id: RecipeId, title: nonEmpty, gateSha256: hex64 }))
