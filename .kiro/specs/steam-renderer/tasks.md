@@ -205,9 +205,10 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Satisfies: honesty steering (no claims beyond logged evidence).
   - deferred: no hooks yet. Nothing was written by hand.
 
-- [ ] 38. Final verification
+- [x] 38. Final verification
   - Run `npm test`, `npm run e2e`, `tsc --noEmit`, and the build; confirm `dist/` is static. Search the pane's strings for "she", "her", "verified", and "AI-powered". Confirm no colour literal outside the token definitions in `src/steam/`.
   - Files: none (reads only).
+  - Result: vitest 74 passed, e2e 27 passed, `tsc -b` clean, build produces a static `dist/` (index.html, assets, hero, no server code). "she", "her", "verified", "AI-powered" appear only in the product title in `src/App.tsx`. Colour literals in `src/` appear only in the `index.css` token block; `shaders.ts` has one `vec3(0.94, 1.06, 1.0)` tint multiplier, not a colour.
   - Satisfies: R14.9, R21.2, R21.4, R21.5, R22.1, R22.3.
 
 - [ ] 39. Move `derive` into a Web Worker (from task 36)
