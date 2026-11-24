@@ -11,7 +11,7 @@ Rules for every task:
 
 ## A. Tooling and the bundle's missing fields
 
-- [ ] 1. Test environment and dev dependencies
+- [x] 1. Test environment and dev dependencies
   - Test first: a smoke test that imports `fake-indexeddb/auto` and opens a database; a smoke test with the docblock `// @vitest-environment happy-dom` that renders `<button>` with `react-dom/client` and reads it back.
   - Implement: `npm i -D happy-dom fake-indexeddb @axe-core/playwright`. Leave `vitest.config.ts` on the node environment, with the per-file docblock for DOM tests.
   - Files: `package.json`, `package-lock.json`, `src/app/env.smoke.test.tsx`.
