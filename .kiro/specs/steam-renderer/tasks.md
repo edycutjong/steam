@@ -101,7 +101,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/tokens.ts`, `src/index.css` (or the existing global stylesheet).
   - Satisfies: R14.9, R21.5.
 
-- [ ] 18. Tokens test
+- [x] 18. Tokens test
   - Parse `#RRGGBB` and `rgb()` strings; reject empty values.
   - Files: `src/steam/tokens.test.ts`.
   - Satisfies: R14.9.
