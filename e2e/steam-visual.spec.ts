@@ -35,6 +35,26 @@ for (const [name, viewport] of SIZES) {
       }
     })
 
+    test('no stroke pixel exceeds 92% luminance and the ember hue survives in the strokes (D14)', async ({ page }) => {
+      await openPane(page, '?t=6000')
+      const png = await shot(page)
+      const regions = await groupRegions(page, png)
+      let max = 0
+      let ember = 0
+      for (const r of regions) {
+        for (let y = r.y; y < r.y + r.h; y++) {
+          for (let x = r.x; x < r.x + r.w; x++) {
+            const [R, G, B] = pixel(png, x, y)
+            max = Math.max(max, 0.2126 * R + 0.7152 * G + 0.0722 * B)
+            // --after family: red clearly above green above blue.
+            if (R - B > 60 && R > G && G > B) ember++
+          }
+        }
+      }
+      expect(max, 'brightest pixel over the groups').toBeLessThanOrEqual(0.92 * 255 + 1)
+      expect(ember, 'ember-coloured pixels in the groups').toBeGreaterThan(300)
+    })
+
     test('no 1 px border or outline-like shadow on pane, canvas or caption', async ({ page }) => {
       await openPane(page, '?t=5000')
       const styles = await page.evaluate(() =>

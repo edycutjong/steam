@@ -98,9 +98,13 @@ Write-on token 5000 ms and lead 2500 ms; concealment before the reveal; the hold
 ### Tasks
 
 - [x] B12. Bugfix spec round 3 (this section).
-- [ ] B13. D12: channel alpha without blur growth, narrow clear curve, smaller bloom, coverage unit test.
-- [ ] B14. D13: clear-glass material (pot falloff, fog-modulated edge, lower fill, thin rim on the fog side).
-- [ ] B15. D14: luminance limiter at 92%, ember hue survives.
-- [ ] B16. D15: raised, softened pot plume; feathered write-on edge.
-- [ ] B17. D16: fog grain, sparse droplets, variable-width feathered streak.
-- [ ] B18. Verify (tests, typecheck, build, e2e), capture `after-v02/`, read, iterate once if a letterform still closes up.
+- [x] B13. D12: channel alpha without blur growth, narrow clear curve, smaller bloom, coverage unit test.
+- [x] B14. D13: clear-glass material (pot falloff, fog-modulated edge, lower fill, thin rim on the fog side).
+- [x] B15. D14: luminance limiter at 92%, ember hue survives.
+- [x] B16. D15: raised, softened pot plume; feathered write-on edge.
+- [x] B17. D16: fog grain, sparse droplets, variable-width feathered streak.
+- [x] B18. Verify (tests, typecheck, build, e2e), capture `after-v02/`, read, iterate once if a letterform still closes up.
+
+### Result
+
+Frames: `docs/kiro-evidence/renderer-v0/after-v02/`. At 1280x720 the counters of a, e, o and the loop of d stay open, and "Looks" and "smooth" read at a glance. The write-on edge at t = 2000 ms is a feathered ramp. No second iteration was needed. The leading edge uses the existing `TOI_SOFT` ramp (scaled by `FEATHER_K` 0.8, about 9 texels on the hero), not a per-pixel gradient estimate: the hero's 8-bit toi is quantised into plateaus several texels wide, so a local gradient would be noisier than the constant.
