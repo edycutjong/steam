@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "catalog-gate",
+      "trigger": "PreToolUse",
+      "matcher": "write",
+      "action": {
+        "type": "command",
+        "command": "npx tsx tools/hooks/catalog-gate.ts"
+      },
+      "timeout": 60,
+      "enabled": true
+    }
+  ]
+}
