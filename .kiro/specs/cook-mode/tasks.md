@@ -297,7 +297,7 @@ Rules for every task:
   - Files: `src/app/Cook.tsx`, `src/app/Cook.wake.test.tsx`.
   - Satisfies: R17.1 to R17.5, R18.8.
 
-- [ ] 46. Deep link behaviour in the screen
+- [x] 46. Deep link behaviour in the screen
   - Test first: `Cook.deeplink.test.tsx` (fake clock): `#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12` starts at step 5 of 5 with the badge "×12 pace" and the caption; with no input a reveal is applied at 10 s (default) after the session start, or earlier when "Show the note" is pressed, after which the scheduled reveal is a no-op; with `lead=3` at 3 s; with a pane that becomes ready at 12 s the reveal applies at 12 s, not before and not twice; an unknown note id starts at step 1 with the caption of R19.5; no audio context is created before a gesture.
   - Implement what the tests find missing.
   - Files: `src/app/Cook.tsx`, `src/app/useCookSession.ts`, `src/app/Cook.deeplink.test.tsx`.
