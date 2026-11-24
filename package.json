@@ -18,7 +18,8 @@
     "props": "tsx tools/steam-ingest/cli.ts gate --all --verify",
     "catalog": "tsx tools/steam-ingest/cli.ts catalog",
     "steam-ingest": "tsx tools/steam-ingest/cli.ts",
-    "measure:ingest": "tsx scripts/measure-ingest.ts"
+    "measure:ingest": "tsx scripts/measure-ingest.ts",
+    "check:dist": "vitest run scripts/check-dist.test.ts"
   },
   "dependencies": {
     "@fontsource/dm-mono": "^5.3.0",

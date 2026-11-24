@@ -319,7 +319,7 @@ Rules for every task:
   - Files: `src/app/app.css`, `src/app/cook.css`, `src/app/tokens.test.ts`, `src/app/css.test.ts`.
   - Satisfies: R9.3, R10.1, R23.4, R23.5, R24.1, R24.2, R24.4, R24.5.
 
-- [ ] 49. Built-site checks
+- [x] 49. Built-site checks
   - Test first: `scripts/check-dist.test.ts` (runs after `npm run build`; in the unit run it is skipped with a printed reason when `dist/` is absent, and CI runs it after the build step): no `speechSynthesis` in `dist/`; no file in `dist/` that is a server entry (only `index.html`, `assets/`, `recipes/`, `favicon.svg`); `dist/recipes/quinces-marmalade/panes/` holds the 18 images; `dist/hero` is absent. A source test (`src/app/hosts.test.ts`) lists every `https://` host named in non-test files of `src/` and expects an empty list, because every archive and licence host comes from bundle data.
   - Implement: nothing new.
   - Files: `scripts/check-dist.test.ts`, `src/app/hosts.test.ts`, `package.json` (`"check:dist"`).
