@@ -200,7 +200,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `tools/steam-ingest/io.ts`, `tools/steam-ingest/io.test.ts`.
   - Satisfies: R2.2, R2.3, R2.4, R9.5.
 
-- [ ] 34. `hooks.log`
+- [x] 34. `hooks.log`
   - Test first: appends exactly one line in the stated format with U+00B7; `$STEAM_WHO`, `--who`, `cli`, `watch` precedence; creates the folder; never truncates; an append failure throws.
   - Implement `tools/steam-ingest/hookslog.ts`.
   - Files: `tools/steam-ingest/hookslog.ts`, `tools/steam-ingest/hookslog.test.ts`.
