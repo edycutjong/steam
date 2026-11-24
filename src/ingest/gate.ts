@@ -297,6 +297,8 @@ export function runGate(ctx: GateCtx): GateResult {
     return base('fail')
   }
   const own: Ownership = rev.own
+  // the automatic ownership: split shares and flags are judged on it, decisions only unlock (R13.4, R13.5)
+  const autoOwn: Ownership = decisions.length ? applyReview(seg.labels, seg.bands, []).own : own
 
   // 7. Alignment per note part (R18, R19)
   let curator: Map<number, number[]> | null = null
@@ -390,8 +392,7 @@ export function runGate(ctx: GateCtx): GateResult {
     let note: BuiltNote
     try {
       // the mask first, for the split share; then the note
-      const mask = noteMask(own, seg.bands, s, bp)
-      const ownership = noteOwnership(own, seg.labels, nd.id, mask)
+      const ownership = noteOwnership(autoOwn, seg.labels, nd.id, noteMask(autoOwn, seg.bands, s, bp), own.reviewers)
       note = buildNote({
         noteId: nd.id, step: nd.step, span: nd.span, shownText, granularity: na.granularity, alignment: na.alignment, credit: source.credit,
         scan: sf.scan, gray, raw, pageInk: seg.pageInkMap, own, bands: seg.bands, s, resampled: seg.deskewApplied, parts: bp, ownership,

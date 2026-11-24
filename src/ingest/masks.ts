@@ -172,15 +172,17 @@ export function splitShare(own: Ownership, labels: Labels, mask: Uint8Array): { 
 export const shareWithinThreshold = (splitPx: number, maskPx: number): boolean => maskPx === 0 || splitPx / maskPx <= SPLIT_SHARE_MAX + 1e-12
 
 /**
- * R12.3, R12.5, R13.4. `auto`: share within the threshold. Over it, every flagged component with a decision is
+ * R12.3, R12.5, R13.4. Called with the automatic ownership and the note's mask under it, so that a decision that
+ * moves a component out of the note does not turn the note into an automatic pass. `review` names the decided
+ * components (default: the decisions recorded on `own`). `auto`: share within the threshold. Over it, every flagged component with a decision is
  * `reviewed`, anything else is `failed`. A reviewed note is never counted as an automatic pass.
  */
-export function noteOwnership(own: Ownership, labels: Labels, noteId: string, mask: Uint8Array): NoteOwnership {
+export function noteOwnership(own: Ownership, labels: Labels, noteId: string, mask: Uint8Array, review: Map<number, string> = own.reviewers): NoteOwnership {
   const s = splitShare(own, labels, mask)
   if (shareWithinThreshold(s.splitPx, s.maskPx)) return { noteId, maskPx: s.maskPx, splitPx: s.splitPx, share: s.share, flagged: [], decided: [], reviewers: [], status: 'auto' }
   const flagged = s.contributing
-  const decided = flagged.filter((id) => own.components.get(id)!.reviewed)
-  return { noteId, maskPx: s.maskPx, splitPx: s.splitPx, share: s.share, flagged, decided, reviewers: [...new Set(decided.map((id) => own.reviewers.get(id)!))].sort(), status: decided.length === flagged.length ? 'reviewed' : 'failed' }
+  const decided = flagged.filter((id) => review.has(id))
+  return { noteId, maskPx: s.maskPx, splitPx: s.splitPx, share: s.share, flagged, decided, reviewers: [...new Set(decided.map((id) => review.get(id)!))].sort(), status: decided.length === flagged.length ? 'reviewed' : 'failed' }
 }
 
 // ---------------------------------------------------------------------------------------------------------------

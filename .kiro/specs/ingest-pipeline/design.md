@@ -148,7 +148,7 @@ For each component:
 
 A review decision (R13.3) overrides one component: `assignToLine` sets every pixel to `i`; `splitAtRow` splits at `y` between the two touched lines (valid only for two touched lines; for three or more the reviewer must use `assignToLine` or two entries, one per valley, which the schema allows by repeating the `componentId` with different rows).
 
-`splitShare(note)` (R12.1): mask pixels whose component has `split = true` and `review` absent, over mask pixels. After a review decision a component no longer counts as split (its fate is on record), but the note's status is `reviewed` and is reported separately (R13.5). The flagged list for a note over 2% is the set of split components contributing mask pixels.
+`splitShare(note)` (R12.1): mask pixels whose component has `split = true`, over mask pixels, measured on the **automatic** ownership and the note's mask under it. (Corrected in task 38: the first wording measured it after the review. Then a decision that moves a joined stroke out of the note's words drops the share to 0 and the note would count as an automatic pass, which R13.5 forbids.) A review decision only unlocks: a note over 2% passes P3 with status `reviewed` when every flagged component has a decision; the shipped mask, P4 and the recall use the reviewed ownership. The flagged list for a note over 2% is the set of split components contributing mask pixels.
 
 The four joined components in the hero note will be named in `gate.json` and each will have an `ownership/flag-<id>.png` for the reviewer.
 

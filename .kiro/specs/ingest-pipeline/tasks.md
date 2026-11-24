@@ -224,7 +224,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `tools/steam-ingest/merge.ts`, `tools/steam-ingest/fallback.ts`, `tools/steam-ingest/merge.test.ts`, `tools/steam-ingest/fallback.test.ts`.
   - Satisfies: R15.7, R34.1 to R34.6.
 
-- [ ] 38. `gate` subcommand
+- [x] 38. `gate` subcommand
   - Test first: end-to-end with a synthetic recipe folder and with the hero fixtures; the three hero paths (R40.4): `fail` (split share over 2%, no review) with exit 1, `reviewed` (fixture `ownership-review.json`) with the reviewed detail, `waiting` (missing and stale readers) with exit 3; written PNGs are decoded again and P4 to P6 run on them; a hand-edited PNG is caught; second run is a no-op (`gate.json` bytes and `at` unchanged); `gate.prop.test.ts` (S7).
   - Implement `tools/steam-ingest/gate.ts` (read, run, write, re-read, log).
   - Files: `tools/steam-ingest/gate.ts`, `tools/steam-ingest/gate.test.ts`, `tools/steam-ingest/gate.prop.test.ts`.
