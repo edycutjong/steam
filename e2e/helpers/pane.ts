@@ -1,4 +1,6 @@
 // Shared helpers for the steam-renderer specs: open the pane, screenshot it, read the layout it used.
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
 import type { Page } from '@playwright/test'
 import { PNG } from 'pngjs'
 import { decodePng, luminance } from './capture.ts'
@@ -196,4 +198,44 @@ export function baselineEdgeStep(png: PNG, bounds: Region, groups: Region[], box
   }
   if (boxes < 3) throw new Error(`only ${boxes} clear fog boxes for the baseline`)
   return worst
+}
+
+const HERO = path.resolve('public/hero')
+
+interface HeroMeta {
+  groups: Array<{ rect: [number, number, number, number] }>
+}
+
+/**
+ * Screen pixels that lie on the writer's ink: every note pixel with alpha above 200 inside a group rect,
+ * mapped through the layout the page reports. Read from the scan's own alpha, not from a screenshot.
+ */
+export async function channelPixels(page: Page): Promise<Array<[number, number]>> {
+  const note = PNG.sync.read(await readFile(path.join(HERO, 'note-looks-red-smooth.png')))
+  const meta = JSON.parse(await readFile(path.join(HERO, 'note-looks-red-smooth.json'), 'utf8')) as HeroMeta
+  const [layout, o] = await Promise.all([readLayout(page), canvasOrigin(page)])
+  const seen = new Set<number>()
+  const out: Array<[number, number]> = []
+  for (const g of layout.groups) {
+    const [rx0, ry0, rx1, ry1] = meta.groups[g.index].rect
+    for (let ny = ry0; ny < ry1; ny++) {
+      for (let nx = rx0; nx < rx1; nx++) {
+        if (note.data[(ny * note.width + nx) * 4 + 3] <= 200) continue
+        const x = Math.round(o.x + g.inked[0] + (nx - rx0 + 0.5) * g.scale)
+        const y = Math.round(o.y + g.inked[1] + (ny - ry0 + 0.5) * g.scale)
+        const key = y * 100000 + x
+        if (seen.has(key)) continue
+        seen.add(key)
+        out.push([x, y])
+      }
+    }
+  }
+  return out
+}
+
+/** Mean luminance over a set of screen pixels. */
+export function meanLumAt(png: PNG, pts: Array<[number, number]>): number {
+  let s = 0
+  for (const [x, y] of pts) s += lumAt(png, x, y)
+  return pts.length ? s / pts.length : 0
 }

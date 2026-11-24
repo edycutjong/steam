@@ -183,7 +183,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `e2e/steam-visual.spec.ts`.
   - Satisfies: R4.3, R4.4, R5.1 to R5.6, R6.1, R6.4.
 
-- [ ] 34. E2E: wiped-out, hold, and wipe (failures 5 and 7)
+- [x] 34. E2E: wiped-out, hold, and wipe (failures 5 and 7)
   - Assert at `t = 5000` and `t = 9000` that channel pixels' clear amount is equal (frame diff within a tolerance on the channel mask), that no text-colour pixels (`--ink`, `--paper` hue) appear over fog at channel pixels, and that the rim colour is near `--ghost`. Press the button (and Space) at hold; assert the sweep, the label changes, and that after WIPE_MS + REFOG_MS fog returned outside the hull and not over the channels. Check `aria-disabled` during writing.
   - Files: `e2e/steam-hold.spec.ts`.
   - Satisfies: R7.3 to R7.5, R9.1 to R9.6, R10.2 to R10.7.
