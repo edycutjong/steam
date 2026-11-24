@@ -131,7 +131,7 @@ Rules for every task:
   - Files: `src/cook/timing.ts`, `src/cook/timing.test.ts`, `src/cook/timing.prop.test.ts`.
   - Satisfies: R10.1, R10.2, R10.3, R10.4, R10.5.
 
-- [ ] 20. Session snapshot and K5
+- [x] 20. Session snapshot and K5
   - Test first: `src/cook/session.test.ts`: `Snapshot` accepts a real `toSnapshot`; `snapshotValid` rejects each malformed variant of R18.3 (wrong recipe, step out of range, history not starting at `stepStartWall`, history going backwards, unknown note id, repeated id, older than `SESSION_MAX_AGE_MS`, in the future). `src/cook/session.prop.test.ts` (K5): round trip over generated running states; elapsed unchanged at the restore wall time; no reveal of a revealed note.
   - Implement `Snapshot`, `snapshotValid`, `SESSION_MAX_AGE_MS`.
   - Files: `src/cook/session.ts`, `src/cook/session.test.ts`, `src/cook/session.prop.test.ts`.
