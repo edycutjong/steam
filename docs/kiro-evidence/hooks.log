@@ -28,3 +28,4 @@
 2026-11-24T20:25:38.782Z · cli · quinces-marmalade · pass P1-P6 ok · recall 0.9802 · full-ripe reviewed (2 components by Kiro (agent), turn-18, Kiro (agent), turn-21) · looks-red-smooth reviewed (3 components by Kiro (agent), turn-18)
 2026-11-24T20:27:23.000Z · word-cut-inside-word · quinces-marmalade · pass wordCut.bug.test 4 of 4: curator alignment (Kiro (agent), turn-21) for lines 1, 7, 8; ratios of every word 0.56 to 1.47; cut-through none; P1-P6 ok
 2026-11-24T20:28:37.000Z · word-cut-inside-word · quinces-marmalade · pass preservation: wordCut.prop 15 of 15, hero note byte-identical, P1-P6 hold
+2026-11-24T20:28:51.154Z · cli · quinces-marmalade · pass P1-P6 ok · recall 0.9802 · full-ripe reviewed (2 components by Kiro (agent), turn-18, Kiro (agent), turn-21) · looks-red-smooth reviewed (3 components by Kiro (agent), turn-18) · no-op (inputs unchanged)
