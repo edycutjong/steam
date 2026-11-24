@@ -128,7 +128,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/notes.ts`, `src/ingest/notes.test.ts`, `src/ingest/notes.prop.test.ts`.
   - Satisfies: R17.1 to R17.7.
 
-- [ ] 22. Skeleton and trace
+- [x] 22. Skeleton and trace
   - Test first: Zhang-Suen on a bar, a ring, a cross and a dot (known skeleton sizes, one-pixel-wide result, connectivity kept); path sorted by `(group, x', y)`; times `(offset + x' − lo)/W`; nearest-skeleton transform equals brute force on random inputs; skeleton-free piece takes its centroid time.
   - Implement `zhangSuen`, `tracePath`, `timeMap` in `src/ingest/timeofink.ts`.
   - Files: `src/ingest/timeofink.ts`, `src/ingest/timeofink.test.ts`.
