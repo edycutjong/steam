@@ -145,7 +145,7 @@ Rules for every task:
   - Files: `src/cook/drag.ts`, `src/cook/drag.test.ts`, `src/cook/drag.prop.test.ts`.
   - Satisfies: R14.4, R14.6.
 
-- [ ] 22. The reveal gate and K7
+- [x] 22. The reveal gate and K7
   - Test first: `src/cook/revealGate.test.ts`: an effect enqueued before its pane is ready waits and applies once on `setReady`; one enqueued while blocked waits for `setBlocked(false)`; two effects apply in order; `setReady(null)` holds new effects; a second `setReady` for the same note does not re-apply. `src/cook/revealGate.prop.test.ts` (K7): at most once, in order, exactly once after readiness.
   - Implement `createRevealGate`.
   - Files: `src/cook/revealGate.ts`, `src/cook/revealGate.test.ts`, `src/cook/revealGate.prop.test.ts`.
