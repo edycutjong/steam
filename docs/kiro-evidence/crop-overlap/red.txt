@@ -1,0 +1,84 @@
+# crop-overlap, commit A: bug condition exploration test on the unfixed code (RED, expected)
+# command: npx vitest run src/ingest/cropOverlap.bug.test.ts --no-color
+# recorded: 2026-11-24T19:27:23Z, on the tree whose parent commit is 02082a8; exit code follows the output
+
+
+ RUN  v5.1.1 /Users/edycu/Hackathon/devpost/devpost-kiroween/steam/build
+
+ ❯ src/ingest/cropOverlap.bug.test.ts (6 tests | 5 failed) 290ms
+   ❯ crop-overlap: a note cropped by the bundle holds P4 (no pixel owned by another line) (6)
+     × step 1 ("full ripe"): the default crop source gives no pixel owned by another line 51ms
+     × step 2: the default crop source gives no pixel owned by another line 50ms
+     × step 3: the default crop source gives no pixel owned by another line 62ms
+     × step 4 ("when Tender"): the default crop source gives no pixel owned by another line 45ms
+     × step 5 ("till it Looks red & smooth"): the default crop source gives no pixel owned by another line 42ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/ingest/cropOverlap.bug.test.ts > crop-overlap: a note cropped by the bundle holds P4 (no pixel owned by another line) > step 1 ("full ripe"): the default crop source gives no pixel owned by another line
+Error: step 1's crop contains 81 px owned by line 0 (the step's own lines: 1, 2, 3; P4: p0c-step-1: 81 lit pixels are ink not owned by the quoted words; first: (1445,1109) is ink owned by line 0)
+ ❯ src/ingest/cropOverlap.bug.test.ts:26:29
+     24|       const crop = cropSource(page, note)
+     25|       const r = replayP4(seg, note, crop.mask)
+     26|       if (!r.p4.pass) throw new Error(overlapMessage(note, r))
+       |                             ^
+     27|       expect(r.foreign.size).toBe(0)
+     28|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/ingest/cropOverlap.bug.test.ts > crop-overlap: a note cropped by the bundle holds P4 (no pixel owned by another line) > step 2: the default crop source gives no pixel owned by another line
+Error: step 2's crop contains 5 px owned by line 1 and 29 px owned by line 6 (the step's own lines: 2, 3, 4, 5; P4: p0c-step-2: 34 lit pixels are ink not owned by the quoted words; first: (1090,1192) is ink owned by line 1)
+ ❯ src/ingest/cropOverlap.bug.test.ts:26:29
+     24|       const crop = cropSource(page, note)
+     25|       const r = replayP4(seg, note, crop.mask)
+     26|       if (!r.p4.pass) throw new Error(overlapMessage(note, r))
+       |                             ^
+     27|       expect(r.foreign.size).toBe(0)
+     28|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/ingest/cropOverlap.bug.test.ts > crop-overlap: a note cropped by the bundle holds P4 (no pixel owned by another line) > step 3: the default crop source gives no pixel owned by another line
+Error: step 3's crop contains 3787 px owned by line 4 and 492 px owned by line 8 (the step's own lines: 5, 6, 7; P4: p0c-step-3: 4279 lit pixels are ink not owned by the quoted words; first: (1425,1323) is ink owned by line 4)
+ ❯ src/ingest/cropOverlap.bug.test.ts:26:29
+     24|       const crop = cropSource(page, note)
+     25|       const r = replayP4(seg, note, crop.mask)
+     26|       if (!r.p4.pass) throw new Error(overlapMessage(note, r))
+       |                             ^
+     27|       expect(r.foreign.size).toBe(0)
+     28|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/ingest/cropOverlap.bug.test.ts > crop-overlap: a note cropped by the bundle holds P4 (no pixel owned by another line) > step 4 ("when Tender"): the default crop source gives no pixel owned by another line
+Error: step 4's crop contains 1280 px owned by line 6 and 1555 px owned by line 10 (the step's own lines: 7, 8, 9; P4: p0c-step-4: 2835 lit pixels are ink not owned by the quoted words; first: (1491,1471) is ink owned by line 6)
+ ❯ src/ingest/cropOverlap.bug.test.ts:26:29
+     24|       const crop = cropSource(page, note)
+     25|       const r = replayP4(seg, note, crop.mask)
+     26|       if (!r.p4.pass) throw new Error(overlapMessage(note, r))
+       |                             ^
+     27|       expect(r.foreign.size).toBe(0)
+     28|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/ingest/cropOverlap.bug.test.ts > crop-overlap: a note cropped by the bundle holds P4 (no pixel owned by another line) > step 5 ("till it Looks red & smooth"): the default crop source gives no pixel owned by another line
+Error: step 5's crop contains 474 px owned by line 8 (the step's own lines: 9, 10, 11; P4: p0c-step-5: 474 lit pixels are ink not owned by the quoted words; first: (1473,1622) is ink owned by line 8)
+ ❯ src/ingest/cropOverlap.bug.test.ts:26:29
+     24|       const crop = cropSource(page, note)
+     25|       const r = replayP4(seg, note, crop.mask)
+     26|       if (!r.p4.pass) throw new Error(overlapMessage(note, r))
+       |                             ^
+     27|       expect(r.foreign.size).toBe(0)
+     28|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 1 passed (6)
+   Start at  02:27:23
+   Duration  1.54s (import 79%, tests 20%, transform 1%)
+
+# exit code: 1
