@@ -68,7 +68,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/slant.ts`, `src/ingest/slant.test.ts`.
   - Satisfies: R22.4, R18.2.
 
-- [ ] 12. Ownership
+- [x] 12. Ownership
   - Test first: component in one band stays whole even across a valley row; component in two bands splits at the valley row (pixels `y < v` up, `y ≥ v` down); three bands split at both valleys; no-band component and sub-30 px components go to the nearest band by centroid (tie to the upper line, no discount); every ink pixel has one owner. Then `masks.prop.test.ts` (P3 a to d, f).
   - Implement `ownership(...)` in `src/ingest/masks.ts`, returning the owner map, the component table and the split log.
   - Files: `src/ingest/masks.ts`, `src/ingest/masks.test.ts`, `src/ingest/masks.prop.test.ts`.
