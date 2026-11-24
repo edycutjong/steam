@@ -177,6 +177,33 @@ describe('P8: every displayed note resolves to its source', () => {
     )
   })
 
-  // P8.6 (the shelf, edition, plan and quoted lists name the same ids) is asserted in src/app/Quoted.test.tsx, task 47, where the lists exist.
-  it.todo('P8.6 the sets of note ids of the shelf count, the edition, the plan and the quoted list equal the displayable ids (task 47)')
+  // P8.6: the plan, the edition's judgement marks and the quoted rows list the same note ids as displayableNotes (the shelf counts
+  // recipe.notes, which is displayableNotes(bundle).notes). The lists are built here by the functions the screens call.
+  it('P8.6 the plan, the edition judgement lines and the quoted rows name exactly the displayable notes', async () => {
+    const { buildPlan } = await import('../cook/plan.ts')
+    fc.assert(
+      fc.property(bundles, (b) => {
+        let d
+        try {
+          d = displayableNotes(b)
+        } catch {
+          return
+        }
+        const ids = d.notes.map((n) => n.id).sort()
+        let plan
+        try {
+          plan = buildPlan(b, d.notes, {})
+        } catch {
+          return
+        }
+        const planIds = plan.steps.flatMap((s) => (s.note ? [s.note.id] : [])).sort()
+        const editionIds = [...new Set(d.notes.flatMap((n) => n.groups.map(() => n.id)))].sort()
+        const quotedIds = d.notes.filter((n) => regionUrl(b, n) !== null).map((n) => n.id).sort()
+        expect(planIds).toEqual(ids)
+        expect(editionIds).toEqual(ids)
+        expect(quotedIds).toEqual(ids)
+      }),
+      { numRuns: 1000 },
+    )
+  })
 })

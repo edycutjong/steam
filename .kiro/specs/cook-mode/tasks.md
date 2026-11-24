@@ -305,7 +305,7 @@ Rules for every task:
 
 ## J. "The hand, quoted"
 
-- [ ] 47. Quoted screen
+- [x] 47. Quoted screen
   - Test first: `src/app/Quoted.test.tsx` (real bundle): the `<h1>` "The hand, quoted"; three rows in step order (steps 1, 4, 5); each row has the note PNG `<img>` with alt "The writer's note, handwritten: <span>" on a `--paper` mat, the transcription with marks, "Step n", the slip, and the link; the hero link `href` equals `regionUrl` computed by the test's own copy of the arithmetic from the bundle, and is `…/b18419665_MS_1810_0033.JP2/641,3660,2897,511/full/0/default.jpg` (the integers recomputed, not pasted); `target="_blank"`, `rel="noopener noreferrer"`, the accessible name of R20.5; the approximate-region line shows because `verifyApproximate` is true; the credit line is last in the list and reads "Wellcome Collection, Public Domain Mark"; "Cook again" deletes the session and navigates to `…/cook`; no upload action; with a variant bundle with a withheld note the list has two rows; the screen opens with no session. P8.6 of the property file (task 7) is completed here: the plan, the edition's judgement marks and the quoted rows list the same ids.
   - Implement `Quoted.tsx`.
   - Files: `src/app/Quoted.tsx`, `src/app/Quoted.test.tsx`, `src/data/provenance.prop.test.ts`, `src/app/app.css`.
