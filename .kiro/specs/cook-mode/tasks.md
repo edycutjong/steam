@@ -267,7 +267,7 @@ Rules for every task:
   - Files: `src/app/components/FlameKnob.tsx`, `src/app/components/PaceBadge.tsx`, `src/app/components/*.test.tsx`, `src/app/cook.css`.
   - Satisfies: R11.1 to R11.4, R11.6, R23.2, R25.4.
 
-- [ ] 41. Wipe control and the drag surface
+- [x] 41. Wipe control and the drag surface
   - Test first: `WipeControl.test.tsx` drives every row of the table with real `controlFor` outputs: label, action, `aria-disabled` while `writing` with the description "The note is being written", no action when disabled, Space on the document acts unless focus is in another button, `preventDefault` on Space, a second activation within 400 ms is ignored, size at least 48×48 (class), the control is not inside the pane element, and it takes focus when `ready` becomes true. `DragSurface.test.tsx`: a pointer path that meets `dragWipe` calls the action once; a tap and a short move do not; the surface has `touch-action: none`.
   - Implement `WipeControl.tsx`, `DragSurface.tsx`.
   - Files: `src/app/components/WipeControl.tsx`, `src/app/components/DragSurface.tsx`, `src/app/components/*.test.tsx`, `src/app/cook.css`.
