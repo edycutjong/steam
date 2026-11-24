@@ -1,0 +1,21 @@
+{
+  "recipe": "quinces-marmalade",
+  "page": "Wellcome MS.1810 p.23 (p0033.jpg)",
+  "by": "Claude Code builder agent (Opus 5.5)",
+  "readOn": "2026-11-25, by eye on the scan, before any Kiro reader agent ran on this page",
+  "use": "frozen curator-reader fallback (specs/agents.md section 6) and an independent check on the agent readings; never merged into an agent reading",
+  "title": "To make Marmalade of Quinces",
+  "lines": [
+    { "text": "Let your quinces be full ripe, then wipe" },
+    { "text": "them, & pare them, & Quarter them, then" },
+    { "text": "take out the Cores and seeds, & boil the" },
+    { "text": "Pareings & seeds in Spring water, strain", "uncertain": [{ "token": "Pareings", "alt": ["Parings", "Parcings"] }] },
+    { "text": "the Liquor, & weigh your Quinces, with" },
+    { "text": "the same weight of dry L. Sugar, boil", "uncertain": [{ "token": "L.", "alt": ["E."] }] },
+    { "text": "the Quince, in that Liquor, & when" },
+    { "text": "Tender, mash them, & then put your sug.r", "uncertain": [{ "token": "sug.r", "alt": ["sugar"] }] },
+    { "text": "to the Quinces, & boil it till it Looks" },
+    { "text": "red & smooth, keeping it stirred all", "uncertain": [{ "token": "stirred", "alt": ["stirr'd"] }] },
+    { "text": "The time it Boils" }
+  ]
+}

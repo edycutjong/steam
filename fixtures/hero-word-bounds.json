@@ -1,0 +1,17 @@
+{
+  "page": "Wellcome MS.1810 p.23 (specs scan p0033.jpg, 1601x2052, IIIF canvas 33)",
+  "noteId": "looks-red-smooth",
+  "span": "till it Looks red & smooth",
+  "markedBy": "Claude Code builder agent (Opus 5.5), by eye on the scan at 2x zoom, 2026-11-25, before any src/ingest alignment or mask code existed",
+  "method": "loose rectangles around each word's visible ink, page pixel coordinates [x0, y0, x1, y1]; the comma after 'smooth' is excluded; boxes may include small bits of neighbouring lines' ascenders/descenders",
+  "recallThreshold": 0.85,
+  "recallDefinition": "share of dark ink pixels (scan luminance below the page's Sauvola threshold) inside these boxes that the shipped note mask keeps; threshold fixed here before the first measurement and never changed to fit a result",
+  "words": [
+    { "line": "to the Quinces, & boil it till it Looks", "word": "till",   "box": [1072, 1645, 1185, 1701] },
+    { "line": "to the Quinces, & boil it till it Looks", "word": "it",     "box": [1215, 1650, 1260, 1700] },
+    { "line": "to the Quinces, & boil it till it Looks", "word": "Looks",  "box": [1287, 1650, 1500, 1715] },
+    { "line": "red & smooth, keeping it stirred all",    "word": "red",    "box": [312, 1695, 402, 1735] },
+    { "line": "red & smooth, keeping it stirred all",    "word": "&",      "box": [445, 1693, 500, 1735] },
+    { "line": "red & smooth, keeping it stirred all",    "word": "smooth", "box": [502, 1693, 760, 1750] }
+  ]
+}

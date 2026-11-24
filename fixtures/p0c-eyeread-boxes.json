@@ -1,0 +1,71 @@
+{
+ "source": "P0c kill-test Kiro run (2026-11-24), eye-read crop boxes per step on Wellcome MS.1810 p.23 (p0033.jpg); kept as the crop-overlap bugfix fixture: replayed as note masks they must FAIL P4",
+ "boxes": [
+  {
+   "step": 1,
+   "text": "Let your quinces be full ripe, then wipe them, & pare them, & Quarter them,",
+   "note": "full ripe",
+   "box": [
+    290,
+    1115,
+    1530,
+    1275
+   ]
+  },
+  {
+   "step": 2,
+   "text": "then take out the Cores and seeds, & boil the Parcings & seeds in Spring water,",
+   "note": null,
+   "box": [
+    290,
+    1200,
+    1530,
+    1420
+   ]
+  },
+  {
+   "step": 3,
+   "text": "strain the Liquor, & weigh your Quinces, with the same weight of dry L. Sugar,",
+   "note": null,
+   "box": [
+    290,
+    1340,
+    1530,
+    1575
+   ]
+  },
+  {
+   "step": 4,
+   "text": "boil the Quince, in that Liquor, & when Tender, mash them,",
+   "note": "when Tender",
+   "box": [
+    290,
+    1490,
+    1530,
+    1715
+   ]
+  },
+  {
+   "step": 5,
+   "text": "& then put your sug.r to the Quinces, & boil it till it Looks red & smooth,",
+   "note": "till it Looks red & smooth",
+   "box": [
+    290,
+    1640,
+    1530,
+    1870
+   ]
+  },
+  {
+   "step": 6,
+   "text": "keeping it stirred all The time it Boils",
+   "note": null,
+   "box": [
+    290,
+    1785,
+    1530,
+    1935
+   ]
+  }
+ ]
+}
