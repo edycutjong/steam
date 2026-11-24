@@ -313,7 +313,7 @@ Rules for every task:
 
 ## K. Responsive, contrast, built-site checks
 
-- [ ] 48. Responsive CSS and contrast
+- [x] 48. Responsive CSS and contrast
   - Test first: `src/app/tokens.test.ts` computes contrast from the values in `src/index.css`: `--ink` on `--bg` and `--muted` on `--bg` at least 4.5:1, `--after` on `--bg` at least 3:1, `--ghost` focus ring against `--bg` at least 3:1. `src/app/css.test.ts` reads `app.css` and `cook.css` and asserts: no hex colour literal (every colour is a custom property), the step-size custom property is 24px up to 1024px and 34px from 1025px, the timer 44px and 64px, the title 34px and 56px, the transcription 17px and 20px, the slip 11px and 12px, `:focus-visible` outline of 2px in `--ghost`, `touch-action: none` on the drag surface, no fixed pixel `width` on a screen container, and the three font families only.
   - Implement the CSS for the shelf, edition and cook screens at the three breakpoints (phone ≤ 480, tablet 481 to 1024, desktop ≥ 1025), with `--glass-h` 55dvh on phone and the 60% stage (max 1100px) on desktop.
   - Files: `src/app/app.css`, `src/app/cook.css`, `src/app/tokens.test.ts`, `src/app/css.test.ts`.
