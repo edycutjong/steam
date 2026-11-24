@@ -152,7 +152,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/SteamPane.tsx`, `src/steam/steam.css`.
   - Satisfies: R10.1 to R10.8, R15.4, R16.3, R20.1 to R20.4, R20.6, R21.2 to R21.4.
 
-- [ ] 28. `StaticPane` component
+- [x] 28. `StaticPane` component
   - Implement the fallback: sash frame and upper sash reuse, two stacked images with a 600 ms opacity crossfade at the reveal moment, the cleared-glass image on wipe, the same button, live region, credit, and `?t`/`?lead` handling, and `matchMedia('(prefers-reduced-motion: reduce)')` selection (re-evaluated on change). Pick the `groups` or `page` image pair from `chooseLayout`.
   - Files: `src/steam/StaticPane.tsx`.
   - Satisfies: R19.1 to R19.7, R20.5.

@@ -7,7 +7,8 @@ import type { Derived } from './derive.ts'
 import { chooseLayout, computeLayout } from './layout.ts'
 import { parseParams } from './params.ts'
 import { SteamRenderer } from './renderer.ts'
-import type { Phase } from './timeline.ts'
+import StaticPane from './StaticPane.tsx'
+import type { Phase, RevealState } from './timeline.ts'
 import './steam.css'
 
 export const NOTE_STEM = '/hero/note-looks-red-smooth'
@@ -76,6 +77,10 @@ export default function SteamPane({ stem = NOTE_STEM }: { stem?: string }) {
   const phaseRef = useRef<Phase>('fogged')
   const fpsRef = useRef<HTMLDivElement>(null)
   const frozen = params.t !== null
+  const handleState = useCallback((st: RevealState): void => {
+    phaseRef.current = st.phase
+    setPhase(st.phase)
+  }, [])
   const noteText = loaded?.assets.meta.text ?? ''
 
   // Load, validate and derive once.
@@ -118,10 +123,7 @@ export default function SteamPane({ stem = NOTE_STEM }: { stem?: string }) {
     }
     renderer.resize(w, h, layout)
     ctlRef.current = renderer
-    renderer.onState((st) => {
-      phaseRef.current = st.phase
-      setPhase(st.phase)
-    })
+    renderer.onState(handleState)
     let fpsTimer = 0
     if (params.fps) {
       renderer.resetStats()
@@ -148,7 +150,7 @@ export default function SteamPane({ stem = NOTE_STEM }: { stem?: string }) {
       ctlRef.current = null
       renderer.dispose()
     }
-  }, [loaded, status, params])
+  }, [loaded, status, params, handleState])
 
   const act = useCallback((): void => {
     const ctl = ctlRef.current
@@ -182,7 +184,11 @@ export default function SteamPane({ stem = NOTE_STEM }: { stem?: string }) {
       </div>
       <div className="rail rail--meeting" />
       <div className="sash sash--lower">
-        {status !== 'fallback' && <canvas ref={canvasRef} className="steam-canvas" aria-hidden="true" />}
+        {status === 'fallback' || status === 'error' ? (
+          <StaticPane params={params} controllerRef={ctlRef} onState={handleState} fogOnly={status === 'error'} />
+        ) : (
+          <canvas ref={canvasRef} className="steam-canvas" aria-hidden="true" />
+        )}
         {params.fps ? <div ref={fpsRef} className="fps" /> : null}
       </div>
       <div className="rail rail--bottom" />
@@ -192,7 +198,7 @@ export default function SteamPane({ stem = NOTE_STEM }: { stem?: string }) {
         <button
           type="button"
           className="wipe-btn"
-          aria-disabled={phase === 'writing' || frozen || status !== 'ready' ? true : undefined}
+          aria-disabled={phase === 'writing' || frozen || status === 'loading' || status === 'error' ? true : undefined}
           onClick={act}
         >
           {buttonLabel(phase)}
