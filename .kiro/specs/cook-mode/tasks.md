@@ -273,7 +273,7 @@ Rules for every task:
   - Files: `src/app/components/WipeControl.tsx`, `src/app/components/DragSurface.tsx`, `src/app/components/*.test.tsx`, `src/app/cook.css`.
   - Satisfies: R14.1 to R14.6, R14.9, R14.10, R23.2, R23.4.
 
-- [ ] 42. `PaneStage`: pane choice, preparation, gate wiring, outgoing sweep, failed scan
+- [x] 42. `PaneStage`: pane choice, preparation, gate wiring, outgoing sweep, failed scan
   - Test first: `PaneStage.test.tsx` (fake `SteamGlass` that exposes its controller): the pane's note follows `paneNoteFor`; a reveal effect for a ready pane calls `startReveal()` once and sets `cook:reveal:<id>`; an effect for a pane that is not ready waits; after a wipe the outgoing pane stays until its `wiped` state plus `WIPE_MS`, then crossfades out over 600 ms (opacity only) and at most two panes exist; a restored revealed note creates the pane `initial: 'held'`; a note whose assets throw `AssetError` shows "The scan of this note could not be loaded." and its typed transcription, and the effect is dropped; preparation order: the current note first, the others in idle time, none while any pane is `writing` (spy on `derive`). The prepared cache is kept for the session.
   - Implement `PaneStage.tsx`, `prepare.ts` (`prepare(noteId)` cache).
   - Files: `src/app/components/PaneStage.tsx`, `src/app/components/PaneStage.test.tsx`, `src/steam/prepare.ts`, `src/steam/SteamGlass.tsx` (the optional `prepared` prop).
