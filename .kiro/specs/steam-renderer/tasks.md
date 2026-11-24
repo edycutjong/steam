@@ -96,7 +96,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/derive.test.ts`, `src/steam/derive.prop.test.ts`.
   - Satisfies: R6.3, R18.1 to R18.4.
 
-- [ ] 17. Design tokens reader
+- [x] 17. Design tokens reader
   - Create `readTokens(el)` returning `vec3` arrays for `--bg --ink --before --after --rule --ghost --moon --night` from `getComputedStyle`, parsed once. Throw if a token is missing. Add the tokens as CSS custom properties in the app stylesheet if not already present.
   - Files: `src/steam/tokens.ts`, `src/index.css` (or the existing global stylesheet).
   - Satisfies: R14.9, R21.5.

@@ -1,0 +1,21 @@
+/* Design tokens (product constitution). No ad-hoc colours anywhere else. */
+:root {
+  --bg: #0e0a0a;
+  --ink: #efe7da;
+  --muted: #9a8f82;
+  --before: #7f909c;
+  --after: #f2a65a;
+  --fault: #d9654e;
+  --rule: #3a2d24;
+  --paper: #e8dcc2;
+  --ghost: #bcd3e4;
+  --moon: #e4e9ec;
+  --night: #121a24;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+}
