@@ -42,8 +42,9 @@ describe('derive on a synthetic 40x20 note', () => {
   })
   it('gives dilated pixels the toi of the nearest ink', () => {
     expect(d.chan[at(7, 10) + 1]).toBe(d.chan[at(8, 10) + 1])
-    expect(d.chan[at(20, 13) + 1]).toBe(d.chan[at(20, 11) + 1])
-    expect(d.chan[at(20, 13)]).toBeGreaterThan(0)
+    expect(d.chan[at(20, 12) + 1]).toBe(d.chan[at(20, 11) + 1])
+    expect(d.chan[at(20, 12)]).toBeGreaterThan(0)
+    expect(d.chan[at(20, 14)]).toBe(0) // growth stays within one texel (D6)
   })
   it('leaves far pixels untouched', () => {
     expect(d.chan[at(2, 2)]).toBe(0)

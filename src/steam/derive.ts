@@ -16,8 +16,9 @@ export interface Derived {
   headBins: number
 }
 
-export const DILATE_PX = 2
-export const SOFT_PX = 2
+/** Channel follows the scan's own alpha: no growth, one texel of softening (D6). */
+export const DILATE_PX = 0
+export const SOFT_PX = 1
 export const TOI_REACH_PX = DILATE_PX + SOFT_PX + 1
 export const HULL_DILATE_PX = 6
 export const HULL_FEATHER_PX = 24
