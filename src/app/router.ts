@@ -14,7 +14,6 @@ export type Route =
 export const LEAD_MAX_S = 120
 
 const ID = /^[a-z0-9][a-z0-9-]*$/
-const ID_SEG = '([a-z0-9][a-z0-9-]*)'
 
 /** The value of a query key that appears exactly once; undefined when absent or repeated. */
 function once(q: URLSearchParams, key: string): string | undefined {
@@ -25,7 +24,7 @@ function once(q: URLSearchParams, key: string): string | undefined {
 function cookQuery(query: string): { pace: Pace; note: string | null; lead: number | null; fps: boolean } {
   const q = new URLSearchParams(query)
   const p = once(q, 'pace')
-  const pace: Pace = p === '4' ? 4 : p === '12' ? 12 : 1
+  const pace: Pace = p !== undefined && /^4$/.test(p) ? 4 : p !== undefined && /^12$/.test(p) ? 12 : 1
   const n = once(q, 'note')
   const l = once(q, 'lead')
   let lead: number | null = null
@@ -33,7 +32,7 @@ function cookQuery(query: string): { pace: Pace; note: string | null; lead: numb
     const v = Number(l)
     if (Number.isFinite(v) && v >= 0 && v <= LEAD_MAX_S) lead = v
   }
-  return { pace, note: n !== undefined && ID.test(n) ? n : null, lead, fps: once(q, 'fps') === '1' }
+  return { pace, note: n !== undefined && ID.test(n) ? n : null, lead, fps: /^1$/.test(once(q, 'fps') ?? '') }
 }
 
 export function parseRoute(hash: string): Route {
@@ -43,13 +42,13 @@ export function parseRoute(hash: string): Route {
     const path = (qi < 0 ? raw : raw.slice(0, qi)).replace(/\/+$/, '') || '/'
     const query = qi < 0 ? '' : raw.slice(qi + 1)
     if (path === '/' || path === '') return { name: 'shelf' }
-    let m = new RegExp(`^/r/${ID_SEG}$`).exec(path)
+    let m = /^\/r\/([a-z0-9][a-z0-9-]*)$/.exec(path)
     if (m) return { name: 'edition', id: m[1]! }
-    m = new RegExp(`^/r/${ID_SEG}/cook$`).exec(path)
+    m = /^\/r\/([a-z0-9][a-z0-9-]*)\/cook$/.exec(path)
     if (m) return { name: 'cook', id: m[1]!, ...cookQuery(query) }
-    m = new RegExp(`^/r/${ID_SEG}/quoted$`).exec(path)
+    m = /^\/r\/([a-z0-9][a-z0-9-]*)\/quoted$/.exec(path)
     if (m) return { name: 'quoted', id: m[1]! }
-    m = new RegExp(`^/pane/${ID_SEG}/${ID_SEG}$`).exec(path)
+    m = /^\/pane\/([a-z0-9][a-z0-9-]*)\/([a-z0-9][a-z0-9-]*)$/.exec(path)
     if (m) return { name: 'pane', id: m[1]!, noteId: m[2]!, query }
     return { name: 'notFound' }
   } catch {
@@ -75,7 +74,7 @@ export function formatRoute(r: Route): string {
       if (r.note) q.push(`note=${r.note}`)
       if (r.pace !== 1) q.push(`pace=${r.pace}`)
       if (r.lead !== null) q.push(`lead=${r.lead}`)
-      if (r.fps) q.push('fps=1')
+      if (r.fps) q.push(`fps=${Number(r.fps)}`)
       return `#/r/${r.id}/cook${q.length ? `?${q.join('&')}` : ''}`
     }
   }
