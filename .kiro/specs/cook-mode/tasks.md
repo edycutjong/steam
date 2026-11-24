@@ -139,7 +139,7 @@ Rules for every task:
 
 ## E. Controls, gate, announcements, cue and audio (pure and injected)
 
-- [ ] 21. Drag recognizer and K9
+- [x] 21. Drag recognizer and K9
   - Test first: `src/cook/drag.test.ts`: a 95 px path does not fire, 96 px of a pane at least 384 px wide fires once; a 300 px pane needs 96 px (25% is 75 px, the larger bound wins); a 1 000 px pane needs 250 px; a path that takes over 2 s does not fire; a tap (one sample) does not fire; a vertical drag of 400 px with no horizontal travel does not fire; back-and-forth movement counts its summed horizontal steps. `src/cook/drag.prop.test.ts` (K9) and the 400 ms debounce helper `dedupe(events, 400)`.
   - Implement `dragWipe`, `DRAG_MIN_PX`, `dedupe`.
   - Files: `src/cook/drag.ts`, `src/cook/drag.test.ts`, `src/cook/drag.prop.test.ts`.
