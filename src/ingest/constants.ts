@@ -13,6 +13,11 @@ export const MIN_COMPONENT_PX = 30
  * piece of writing. Not tuned: fixed in the first commit of the word-align-speck spec, before the page was re-measured.
  */
 export const WORD_INK_MIN_PX = MIN_COMPONENT_PX
+/**
+ * Largest factor by which a word's share of the line's width may differ from its share of the line's characters, either
+ * way (word-cut-inside-word, design 3.5). Fixed in the spec's first commit, before the page was measured with it.
+ */
+export const WORD_SHAPE_RATIO_MAX = 2
 export const CORE_FRACTION = 0.6
 export const PROFILE_SIGMA = 6
 export const PEAK_MIN_FRACTION = 0.25
@@ -54,6 +59,7 @@ export const CONSTANTS_TABLE: readonly ConstantRow[] = [
   row('INK_MEDIAN_GUARD', INK_MEDIAN_GUARD, 'keeps paper texture out of the ink map', 'spike'),
   row('MIN_COMPONENT_PX', MIN_COMPONENT_PX, 'specks do not create lines or count as pieces', 'request'),
   row('WORD_INK_MIN_PX', WORD_INK_MIN_PX, 'a word box holds at least one piece of writing: alignment is rejected when any word box holds less (word-align-speck)', 'this spec (word-align-speck), = MIN_COMPONENT_PX, not tuned', '676fb65'),
+  row('WORD_SHAPE_RATIO_MAX', WORD_SHAPE_RATIO_MAX, 'a word is at most 2x wider or narrower than its share of the line\'s characters predicts; otherwise the cut is implausible (word-cut-inside-word)', 'this spec (word-cut-inside-word), fixed before measuring, not tuned', '399ac56'),
   row('CORE_FRACTION', CORE_FRACTION, 'core band = rows at or above 60% of the line peak', 'request'),
   row('PROFILE_SIGMA', PROFILE_SIGMA, 'row projection smoothing', 'spike'),
   row('PEAK_MIN_FRACTION', PEAK_MIN_FRACTION, 'peak height floor against the global maximum', 'spike'),

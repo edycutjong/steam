@@ -17,3 +17,6 @@
 2026-11-24T20:07:22.088Z · no-imitation · src/steam/zz-hook-probe-ok.ts · pass (no speech synthesis, handwriting font or handwriting package)
 2026-11-24T20:07:22.585Z · props-on-save · zz-hook-probe ← content/recipes/zz-hook-probe/agent/scribe.json · error content/recipes/zz-hook-probe: source.json and lines.json are needed (run fetch and segment)
 2026-11-24T20:07:23.029Z · props-on-save · zz-hook-probe ← content/recipes/zz-hook-probe/agent/scribe.json · error content/recipes/zz-hook-probe: source.json and lines.json are needed (run fetch and segment)
+2026-11-24T20:09:34.522Z · cli · quinces-marmalade · pass P1-P6 ok · recall 0.9802 · full-ripe reviewed (1 components by Kiro (agent), turn-18) · looks-red-smooth reviewed (3 components by Kiro (agent), turn-18) · no-op (inputs unchanged)
+2026-11-24T20:13:15.354Z · no-imitation · src/ingest/plausible.ts · pass (no speech synthesis, handwriting font or handwriting package)
+2026-11-24T20:14:21.000Z · word-cut-inside-word · quinces-marmalade · fail wordCut.bug.test: word shape rejects all 3 word-aligned parts (full-ripe/line 1 "full" ratio 0.21; when-tender/line 7 "&" 2.69; line 8 "&" 7.54, "sug.r" 0.11); cut-through: when-tender/line 8 boundary 1496 cuts component 2551877; fixture test judges 0 word-aligned fixture words (hero is whole lines)

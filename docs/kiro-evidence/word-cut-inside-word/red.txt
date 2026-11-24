@@ -1,0 +1,76 @@
+# word-cut-inside-word, commit A: exploration test on the real page, unfixed code (RED, expected)
+# command: npx vitest run wordCut --no-color
+# recorded: 2026-11-24T20:14:16Z, on the tree whose parent commit is 399ac56 (the rule is in design.md 3.5 from that commit, written before measuring)
+
+
+ RUN  v5.1.1 /Users/edycu/Hackathon/devpost/devpost-kiroween/steam/build
+
+stdout | src/ingest/wordCut.bug.test.ts > word-cut-inside-word on the real page: quinces-marmalade > test 1, word shape: every word of every word-aligned part is about as wide as its characters predict
+full-ripe/line 1 (auto) ratios [limit 1/2..2]: Let:148c/3ch=1.26 your:156c/4ch=1.00 quinces:249c/7ch=0.91 be:47c/2ch=0.60 full:33c/4ch=0.21 ripe,:137c/4ch=0.88 then:247c/4ch=1.58 wipe:235c/4ch=1.50
+when-tender/line 7 (auto) ratios [limit 1/2..2]: the:236c/3ch=1.67 Quince,:247c/6ch=0.87 in:37c/2ch=0.39 that:105c/4ch=0.56 Liquor,:334c/6ch=1.18 &:127c/1ch=2.69 when:141c/4ch=0.75
+when-tender/line 8 (auto) ratios [limit 1/2..2]: Tender,:167c/6ch=0.69 mash:137c/4ch=0.85 them,:119c/4ch=0.74 &:305c/1ch=7.54 then:70c/4ch=0.43 put:130c/3ch=1.07 your:268c/4ch=1.66 sug.r:18c/4ch=0.11
+
+stdout | src/ingest/wordCut.bug.test.ts > word-cut-inside-word on the real page: quinces-marmalade > test 2, cut-through: no boundary of a word-aligned part cuts a component
+full-ripe/line 1: cut-through none
+when-tender/line 7: cut-through none
+when-tender/line 8: cut-through boundary 1496 cuts component 2551877 (columns 1463 to 1528)
+
+ ❯ src/ingest/wordCut.bug.test.ts (4 tests | 2 failed) 66ms
+   ❯ word-cut-inside-word on the real page: quinces-marmalade (4)
+     × test 1, word shape: every word of every word-aligned part is about as wide as its characters predict 10ms
+     × test 2, cut-through: no boundary of a word-aligned part cuts a component 53ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/ingest/wordCut.bug.test.ts > word-cut-inside-word on the real page: quinces-marmalade > test 1, word shape: every word of every word-aligned part is about as wide as its characters predict
+AssertionError: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "full-ripe/line 1 (auto, accepted: 7 boundaries): alignment implausible: word 4 \"full\" spans 33 of 1252 columns but has 4 of the line's 32 characters (ratio 0.21, allowed 0.5 to 2)",
++   "when-tender/line 7 (auto, accepted: 6 boundaries): alignment implausible: word 2 \"in\" spans 37 of 1227 columns but has 2 of the line's 26 characters (ratio 0.39, allowed 0.5 to 2); word 5 \"&\" spans 127 of 1227 columns but has 1 of the line's 26 characters (ratio 2.69, allowed 0.5 to 2)",
++   "when-tender/line 8 (auto, accepted: 7 boundaries): alignment implausible: word 3 \"&\" spans 305 of 1214 columns but has 1 of the line's 30 characters (ratio 7.54, allowed 0.5 to 2); word 4 \"then\" spans 70 of 1214 columns but has 4 of the line's 30 characters (ratio 0.43, allowed 0.5 to 2); word 7 \"sug.r\" spans 18 of 1214 columns but has 4 of the line's 30 characters (ratio 0.11, allowed 0.5 to 2)",
++ ]
+
+ ❯ src/ingest/wordCut.bug.test.ts:88:17
+     86|       if (reason) bad.push(`${p.note}/line ${p.line} (${p.method}, ${p…
+     87|     }
+     88|     expect(bad).toEqual([])
+       |                 ^
+     89|   })
+     90|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/ingest/wordCut.bug.test.ts > word-cut-inside-word on the real page: quinces-marmalade > test 2, cut-through: no boundary of a word-aligned part cuts a component
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "when-tender/line 8: boundary 1496 cuts component 2551877 (columns 1463 to 1528)",
++ ]
+
+ ❯ src/ingest/wordCut.bug.test.ts:98:17
+     96|       if (reason) bad.push(`${p.note}/line ${p.line}: ${reason}`)
+     97|     }
+     98|     expect(bad).toEqual([])
+       |                 ^
+     99|   })
+    100|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  03:14:16
+   Duration  4.99s (import 98%, tests 1%)
+
+
+# exit code: 1 (vitest: 2 of 4 tests failed)
