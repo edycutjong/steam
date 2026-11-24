@@ -89,7 +89,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/derive.ts`.
   - Satisfies: R8.1, R8.2, R8.6, R18.3.
 
-- [ ] 16. Derive tests
+- [x] 16. Derive tests
   - On a synthetic 40×20 note: output sizes are `w*h*4` and `256*2`; channel alpha at ink pixels is 255; dilated pixels carry the toi of the nearest ink; feather is 255 on ink, 0 at 30 px away and beyond, and non-increasing with distance; head table x is non-decreasing within a single line; no NaN.
   - On the real hero files (read with a PNG decoder devDependency or the test's own decoder, skipping if absent): the hull reach (A > 0) stays inside the 32 px margin, so no non-zero A on the note's outer 1 px ring.
   - Property test (fast-check) for random small masks: output sizes exact and all values in range.
