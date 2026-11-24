@@ -2,7 +2,7 @@
 import fc from 'fast-check'
 import { describe, expect, it } from 'vitest'
 import { labelComponents } from './components.ts'
-import { nearestBand, noteOwnership, ownership, type Bands } from './masks.ts'
+import { applyReview, nearestBand, noteOwnership, ownership, type Bands } from './masks.ts'
 import { checkP3Notes } from './props.ts'
 import { blank, mulberry32, stroke } from './synth.ts'
 
@@ -143,6 +143,28 @@ describe('P3 (e) split share and the verdict', () => {
         } else expect(r.flagged).toEqual([])
       }),
       { numRuns: 150 },
+    )
+  })
+})
+
+describe('P3 (f) a review decision changes only its own component', () => {
+  it('every other pixel keeps its automatic owner', () => {
+    fc.assert(
+      fc.property(arb, ({ seed, n, strokes }) => {
+        const rnd = mulberry32(seed)
+        const { bands, H } = randomBands(rnd, Math.max(2, n))
+        const c = randomInk(rnd, H, strokes)
+        const labels = labelComponents(c.ink, W, H)
+        const base = ownership(labels, bands)
+        const split = [...base.components.values()].filter((k) => k.split)
+        if (split.length === 0) return
+        const pick = split[Math.floor(rnd() * split.length)]!
+        const { own, errors } = applyReview(labels, bands, [{ componentId: pick.id, decision: { assignToLine: pick.touched[Math.floor(rnd() * pick.touched.length)]! }, reviewer: 'r' }])
+        expect(errors).toEqual([])
+        for (let i = 0; i < W * H; i++) if (labels.label[i] !== pick.id) expect(own.owner[i]).toBe(base.owner[i])
+        expect(new Set([...own.components.values()].filter((k) => k.reviewed).map((k) => k.id))).toEqual(new Set([pick.id]))
+      }),
+      { numRuns: 120 },
     )
   })
 })

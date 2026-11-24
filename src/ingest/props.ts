@@ -22,16 +22,17 @@ export interface P3Summary {
 const pct = (x: number): string => x.toFixed(4)
 
 /** P3, per-note part (R12, R26.2 last clause, R26.3). */
-export function checkP3Notes(notes: NoteOwnership[]): P3Summary {
+export function checkP3Notes(notes: NoteOwnership[], opts: { staleReview?: boolean } = {}): P3Summary {
   const failing = notes.filter((n) => n.status === 'failed')
   const autoPass = notes.filter((n) => n.status === 'auto').length
   const reviewedPass = notes.filter((n) => n.status === 'reviewed').length
   if (failing.length) {
     const d = failing.map((n) => `${n.noteId}: split share ${pct(n.share)} over ${SPLIT_SHARE_MAX}, components ${n.flagged.join(',')}`)
-    return { result: { pass: false, detail: `joined strokes: needs review (${d.join('; ')})` }, autoPass, reviewedPass }
+    const head = opts.staleReview ? 'stale ownership review; joined strokes: needs review' : 'joined strokes: needs review'
+    return { result: { pass: false, detail: `${head} (${d.join('; ')})` }, autoPass, reviewedPass }
   }
   const reviewed = notes.filter((n) => n.status === 'reviewed')
-  const rev = reviewed.map((n) => `${n.noteId} reviewed (${n.flagged.length} components)`)
+  const rev = reviewed.map((n) => `${n.noteId} reviewed (${n.flagged.length} components, by ${n.reviewers.join(', ')})`)
   return {
     result: { pass: true, detail: `${autoPass} auto${reviewed.length ? `, ${rev.join('; ')}` : ''}` },
     autoPass,

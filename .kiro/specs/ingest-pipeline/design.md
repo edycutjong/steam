@@ -69,7 +69,7 @@ fetch    -> page.jpg, source.json
 segment  -> lines.json, region.json, runs.json, strips/line-i.png, ownership/{splits.json,overlay.png}
    (agents later) -> agent/scribe.json, agent/second.json   (text + indices only)
 merge    -> transcription.md (only if absent)
-(optional, human) -> ownership-review.json, alignment.json, review.json, timing.json
+(optional, curator or agent) -> ownership-review.json, alignment.json, timing.json;  (hand-written only) -> review.json
 gate     -> merged.json, notes/note-<id>.{png,toi.png,json}, ownership/flag-*.png, gate.json
 catalog  -> recipe.json, content/catalog.json, public/recipes/<id>/*
 ```
@@ -364,7 +364,7 @@ File: `src/ingest/timeofink.prop.test.ts`.
 - The MCP server `tools/iiif-mcp/`.
 - UI strings and the "verify at source" UI. This spec writes the data (`verifyUrl`, provenance).
 - The held-out French Bread run (R39.3).
-- The curator's own `ownership-review.json` and `review.json` for `quinces-marmalade`: they are written by a person after the first gate run shows what needs review.
+- `review.json` (the catalog sign-off) for `quinces-marmalade`: it stays hand-written by a person. `ownership-review.json` may be written by a person or by an agent (specs/complexity.md P3: "a Kiro-written review is an agent save and is re-gated"); its `reviewer` field names the writer truthfully and the gate reports the note as `reviewed`, never as an automatic pass. (Amended in task 14, addendum 2a.)
 
 ## 8. Decisions made where the request was open
 

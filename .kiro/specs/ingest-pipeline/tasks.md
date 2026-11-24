@@ -80,7 +80,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/masks.ts`, `src/ingest/props.ts`, `src/ingest/props.test.ts`.
   - Satisfies: R12.1 to R12.5, R26.1, R26.3.
 
-- [ ] 14. Ownership review
+- [x] 14. Ownership review
   - Test first: `assignToLine` accepted only for a touched line; `splitAtRow` only inside the interval between the touched bands; a stale `segmentRun` is ignored and the note fails "stale ownership review"; a decision changes only its own component; a reviewed note passes with status `reviewed`, detail "reviewed (n components, by <reviewer>)", and `autoPass` excludes it.
   - Implement `applyReview` in `src/ingest/masks.ts`.
   - Files: `src/ingest/masks.ts`, `src/ingest/review.test.ts`.
@@ -260,8 +260,8 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `content/recipes/quinces-marmalade/gate.json`, `docs/kiro-evidence/hooks.log`.
   - Satisfies: R12.3, R20.1 to R20.3, R27.4, R27.5, R33.1.
 
-- [ ] 44. Ownership review for the hero note (human step)
-  - A person looks at each `ownership/flag-<id>.png` and writes `ownership-review.json` with a decision, reviewer and rationale per flagged component. An agent does not write this file. Re-run `ingest:gate`; the hero note must report `reviewed (n components, by <reviewer>)`.
+- [ ] 44. Ownership review for the hero note (curator or agent step)
+  - Only when P3 failed with "joined strokes: needs review": the writer (a person, or an agent that names itself in `reviewer`) looks at each `ownership/flag-<id>.png` and writes `ownership-review.json` with a decision, reviewer and one-line rationale per flagged component. Re-run `ingest:gate`; the hero note must report `reviewed (n components, by <reviewer>)`, never an automatic pass. `review.json` stays hand-written and is not part of this task.
   - Files: `content/recipes/quinces-marmalade/ownership-review.json`.
   - Satisfies: R13.1 to R13.7.
 

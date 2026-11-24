@@ -77,12 +77,12 @@ describe('the 0.02 threshold', () => {
 
 describe('checkP3Notes', () => {
   it('passes an all-auto set and counts auto and reviewed separately', () => {
-    const a = { noteId: 'a', maskPx: 10, splitPx: 0, share: 0, flagged: [], decided: [], status: 'auto' as const }
-    const r = { noteId: 'r', maskPx: 10, splitPx: 5, share: 0.5, flagged: [1, 2], decided: [1, 2], status: 'reviewed' as const }
+    const a = { noteId: 'a', maskPx: 10, splitPx: 0, share: 0, flagged: [], decided: [], reviewers: [], status: 'auto' as const }
+    const r = { noteId: 'r', maskPx: 10, splitPx: 5, share: 0.5, flagged: [1, 2], decided: [1, 2], reviewers: ['A. Person'], status: 'reviewed' as const }
     const s = checkP3Notes([a, r])
     expect(s.result.pass).toBe(true)
     expect(s.autoPass).toBe(1)
     expect(s.reviewedPass).toBe(1)
-    expect(s.result.detail).toContain('reviewed (2 components)')
+    expect(s.result.detail).toContain('reviewed (2 components, by A. Person)')
   })
 })

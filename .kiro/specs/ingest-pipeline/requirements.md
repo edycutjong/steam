@@ -160,6 +160,7 @@ Pixel-size constants are stated for a page frame 1600 px wide and scale linearly
 5. THE SYSTEM SHALL NOT count a reviewed note as an automatic pass in any figure, count, log line or bundle field, and SHALL report `autoPass` and `reviewedPass` as separate numbers.
 6. IF `ownership-review.json` echoes a `segmentRun` other than the current one, THEN THE SYSTEM SHALL ignore its decisions, fail P3 for flagged notes and say "stale ownership review".
 7. THE SYSTEM SHALL include the file's SHA-256 in `gate.json.inputs.ownershipReview` when the file exists.
+8. A person or an agent MAY write `ownership-review.json`. Its `reviewer` SHALL name the writer truthfully (an agent names itself as an agent). A review written by an agent is an agent save: it is re-gated like any input, and the note it unlocks is reported as `reviewed` with that reviewer, never as an automatic pass. `review.json` (R35.3) is not covered by this clause and stays hand-written.
 
 ## R14. Reader files and staleness
 

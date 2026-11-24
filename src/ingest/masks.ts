@@ -17,6 +17,8 @@ export interface SplitLog {
   lines: number[]
   pixelsPerLine: number[]
   totalPixels: number
+  /** Set when a review decision replaced the automatic cut. */
+  review?: string
 }
 
 export interface CompInfo {
@@ -41,6 +43,8 @@ export interface Ownership {
   owner: Int16Array
   components: Map<number, CompInfo>
   splits: SplitLog[]
+  /** Reviewer per component decided by a review decision (R13). */
+  reviewers: Map<number, string>
 }
 
 /** Nearest core band to a row: distance 0 inside a band, else the gap to the nearest edge; ties go to the upper line. */
@@ -121,7 +125,7 @@ export function ownership(labels: Labels, bands: Bands): Ownership {
     const lines = c.touched
     splits.push({ componentId: id, rows: [c.rows[0], c.rows[1]], valleyRows: cutRows(c), lines, pixelsPerLine: lines.map((l) => arr[l]!), totalPixels: c.size })
   }
-  return { width: w, height: h, owner, components: info, splits }
+  return { width: w, height: h, owner, components: info, splits, reviewers: new Map() }
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -142,6 +146,8 @@ export interface NoteOwnership {
   flagged: number[]
   /** Flagged components that carry a review decision. */
   decided: number[]
+  /** Reviewers of the decided components, sorted, unique. */
+  reviewers: string[]
   status: SplitStatus
 }
 
@@ -171,8 +177,105 @@ export const shareWithinThreshold = (splitPx: number, maskPx: number): boolean =
  */
 export function noteOwnership(own: Ownership, labels: Labels, noteId: string, mask: Uint8Array): NoteOwnership {
   const s = splitShare(own, labels, mask)
-  if (shareWithinThreshold(s.splitPx, s.maskPx)) return { noteId, maskPx: s.maskPx, splitPx: s.splitPx, share: s.share, flagged: [], decided: [], status: 'auto' }
+  if (shareWithinThreshold(s.splitPx, s.maskPx)) return { noteId, maskPx: s.maskPx, splitPx: s.splitPx, share: s.share, flagged: [], decided: [], reviewers: [], status: 'auto' }
   const flagged = s.contributing
   const decided = flagged.filter((id) => own.components.get(id)!.reviewed)
-  return { noteId, maskPx: s.maskPx, splitPx: s.splitPx, share: s.share, flagged, decided, status: decided.length === flagged.length ? 'reviewed' : 'failed' }
+  return { noteId, maskPx: s.maskPx, splitPx: s.splitPx, share: s.share, flagged, decided, reviewers: [...new Set(decided.map((id) => own.reviewers.get(id)!))].sort(), status: decided.length === flagged.length ? 'reviewed' : 'failed' }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Ownership review (R13)
+
+export interface ReviewInput {
+  componentId: number
+  decision: { assignToLine: number } | { splitAtRow: number }
+  reviewer: string
+}
+
+/** Validates decisions against the automatic ownership (R13.2); every message names the component id. */
+export function validateReview(base: Ownership, bands: Bands, decisions: ReviewInput[]): string[] {
+  const errs: string[] = []
+  const byComp = new Map<number, ReviewInput[]>()
+  for (const d of decisions) byComp.set(d.componentId, [...(byComp.get(d.componentId) ?? []), d])
+  for (const [id, ds] of byComp) {
+    const c = base.components.get(id)
+    if (!c) {
+      errs.push(`component ${id}: not an ink component of this segment run`)
+      continue
+    }
+    const assigns = ds.filter((d) => 'assignToLine' in d.decision)
+    const splits = ds.filter((d) => 'splitAtRow' in d.decision)
+    if (assigns.length && splits.length) errs.push(`component ${id}: both assignToLine and splitAtRow given`)
+    else if (assigns.length > 1) errs.push(`component ${id}: more than one assignToLine`)
+    else if (assigns.length === 1) {
+      const i = (assigns[0]!.decision as { assignToLine: number }).assignToLine
+      if (!c.touched.includes(i)) errs.push(`component ${id}: line ${i} is not touched by the component (touched: ${c.touched.join(', ') || 'none'})`)
+    } else {
+      if (c.touched.length < 2) errs.push(`component ${id}: splitAtRow needs a component that touches two lines`)
+      else if (splits.length !== c.touched.length - 1) errs.push(`component ${id}: touches ${c.touched.length} lines, needs ${c.touched.length - 1} splitAtRow entries, got ${splits.length}`)
+      else {
+        const rows = splits.map((d) => (d.decision as { splitAtRow: number }).splitAtRow).sort((a, b) => a - b)
+        rows.forEach((y, k) => {
+          const lo = bands.cores[c.touched[k]!]![1]
+          const hi = bands.cores[c.touched[k + 1]!]![0]
+          if (y < lo || y > hi) errs.push(`component ${id}: splitAtRow ${y} is outside [${lo}, ${hi}] between lines ${c.touched[k]} and ${c.touched[k + 1]}`)
+        })
+      }
+    }
+  }
+  return errs
+}
+
+/**
+ * R13.3. Decisions override the automatic owner of their own component only; every other pixel keeps its owner.
+ * Returns the base ownership and the validation errors when any decision is invalid (nothing is applied then).
+ */
+export function applyReview(labels: Labels, bands: Bands, decisions: ReviewInput[]): { own: Ownership; errors: string[] } {
+  const own = ownership(labels, bands)
+  const errors = validateReview(own, bands, decisions)
+  if (errors.length || decisions.length === 0) return { own, errors }
+  const byComp = new Map<number, ReviewInput[]>()
+  for (const d of decisions) byComp.set(d.componentId, [...(byComp.get(d.componentId) ?? []), d])
+  const rule = new Map<number, (y: number) => number>()
+  for (const [id, ds] of byComp) {
+    const c = own.components.get(id)!
+    const first = ds[0]!.decision
+    let note: string
+    if ('assignToLine' in first) {
+      const i = first.assignToLine
+      rule.set(id, () => i)
+      note = `assignToLine ${i}`
+    } else {
+      const rows = ds.map((d) => (d.decision as { splitAtRow: number }).splitAtRow).sort((a, b) => a - b)
+      const t = c.touched
+      rule.set(id, (y) => {
+        let k = 0
+        while (k < rows.length && y >= rows[k]!) k++
+        return t[k]!
+      })
+      note = `splitAtRow ${rows.join(',')}`
+    }
+    c.reviewed = true
+    own.reviewers.set(id, ds[0]!.reviewer)
+    const log = own.splits.find((l) => l.componentId === id)
+    if (log) log.review = note
+  }
+  const w = labels.width
+  const counts = new Map<number, number[]>()
+  for (let y = 0; y < labels.height; y++)
+    for (let x = 0; x < w; x++) {
+      const id = labels.label[y * w + x]!
+      const f = id >= 0 ? rule.get(id) : undefined
+      if (!f) continue
+      const l = f(y)
+      own.owner[y * w + x] = l
+      const arr = counts.get(id) ?? new Array<number>(bands.cores.length).fill(0)
+      arr[l]!++
+      counts.set(id, arr)
+    }
+  for (const log of own.splits) {
+    const arr = counts.get(log.componentId)
+    if (arr) log.pixelsPerLine = log.lines.map((l) => arr[l]!)
+  }
+  return { own, errors }
 }
