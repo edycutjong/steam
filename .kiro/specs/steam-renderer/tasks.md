@@ -63,7 +63,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/assets.ts`.
   - Satisfies: R17.2, R17.3, R17.5.
 
-- [ ] 11. Asset schema unit tests
+- [x] 11. Asset schema unit tests
   - Accept the real `public/hero/note-looks-red-smooth.json` (read it with `fs` in the test), including its extra spike keys.
   - Reject: missing `groups`, wrong `size` type, `rect` outside `size`, `coreBand` outside the rect, `t` of `[0.6, 0.4]`, `t` above 1, overlapping group ranges, empty `groups`. Assert that the error names the failing path.
   - Files: `src/steam/assets.test.ts`.
