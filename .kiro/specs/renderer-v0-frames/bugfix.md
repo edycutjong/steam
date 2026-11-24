@@ -70,3 +70,37 @@ Concealment before the reveal, timing constants, the no-hotspot clamp to `--ink`
 - [x] B9. D7, D9, D10, D11: `shaders.ts`.
 - [x] B11. e2e concealment check made layout-independent: detail (high-pass) variance, rows above the bead zone and plume reach, `WARMTH_MAX` 6 to 16 (pot glow under the centred lower group measured at 7 to 8; a written note asserted above 48).
 - [x] B10. Capture into `docs/kiro-evidence/renderer-v0/after-v01/` and read.
+
+## Round 3 (D12 to D16)
+
+Evidence: `docs/kiro-evidence/renderer-v0/after-v01/` (`desktop-t2000.png`, `desktop-t6500.png`, `mobile-t6500.png`, commit 68a379d). Reviewer verdict against the old prototype: phone BETTER (6.5/10 vs 3/10), desktop only SAME (6/10 vs 6/10). The desktop must clearly beat it.
+
+### Current Behavior
+
+- D12 (high). Strokes are heavier and softer than the scan's pen. `derive.ts` writes `max(ink alpha, 3x3 box blur)` into R, so every pixel next to a solid stroke gets about 0.67 alpha and the shader's `smoothstep(0.06, 0.55)` turns it fully clear. The channel grows about one texel (about 2 screen px on desktop) on each side. Counters of a, e, o and the loop of d close up, hairline joins vanish, and the bloom (7 to 11 px, strength 0.5) sits on the stroke edge. "Looks" and "smooth" do not read at a glance.
+- D13 (high). The stroke reads as a lit sticker on fog: a flat additive ember gain (`CH_GAIN` 1.0, nearly uniform over the pane) over a 15% residual fog. Nothing is seen through the glass, the light does not fall off with distance from the pot, and the edge is equally crisp in thin and thick fog.
+- D14 (medium). Near the pot, ember gain on top of `kitchen()` (about 1.26 x `--after`) exceeds 1 and the per-channel clamp to `--ink` washes strokes to pale yellow-white ("smooth" in `desktop-t6500.png`).
+- D15 (medium). The pot's glow is cut off by the meeting rail as a hot spot at the bottom edge. The write-on's leading edge is hard (a triangular shard at t = 2000 ms): the ember switches on at `smoothstep(0.02, 0.12)` of the already thresholded `alpha * wiped`.
+- D16 (medium). The fog is smooth and empty: no condensation grain, no droplets. The specular streak is a uniform stripe from edge to edge.
+
+### Expected Behavior
+
+- D12. The revealed channel is no wider than the scan's own ink at the displayed scale. Channel R carries the scan's ink alpha with only a faint blur shoulder that stays below the clear band. The clear curve is one narrow smoothstep over the scan alpha (`clearCurve` in `shaders.ts`, mirrored in GLSL). Bloom radius and strength are about halved, so the glow sits outside the stroke. Unit test on the hero toi map: revealed area / scan ink area <= 1.15 (and >= 0.85, so hairlines are not lost), also at 2x bilinear upsampling.
+- D13. The channel's own fill is lowered (more fog grain kept inside it). The ember behind the glass falls off with distance from the pot (bright near the pot, dim at the top of the pane). The clear curve's edge width follows the fog density: thin fog gives a softer edge, thick fog a crisper wet edge. The wet rim stays thin and only on the fog side of the edge.
+- D14. No stroke pixel exceeds 92% luminance (`STROKE_LUMA_MAX`), by a hue-preserving limiter, so the `--after` family survives everywhere in strokes.
+- D15. The pot light is softer and raised so the rail never cuts it: its vertical profile peaks above the bottom edge and goes to zero at it. The write-on's leading edge is a feathered ramp in the time-of-ink domain (`TOI_SOFT`, about 8 to 11 texels along the path), applied after the alpha curve, so the stroke shape stays intact while its ember and clearing fade in.
+- D16. Fine static condensation grain in the fog, a few sparse droplets away from the note (never inside or near the group rects), and a run-down streak that is feathered at both ends with a width that varies along its length.
+
+### Unchanged Behavior
+
+Write-on token 5000 ms and lead 2500 ms; concealment before the reveal; the hold (the note stays fully clear until the wipe, re-fog only outside its feathered hull); the stacked desktop layout and phone gap groups (core band at least 16 CSS px at 390 px); reduced motion and no-WebGL2 go to `StaticPane`; no generated or font-rendered handwriting; the 60 fps budget (a few extra texture taps per pixel at most); colours only from design tokens; the clamp of every channel to `--ink`.
+
+### Tasks
+
+- [x] B12. Bugfix spec round 3 (this section).
+- [ ] B13. D12: channel alpha without blur growth, narrow clear curve, smaller bloom, coverage unit test.
+- [ ] B14. D13: clear-glass material (pot falloff, fog-modulated edge, lower fill, thin rim on the fog side).
+- [ ] B15. D14: luminance limiter at 92%, ember hue survives.
+- [ ] B16. D15: raised, softened pot plume; feathered write-on edge.
+- [ ] B17. D16: fog grain, sparse droplets, variable-width feathered streak.
+- [ ] B18. Verify (tests, typecheck, build, e2e), capture `after-v02/`, read, iterate once if a letterform still closes up.
