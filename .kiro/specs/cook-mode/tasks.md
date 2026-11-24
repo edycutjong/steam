@@ -93,7 +93,7 @@ Rules for every task:
   - Files: `src/cook/timing.ts`, `src/cook/timing.test.ts`, `src/cook/timing.prop.test.ts`.
   - Satisfies: R8.1, R8.2, R8.3, R8.4, R8.5, R8.7.
 
-- [ ] 14. The plan and the pane's note
+- [x] 14. The plan and the pane's note
   - Test first: `src/cook/plan.test.ts`: `buildPlan` on the real bundle gives 5 steps with notes on steps 1, 4 and 5 (indices 0, 3, 4), each `checkAtMs` 0; with an override of 60 s on `when-tender` its `checkAtMs` is 60 000; withheld notes leave their step empty. `paneNoteFor`: steps 0 gives `full-ripe`; steps 1 and 2 give `when-tender` (the next note); step 3 gives `when-tender`; step 4 gives the hero; a plan with no note gives null; a plan whose only note is on step 0 gives it for every later step.
   - Implement `buildPlan`, `paneNoteFor`.
   - Files: `src/cook/plan.ts`, `src/cook/plan.test.ts`.
