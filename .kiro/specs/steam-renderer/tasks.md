@@ -161,7 +161,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Write a Playwright script that opens the live renderer with `?t=-1`, `?t=5100`, and a wiped state, at the desktop and the 390 px viewport, and writes `public/hero/pane-{page,groups}-{fogged,held,wiped}.webp`. Output is deterministic through the frozen clock.
   - Files: `scripts/render-static-panes.ts`, `package.json` (script `static-panes`), `public/hero/pane-*.webp` (generated).
   - Satisfies: R19.3, R19.6, R19.7.
-  - Not complete: the script is written and verified (it wrote all six images to a temp `OUT_DIR`), but this run was told not to edit `public/hero/`, so `pane-*.webp` are not generated or committed. Run `npm run static-panes` and commit the output. The wiped image uses the live clock (a wipe cannot be frozen), so it is not byte-reproducible. The commit also carries the `@fontsource` dependencies that task 30 needs, since they share `package.json`.
+  - Not complete (re-checked with task 38): the script runs headless, but this run was again told not to edit `public/hero/`, so the images stay ungenerated. The script is written and verified (it wrote all six images to a temp `OUT_DIR`), but this run was told not to edit `public/hero/`, so `pane-*.webp` are not generated or committed. Run `npm run static-panes` and commit the output. The wiped image uses the live clock (a wipe cannot be frozen), so it is not byte-reproducible. The commit also carries the `@fontsource` dependencies that task 30 needs, since they share `package.json`.
 
 - [x] 30. App entry
   - Render `<SteamPane/>` full-screen from `App.tsx` with the hash router already in place (or none if no other route exists). Set body background `--bg`, load IM Fell English, Literata, and DM Mono.
@@ -203,6 +203,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Append one line (ISO time, hook, target, result) to `docs/kiro-evidence/hooks.log` through the existing hook only if a hook runs on these tasks; do not write it by hand.
   - Files: none written manually.
   - Satisfies: honesty steering (no claims beyond logged evidence).
+  - deferred: no hooks yet. Nothing was written by hand.
 
 - [ ] 38. Final verification
   - Run `npm test`, `npm run e2e`, `tsc --noEmit`, and the build; confirm `dist/` is static. Search the pane's strings for "she", "her", "verified", and "AI-powered". Confirm no colour literal outside the token definitions in `src/steam/`.
