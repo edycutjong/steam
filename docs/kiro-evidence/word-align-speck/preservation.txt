@@ -1,0 +1,15 @@
+# word-align-speck, commit C: preservation properties on the fixed code
+# command: npx vitest run src/ingest/alignSpeck.prop.test.ts --no-color
+# recorded: 2026-11-24T19:49:21Z
+# mutation check, same session: with the extent rule reverted to every owned pixel, 4 of these 9 tests fail (U1 margins, U3 changed set, U3 unchanged extents, U3 P3 mask size)
+
+
+ RUN  v5.1.1 /Users/edycu/Hackathon/devpost/devpost-kiroween/steam/build
+
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  02:49:21
+   Duration  5.06s (import 96%, tests 4%)
+
+# exit code: 0
