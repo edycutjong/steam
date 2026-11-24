@@ -8,7 +8,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `package.json`, `vitest.config.ts`, `tsconfig.node.json`, `src/ingest/constants.ts`, `src/ingest/purity.test.ts`.
   - Satisfies: R1.4, R38.1, R39.5, R40.2.
 
-- [ ] 2. Pure SHA-256
+- [x] 2. Pure SHA-256
   - Test first: fixed vectors (empty, "abc", 1 000 000 × "a") and `sha256.prop.test.ts` (S1): for all byte arrays up to 4 KB, equals `node:crypto` (test files may import it).
   - Implement `src/ingest/sha256.ts` (`sha256Hex(bytes)`).
   - Files: `src/ingest/sha256.ts`, `src/ingest/sha256.test.ts`, `src/ingest/sha256.prop.test.ts`.
