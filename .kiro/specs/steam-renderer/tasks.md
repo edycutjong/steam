@@ -147,7 +147,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/SteamPane.tsx`.
   - Satisfies: R2.2, R12.3, R16.6, R17.6, R19.1, R21.1, R22.1, R22.2.
 
-- [ ] 27. `SteamPane`: button, Space key, live region, fps overlay
+- [x] 27. `SteamPane`: button, Space key, live region, fps overlay
   - Implement the phase-driven button labels and actions, the guarded `Space` handler with `preventDefault`, `aria-disabled` while writing, the `aria-live` region built from `meta.text`, the clear-then-set on replay, the `aria-hidden` canvas, the `--after` focus ring, and the `?fps=1` DM Mono overlay (4 Hz text update, mean fps, worst frame, frames over 18.2 ms).
   - Files: `src/steam/SteamPane.tsx`, `src/steam/steam.css`.
   - Satisfies: R10.1 to R10.8, R15.4, R16.3, R20.1 to R20.4, R20.6, R21.2 to R21.4.
