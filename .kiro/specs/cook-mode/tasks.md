@@ -163,7 +163,7 @@ Rules for every task:
   - Files: `src/cook/cue.ts`, `src/cook/cue.test.ts`, `src/cook/cue.prop.test.ts`.
   - Satisfies: R16.1, R16.2, R16.3, R16.8.
 
-- [ ] 25. Audio engine and wake lock
+- [x] 25. Audio engine and wake lock
   - Test first: `src/cook/audio.test.ts` with a fake `AudioContext`: before `unlock()` the factory is never called; `unlock()` creates and resumes once, starts the loop at `SIMMER_GAIN`, and a second call does nothing; `setMuted(true)` ramps the gain to 0 within 100 ms of context time and `state` is `muted`; muting before unlock keeps it silent after unlock; `duck()` schedules the envelope and never exceeds `SIMMER_GAIN`; with a factory that returns null, `state` is `unavailable` and nothing throws; hiding the page suspends. The muted flag is stored through the store. `src/cook/wakelock.test.ts`: acquire with a fake `wakeLock.request`; refusal sets `refused` without a second request; `unsupported` without the API; `release` is idempotent; a visibility change re-acquires.
   - Implement `createAudio`, `createWakeLock`.
   - Files: `src/cook/audio.ts`, `src/cook/audio.test.ts`, `src/cook/wakelock.ts`, `src/cook/wakelock.test.ts`.
