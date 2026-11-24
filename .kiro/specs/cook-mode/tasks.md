@@ -291,7 +291,7 @@ Rules for every task:
   - Files: `src/app/components/MuteButton.tsx`, `src/app/components/LampDip.tsx`, `src/App.tsx`, `src/app/Cook.tsx`, `src/app/Cook.cue.test.tsx`, `src/app/cook.css`.
   - Satisfies: R16.1, R16.2, R16.4 to R16.7, R23.8.
 
-- [ ] 45. Wake lock and persistence notices in the screen
+- [x] 45. Wake lock and persistence notices in the screen
   - Test first: `Cook.wake.test.tsx`: on mount with a fake `wakeLock` the root shows `data-wake="held"`; refusal gives `refused` and the screen is unchanged; no API gives `unsupported` and no text; visibility returns re-acquire; leaving the screen releases. With a non-persistent store the muted line "This browser will not keep your place." shows once.
   - Implement the wiring.
   - Files: `src/app/Cook.tsx`, `src/app/Cook.wake.test.tsx`.
