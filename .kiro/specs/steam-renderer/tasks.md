@@ -161,6 +161,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Write a Playwright script that opens the live renderer with `?t=-1`, `?t=5100`, and a wiped state, at the desktop and the 390 px viewport, and writes `public/hero/pane-{page,groups}-{fogged,held,wiped}.webp`. Output is deterministic through the frozen clock.
   - Files: `scripts/render-static-panes.ts`, `package.json` (script `static-panes`), `public/hero/pane-*.webp` (generated).
   - Satisfies: R19.3, R19.6, R19.7.
+  - Not complete: the script is written and verified (it wrote all six images to a temp `OUT_DIR`), but this run was told not to edit `public/hero/`, so `pane-*.webp` are not generated or committed. Run `npm run static-panes` and commit the output. The wiped image uses the live clock (a wipe cannot be frozen), so it is not byte-reproducible. The commit also carries the `@fontsource` dependencies that task 30 needs, since they share `package.json`.
 
 - [ ] 30. App entry
   - Render `<SteamPane/>` full-screen from `App.tsx` with the hash router already in place (or none if no other route exists). Set body background `--bg`, load IM Fell English, Literata, and DM Mono.
