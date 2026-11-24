@@ -53,7 +53,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/layout.test.ts`.
   - Satisfies: R11.1 to R11.5, R12.1 to R12.3.
 
-- [ ] 9. Layout property test
+- [x] 9. Layout property test
   - For any pane width in [320, 2560] and height in [400, 1600], the result has finite numbers, `src` inside the note, and in phone mode every `coreBandCssPx >= 16`.
   - Files: `src/steam/layout.prop.test.ts`.
   - Satisfies: R11.2, R11.3, R11.6.
