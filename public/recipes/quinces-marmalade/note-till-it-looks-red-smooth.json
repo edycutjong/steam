@@ -1,0 +1,72 @@
+{
+  "alignment": "curator",
+  "alignmentBy": "Kiro (agent), turn-24",
+  "granularity": "words",
+  "groups": [
+    {
+      "coreBand": [
+        57,
+        82
+      ],
+      "inkPx": 4033,
+      "line": 9,
+      "rect": [
+        793,
+        32,
+        1218,
+        103
+      ],
+      "t": [
+        0,
+        0.46600826825907216
+      ],
+      "words": {
+        "from": 6,
+        "to": 8
+      }
+    },
+    {
+      "coreBand": [
+        123,
+        143
+      ],
+      "inkPx": 4366,
+      "line": 10,
+      "rect": [
+        32,
+        84,
+        496,
+        154
+      ],
+      "t": [
+        0.46600826825907216,
+        1
+      ],
+      "words": {
+        "from": 0,
+        "to": 2
+      }
+    }
+  ],
+  "noteId": "till-it-looks-red-smooth",
+  "pageBox": [
+    299,
+    1600,
+    1549,
+    1786
+  ],
+  "resampled": true,
+  "shownText": "till it Looks red & smooth,",
+  "size": [
+    1250,
+    186
+  ],
+  "source": "Wellcome Collection",
+  "span": "till it Looks red & smooth",
+  "splitShare": 0.18127587046505966,
+  "splitStatus": "reviewed",
+  "step": 5,
+  "trace": "a path traced from the ink, left to right",
+  "verifyApproximate": true,
+  "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:17.3617,77.2801,78.3701,10.7617/full/0/default.jpg"
+}

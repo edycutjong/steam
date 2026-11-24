@@ -1,0 +1,72 @@
+{
+  "alignment": "curator",
+  "alignmentBy": "Kiro (agent), turn-21",
+  "granularity": "words",
+  "groups": [
+    {
+      "coreBand": [
+        58,
+        80
+      ],
+      "inkPx": 2479,
+      "line": 7,
+      "rect": [
+        1003,
+        32,
+        1255,
+        118
+      ],
+      "t": [
+        0,
+        0.5305105853051058
+      ],
+      "words": {
+        "from": 6,
+        "to": 6
+      }
+    },
+    {
+      "coreBand": [
+        126,
+        146
+      ],
+      "inkPx": 2062,
+      "line": 8,
+      "rect": [
+        32,
+        95,
+        238,
+        154
+      ],
+      "t": [
+        0.5305105853051058,
+        1
+      ],
+      "words": {
+        "from": 0,
+        "to": 0
+      }
+    }
+  ],
+  "noteId": "when-tender",
+  "pageBox": [
+    282,
+    1473,
+    1569,
+    1659
+  ],
+  "resampled": true,
+  "shownText": "when Tender,",
+  "size": [
+    1287,
+    186
+  ],
+  "source": "Wellcome Collection",
+  "span": "when Tender",
+  "splitShare": 0,
+  "splitStatus": "auto",
+  "step": 4,
+  "trace": "a path traced from the ink, left to right",
+  "verifyApproximate": true,
+  "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:16.5218,71.0703,80.6803,10.8120/full/0/default.jpg"
+}
