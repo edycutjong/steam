@@ -34,7 +34,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/params.ts`, `src/steam/params.test.ts`.
   - Satisfies: R1.4, R2.5, R16.1 to R16.5.
 
-- [ ] 6. Layout: types and `chooseLayout`
+- [x] 6. Layout: types and `chooseLayout`
   - Create `src/steam/layout.ts` with constants (`MARGIN_PX`, `PAD_PX`, `MIN_CORE_CSS_PX`, `PHONE_MAX_W`, `GROUP_GAP_CSS`, `S_MAX`), the `GroupPlacement` and `Layout` types, and `chooseLayout(paneW)`.
   - Files: `src/steam/layout.ts`.
   - Satisfies: R11.1, R12.1.
