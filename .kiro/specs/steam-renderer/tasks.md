@@ -7,7 +7,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `package.json`, `package-lock.json`, `vitest.config.ts` (only if missing).
   - Satisfies: R14.1, R22.3.
 
-- [ ] 2. Timing constants and `revealState`
+- [x] 2. Timing constants and `revealState`
   - Create `src/steam/timeline.ts` with `LEAD_MS`, `THICKEN_MS`, `WRITE_ON_MS`, `WIPE_MS`, `REFOG_MS`, `HEAD_FADE_MS`, `TOI_SOFT`, the `Phase` and `RevealState` types, and `revealState(tMs, wipeAtMs)` as in design §2.
   - Files: `src/steam/timeline.ts`.
   - Satisfies: R2.1, R2.3, R3.1, R3.2, R3.5, R3.6, R3.7, R8.4, R9.3.
