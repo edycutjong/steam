@@ -285,7 +285,7 @@ Rules for every task:
   - Files: `src/app/Cook.tsx`, `src/app/Cook.test.tsx`, `src/app/cook.css`.
   - Satisfies: R9.1, R9.4 to R9.8, R14.7, R14.8, R18.5, R18.6, R19.1, R19.2, R19.8, R15.7.
 
-- [ ] 44. The haunting cue: lamp dip, simmer duck, Mute control
+- [x] 44. The haunting cue: lamp dip, simmer duck, Mute control
   - Test first: `Cook.cue.test.tsx` (fake rAF, fake audio): applying a reveal runs one lamp dip and one `duck()`; a second reveal inside 3 s does not start another; the lamp overlay is a `--bg` layer with `pointer-events: none`; under `prefers-reduced-motion: reduce` the dip still runs, with no transform and no animation other than the single opacity change; with `AudioContext` unavailable the dip still runs and the Mute control is disabled with "This browser has no sound"; the Mute control reads "Unmute" before any gesture, and activating it unlocks the context and plays; it reads "Mute" while playing, `aria-pressed` follows, is at least 48×48, and the choice is stored; the first `pointerdown` anywhere unlocks once.
   - Implement the overlay, `MuteButton.tsx`, the unlock listeners in `App.tsx`, and the effect hook that calls `cueEnvelope`.
   - Files: `src/app/components/MuteButton.tsx`, `src/app/components/LampDip.tsx`, `src/App.tsx`, `src/app/Cook.tsx`, `src/app/Cook.cue.test.tsx`, `src/app/cook.css`.

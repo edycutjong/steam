@@ -15,6 +15,8 @@ export interface FakePane {
 export const panes = new Map<string, FakePane>()
 export let autoReady = true
 export const setAutoReady = (v: boolean): void => void (autoReady = v)
+export let writeMs = WRITE_ON_MS
+export const setWriteMs = (v: number): void => void (writeMs = v)
 const st = (phase: Phase): RevealState => ({ phase, u: 0, thicken: 0, head: 0, wipe: 0, refog: 0 })
 
 export function FakeGlass(props: SteamGlassProps) {
@@ -37,7 +39,7 @@ export function FakeGlass(props: SteamGlassProps) {
       startReveal: () => {
         pane.started++
         set('writing')
-        t = setTimeout(() => set('holding'), WRITE_ON_MS)
+        t = setTimeout(() => set('holding'), writeMs)
       },
       wipe: () => {
         if (pane.phase !== 'holding') return
