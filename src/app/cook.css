@@ -13,7 +13,7 @@
 
 @media (min-width: 1025px) {
   .cook {
-    --glass-h: 60dvh;
+    --glass-h: 47dvh;
     --stage-w: min(60vw, 1100px);
     padding-bottom: 40px;
   }
@@ -23,7 +23,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: var(--stage-w);
+  width: min(1100px, 100%);
   max-width: 100%;
   margin: 0 auto;
   padding: 6px var(--gutter);
@@ -132,12 +132,24 @@
 
 /* Under the glass: the slip while a note is revealed. */
 .cook__under {
-  width: var(--stage-w);
-  max-width: 100%;
-  min-height: 48px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 24px;
+  width: min(1100px, 100%);
+  min-height: 52px;
   margin: 0 auto;
   padding: 10px var(--gutter) 0;
   box-sizing: border-box;
+}
+
+.cook__source {
+  min-width: 0;
+}
+
+.cook__caption .btn {
+  min-height: 48px;
 }
 
 .cook__under .slip {
@@ -162,7 +174,7 @@
 .cook__panel {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 18px;
+  gap: 14px;
   width: min(1100px, 100%);
   margin: 8px auto 0;
   padding: 0 var(--gutter);
@@ -173,15 +185,10 @@
   .cook__panel {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
-      'caption caption'
       'step side'
+      'keep keep'
       'controls controls';
     column-gap: 48px;
-    width: var(--stage-w);
-  }
-
-  .cook__caption {
-    grid-area: caption;
   }
 
   .step {
@@ -194,6 +201,10 @@
 
   .controls {
     grid-area: controls;
+  }
+
+  .cook__keep {
+    grid-area: keep;
   }
 }
 
@@ -284,6 +295,8 @@
   align-items: center;
   gap: 12px;
 }
+
+
 
 .knob__dial {
   position: relative;
@@ -399,6 +412,25 @@
   padding: 0 14px;
 }
 
+@media (max-width: 480px) {
+  .controls {
+    gap: 8px;
+  }
+
+  .controls .btn {
+    min-width: 48px;
+    padding: 0 10px;
+    font-size: 15px;
+  }
+
+  .wipe {
+    min-width: 0;
+    padding: 0 12px;
+    font-size: 18px;
+    white-space: nowrap;
+  }
+}
+
 .cook__keep {
   margin: 0;
   font-size: 14px;
@@ -413,4 +445,20 @@
   background: var(--bg);
   opacity: 0;
   pointer-events: none;
+}
+
+.mute {
+  position: relative;
+}
+
+.mute__why {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  font-family: var(--face-body);
+  font-weight: 400;
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--muted);
 }

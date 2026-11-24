@@ -252,6 +252,20 @@ a:hover {
   color: var(--ink);
 }
 
+.slip--compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.9em;
+  color: var(--ink);
+}
+
+.slip--compact > * + *::before {
+  content: '·';
+  display: inline-block; /* keeps the separator out of the link's underline */
+  margin-right: 0.9em;
+  color: var(--muted);
+}
+
 .slip__more {
   margin-top: 12px;
   padding-top: 12px;

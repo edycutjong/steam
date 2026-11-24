@@ -427,7 +427,7 @@ One call per batch of changes produces one string, set once into the live region
 
 ### 6.5 Controls row and layout
 
-DOM order equals visual order: pane stage, caption, "Step n of N", step text, timer, flame knob, controls row (Wipe, Back, Mute). The pane region carries the drag handler (`touch-action: none`) and the badge. The archive slip sits under the pane when the note state is `revealed` for the current step.
+DOM order equals visual order: pane stage, caption, "Step n of N", step text, timer, flame knob, controls row. The row reads Back, Wipe, Mute from left to right, because R14.3 puts the Wipe control at the centre of the row; the first draft listed it as (Wipe, Back, Mute), which would make the DOM order differ from the visual order. The pane region carries the drag handler (`touch-action: none`) and the badge. The archive slip sits under the pane when the note state is `revealed` for the current step.
 
 CSS: `.steam-root` gains `--glass-h` (default `100dvh` so `SteamPane` is unchanged). Cook Mode sets `--glass-h: 55dvh` on phones; on desktop the stage is `width: min(60vw, 1100px)`, centred. The upper sash and rails scale inside the stage with the existing custom properties. This is a layout change only; the pane's colours, fog and reveal are untouched.
 

@@ -279,7 +279,7 @@ Rules for every task:
   - Files: `src/app/components/PaneStage.tsx`, `src/app/components/PaneStage.test.tsx`, `src/steam/prepare.ts`, `src/steam/SteamGlass.tsx` (the optional `prepared` prop).
   - Satisfies: R15.4 to R15.7, R15.11, R15.12, R26.3.
 
-- [ ] 43. Cook screen assembly, captions, test hooks
+- [x] 43. Cook screen assembly, captions, test hooks
   - Test first: `src/app/Cook.test.tsx` (real bundle, fake clock, fake store, fake `SteamGlass`): the DOM order is stage, caption, "Step n of N", text, timer, knob, controls (Wipe, Back, Mute); the archive slip appears under the pane only while the current step's note is revealed; a step without a note shows no slip; Back links to `#/r/quinces-marmalade` and keeps the snapshot; "Started at step 5 of 5" and "Resumed at step n of N" captions with "Start again"; the one live region receives one composed message per batch; the root carries `data-step`, `data-step-count`, `data-note-state`, `data-pace`, `data-ready`, `data-started-at-step`, `data-revealed`; `cook:ready` is marked once; a full walk through the plan (hand-driven events) goes step 1 to the end, passing every row of the Wipe table, and ends by navigating to `#/r/quinces-marmalade/quoted` and deleting the snapshot; a double activation advances one step.
   - Implement `Cook.tsx` assembling the pieces.
   - Files: `src/app/Cook.tsx`, `src/app/Cook.test.tsx`, `src/app/cook.css`.

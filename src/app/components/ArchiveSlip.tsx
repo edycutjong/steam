@@ -16,16 +16,30 @@ interface Props {
   expanded?: boolean
   /** Limits the ownership and word-boundary lines to these notes (default: every note of the bundle). */
   notes?: readonly BundleNote[]
-  /** Leaves out the title row (where the screen already shows the title beside the slip). */
+  /** One line, for under the glass in Cook Mode. */
   compact?: boolean
   id?: string
   className?: string
 }
 
 /** The archive slip: where the scan comes from, in the archive's words (R3.1, R3.2). Every value is read from the bundle. */
-export default function ArchiveSlip({ bundle, expanded = false, notes, id, className = '' }: Props) {
+export default function ArchiveSlip({ bundle, expanded = false, notes, compact = false, id, className = '' }: Props) {
   const s = bundle.source
   const list = notes ?? bundle.notes
+  if (compact) {
+    // One line under the glass: the same fields, run together (Cook Mode, R3.1).
+    return (
+      <section id={id} className={`slip slip--compact ${className}`} aria-label={SLIP.label}>
+        <span>{s.institution}</span>
+        <span>{s.shelfmark}</span>
+        <span>{s.page}</span>
+        <span>{s.date}</span>
+        <a href={s.licence.url} target="_blank" rel="noopener noreferrer">
+          {s.licence.label}
+        </a>
+      </section>
+    )
+  }
   return (
     <section id={id} className={`slip ${expanded ? 'slip--expanded' : ''} ${className}`} aria-label={SLIP.label}>
       <dl className="slip__grid">

@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react'
+import type { Audio } from '../cook/audio.ts'
 import type { ShelfResult } from '../data/catalog.ts'
 import type { Store } from '../data/store.ts'
 
@@ -10,6 +11,8 @@ export interface AppApi {
   shelf: ShelfState
   /** Resolves to the device store (IndexedDB, or memory where it is not available). */
   store: Promise<Store>
+  /** The simmer; null until created. Locked until the first gesture (R16.4). */
+  audio: Audio | null
 }
 
 export const AppContext = createContext<AppApi | null>(null)

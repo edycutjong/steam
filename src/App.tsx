@@ -8,6 +8,7 @@ import Shelf from './app/Shelf.tsx'
 import { useRoute } from './app/useRoute.ts'
 import { ANNOUNCE, PRODUCT } from './copy/strings.ts'
 import { loadShelf, type ShelfResult } from './data/catalog.ts'
+import { createAudio, type Audio, type AudioCtx } from './cook/audio.ts'
 import { openStore, type Store } from './data/store.ts'
 import SteamPane from './steam/SteamPane.tsx'
 
@@ -15,11 +16,18 @@ interface Props {
   /** Injected by tests; the app uses the catalog and `fetch`. */
   loader?: () => Promise<ShelfResult>
   store?: Promise<Store>
+  /** Injected by tests; the app makes a Web Audio context after the first gesture. */
+  createContext?: () => AudioCtx | null
+}
+
+const webAudio = (): AudioCtx | null => {
+  const C = (globalThis as { AudioContext?: new () => AudioCtx }).AudioContext
+  return C ? new C() : null
 }
 
 const defaultStore = (): Promise<Store> => openStore()
 
-export default function App({ loader = loadShelf, store }: Props) {
+export default function App({ loader = loadShelf, store, createContext = webAudio }: Props) {
   const route = useRoute()
   const [shelf, setShelf] = useState<ShelfState>({ state: 'loading' })
   const [message, setMessage] = useState('')
@@ -44,7 +52,30 @@ export default function App({ loader = loadShelf, store }: Props) {
     }
   }, [loader, announce])
 
-  const api = useMemo(() => ({ announce, shelf, store: storeP }), [announce, shelf, storeP])
+  // The simmer exists from the start but makes no context and no sound before the first gesture anywhere (R16.4).
+  const [audio, setAudio] = useState<Audio | null>(null)
+  useEffect(() => {
+    let a: Audio | null = null
+    void storeP.then((s) => {
+      a = createAudio({ createContext }, s)
+      setAudio(a)
+    })
+    return () => a?.dispose()
+  }, [storeP, createContext])
+  useEffect(() => {
+    if (!audio) return
+    const kinds = ['pointerdown', 'keydown', 'touchend'] as const
+    const once = () => {
+      audio.unlock()
+      for (const k of kinds) window.removeEventListener(k, once, true)
+    }
+    for (const k of kinds) window.addEventListener(k, once, true)
+    return () => {
+      for (const k of kinds) window.removeEventListener(k, once, true)
+    }
+  }, [audio])
+
+  const api = useMemo(() => ({ announce, shelf, store: storeP, audio }), [announce, shelf, storeP, audio])
 
   let screen
   if (route.name === 'pane') {
