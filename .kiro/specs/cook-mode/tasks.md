@@ -79,7 +79,7 @@ Rules for every task:
   - Files: `src/data/catalog.ts`, `src/data/catalog.test.ts`.
   - Satisfies: R2.1, R2.2, R2.3, R2.4, R2.5, R2.7.
 
-- [ ] 12. Device store
+- [x] 12. Device store
   - Test first: `src/data/store.test.ts` with `fake-indexeddb`: session put, get, delete; timing put, get, delete; settings; data survives re-opening the store; `persistent` is true. With `indexedDB` undefined, with an `open` that throws, and with a transaction that aborts: the store still works in memory, `persistent` is false, and nothing throws. Database name `steam`, version 1, stores `sessions`, `timing`, `settings`.
   - Implement `openStore` in `src/data/store.ts`.
   - Files: `src/data/store.ts`, `src/data/store.test.ts`.
