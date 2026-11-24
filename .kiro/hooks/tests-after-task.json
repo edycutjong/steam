@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "tests-after-task",
+      "trigger": "PostTaskExec",
+      "action": {
+        "type": "command",
+        "command": "npx tsx tools/hooks/tests-after-task.ts"
+      },
+      "timeout": 900,
+      "enabled": true
+    }
+  ]
+}
