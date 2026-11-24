@@ -119,7 +119,7 @@ Rules for every task:
   - Files: `src/cook/scheduler.ts`, `src/cook/scheduler.test.ts`.
   - Satisfies: R12.3, R12.7, R12.10, R14.1, R14.7, R18.2.
 
-- [ ] 18. P7 property test
+- [x] 18. P7 property test
   - Test first: `src/cook/scheduler.prop.test.ts` with the generators of R13.1 and an oracle written in the test (it replays the events against its own model: revealed set, elapsed integral, hold, sleep). Assert P7.1 to P7.11 of `design.md`, each as its own `it` or `fc.assert`, so a failure names the item. The Wipe table rows are named cases (R13.10). Include shrinking-friendly arbitraries (small walls first). Mutation check: change each of these and see P7 fail, then restore: remove the `revealed` check in `reveal`; reveal while asleep; skip the pending-note reveal in `wipe`; scale the hold by the pace; allow `restore` after the first event; let a decreasing wall time lower `lastWall`. Record the six failing runs in the commit message.
   - Implement: nothing new; fix what the property finds.
   - Files: `src/cook/scheduler.prop.test.ts`.
