@@ -261,7 +261,7 @@ Rules for every task:
   - Files: `src/app/components/StepPanel.tsx`, `src/app/components/CountUpTimer.tsx`, `src/app/components/*.test.tsx`, `src/app/cook.css`.
   - Satisfies: R9.2, R9.3, R10.1, R10.4, R10.5, R10.6, R10.7.
 
-- [ ] 40. Flame knob and pace badge
+- [x] 40. Flame knob and pace badge
   - Test first: `FlameKnob.test.tsx`: `role="slider"`, `aria-valuemin` 0, `aria-valuemax` 2, `aria-valuetext` "Real time", "×4 pace", "×12 pace"; ArrowRight and ArrowLeft (and Up and Down) move between stops and clamp at the ends; click on a stop label sets it; drag snaps to the nearest stop; each target is at least 48×48; a change calls `onPace(pace)` once. `PaceBadge.test.tsx`: absent at pace 1; "×4 pace" and "×12 pace" otherwise, in the DM Mono class, at the top right of the stage (class).
   - Implement `FlameKnob.tsx`, `PaceBadge`.
   - Files: `src/app/components/FlameKnob.tsx`, `src/app/components/PaceBadge.tsx`, `src/app/components/*.test.tsx`, `src/app/cook.css`.
