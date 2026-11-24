@@ -140,7 +140,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/props.ts`, `src/ingest/timeofink.prop.test.ts`.
   - Satisfies: R22.2, R22.6, R29.1 to R29.3.
 
-- [ ] 24. Note build: mask, shell, alpha, crop
+- [x] 24. Note build: mask, shell, alpha, crop
   - Test first: mask = owned pixels of quoted lines inside the word regions; shell excludes pixels within 1 px of other lines' ink; alpha from the paper estimate; RGB under alpha 0 is the paper value; RGB under alpha > 0 equals the scan; margin 32 px clipped at the page; `pageBox` computed by code.
   - Implement `buildNote` in `src/ingest/timeofink.ts` (arrays for `note.png`, `toi.png`, `NoteJson`).
   - Files: `src/ingest/timeofink.ts`, `src/ingest/note.test.ts`.

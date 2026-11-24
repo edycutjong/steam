@@ -184,9 +184,13 @@ Method order per line: auto → curator → whole lines. A note with several quo
 
 For a note: `mask[p] = owner[p] ∈ quotedLines && p is ink && p in the word region of its line` (word regions only when aligned). The crop is `mask bbox ± 32 px`, clipped to the page.
 
-Shell: `dilate(mask, 1) \ ink \ dilate(inkOwnedByOtherLines, 1)`, where "other lines" means every line the note does not quote.
+Support and alpha (rewritten in task 24 after the renderer round-3 review). The first draft used a binary Sauvola mask plus a 1 px shell and a fixed darkness range of 90. The renderer showed that a binary mask has already lost the faint hairlines and the pen's darkness variation, so strokes look like a flat, hard-edged fill. The rule is now:
 
-Alpha: `a = clip((paper − gray) / 90, 0, 1)` where `paper` is a 31×31 median of the crop's non-ink gray (spike used a median filter of the whole gray; the non-ink median avoids ink bias), applied on mask ∪ shell; 0 elsewhere. RGB is the scan's, and `paper`-coloured where `a = 0`.
+- `support = mask ∪ ({p : chebyshev(p, mask) ≤ 2} \ ink \ dilate(ink \ mask, 1))`. In words: the owned mask, plus every pixel within `NOTE_FAINT_REACH_PX = 2` of it that is not ink in the binarised map and is more than 1 px from any ink pixel outside the mask. Ink outside the mask means the ink of every other line **and** of the same line's unquoted words, so faint pixels never bridge into a neighbour. Alpha may be non-zero only on the support.
+- `alpha = clip((paper − gray) / D, 0, 1)` on the support, 0 elsewhere, in 8 bits, **continuous**. `paper` is the local paper estimate (median gray of the non-ink pixels, those farther than 2 px from `rawInk`, in a 31 × 31 window of the note crop; a window with fewer than 10 such pixels takes the crop-wide median). `D = max(90, paperMedian − p1)`, where `p1` is the 1st percentile of gray over the mask, so the darkest strokes reach alpha 1 and lighter pen strokes and hairlines keep their own value. 90 stays as a floor so a low-contrast page is not stretched.
+- RGB under alpha > 0 is the scan's own value. RGB under alpha 0 is the per-channel median colour of the crop's non-ink pixels, a flat paper value.
+- `toi.png`: R = alpha (same bytes), G = `round(255·t)` where alpha > 0 and 0 elsewhere, B = Gaussian σ = 2 of alpha normalised by its maximum where alpha > 0 and 0 elsewhere. The renderer ignores G and B where R = 0.
+- P4 holds on the alpha > 0 pixels: each is a mask pixel, or a non-ink pixel within 2 px of the mask and more than 1 px from any ink pixel outside the mask (R21.2, R21.3, R27.2). Faint pixels are not "owned" by any line; they are admitted only by this neighbourhood rule.
 
 Trace:
 
@@ -297,7 +301,7 @@ File: `src/ingest/masks.prop.test.ts`.
 ### P4. Note fidelity and recall
 
 For all pages, owner maps and note definitions (quoted lines `Q`, optional word regions `R`), and `a` the alpha of the note built from them:
-(a) every pixel with `a > 0` is either an ink pixel with `owner ∈ Q` (and in `R` of its line when aligned), or a non-ink pixel within 1 px of the mask and not within 1 px of ink owned by a line outside `Q`;
+(a) every pixel with `a > 0` is either an ink pixel with `owner ∈ Q` (and in `R` of its line when aligned), or a non-ink pixel within 2 px of the mask and not within 1 px of ink that is not in the mask (design 3.6);
 (b) no pixel of a line outside `Q` has `a > 0`;
 (c) the mask is the same when the text of the readings changes but the indices stay (agents never change pixels);
 (d) `checkP4` fails for every note whose `a` contains a pixel owned by a line outside `Q`, including each box of `fixtures/p0c-eyeread-boxes.json` that overlaps a neighbouring line;
