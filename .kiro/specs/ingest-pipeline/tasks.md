@@ -110,7 +110,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/align.ts`, `src/ingest/align.fallback.test.ts`.
   - Satisfies: R19.1 to R19.7.
 
-- [ ] 19. Merge and `transcription.md`
+- [x] 19. Merge and `transcription.md`
   - Test first: equal counts → token-wise disagreements `{line, word, a, b}`; unequal counts → LCS regions with `countMismatch`; marker form `†[a|b]`; strict header and `L<ii>:` lines; padding past 99 lines; `parse(format(x))` round trip. `merge.prop.test.ts` (S4): for random readings no disagreement disappears and the round trip holds. A reader token containing `|` or `]` is rejected.
   - Implement `src/ingest/merge.ts` (`tokenise`, `diffLine`, `mergeReadings`, `formatTranscription`, `parseTranscription`).
   - Files: `src/ingest/merge.ts`, `src/ingest/merge.test.ts`, `src/ingest/merge.prop.test.ts`.
