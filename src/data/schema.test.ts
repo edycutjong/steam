@@ -133,3 +133,59 @@ describe('schemas: ownership review, alignment, review, timing', () => {
     expect(Lines.safeParse({ ...l, selectedBy: 'x' }).success).toBe(false)
   })
 })
+
+import { BundleNote, Catalog, Gate, Merged, NoteJson, RecipeBundle } from './schema.ts'
+
+describe('schemas part 2', () => {
+  const ok = { pass: true, detail: 'ok' }
+  const results = { P1: ok, P2: ok, P3: ok, P4: ok, P5: ok, P6: ok }
+  const base = { recipeId: 'quinces-marmalade', propsVersion: '1', segmentRun: run, inputs: { page: H }, outputs: {}, at: '2026-11-25T00:00:00.000Z' }
+  it('Gate accepts a waiting and a pass example', () => {
+    expect(Gate.safeParse({ ...base, state: 'waiting', pass: false, waiting: ['missing: agent/scribe.json'] }).success).toBe(true)
+    expect(Gate.safeParse({ ...base, state: 'pass', pass: true, results }).success).toBe(true)
+  })
+  it('Gate rejects pass: true with a failing property, with waiting reasons, or without results', () => {
+    expect(Gate.safeParse({ ...base, state: 'pass', pass: true, results: { ...results, P3: { pass: false, detail: 'joined strokes: needs review' } } }).success).toBe(false)
+    expect(Gate.safeParse({ ...base, state: 'pass', pass: true, results, waiting: ['x'] }).success).toBe(false)
+    expect(Gate.safeParse({ ...base, state: 'pass', pass: true }).success).toBe(false)
+    expect(Gate.safeParse({ ...base, state: 'waiting', pass: false }).success).toBe(false)
+  })
+  const group = { line: 8, rect: [0, 0, 10, 10], coreBand: [2, 8], t: [0, 0.5], inkPx: 50, words: { from: 6, to: 8 } }
+  const note = {
+    noteId: 'looks-red-smooth', step: 5, span: 'till it Looks red & smooth', shownText: 'till it Looks red & smooth', granularity: 'words', alignment: 'auto',
+    source: 'Wellcome Collection', pageBox: [1, 2, 30, 40], size: [29, 38], resampled: false, groups: [group], splitShare: 0.19, splitStatus: 'reviewed',
+    verifyUrl: 'https://iiif.wellcomecollection.org/image/x/pct:1,2,3,4/full/0/default.jpg', verifyApproximate: false, trace: 'a path traced from the ink, left to right',
+  }
+  it('NoteJson accepts a note and rejects an unknown key or a pen-order description', () => {
+    expect(NoteJson.safeParse(note).success).toBe(true)
+    expect(NoteJson.safeParse({ ...note, box: [1, 2, 3, 4] }).success).toBe(false)
+    expect(NoteJson.safeParse({ ...note, trace: "the writer's pen order" }).success).toBe(false)
+  })
+  const provenance = { institution: source.institution, shelfmark: source.shelfmark, page: source.page, date: source.date, licence: source.licence, credit: source.credit }
+  const { noteId: _n, source: _s, trace: _t, ...rest } = note
+  void _n, void _s, void _t
+  const bnote = { ...rest, id: 'looks-red-smooth', checkAt: { seconds: 0, source: 'step-entry', basis: 'the manuscript gives no time; the note arrives with its step' }, files: { png: 'a', toi: 'b', json: 'c' }, reveal: 'traced left to right from the ink', provenance }
+  const bundle = {
+    id: 'quinces-marmalade', title: 'To make Marmalade of Quinces', source,
+    transcription: { readers: ['fallback'], by: 'x', disagreements: [], corrections: [] },
+    lines: [{ i: 0, merged: 'a', primary: 'a' }], steps: [{ n: 1, lineIdx: [1], text: 'a' }], notes: [bnote], gateSha256: H,
+    ownership: { autoPass: 0, reviewedPass: 1, reviewed: [{ note: 'looks-red-smooth', components: 4, reviewer: 'r' }] },
+  }
+  it('RecipeBundle accepts a bundle and rejects a note without provenance or checkAt, or with a cook check time', () => {
+    expect(BundleNote.safeParse(bnote).error?.issues ?? []).toEqual([])
+    expect(RecipeBundle.safeParse(bundle).success).toBe(true)
+    const { provenance: _p, ...noProv } = bnote
+    void _p
+    expect(RecipeBundle.safeParse({ ...bundle, notes: [noProv] }).success).toBe(false)
+    const { checkAt: _c, ...noCheck } = bnote
+    void _c
+    expect(RecipeBundle.safeParse({ ...bundle, notes: [noCheck] }).success).toBe(false)
+    expect(RecipeBundle.safeParse({ ...bundle, notes: [{ ...bnote, checkAt: { seconds: 0, source: 'cook', basis: 'x' } }] }).success).toBe(false)
+  })
+  it('CheckAt rejects negative seconds; Merged and Catalog accept their shapes', () => {
+    expect(CheckAt.safeParse({ seconds: -0.5, source: 'step-entry', basis: 'x' }).success).toBe(false)
+    expect(Merged.safeParse({ segmentRun: run, readers: ['fallback'], disagreements: [], readerUncertain: [], lines: [{ i: 0, merged: 'a', primary: 'a', wordCount: 1 }] }).success).toBe(true)
+    expect(Catalog.safeParse([{ id: 'quinces-marmalade', title: 'T', gateSha256: H }]).success).toBe(true)
+    expect(Catalog.safeParse([{ id: 'Bad Id', title: 'T', gateSha256: H }]).success).toBe(false)
+  })
+})

@@ -176,7 +176,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/props.ts`, `src/ingest/contrast.prop.test.ts`.
   - Satisfies: R28.1 to R28.3.
 
-- [ ] 30. Zod schemas, part 2 (gate, merged, note, bundle, catalog)
+- [x] 30. Zod schemas, part 2 (gate, merged, note, bundle, catalog)
   - Test first: `Gate` accepts a waiting and a pass example; rejects `pass: true` with a failing `P*`; `RecipeBundle` rejects a note without `provenance` or `checkAt`; `CheckAt` rejects negative seconds; `NoteJson` rejects an unknown key.
   - Implement `Gate`, `Merged`, `NoteJson`, `RecipeBundle`, `Catalog`.
   - Files: `src/data/schema.ts`, `src/data/schema.test.ts`.

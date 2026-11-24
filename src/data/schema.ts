@@ -112,3 +112,180 @@ export type Timing = z.infer<typeof Timing>
 
 export const CheckAt = z.strictObject({ seconds: z.number().finite().nonnegative(), source: z.enum(['cited', 'step-entry', 'cook']), basis: nonEmpty })
 export type CheckAt = z.infer<typeof CheckAt>
+
+// ---------------------------------------------------------------------------------------------------------------
+// Part 2: merged, note, gate, bundle, catalog (R23, R30, R35, R37)
+
+const PropRes = z.strictObject({ pass: z.boolean(), detail: z.string() })
+const Box4 = z.tuple([z.number().int(), z.number().int(), z.number().int(), z.number().int()])
+const Granularity = z.enum(['words', 'lines'])
+const AlignMethod = z.enum(['auto', 'curator', 'lines'])
+const SplitStatus = z.enum(['auto', 'reviewed', 'failed'])
+export const TRACE_DESCRIPTION = 'a path traced from the ink, left to right' as const
+
+const DisagreementZ = z.strictObject({
+  line: int0,
+  word: int0,
+  a: z.string(),
+  b: z.string(),
+  countMismatch: z.literal(true).optional(),
+  correctedTo: z.string().optional(),
+})
+const CorrectionZ = z.strictObject({ line: int0, before: z.string(), after: z.string() })
+const ReaderUncertainZ = z.strictObject({ line: int0, reader: z.enum(['scribe', 'second', 'fallback']), token: z.string(), alt: z.array(z.string()) })
+
+export const Merged = z.strictObject({
+  segmentRun: SegmentRun,
+  readers: z.union([z.tuple([z.literal('scribe'), z.literal('second')]), z.tuple([z.literal('fallback')])]),
+  disagreements: z.array(DisagreementZ),
+  readerUncertain: z.array(ReaderUncertainZ),
+  lines: z.array(z.strictObject({ i: int0, merged: z.string(), corrected: z.string().optional(), primary: z.string(), wordCount: int0.nullable() })),
+})
+export type Merged = z.infer<typeof Merged>
+
+const NoteGroup = z.strictObject({
+  line: int0,
+  rect: Box4,
+  coreBand: z.tuple([z.number(), z.number()]),
+  t: z.tuple([z.number().min(0).max(1), z.number().min(0).max(1)]),
+  inkPx: int0,
+  words: z.union([z.literal('line'), z.strictObject({ from: int0, to: int0 })]),
+})
+
+export const NoteJson = z.strictObject({
+  noteId: RecipeId,
+  step: z.number().int().min(1),
+  span: nonEmpty,
+  shownText: nonEmpty,
+  granularity: Granularity,
+  alignment: AlignMethod,
+  alignmentBy: z.string().optional(),
+  source: nonEmpty,
+  pageBox: Box4,
+  size: z.tuple([z.number().int().positive(), z.number().int().positive()]),
+  resampled: z.boolean(),
+  groups: z.array(NoteGroup).min(1),
+  splitShare: z.number().min(0).max(1),
+  splitStatus: SplitStatus,
+  verifyUrl: z.string().url(),
+  verifyApproximate: z.boolean(),
+  trace: z.literal(TRACE_DESCRIPTION),
+})
+export type NoteJson = z.infer<typeof NoteJson>
+
+const P = z.strictObject({ P1: PropRes, P2: PropRes, P3: PropRes, P4: PropRes, P5: PropRes, P6: PropRes })
+
+export const Gate = z
+  .strictObject({
+    recipeId: RecipeId,
+    propsVersion: nonEmpty,
+    state: z.enum(['pass', 'fail', 'waiting']),
+    segmentRun: SegmentRun,
+    readers: z.union([z.tuple([z.literal('scribe'), z.literal('second')]), z.tuple([z.literal('fallback')])]).optional(),
+    inputs: z.record(z.string(), hex64),
+    outputs: z.record(z.string(), hex64),
+    pass: z.boolean(),
+    waiting: z.array(z.string()).optional(),
+    errors: z.array(z.string()).optional(),
+    results: P.optional(),
+    splits: z
+      .strictObject({
+        segmentSplits: int0,
+        notes: z.array(z.strictObject({ noteId: RecipeId, share: z.number().min(0).max(1), maskPx: int0, splitPx: int0, status: SplitStatus, flagged: z.array(z.number().int()) })),
+      })
+      .optional(),
+    reviewed: z.array(z.strictObject({ note: RecipeId, components: int0, reviewer: nonEmpty })).optional(),
+    ownership: z.strictObject({ autoPass: int0, reviewedPass: int0 }).optional(),
+    recall: z
+      .array(
+        z.strictObject({
+          noteId: RecipeId,
+          shipped: z.strictObject({ alignment: AlignMethod, recall: z.number(), words: z.array(z.strictObject({ word: z.string(), recall: z.number(), precision: z.number(), rawPx: int0, maskPx: int0 })) }),
+          auto: z.union([
+            z.strictObject({ recall: z.number(), words: z.array(z.strictObject({ word: z.string(), recall: z.number(), precision: z.number(), rawPx: int0, maskPx: int0 })) }),
+            z.strictObject({ notUsed: z.string() }),
+          ]),
+          threshold: z.number(),
+          frame: z.string(),
+        }),
+      )
+      .optional(),
+    alignment: z
+      .array(
+        z.strictObject({
+          noteId: RecipeId,
+          alignment: AlignMethod,
+          granularity: Granularity,
+          parts: z.array(z.strictObject({ line: int0, fromWord: int0, toWord: int0, method: AlignMethod, projection: z.enum(['sheared', 'vertical']), s: z.number(), boundaries: z.array(z.number().int()), reason: z.string().optional(), autoDetail: z.string() })),
+        }),
+      )
+      .optional(),
+    corrections: z.array(CorrectionZ).optional(),
+    disagreements: int0.optional(),
+    goldCheck: z.strictObject({ informational: z.literal(true), equal: int0, of: int0, differing: z.array(int0) }).optional(),
+    at: nonEmpty,
+  })
+  .superRefine((g, ctx) => {
+    if (g.pass) {
+      if (g.state !== 'pass') ctx.addIssue({ code: 'custom', message: 'pass: true needs state "pass"' })
+      if (g.waiting?.length) ctx.addIssue({ code: 'custom', message: 'pass: true with waiting reasons' })
+      if (!g.results) ctx.addIssue({ code: 'custom', message: 'pass: true without results' })
+      else for (const [k, v] of Object.entries(g.results)) if (!v.pass) ctx.addIssue({ code: 'custom', message: `pass: true with failing ${k}` })
+    }
+    if (g.state === 'waiting' && (g.pass || !g.waiting?.length)) ctx.addIssue({ code: 'custom', message: 'waiting needs pass: false and reasons' })
+    if (g.state === 'pass' && !g.pass) ctx.addIssue({ code: 'custom', message: 'state pass with pass: false' })
+  })
+export type Gate = z.infer<typeof Gate>
+
+const Provenance = z.strictObject({
+  institution: nonEmpty,
+  shelfmark: nonEmpty,
+  page: nonEmpty,
+  date: nonEmpty,
+  licence: z.strictObject({ id: nonEmpty, label: nonEmpty, url: z.string().url() }),
+  credit: nonEmpty,
+})
+
+export const BundleNote = z.strictObject({
+  id: RecipeId,
+  step: z.number().int().min(1),
+  span: nonEmpty,
+  shownText: nonEmpty,
+  granularity: Granularity,
+  alignment: AlignMethod,
+  alignmentBy: z.string().optional(),
+  checkAt: CheckAt.refine((c) => c.source !== 'cook', 'a bundle never carries source "cook" (R36.4)'),
+  pageBox: Box4,
+  size: z.tuple([z.number().int().positive(), z.number().int().positive()]),
+  files: z.strictObject({ png: nonEmpty, toi: nonEmpty, json: nonEmpty }),
+  resampled: z.boolean(),
+  groups: z.array(NoteGroup).min(1),
+  splitShare: z.number().min(0).max(1),
+  splitStatus: SplitStatus,
+  verifyUrl: z.string().url(),
+  verifyApproximate: z.boolean(),
+  reveal: z.literal('traced left to right from the ink'),
+  provenance: Provenance,
+})
+
+export const RecipeBundle = z.strictObject({
+  id: RecipeId,
+  title: nonEmpty,
+  source: Source,
+  transcription: z.strictObject({
+    readers: z.union([z.tuple([z.literal('scribe'), z.literal('second')]), z.tuple([z.literal('fallback')])]),
+    by: z.string().optional(),
+    disagreements: z.array(DisagreementZ),
+    corrections: z.array(CorrectionZ),
+    goldCheck: z.strictObject({ informational: z.literal(true), equal: int0, of: int0, differing: z.array(int0) }).optional(),
+  }),
+  lines: z.array(z.strictObject({ i: int0, merged: z.string(), corrected: z.string().optional(), primary: z.string() })),
+  steps: z.array(z.strictObject({ n: z.number().int().min(1), lineIdx: z.array(int0), text: nonEmpty })),
+  notes: z.array(BundleNote),
+  gateSha256: hex64,
+  ownership: z.strictObject({ autoPass: int0, reviewedPass: int0, reviewed: z.array(z.strictObject({ note: RecipeId, components: int0, reviewer: nonEmpty })) }),
+})
+export type RecipeBundle = z.infer<typeof RecipeBundle>
+
+export const Catalog = z.array(z.strictObject({ id: RecipeId, title: nonEmpty, gateSha256: hex64 }))
+export type Catalog = z.infer<typeof Catalog>
