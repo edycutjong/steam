@@ -218,7 +218,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `tools/steam-ingest/segment.ts`, `tools/steam-ingest/segment.test.ts`, `docs/kiro-evidence/ingest/measurements.json`.
   - Satisfies: R5.7, R9.1 to R9.7, R11.1 to R11.4, R40.3.
 
-- [ ] 37. `merge` and `fallback` subcommands
+- [x] 37. `merge` and `fallback` subcommands
   - Test first: `merge` writes `transcription.md` only when absent and says whether an existing file equals the fresh merge; `fallback` maps gold lines to lines (title offset), refuses a count mismatch, writes `readers: ["fallback"]` with `by` and the source hash, never touches `agent/*`.
   - Implement `tools/steam-ingest/merge.ts`, `tools/steam-ingest/fallback.ts`.
   - Files: `tools/steam-ingest/merge.ts`, `tools/steam-ingest/fallback.ts`, `tools/steam-ingest/merge.test.ts`, `tools/steam-ingest/fallback.test.ts`.
