@@ -38,7 +38,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/data/schema.ts`, `src/data/schema.test.ts`.
   - Satisfies: R4.2, R9.4, R13.1, R14.1, R14.7, R19.3, R35.3, R36.1.
 
-- [ ] 7. Licence resolution
+- [x] 7. Licence resolution
   - Test first: `resolveLicence(fixtureWork)` → `pdm`; mutated copies refuse: `in-copyright`, location removed, `license` removed, two locations with different ids, wrong `locationType`, a top-level `license` present but no location (must still refuse).
   - Implement `src/ingest/licence.ts`.
   - Files: `src/ingest/licence.ts`, `src/ingest/licence.test.ts`.
