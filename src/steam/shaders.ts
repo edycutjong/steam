@@ -78,10 +78,21 @@ void main() {
  */
 export const CLEAR_MID = 0.45
 export const CLEAR_HALF = 0.15
+/** D13: the edge band follows the fog density. Thin fog gives a soft edge, thick fog a crisp wet edge. */
+export const CLEAR_HALF_THIN = 0.2
+export const CLEAR_HALF_THICK = 0.1
+/** Fog density range (pass-1 value) over which the edge goes from soft to crisp. */
+export const EDGE_FOG_LO = 0.45
+export const EDGE_FOG_HI = 0.85
 export function clearCurve(alpha: number, half: number = CLEAR_HALF): number {
   const t = Math.min(1, Math.max(0, (alpha - (CLEAR_MID - half)) / (2 * half)))
   return t * t * (3 - 2 * t)
 }
+
+/** Ember seen through the clear glass: gain far from the pot, gain at the pot, and the falloff exp(-d^2 K) (D13). */
+export const THROUGH_FAR = 0.3
+export const THROUGH_NEAR = 1.1
+export const THROUGH_K = 1.0
 
 export const FOG_MAX = 0.94
 export const CH_GAIN = 1.0
@@ -148,10 +159,16 @@ const float STREAK_A = ${STREAK_A.toFixed(2)};
 const float STREAK_HALF = ${STREAK_HALF_CSS.toFixed(1)};
 const float SWEEP_SOFT = ${SWEEP_SOFT.toFixed(2)};
 const float TOI_SOFT = ${TOI_SOFT.toFixed(4)};
-const float RESIDUAL_CLEAR = 0.85;
+const float RESIDUAL_CLEAR = 0.78;
+const float THROUGH_FAR = ${THROUGH_FAR.toFixed(2)};
+const float THROUGH_NEAR = ${THROUGH_NEAR.toFixed(2)};
+const float THROUGH_K = ${THROUGH_K.toFixed(2)};
 const float BLOOM_A = 0.26;
 const float CLEAR_MID = ${CLEAR_MID.toFixed(2)};
-const float CLEAR_HALF = ${CLEAR_HALF.toFixed(2)};
+const float CLEAR_HALF_THIN = ${CLEAR_HALF_THIN.toFixed(2)};
+const float CLEAR_HALF_THICK = ${CLEAR_HALF_THICK.toFixed(2)};
+const float EDGE_FOG_LO = ${EDGE_FOG_LO.toFixed(2)};
+const float EDGE_FOG_HI = ${EDGE_FOG_HI.toFixed(2)};
 const float RIM_A = 0.45;
 const float PLUME_A = ${PLUME_A.toFixed(2)};
 const float BEAD_CELL_CSS = 14.0;
@@ -264,6 +281,10 @@ void main() {
   float depth = 0.9 + 0.1 * ch.b;
   float c = ch.r * wiped;
   float clearM = clamp(c * depth, 0.0, 1.0);
+  // Edge width: follows the fog density (D13), and never narrower than about one screen px of the alpha ramp.
+  float fogK = smoothstep(EDGE_FOG_LO, EDGE_FOG_HI, fogD);
+  float edgeHalf = mix(CLEAR_HALF_THIN, CLEAR_HALF_THICK, fogK);
+  edgeHalf = max(edgeHalf, 0.6 * length(vec2(dFdx(clearM), dFdy(clearM))));
 
   // Neighbourhood of written ink, only near the hull: a pile-up ring, a warm bloom and run-off drips.
   float near = 0.0;
@@ -299,7 +320,7 @@ void main() {
   }
   clearM = max(clearM, drip);
   // Glass is clear exactly where the scan has ink: one narrow band over the scan's alpha (D12).
-  float clearS = smoothstep(CLEAR_MID - CLEAR_HALF, CLEAR_MID + CLEAR_HALF, clearM);
+  float clearS = smoothstep(CLEAR_MID - edgeHalf, CLEAR_MID + edgeHalf, clearM);
 
   // 2. Cook's wipe: a soft front sweeps left to right. The hull stays clear, the rest re-fogs.
   float front = uWipe * (1.0 + SWEEP_SOFT) - vUv.x;
@@ -310,7 +331,10 @@ void main() {
 
   // Ember light behind the glass: a gradient anchored to the pot, brightest low.
   float low = smoothstep(0.1, 1.0, vUv.y);
-  float anchor = mix(0.8, 1.2, low) * (0.8 + 0.25 * potGlow(vUv));
+  // What the glass shows is the warm room: brightest near the pot, dim at the top of the pane (D13).
+  float aspect0 = uRes.x / uRes.y;
+  float dPot = distance(vUv * vec2(aspect0, 1.0), uPot * vec2(aspect0, 1.0));
+  float anchor = mix(THROUGH_FAR, THROUGH_NEAR, exp(-dPot * dPot * THROUGH_K));
   vec3 behind = kitchen(vUv);
   // The ember lights the whole written stroke, faint ink included. Scaling it by clearS let the dark room
   // through partly cleared (faint) ink, which read as dark smudges inside strokes (D9).
@@ -331,8 +355,9 @@ void main() {
   vec2 g2 = vec2(dFdx(c), dFdy(c));
   float grad = length(g2) * px;
   float lower = smoothstep(-0.6, 0.6, g2.y / max(length(g2), 1e-4));
-  float rim = smoothstep(0.05, 0.05 + 1.0 / RIM_K, grad) * (1.0 - smoothstep(0.3, 0.6, c));
-  col = mix(col, uGhost, rim * RIM_A * mix(0.2, 1.0, lower));
+  // Only on the fog side of the edge (outside the clear band), and softer in thin fog (D13).
+  float rim = smoothstep(0.05, 0.05 + 1.0 / RIM_K, grad) * (1.0 - smoothstep(0.3, 0.6, c)) * (1.0 - clearS) * (1.0 - clearS);
+  col = mix(col, uGhost, rim * RIM_A * mix(0.55, 1.0, fogK) * mix(0.2, 1.0, lower));
 
   // 4. Writing head: cold white at the toi frontier. Never amber.
   if (uHead > 0.0 && gi >= 0) {

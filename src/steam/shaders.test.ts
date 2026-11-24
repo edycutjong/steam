@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { COMPOSITE_FRAG, PLUME_A, PLUME_H2, PLUME_REACH, STREAK_A, STREAK_HALF_CSS } from './shaders.ts'
+import { CLEAR_HALF_THICK, CLEAR_HALF_THIN, COMPOSITE_FRAG, PLUME_A, PLUME_H2, PLUME_REACH, STREAK_A, STREAK_HALF_CSS, THROUGH_FAR, THROUGH_K, THROUGH_NEAR } from './shaders.ts'
 import { parseColor } from './tokens.ts'
 
 /** --after, the only colour the plume adds. */
@@ -14,6 +14,15 @@ describe('composite constants', () => {
     expect(STREAK_A).toBeLessThanOrEqual(0.12)
     expect(2 * STREAK_HALF_CSS).toBeGreaterThanOrEqual(8)
     expect(2 * STREAK_HALF_CSS).toBeLessThanOrEqual(12)
+  })
+  it('lets the light behind the glass fall off from the pot to the top of the pane (D13)', () => {
+    // Pot at (0.5, 1.18); the top centre of the pane is 1.18 away, the bottom centre 0.18.
+    const gain = (d: number): number => THROUGH_FAR + (THROUGH_NEAR - THROUGH_FAR) * Math.exp(-d * d * THROUGH_K)
+    expect(gain(0.18)).toBeGreaterThan(gain(1.18) * 1.8)
+    expect(gain(1.18)).toBeLessThan(0.55)
+  })
+  it('makes the edge crisper in thick fog than in thin fog (D13)', () => {
+    expect(CLEAR_HALF_THICK).toBeLessThan(CLEAR_HALF_THIN)
   })
   it('has no template placeholders left in the GLSL', () => {
     expect(COMPOSITE_FRAG).not.toMatch(/\$\{/)

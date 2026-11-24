@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 import { derive, type PixelSource } from './derive.ts'
-import { CLEAR_HALF, clearCurve } from './shaders.ts'
+import { CLEAR_HALF, CLEAR_HALF_THICK, CLEAR_HALF_THIN, clearCurve } from './shaders.ts'
 
 const base = new URL('../../public/hero/', import.meta.url)
 const toiUrl = new URL('note-looks-red-smooth.toi.png', base)
@@ -49,6 +49,13 @@ describe.skipIf(!existsSync(toiUrl) || !existsSync(noteUrl))('revealed stroke co
   })
   it('reveals at most 1.15 times the scan ink area at 2x bilinear (the desktop display scale)', () => {
     expect(revealedArea(chan, w, h, 2, CLEAR_HALF) / scanInk).toBeLessThanOrEqual(1.15)
+  })
+  it('keeps the bound in thin and in thick fog, where the edge band is wider and narrower (D13)', () => {
+    for (const half of [CLEAR_HALF_THIN, CLEAR_HALF_THICK]) {
+      const ratio = revealedArea(chan, w, h, 2, half) / scanInk
+      expect(ratio).toBeLessThanOrEqual(1.15)
+      expect(ratio).toBeGreaterThanOrEqual(0.85)
+    }
   })
   it('does not lose the pen: at least 0.85 of the scan ink area stays revealed (hairlines, counters)', () => {
     expect(revealedArea(chan, w, h, 2, CLEAR_HALF) / scanInk).toBeGreaterThanOrEqual(0.85)
