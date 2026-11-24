@@ -45,5 +45,5 @@ Terms. "Word box": the columns between two neighbouring boundaries of an aligned
 - [x] 1. Commit 0, `[kiro] word-cut-inside-word: bugfix spec and the detection rule (before measuring)`: this file and design.md 3.5.
 - [x] 2. Commit A, `[kiro] word-cut-inside-word: exploration test on the real page (red)`: `src/ingest/plausible.ts` (the pure rule), `src/ingest/wordCut.bug.test.ts`; `red.txt`; hooks.log line.
 - [x] 3. Commit B, `[kiro] word-cut-inside-word: reject implausible alignment, curator alignment from code-found runs (green)`: wire the rule into `alignAuto`/`alignCurator`/gate; curator `alignment.json`; gate re-run; `green.txt`; look at each note PNG.
-- [ ] 4. Commit C, `[kiro] word-cut-inside-word: preservation properties (Unchanged)`.
+- [x] 4. Commit C, `[kiro] word-cut-inside-word: preservation properties (Unchanged)`.
 - [ ] 5. Final: `npm run ingest:gate`, `npm run props` (exit 0), `npm test`, `npm run typecheck`, `npm run build`; hooks.log lines; `docs/kiro-evidence/ingest/notes-after-word-cut-fix.png`; report.

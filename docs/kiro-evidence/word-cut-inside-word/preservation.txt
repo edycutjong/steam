@@ -1,0 +1,13 @@
+# word-cut-inside-word, commit C: preservation properties
+# command: npx vitest run wordCut.prop alignSpeck cropOverlap --no-color
+# recorded: 2026-11-24T20:28:25Z, parent commit 322b6b1
+
+
+ RUN  v5.1.1 /Users/edycu/Hackathon/devpost/devpost-kiroween/steam/build
+
+
+ Test Files  6 passed (6)
+      Tests  53 passed | 5 expected fail (58)
+   Start at  03:28:25
+   Duration  11.31s (import 71%, tests 29%)
+
