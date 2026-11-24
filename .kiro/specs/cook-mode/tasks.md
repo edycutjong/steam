@@ -157,7 +157,7 @@ Rules for every task:
   - Files: `src/cook/announce.ts`, `src/cook/announce.test.ts`, `src/copy/strings.ts`.
   - Satisfies: R9.4, R11.3, R23.3, R25.1.
 
-- [ ] 24. The cue envelope, brown noise and K6
+- [x] 24. The cue envelope, brown noise and K6
   - Test first: `src/cook/cue.test.ts` and `src/cook/cue.prop.test.ts` (K6): bounds, endpoints, single minimum, the gain never above `SIMMER_GAIN`; `brownNoise` determinism, range, mean, seam, spectral tilt (energy below 200 Hz above energy above 2 kHz at 44 100 Hz).
   - Implement `cueEnvelope`, `brownNoise` and the constants.
   - Files: `src/cook/cue.ts`, `src/cook/cue.test.ts`, `src/cook/cue.prop.test.ts`.

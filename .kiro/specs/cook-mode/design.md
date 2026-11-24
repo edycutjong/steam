@@ -510,7 +510,7 @@ Shape: `lamp` falls from 1 to `LAMP_MIN` over the first 200 ms, holds 100 ms, ri
 export function brownNoise(n: number, seed: number): Float32Array
 ```
 
-Seeded white noise (a small integer PRNG, no `Math.random`), `y[i] = (y[i−1] + 0.02·w[i]) / 1.02`, then the first and last 2048 samples crossfaded (equal power) so that the loop has no click, then scaled to a peak of 0.9. Length `2 × sampleRate`. Deterministic, so the property test can check bounds, mean near zero, seam continuity and the 1/f² tilt (energy below 200 Hz above energy above 2 kHz).
+Seeded white noise (a small integer PRNG, no `Math.random`), `y[i] = (y[i−1] + 0.02·w[i]) / 1.02`, then the first and last 2048 samples crossfaded (equal power) so that the loop has no click, then scaled to a peak of 0.9. Length `2 × sampleRate`. Deterministic, so the property test can check bounds, the mean, seam continuity and the 1/f² tilt (energy below 200 Hz above energy above 2 kHz). The first draft of this section said the mean is within 0.05 of zero and the seam step no larger than the median step. Both were guesses and both fail: a random walk's mean over 8 192 samples reaches 0.104 (measured over 1 200 seed/size pairs), and one step of a walk exceeds the median step half the time. The checks are now a mean within 0.15 and a seam step within 5 × the RMS step (measured largest: 1.84 ×), which still catch a click or a DC offset.
 
 ### 8.3 Engine (`audio.ts`)
 
@@ -669,7 +669,7 @@ Test: `src/data/provenance.prop.test.ts`. Validates R21.4 to R21.7, R22.1 to R22
 
 ### K6. The cue and the noise (R16)
 
-*For all* `t`: `cueEnvelope(t).lamp ∈ [LAMP_MIN, 1]` and `.simmer ∈ [SIMMER_DUCK, 1]`; both are exactly 1 at and before 0 and after their end; each has one minimum (non-increasing then non-decreasing); the gain applied never exceeds `SIMMER_GAIN`. *For all* seeds and lengths ≥ 8192: `brownNoise` is deterministic, within [−1, 1], has a mean within 0.05 of zero, a loop seam step no larger than the median step, and more energy below 200 Hz than above 2 kHz. The audio engine never calls its context factory before `unlock()`. Test: `src/cook/cue.prop.test.ts`. Validates R16.1 to R16.4, R16.8.
+*For all* `t`: `cueEnvelope(t).lamp ∈ [LAMP_MIN, 1]` and `.simmer ∈ [SIMMER_DUCK, 1]`; both are exactly 1 at and before 0 and after their end; each has one minimum (non-increasing then non-decreasing); the gain applied never exceeds `SIMMER_GAIN`. *For all* seeds and lengths ≥ 8192: `brownNoise` is deterministic, within [−1, 1], has a mean within 0.15 of zero, a loop seam step within 5 × the RMS step (§8.2), and more energy below 200 Hz than above 2 kHz. The audio engine never calls its context factory before `unlock()`. Test: `src/cook/cue.prop.test.ts`. Validates R16.1 to R16.4, R16.8.
 
 ### K7. The reveal gate (R15.7)
 
