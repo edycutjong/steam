@@ -36,3 +36,36 @@ Evidence: frames in `docs/kiro-evidence/renderer-v0/before/` (`desktop-t-600`, `
 - [x] B4. D3 and D4: fainter, narrower streak; sparser transparent beads.
 - [x] B5. D5: moon halo in `steam.css`.
 - [x] B6. Capture after-frames into `docs/kiro-evidence/renderer-v0/after/` and compare.
+
+## Round 2 (D6 to D11)
+
+Evidence: `docs/kiro-evidence/renderer-v0/after/desktop-t6500.png` and `mobile-t6500.png`. Reviewer verdict: phone BETTER (5/10 vs 3/10), desktop SAME (5/10 vs 6/10); the handwriting itself is lost.
+
+### Current Behavior
+
+- D6 (high). Letterforms are over-thickened and over-blurred (`DILATE_PX` 2, `SOFT_PX` 2, then a hard `smoothstep(0.12, 0.62)`). Counters of a, e, o, l fill in, hairline upstrokes vanish, "till it Looks" reads "lilG il~Looks", "&" reads as "Q".
+- D7 (high). Strokes read as a flat opaque orange sticker with a uniform grey-blue outline: flat ember gain, no fog left inside, no bloom, symmetric rim.
+- D8 (high). On desktop the groups sit where they are on the page (group 1 right of centre, group 2 lower left), so the writing head jumps right to left; the note is small, about 60% of the pane is empty.
+- D9 (medium). Dark smudges inside strokes (the "L" and "ks" of "Looks").
+- D10 (medium). The specular streak is a wide hard band (about 40 px at about 30%).
+- D11 (medium). The pot is not visible; the ember light has no visible source.
+
+### Expected Behavior
+
+- D6. The channel follows the scan's own alpha: `DILATE_PX` 0, `SOFT_PX` 1 (at most about 15% growth), linear sampling at device resolution, a low clear threshold so hairlines and open loops survive.
+- D7. Clear glass: ember gradient anchored to the pot (brightest low), 15% residual fog grain inside the channel, a warm bloom 7 to 11 px outside, a thin `--ghost` rim (1 to 1.5 CSS px) brighter on the lower edge and fainter on the upper, slight fog pile-up just outside the edge.
+- D8. Desktop uses the phone's stacked layout: group 1 above group 2, left-aligned, stack centred, one scale for both, the wider group about 67.5% of the pane width, scale at most 1.6. Time-of-ink order unchanged.
+- D9. The cause is found and removed. Hypothesis: where the inflated dst rects of the stacked groups overlap, the first group's rect masked the second group's ink; a flat fog multiply inside the channel also darkened it.
+- D10. Streak 8 to 12 px wide with soft falloff, opacity at most 0.12.
+- D11. A warm rising plume from the bottom edge, brightest at the bottom; a few short run-off drips under written stroke ends.
+
+### Unchanged Behavior
+
+Concealment before the reveal, timing constants, the no-hotspot clamp to `--ink`, hull feather, the hold, the wipe, phone core band at least 16 CSS px, colours only from design tokens, all existing tests (the desktop layout tests are replaced by stacked-layout tests).
+
+### Tasks
+
+- [x] B7. D8: stacked desktop layout in `layout.ts`, tests updated.
+- [x] B8. D6: `derive.ts` constants and test.
+- [x] B9. D7, D9, D10, D11: `shaders.ts`.
+- [x] B10. Capture into `docs/kiro-evidence/renderer-v0/after-v01/` and read.

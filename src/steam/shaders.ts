@@ -77,7 +77,9 @@ export const CH_GAIN = 1.0
 export const RIM_K = 6.0
 export const HEAD_R = 11.0
 export const HEAD_A = 0.42
-export const STREAK_A = 0.14
+export const STREAK_A = 0.1
+/** Streak half-width, CSS px (D10): the visible band is ~10 px. */
+export const STREAK_HALF_CSS = 5.0
 export const SWEEP_SOFT = 0.35
 
 /**
@@ -124,8 +126,13 @@ const float RIM_K = ${RIM_K.toFixed(1)};
 const float HEAD_R = ${HEAD_R.toFixed(1)};
 const float HEAD_A = ${HEAD_A.toFixed(2)};
 const float STREAK_A = ${STREAK_A.toFixed(2)};
+const float STREAK_HALF = ${STREAK_HALF_CSS.toFixed(1)};
 const float SWEEP_SOFT = ${SWEEP_SOFT.toFixed(2)};
 const float TOI_SOFT = ${TOI_SOFT.toFixed(4)};
+const float RESIDUAL_CLEAR = 0.85;
+const float BLOOM_A = 0.5;
+const float RIM_A = 0.45;
+const float PLUME_A = 0.34;
 const float BEAD_CELL_CSS = 14.0;
 const float BEAD_ZONE = 0.07;
 ${NOISE_GLSL}
@@ -153,28 +160,48 @@ vec3 glassEdgeTint(vec3 fog) {
   return fog * vec3(0.94, 1.06, 1.0);
 }
 
-// Locates the pixel inside a group's dst rect. Returns the group index or -1.
-// nuv: note texture coordinate. npos: position in note px.
-int locate(vec2 fragPx, out vec2 nuv, out vec2 npos) {
-  nuv = vec2(0.0);
+// Samples the channel at a screen px position. Where group rects overlap (the stacked layout),
+// the sample with the larger alpha wins, so one group never masks the other's ink (D9).
+// Returns (alpha, toi, pressure, hull feather); grp is the winning group or -1.
+vec4 sampleChan(vec2 fp, out int grp, out vec2 npos) {
+  vec4 best = vec4(0.0);
+  grp = -1;
   npos = vec2(0.0);
   for (int i = 0; i < 2; i++) {
     if (i >= uGroupCount) break;
     vec4 dst = uGroupDst[i];
-    if (fragPx.x >= dst.x && fragPx.y >= dst.y && fragPx.x < dst.z && fragPx.y < dst.w) {
-      vec2 f = (fragPx - dst.xy) / (dst.zw - dst.xy);
-      npos = mix(uGroupSrc[i].xy, uGroupSrc[i].zw, f);
-      nuv = npos / uNoteSize;
-      return i;
+    if (fp.x >= dst.x && fp.y >= dst.y && fp.x < dst.z && fp.y < dst.w) {
+      vec2 f = (fp - dst.xy) / (dst.zw - dst.xy);
+      vec2 np = mix(uGroupSrc[i].xy, uGroupSrc[i].zw, f);
+      vec4 v = texture(uChan, np / uNoteSize);
+      if (grp < 0 || v.r > best.r) {
+        float hull = max(best.a, v.a);
+        best = v;
+        best.a = hull;
+        grp = i;
+        npos = np;
+      } else {
+        best.a = max(best.a, v.a);
+      }
     }
   }
-  return -1;
+  return best;
+}
+
+// Written ink coverage (alpha times wiped) at a screen px position.
+float tapC(vec2 fp) {
+  int g;
+  vec2 np;
+  vec4 v = sampleChan(fp, g, np);
+  return v.r * clamp((uU - v.g) / TOI_SOFT, 0.0, 1.0) * float(g >= 0);
 }
 
 vec3 addBeadsAndStreak(vec3 col, vec2 uv, vec2 fragPx, float fogD) {
   // Specular streak across the top third: colour is the ink token, alpha capped.
-  float s = uv.x * 0.8 + uv.y * 1.2;
-  float streak = exp(-pow((s - 0.55) / 0.045, 2.0)) * 0.4 * (1.0 - smoothstep(0.2, 0.45, uv.y));
+  float sv = uv.x * 0.8 + uv.y * 1.2;
+  // Perpendicular distance from the streak line in device px, then a soft gaussian falloff.
+  float dpx = (sv - 0.55) / length(vec2(0.8 / uRes.x, 1.2 / uRes.y));
+  float streak = exp(-pow(dpx / (STREAK_HALF * uDpr), 2.0)) * (1.0 - smoothstep(0.2, 0.45, uv.y));
   col = mix(col, uInk, min(streak, STREAK_A));
 
   // Beads on the bottom rail. Density falls away from the rail.
@@ -205,47 +232,107 @@ void main() {
   float fogD = texture(uFog, vec2(vUv.x, 1.0 - vUv.y)).r;
   fogD += (hash(fragPx + uTime) - 0.5) * 0.02;
 
-  vec2 nuv;
+  int gi;
   vec2 npos;
-  int gi = locate(fragPx, nuv, npos);
-  vec4 ch = texture(uChan, nuv) * float(gi >= 0); // r alpha, g toi, b pressure, a hull feather
+  vec4 ch = sampleChan(fragPx, gi, npos); // r alpha, g toi, b pressure, a hull feather
   float hullF = ch.a;
+  float px = uDpr;
 
   // 1. Wipe-on. uU is -1 before writing, so wiped is 0 everywhere and nothing of the note exists.
   float wiped = clamp((uU - ch.g) / TOI_SOFT, 0.0, 1.0);
-  float depth = 0.85 + 0.15 * ch.b;
-  float clearM = clamp(ch.r * wiped * depth, 0.0, 1.0);
-  // Glass is either clear or fogged across a narrow edge, so the ember reads without a muddy grey ring.
-  float clearS = smoothstep(0.12, 0.62, clearM);
+  float depth = 0.9 + 0.1 * ch.b;
+  float c = ch.r * wiped;
+  float clearM = clamp(c * depth, 0.0, 1.0);
+
+  // Neighbourhood of written ink, only near the hull: a pile-up ring, a warm bloom and run-off drips.
+  float near = 0.0;
+  float far = 0.0;
+  float drip = 0.0;
+  if (hullF > 0.01 && uU > -0.5) {
+    // Rings rotated per pixel (interleaved noise) so the taps blur instead of ghosting.
+    float ang = 6.2831853 * fract(52.9829189 * fract(dot(fragPx, vec2(0.06711056, 0.00583715))));
+    vec2 e1 = vec2(cos(ang), sin(ang));
+    vec2 e2 = vec2(-e1.y, e1.x);
+    float rn = 2.5 * px;
+    near = (tapC(fragPx + e1 * rn) + tapC(fragPx - e1 * rn) + tapC(fragPx + e2 * rn) + tapC(fragPx - e2 * rn)) * 0.25;
+    float ra = 7.0 * px;
+    float rb = 11.0 * px;
+    vec2 d45 = (e1 + e2) * 0.7071;
+    vec2 m45 = (e1 - e2) * 0.7071;
+    far = (tapC(fragPx + e1 * rb) + tapC(fragPx - e1 * rb) + tapC(fragPx + e2 * rb) + tapC(fragPx - e2 * rb)
+         + tapC(fragPx + d45 * ra) + tapC(fragPx - d45 * ra) + tapC(fragPx + m45 * ra) + tapC(fragPx - m45 * ra)) * 0.125;
+    // Short run-off drips below written ink: a few thin columns, each of its own length.
+    float cell = 7.0 * px;
+    vec2 id = floor(vec2(fragPx.x / cell, 0.0));
+    float h = hash(id + 3.1);
+    float h2 = hash(id + 17.9);
+    float colMatch = 1.0 - smoothstep(0.55 * px, 0.95 * px, abs(fragPx.x - (id.x + 0.2 + 0.6 * h2) * cell));
+    if (colMatch > 0.0 && h > 0.9 && c < 0.2) {
+      float len = (6.0 + 8.0 * h2) * px;
+      float hit = 0.0;
+      hit = max(hit, step(0.55, tapC(fragPx - vec2(0.0, len * 0.25))) * 0.9);
+      hit = max(hit, step(0.55, tapC(fragPx - vec2(0.0, len * 0.55))) * 0.7);
+      hit = max(hit, step(0.55, tapC(fragPx - vec2(0.0, len))) * 0.5);
+      drip = hit * colMatch;
+    }
+  }
+  clearM = max(clearM, drip);
+  // Glass is either clear or fogged across a narrow edge. The low threshold keeps hairline upstrokes.
+  float clearS = smoothstep(0.08, 0.5, clearM);
 
   // 2. Cook's wipe: a soft front sweeps left to right. The hull stays clear, the rest re-fogs.
   float front = uWipe * (1.0 + SWEEP_SOFT) - vUv.x;
   float sweepC = clamp(front / SWEEP_SOFT, 0.0, 1.0) * step(0.0001, uWipe);
   float stay = max(1.0 - uRefog, hullF);
-  float fogOpacity = clamp(fogD, 0.0, 1.0) * FOG_MAX * (1.0 - clearS) * (1.0 - sweepC * stay);
+  // The glass is not perfectly clear: a residual of the fog grain stays inside the channel.
+  float fogOpacity = clamp(fogD, 0.0, 1.0) * FOG_MAX * (1.0 - RESIDUAL_CLEAR * clearS) * (1.0 - sweepC * stay);
 
+  // Ember light behind the glass: a gradient anchored to the pot, brightest low.
+  float low = smoothstep(0.1, 1.0, vUv.y);
+  float anchor = mix(0.8, 1.2, low) * (0.8 + 0.25 * potGlow(vUv));
   vec3 behind = kitchen(vUv);
-  behind += uAfter * CH_GAIN * clearS * (0.8 + 0.2 * potGlow(vUv));
+  behind += uAfter * CH_GAIN * clearS * anchor;
 
   vec3 fog = uBefore * (0.78 + 0.22 * fogD);
   fog = mix(fog, glassEdgeTint(fog), edgeMask(vUv));
-  vec3 col = mix(behind, fog, fogOpacity);
+  // Fog piles up just outside the edge of written ink.
+  float outside = 1.0 - clearS;
+  fog += uMoon * 0.04 * near * outside;
+  vec3 col = mix(behind, fog, clamp(fogOpacity + 0.06 * near * outside, 0.0, 1.0));
 
-  // 3. Cold wet rim from the channel's own edge gradient.
-  float c = ch.r * wiped;
-  // A thin edge on the outer side of wiped ink only: c is 0 until the stroke's toi is reached.
-  float grad = length(vec2(dFdx(c), dFdy(c))) * uDpr;
+  // Warm bloom of the ember light, 8 to 12 px into the fog around the channel.
+  col += uAfter * BLOOM_A * far * outside * (0.5 + 0.5 * low);
+
+  // 3. Cold wet rim on the channel's outer edge: thin, brighter below, fainter above.
+  vec2 g2 = vec2(dFdx(c), dFdy(c));
+  float grad = length(g2) * px;
+  float lower = smoothstep(-0.6, 0.6, g2.y / max(length(g2), 1e-4));
   float rim = smoothstep(0.05, 0.05 + 1.0 / RIM_K, grad) * (1.0 - smoothstep(0.3, 0.6, c));
-  col = mix(col, uGhost, rim * 0.5);
+  col = mix(col, uGhost, rim * RIM_A * mix(0.2, 1.0, lower));
 
   // 4. Writing head: cold white at the toi frontier. Never amber.
-  if (uHead > 0.0 && gi == uHeadGroup) {
-    vec2 dv = npos - uHeadPos;
-    float hg = exp(-dot(dv, dv) / (HEAD_R * HEAD_R));
-    col = mix(col, mix(uGhost, uMoon, 0.5), hg * HEAD_A * uHead);
+  if (uHead > 0.0 && gi >= 0) {
+    vec4 hd = uGroupDst[uHeadGroup];
+    if (fragPx.x >= hd.x && fragPx.y >= hd.y && fragPx.x < hd.z && fragPx.y < hd.w) {
+      vec2 hp = mix(uGroupSrc[uHeadGroup].xy, uGroupSrc[uHeadGroup].zw, (fragPx - hd.xy) / (hd.zw - hd.xy));
+      vec2 dv = hp - uHeadPos;
+      float hg = exp(-dot(dv, dv) / (HEAD_R * HEAD_R));
+      col = mix(col, mix(uGhost, uMoon, 0.5), hg * HEAD_A * uHead);
+    }
   }
 
   col = addBeadsAndStreak(col, vUv, fragPx, fogD);
+
+  // The pot's plume: warm light rising from the bottom edge, brightest at the bottom.
+  float aspect = uRes.x / uRes.y;
+  float sway = 0.012 * sin(uTime * 1.3 + vUv.y * 7.0) + 0.006 * sin(uTime * 2.7 + vUv.y * 13.0);
+  float px0 = (vUv.x - uPot.x + sway) * aspect;
+  float height = 1.0 - vUv.y;
+  float spread = 0.07 + 0.55 * height;
+  float plume = exp(-px0 * px0 / (spread * spread)) * exp(-height * 4.2);
+  plume *= 0.9 + 0.1 * sin(uTime * 5.1 + height * 9.0);
+  col += uAfter * PLUME_A * plume;
+
   col = min(col, uInk);
   oColor = vec4(col, 1.0);
 }
