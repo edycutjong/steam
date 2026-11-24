@@ -213,7 +213,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Satisfies: R3.1 to R3.5, R4.1 to R4.6, R40.1.
 
 - [x] 36. `segment` subcommand
-  - Test first: run on `fixtures/p0033.jpg`; assert only structural facts (files exist, schema valid, region inside the page, canonical JSON, second run is byte-identical, `segmentRun` stable); write the measured line count, block count, marginalia count, deskew angle, slant, split count and hero split share to `docs/kiro-evidence/ingest/measurements.json`; print the region (R5.7). If the measured line count is not the 12 the design predicts, record it and stop to review before any parameter is touched.
+  - Test first: run on `fixtures/p0033.jpg`; assert only structural facts (files exist, schema valid, region inside the page, canonical JSON, second run is byte-identical, `segmentRun` stable); write the measured line count, block count, marginalia count, deskew angle, slant, split count and hero split share to `docs/kiro-evidence/ingest/measurements.json`; print the region (R5.7). If the measured line count is not the 12 the design expects, record it and stop to review before any parameter is touched.
   - Implement `tools/steam-ingest/segment.ts`; write `lines.json`, `region.json`, `runs.json`, `strips/`, `ownership/`.
   - Files: `tools/steam-ingest/segment.ts`, `tools/steam-ingest/segment.test.ts`, `docs/kiro-evidence/ingest/measurements.json`.
   - Satisfies: R5.7, R9.1 to R9.7, R11.1 to R11.4, R40.3.
@@ -249,7 +249,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Satisfies: R35.1 to R35.6, R36.3, R37.1.
 
 - [x] 42. First real run: fetch, segment, fallback structure
-  - Test first: none new (measurement task). Run `steam-ingest fetch quinces-marmalade --from-fixture` and `segment`; read `docs/kiro-evidence/ingest/measurements.json`. Compare the measured region and line count with the design's prediction; record any difference in the file as a note, change no constant, and decide on `--block` only through the documented ordinal.
+  - Test first: none new (measurement task). Run `steam-ingest fetch quinces-marmalade --from-fixture` and `segment`; read `docs/kiro-evidence/ingest/measurements.json`. Compare the measured region and line count with the design's expectation; record any difference in the file as a note, change no constant, and decide on `--block` only through the documented ordinal.
   - Write `content/recipes/quinces-marmalade/fallback-structure.json` (steps and the hero note by indices, spans verbatim) and run `fallback`.
   - Files: `content/recipes/quinces-marmalade/*`, `docs/kiro-evidence/ingest/measurements.json`.
   - Satisfies: R5.7, R34.1, R34.2, R40.3.

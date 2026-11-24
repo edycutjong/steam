@@ -19,7 +19,7 @@ Inputs already in the repo (read before this design was written):
 
 What a look at `p0033.jpg` shows, and what it changes against the spike:
 
-- The recipe is "No. 26": title "To make Marmalade of Quinces" at the top, 11 body lines, a long separator rule under the previous recipe's last line and a flourish under "The time it Boils". The title is in the same block as the body. The spike's hand-typed region started below it and found 11 lines. The real region (R5) starts at the separator rule, so it should contain the title as line 0 and 11 body lines: 12 lines. This is a prediction to measure, not a number in code.
+- The recipe is "No. 26": title "To make Marmalade of Quinces" at the top, 11 body lines, a long separator rule under the previous recipe's last line and a flourish under "The time it Boils". The title is in the same block as the body. The spike's hand-typed region started below it and found 11 lines. The real region (R5) starts at the separator rule, so it should contain the title as line 0 and 11 body lines: 12 lines. This is a expectation to measure, not a number in code.
 - "(No. 26)" stands in the left margin, separated from the text column by a gap. Without a column rule its ink would be owned by a line and would show up in whole-line notes. R5.5 removes it as marginalia.
 - A page number ("16") stands below the last line. R5.4 keeps it out of the region.
 - The gold reading has 11 lines and a title. With the title as line 0, gold line `j` maps to `lines.json` line `j + 1` (R34.1).
