@@ -84,7 +84,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/derive.ts`.
   - Satisfies: R6.3, R18.1.
 
-- [ ] 15. Derive: head table
+- [x] 15. Derive: head table
   - Implement the 256-bin ink-weighted centroid table, the 7-bin moving average, and the empty-bin carry.
   - Files: `src/steam/derive.ts`.
   - Satisfies: R8.1, R8.2, R8.6, R18.3.

@@ -21,6 +21,9 @@ export const SOFT_PX = 2
 export const HULL_DILATE_PX = 6
 export const HULL_FEATHER_PX = 24
 export const HEAD_BINS = 256
+export const HEAD_SMOOTH_BINS = 7
+/** Neighbour bins farther than this (note px) are not averaged in, so the head does not glide between lines. */
+export const HEAD_JUMP_PX = 120
 const PRESSURE_SCAN_BLEND = 0.12
 
 function dilationOffsets(radius: number): Int32Array {
@@ -156,6 +159,70 @@ function deriveHull(toi: PixelSource, chan: Uint8Array): void {
   }
 }
 
+function deriveHead(toi: PixelSource): Float32Array {
+  const { width: w, height: h } = toi
+  const sw = new Float64Array(HEAD_BINS)
+  const sx = new Float64Array(HEAD_BINS)
+  const sy = new Float64Array(HEAD_BINS)
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const o = (y * w + x) * 4
+      const a = toi.data[o]
+      if (a === 0) continue
+      const bin = Math.min(HEAD_BINS - 1, toi.data[o + 1])
+      sw[bin] += a
+      sx[bin] += a * (x + 0.5)
+      sy[bin] += a * (y + 0.5)
+    }
+  }
+  const raw = new Float32Array(HEAD_BINS * 2)
+  const have = new Uint8Array(HEAD_BINS)
+  for (let b = 0; b < HEAD_BINS; b++) {
+    if (sw[b] > 0) {
+      raw[b * 2] = sx[b] / sw[b]
+      raw[b * 2 + 1] = sy[b] / sw[b]
+      have[b] = 1
+    }
+  }
+  // Empty bins carry the previous bin; leading empties take the first non-empty bin.
+  let first = -1
+  for (let b = 0; b < HEAD_BINS; b++) {
+    if (have[b]) {
+      first = b
+      break
+    }
+  }
+  if (first < 0) return new Float32Array(HEAD_BINS * 2).fill(0)
+  for (let b = 0; b < first; b++) {
+    raw[b * 2] = raw[first * 2]
+    raw[b * 2 + 1] = raw[first * 2 + 1]
+  }
+  for (let b = first + 1; b < HEAD_BINS; b++) {
+    if (!have[b]) {
+      raw[b * 2] = raw[(b - 1) * 2]
+      raw[b * 2 + 1] = raw[(b - 1) * 2 + 1]
+    }
+  }
+  const out = new Float32Array(HEAD_BINS * 2)
+  const half = (HEAD_SMOOTH_BINS - 1) / 2
+  for (let b = 0; b < HEAD_BINS; b++) {
+    let ax = 0
+    let ay = 0
+    let c = 0
+    for (let k = -half; k <= half; k++) {
+      const q = b + k
+      if (q < 0 || q >= HEAD_BINS) continue
+      if (Math.hypot(raw[q * 2] - raw[b * 2], raw[q * 2 + 1] - raw[b * 2 + 1]) > HEAD_JUMP_PX) continue
+      ax += raw[q * 2]
+      ay += raw[q * 2 + 1]
+      c++
+    }
+    out[b * 2] = ax / c
+    out[b * 2 + 1] = ay / c
+  }
+  return out
+}
+
 export function derive(toi: PixelSource, note: PixelSource): Derived {
   if (toi.width !== note.width || toi.height !== note.height) {
     throw new Error('derive: toi and note sizes differ')
@@ -163,5 +230,5 @@ export function derive(toi: PixelSource, note: PixelSource): Derived {
   const chan = new Uint8Array(toi.width * toi.height * 4)
   deriveChannel(toi, note, chan)
   deriveHull(toi, chan)
-  return { chan, head: new Float32Array(HEAD_BINS * 2), headBins: HEAD_BINS }
+  return { chan, head: deriveHead(toi), headBins: HEAD_BINS }
 }
