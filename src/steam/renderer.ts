@@ -7,6 +7,8 @@ import type { Layout } from './layout.ts'
 import { COMPOSITE_FRAG, FOG_FRAG, VERT } from './shaders.ts'
 import type { Tokens } from './tokens.ts'
 import { readTokens } from './tokens.ts'
+import type { RevealState } from './timeline.ts'
+import { revealState, THICKEN_MS } from './timeline.ts'
 
 export interface RendererAssets {
   meta: NoteMeta
@@ -36,6 +38,19 @@ const COMP_UNIFORMS = [
   'uNote', 'uChan', 'uFog',
 ] as const
 type Locs<K extends string> = Record<K, WebGLUniformLocation | null>
+
+/** A frame interval over this (ms) is a missed 55 fps frame. */
+export const SLOW_FRAME_MS = 18.2
+/** State callback period, ms (10 Hz). */
+const STATE_PERIOD_MS = 100
+
+/** Rolling frame statistics, mutated in place. Read by the fps overlay. */
+export interface FrameStats {
+  frames: number
+  sumMs: number
+  worstMs: number
+  over: number
+}
 
 /** Sampler units. */
 const UNIT_NOTE = 0
@@ -120,6 +135,28 @@ export class SteamRenderer {
   gl: WebGL2RenderingContext
   res: Resources
   layout: Layout
+  readonly stats: FrameStats = { frames: 0, sumMs: 0, worstMs: 0, over: 0 }
+
+  private playing = false
+  private rafId = 0
+  private readonly loop: FrameRequestCallback
+  private frozenT: number | null
+  private revealStart = Number.NaN
+  private t0 = Number.NaN
+  private wipeAt: number | null = null
+  private lastFrame = Number.NaN
+  private lastNotify = -Infinity
+  private stateCb: ((s: RevealState) => void) | null = null
+  private readonly groupSrc = new Float32Array(8)
+  private readonly groupDst = new Float32Array(8)
+  /** t[0], t[1] per layout group. */
+  private readonly groupT = new Float32Array(4)
+  private groupCount = 0
+  private canvasW = 1
+  private canvasH = 1
+  private fogW = 1
+  private fogH = 1
+  private dpr = 1
 
   private constructor(
     canvas: HTMLCanvasElement,
@@ -137,6 +174,9 @@ export class SteamRenderer {
     this.layout = layout
     this.opts = opts
     this.tokens = tokens
+    this.frozenT = opts.frozenT
+    this.loop = this.frame.bind(this)
+    this.applyLayout(layout, canvas.width, canvas.height, 1)
   }
 
   /** Returns null when WebGL2 is unavailable or a shader, program or framebuffer fails. */
@@ -241,5 +281,161 @@ export class SteamRenderer {
     if (r.texChan) gl.deleteTexture(r.texChan)
     if (r.texFog) gl.deleteTexture(r.texFog)
     if (r.fboFog) gl.deleteFramebuffer(r.fboFog)
+  }
+
+  /** Registers the 10 Hz state callback for React. Pass null to remove it. */
+  onState(cb: ((s: RevealState) => void) | null): void {
+    this.stateCb = cb
+  }
+
+  /** Freezes the reveal clock at `tMs` and draws one frame. */
+  setClock(tMs: number): void {
+    this.frozenT = tMs
+    if (!this.playing) this.draw(performance.now())
+  }
+
+  /** True while the requestAnimationFrame loop is scheduled. */
+  get running(): boolean {
+    return this.playing && this.rafId !== 0
+  }
+
+  /** Starts the requestAnimationFrame loop. */
+  play(): void {
+    if (this.playing) return
+    this.playing = true
+    this.rafId = requestAnimationFrame(this.loop)
+  }
+
+  /** "Show the note": starts the reveal now, or replays from thickening after a wipe. */
+  startReveal(): void {
+    if (this.frozenT !== null) return
+    const now = performance.now()
+    if (Number.isNaN(this.t0)) {
+      this.t0 = now
+      this.revealStart = now
+    }
+    const phase = revealState(now - this.revealStart, this.wipeAt).phase
+    if (phase === 'fogged' || phase === 'thickening') {
+      this.revealStart = now
+    } else if (phase === 'wiped') {
+      this.wipeAt = null
+      this.revealStart = now + THICKEN_MS
+    } else {
+      return
+    }
+    this.notify(now, true)
+  }
+
+  /** The cook's wipe. Accepted only while holding. */
+  wipe(): void {
+    if (this.frozenT !== null || Number.isNaN(this.revealStart)) return
+    const t = performance.now() - this.revealStart
+    if (revealState(t, this.wipeAt).phase !== 'holding') return
+    this.wipeAt = t
+    this.notify(performance.now(), true)
+  }
+
+  /** Clears the rolling frame statistics. */
+  resetStats(): void {
+    this.stats.frames = 0
+    this.stats.sumMs = 0
+    this.stats.worstMs = 0
+    this.stats.over = 0
+    this.lastFrame = Number.NaN
+  }
+
+  private notify(now: number, force: boolean): void {
+    const cb = this.stateCb
+    if (!cb || (!force && now - this.lastNotify < STATE_PERIOD_MS)) return
+    this.lastNotify = now
+    const t = this.frozenT !== null ? this.frozenT : now - this.revealStart
+    cb(revealState(t, this.wipeAt))
+  }
+
+  private frame(now: number): void {
+    if (!this.playing) return
+    const last = this.lastFrame
+    this.lastFrame = now
+    if (last === last) {
+      const dt = now - last
+      const s = this.stats
+      s.frames += 1
+      s.sumMs += dt
+      if (dt > s.worstMs) s.worstMs = dt
+      if (dt > SLOW_FRAME_MS) s.over += 1
+    }
+    this.draw(now)
+    this.notify(now, false)
+    this.rafId = requestAnimationFrame(this.loop)
+  }
+
+  private draw(now: number): void {
+    if (this.frozenT === null && this.t0 !== this.t0) {
+      this.t0 = now
+      this.revealStart = now + this.opts.lead
+    }
+    const frozen = this.frozenT
+    const t = frozen !== null ? frozen : now - this.revealStart
+    const time = frozen !== null ? frozen / 1000 : (now - this.t0) / 1000
+    const st = revealState(t, this.wipeAt)
+    const gl = this.gl
+    const r = this.res
+
+    gl.useProgram(r.progFog)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, r.fboFog)
+    gl.viewport(0, 0, this.fogW, this.fogH)
+    gl.uniform2f(r.fogLoc.uSize, this.fogW, this.fogH)
+    gl.uniform1f(r.fogLoc.uTime, time)
+    gl.uniform1f(r.fogLoc.uThicken, st.thicken)
+    gl.drawArrays(gl.TRIANGLES, 0, 3)
+
+    let bin = Math.round((st.u < 0 ? 0 : st.u) * (this.assets.derived.headBins - 1))
+    if (bin < 0) bin = 0
+    let headGroup = 0
+    for (let k = 0; k < this.groupCount; k++) {
+      if (st.u >= this.groupT[2 * k]) headGroup = k
+    }
+    const head = this.assets.derived.head
+
+    gl.useProgram(r.progComp)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+    gl.viewport(0, 0, this.canvasW, this.canvasH)
+    gl.uniform2f(r.compLoc.uRes, this.canvasW, this.canvasH)
+    gl.uniform1f(r.compLoc.uDpr, this.dpr)
+    gl.uniform1f(r.compLoc.uTime, time)
+    gl.uniform1f(r.compLoc.uU, st.u)
+    gl.uniform1f(r.compLoc.uThicken, st.thicken)
+    gl.uniform1f(r.compLoc.uHead, st.head)
+    gl.uniform1f(r.compLoc.uWipe, st.wipe)
+    gl.uniform1f(r.compLoc.uRefog, st.refog)
+    gl.uniform4fv(r.compLoc.uGroupSrc, this.groupSrc)
+    gl.uniform4fv(r.compLoc.uGroupDst, this.groupDst)
+    gl.uniform1i(r.compLoc.uGroupCount, this.groupCount)
+    gl.uniform2f(r.compLoc.uHeadPos, head[2 * bin], head[2 * bin + 1])
+    gl.uniform1i(r.compLoc.uHeadGroup, headGroup)
+    gl.drawArrays(gl.TRIANGLES, 0, 3)
+  }
+
+  /** Fills the preallocated group arrays. `ratio` is canvas px per CSS px. */
+  protected applyLayout(layout: Layout, canvasW: number, canvasH: number, ratio: number): void {
+    this.layout = layout
+    this.canvasW = Math.max(1, canvasW)
+    this.canvasH = Math.max(1, canvasH)
+    this.dpr = ratio
+    this.fogW = Math.ceil(this.canvasW / FOG_DIV)
+    this.fogH = Math.ceil(this.canvasH / FOG_DIV)
+    this.groupCount = Math.min(2, layout.groups.length)
+    this.groupSrc.fill(0)
+    this.groupDst.fill(0)
+    for (let k = 0; k < this.groupCount; k++) {
+      const g = layout.groups[k]
+      for (let j = 0; j < 4; j++) {
+        this.groupSrc[4 * k + j] = g.src[j]
+        this.groupDst[4 * k + j] = g.dst[j] * ratio
+      }
+      const t = this.assets.meta.groups[g.index].t
+      this.groupT[2 * k] = t[0]
+      this.groupT[2 * k + 1] = t[1]
+    }
   }
 }

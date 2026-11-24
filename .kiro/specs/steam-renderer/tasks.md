@@ -122,7 +122,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/renderer.ts`.
   - Satisfies: R14.1, R14.2, R14.7, R19.1.
 
-- [ ] 22. Renderer: frame loop and uniforms
+- [x] 22. Renderer: frame loop and uniforms
   - Implement the clock (absolute `performance.now()`), frozen-`t` mode, `setClock`, `play`, `startReveal`, `wipe`, per-frame `revealState` call, uniform upload from preallocated `Float32Array`s, head lookup, and the two draw calls. Add a 10 Hz state callback for React.
   - Files: `src/steam/renderer.ts`.
   - Satisfies: R2.2, R2.4, R9.3, R10.2 to R10.5, R14.5, R14.6, R16.1.
