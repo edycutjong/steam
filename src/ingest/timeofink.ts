@@ -100,7 +100,7 @@ export function tracePath(inputs: GroupInput[], w: number, h: number, s: number)
     const hi = pts.length ? pts[pts.length - 1]!.xp : 0
     const sk = { x: new Int32Array(pts.length), y: new Int32Array(pts.length), xp: new Float64Array(pts.length), t: new Float64Array(pts.length) }
     pts.forEach((p, k) => {
-      const t = (offset + p.xp - lo) / total
+      const t = (offset + (p.xp - lo)) / total
       sk.x[k] = p.x
       sk.y[k] = p.y
       sk.xp[k] = p.xp
@@ -171,5 +171,38 @@ export function timeMap(tr: Trace, inputs: GroupInput[], w: number, h: number, s
         group[y * w + x] = gi
       }
   })
+  return { t, group }
+}
+
+/**
+ * Times for every pixel of `support` (the pixels that will carry alpha): mask pixels by `timeMap`; other pixels
+ * (the thin shell) take the time of the nearest mask pixel's group and its nearest skeleton pixel (ties: lower group,
+ * then the first found in raster order). Pixels farther than `reach` from any mask pixel get NaN.
+ */
+export function revealTimes(tr: Trace, inputs: GroupInput[], w: number, h: number, s: number, support: Uint8Array, reach = 3): TimeMap {
+  const base = timeMap(tr, inputs, w, h, s)
+  const t = base.t.slice()
+  const group = base.group.slice()
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
+      const i = y * w + x
+      if (!support[i] || group[i]! >= 0) continue
+      let bd = Infinity
+      let bg = -1
+      for (let dy = -reach; dy <= reach; dy++)
+        for (let dx = -reach; dx <= reach; dx++) {
+          const nx = x + dx
+          const ny = y + dy
+          if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue
+          const g = base.group[ny * w + nx]!
+          if (g < 0) continue
+          const d = dx * dx + dy * dy
+          if (d < bd || (d === bd && g < bg)) (bd = d, (bg = g))
+        }
+      if (bg >= 0) {
+        group[i] = bg
+        t[i] = nearestTime(tr, bg, x, y)
+      }
+    }
   return { t, group }
 }

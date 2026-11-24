@@ -134,7 +134,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/timeofink.ts`, `src/ingest/timeofink.test.ts`.
   - Satisfies: R22.1, R22.2, R22.3, R22.5.
 
-- [ ] 23. Time-of-ink properties
+- [x] 23. Time-of-ink properties
   - Test first: `timeofink.prop.test.ts` (P6 a to f), including the mirror symmetry check that fails if the shear sign is wrong.
   - Implement `checkP6` in `src/ingest/props.ts`.
   - Files: `src/ingest/props.ts`, `src/ingest/timeofink.prop.test.ts`.
