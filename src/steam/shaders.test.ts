@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CLEAR_HALF_THICK, CLEAR_HALF_THIN, COMPOSITE_FRAG, PLUME_A, PLUME_H2, PLUME_REACH, STREAK_A, STREAK_HALF_CSS, THROUGH_FAR, THROUGH_K, THROUGH_NEAR } from './shaders.ts'
+import { CLEAR_HALF_THICK, CLEAR_HALF_THIN, COMPOSITE_FRAG, PLUME_A, PLUME_H2, PLUME_REACH, STREAK_A, STREAK_HALF_CSS, STROKE_LUMA_MAX, THROUGH_FAR, THROUGH_K, THROUGH_NEAR } from './shaders.ts'
 import { parseColor } from './tokens.ts'
 
 /** --after, the only colour the plume adds. */
@@ -23,6 +23,12 @@ describe('composite constants', () => {
   })
   it('makes the edge crisper in thick fog than in thin fog (D13)', () => {
     expect(CLEAR_HALF_THICK).toBeLessThan(CLEAR_HALF_THIN)
+  })
+  it('caps stroke luminance at 92% and keeps --ink under that cap too (D14)', () => {
+    expect(STROKE_LUMA_MAX).toBeLessThanOrEqual(0.92)
+    const [r, g, b] = parseColor('#EFE7DA')
+    expect(0.2126 * r + 0.7152 * g + 0.0722 * b).toBeGreaterThan(STROKE_LUMA_MAX - 0.03)
+    expect(COMPOSITE_FRAG).toContain('STROKE_LUMA_MAX / max(lum')
   })
   it('has no template placeholders left in the GLSL', () => {
     expect(COMPOSITE_FRAG).not.toMatch(/\$\{/)

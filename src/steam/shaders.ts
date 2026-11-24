@@ -94,6 +94,9 @@ export const THROUGH_FAR = 0.3
 export const THROUGH_NEAR = 1.1
 export const THROUGH_K = 1.0
 
+/** Luminance cap inside strokes, 0..1 (D14). Applied by scaling the colour, so the ember hue survives. */
+export const STROKE_LUMA_MAX = 0.92
+
 export const FOG_MAX = 0.94
 export const CH_GAIN = 1.0
 export const RIM_K = 6.0
@@ -163,6 +166,7 @@ const float RESIDUAL_CLEAR = 0.78;
 const float THROUGH_FAR = ${THROUGH_FAR.toFixed(2)};
 const float THROUGH_NEAR = ${THROUGH_NEAR.toFixed(2)};
 const float THROUGH_K = ${THROUGH_K.toFixed(2)};
+const float STROKE_LUMA_MAX = ${STROKE_LUMA_MAX.toFixed(2)};
 const float BLOOM_A = 0.26;
 const float CLEAR_MID = ${CLEAR_MID.toFixed(2)};
 const float CLEAR_HALF_THIN = ${CLEAR_HALF_THIN.toFixed(2)};
@@ -381,6 +385,12 @@ void main() {
   float plume = exp(-px0 * px0 / (spread * spread)) * exp(-height * height / ${PLUME_H2.toFixed(4)});
   plume *= 0.9 + 0.1 * sin(uTime * 5.1 + height * 9.0);
   col += uAfter * PLUME_A * plume;
+
+  // D14: near the pot the ember gain stacks on the room light and would clip to white. Inside strokes, scale the
+  // colour (not each channel) so luminance stays at or under the cap and the --after hue survives.
+  float strokeM = smoothstep(0.0, 0.5, clearS);
+  float lum = dot(col, vec3(0.2126, 0.7152, 0.0722));
+  col *= mix(1.0, min(1.0, STROKE_LUMA_MAX / max(lum, 1e-4)), strokeM);
 
   col = min(col, uInk);
   oColor = vec4(col, 1.0);
