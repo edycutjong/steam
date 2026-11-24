@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Plan } from './plan.ts'
-import { elapsedMs, initialState, nextDueWall, noteState, reduce, type SchedEvent, type SchedState } from './scheduler.ts'
+import { Snapshot } from './session.ts'
+import { controlFor, elapsedMs, initialState, nextDueWall, noteState, reduce, toSnapshot,  type SchedEvent, type SchedState } from './scheduler.ts'
 
 // Hand-built plans (test fixtures): 3 steps; notes on steps 0 and 2.
 const note = (id: string, checkAtMs: number) => ({ id, checkAtMs })
@@ -153,3 +154,99 @@ describe('sleep, resume, pace, show (R12.7, R12.8, R11.5, R10.4)', () => {
   })
 })
 const nextDue = (s: SchedState) => nextDueWall(timedPlan, s)
+
+
+describe('wipe, advance, finish (R12.3, R14.1, R14.7)', () => {
+  it('wipe on a revealed note advances and, on arrival at a step-entry note, reveals in the same event', () => {
+    const plan: Plan = { steps: [{ note: note('a', 0) }, { note: note('b', 0) }] }
+    const s = run(plan, [{ type: 'start', wallMs: 0, pace: 1 }]).s
+    const r = reduce(plan, s, { type: 'wipe', wallMs: 1000 })
+    expect(r.effects).toEqual([{ type: 'advance', stepIndex: 1, wallMs: 1000 }, { type: 'reveal', noteId: 'b', stepIndex: 1, cause: 'scheduled', wallMs: 1000 }])
+  })
+  it('wipe on a no-note step advances', () => {
+    const s = run(entryPlan, [{ type: 'start', wallMs: 0, pace: 1 }, { type: 'wipe', wallMs: 10 }]).s
+    expect(s.stepIndex).toBe(1)
+    const r = reduce(entryPlan, s, { type: 'wipe', wallMs: 20 })
+    expect(r.effects[0]).toEqual({ type: 'advance', stepIndex: 2, wallMs: 20 })
+  })
+  it('wipe on a pending note emits reveal {wipe} then advance', () => {
+    const s = run(timedPlan, [{ type: 'start', wallMs: 0, pace: 1 }]).s
+    const r = reduce(timedPlan, s, { type: 'wipe', wallMs: 1000 })
+    expect(r.effects).toEqual([{ type: 'reveal', noteId: 'a', stepIndex: 0, cause: 'wipe', wallMs: 1000 }, { type: 'advance', stepIndex: 1, wallMs: 1000 }])
+  })
+  it('wipe on the last step emits finish; afterwards every event changes nothing but lastWall', () => {
+    const s = run(entryPlan, [{ type: 'deepLink', wallMs: 0, stepIndex: 2, leadMs: 0, pace: 1 }]).s
+    const r = reduce(entryPlan, s, { type: 'wipe', wallMs: 50 })
+    expect(r.effects).toEqual([{ type: 'finish', wallMs: 50 }])
+    expect(r.state.status).toBe('finished')
+    for (const type of ['tick', 'show', 'wipe', 'sleep', 'resume'] as const) {
+      const x = reduce(entryPlan, r.state, { type, wallMs: 60 })
+      expect(x.effects).toEqual([])
+      expect(x.state).toEqual({ ...r.state, lastWall: 60 })
+    }
+  })
+  it('the step timer restarts at 0 on arrival and the pace carries over', () => {
+    let s = run(timedPlan, [{ type: 'start', wallMs: 0, pace: 4 }, { type: 'show', wallMs: 100 }]).s
+    s = reduce(timedPlan, s, { type: 'wipe', wallMs: 1_000 }).state
+    expect(s.stepIndex).toBe(1)
+    expect(s.stepStartWall).toBe(1_000)
+    expect(s.paceHistory).toEqual([{ atWall: 1_000, pace: 4 }])
+    expect(elapsedMs(s, 1_000)).toBe(0)
+    expect(elapsedMs(s, 2_000)).toBe(4_000)
+  })
+})
+
+describe('controlFor: the Wipe table (R14.1)', () => {
+  const plan: Plan = { steps: [{ note: note('a', 60_000) }, { note: null }, { note: note('c', 0) }, { note: null }] }
+  const at = (stepIndex: number, revealed: string[] = []): SchedState => ({ ...initialState, status: 'running', stepIndex, revealed, lastWall: 0, stepStartWall: 0, paceHistory: [{ atWall: 0, pace: 1 }] })
+  it('no note, not last: "Next step" wipes', () => expect(controlFor(plan, at(1))).toEqual({ label: 'Next step', action: 'wipe', leavesCook: false }))
+  it('pending: "Show the note" shows', () => expect(controlFor(plan, at(0))).toEqual({ label: 'Show the note', action: 'show', leavesCook: false }))
+  it('revealed, not last: "Wipe the glass" wipes', () => expect(controlFor(plan, at(2, ['c']))).toEqual({ label: 'Wipe the glass', action: 'wipe', leavesCook: false }))
+  it('last step revealed: "The hand, quoted" leaves Cook Mode', () => {
+    const p: Plan = { steps: [{ note: null }, { note: note('z', 0) }] }
+    expect(controlFor(p, { ...at(1, ['z']) })).toEqual({ label: 'The hand, quoted', action: 'wipe', leavesCook: true })
+  })
+  it('last step no note: "The hand, quoted" leaves Cook Mode', () => expect(controlFor(plan, at(3))).toEqual({ label: 'The hand, quoted', action: 'wipe', leavesCook: true }))
+})
+
+describe('nextDueWall (R12.8)', () => {
+  it('equals the wall time at which a tick first emits the reveal, with two pace changes', () => {
+    let s = run(timedPlan, [{ type: 'start', wallMs: 0, pace: 1 }, { type: 'setPace', wallMs: 10_000, pace: 4 }, { type: 'setPace', wallMs: 20_000, pace: 12 }]).s
+    // 10 s at x1 + 10 s at x4 = 50 s, then 10 s left at x12 -> 833.33 ms
+    const t = nextDueWall(timedPlan, s)!
+    expect(t).toBeCloseTo(20_000 + 10_000 / 12, 6)
+    expect(reduce(timedPlan, s, { type: 'tick', wallMs: t - 0.01 }).effects).toEqual([])
+    expect(reveals(reduce(timedPlan, s, { type: 'tick', wallMs: t + 1e-6 }).effects).length).toBe(1)
+    s = reduce(timedPlan, s, { type: 'sleep', wallMs: 20_001 }).state
+    expect(nextDueWall(timedPlan, s)).toBeNull()
+  })
+  it('is null when finished, revealed, without a note or idle; waits for the hold', () => {
+    expect(nextDueWall(timedPlan, initialState)).toBeNull()
+    const s = run(timedPlan, [{ type: 'start', wallMs: 0, pace: 1 }, { type: 'show', wallMs: 1 }]).s
+    expect(nextDueWall(timedPlan, s)).toBeNull()
+    const held = run(entryPlan, [{ type: 'deepLink', wallMs: 100, stepIndex: 2, leadMs: 10_000, pace: 12 }, { type: 'tick', wallMs: 200 }]).s
+    expect(nextDueWall(entryPlan, held)).toBe(10_100)
+    const noNote = run(entryPlan, [{ type: 'start', wallMs: 0, pace: 1 }, { type: 'wipe', wallMs: 1 }]).s
+    expect(nextDueWall(entryPlan, noNote)).toBeNull()
+  })
+})
+
+describe('snapshot and restore (R18.2)', () => {
+  it('toSnapshot then restore gives the same step, history and revealed', () => {
+    const s = run(timedPlan, [{ type: 'start', wallMs: 0, pace: 1 }, { type: 'setPace', wallMs: 1_000, pace: 4 }, { type: 'show', wallMs: 2_000 }]).s
+    const snap = Snapshot.parse(toSnapshot(s, 'r'))
+    const back = reduce(timedPlan, initialState, { type: 'restore', wallMs: 3_000, snapshot: snap })
+    expect(back.state).toMatchObject({ stepIndex: s.stepIndex, stepStartWall: s.stepStartWall, paceHistory: s.paceHistory, revealed: s.revealed })
+    expect(back.effects).toEqual([]) // a restore does not reveal a note already revealed
+  })
+  it('a restore on a step whose note is due reveals it once', () => {
+    const snap: Snapshot = { v: 1, recipeId: 'r', stepIndex: 0, stepStartWall: 0, paceHistory: [{ atWall: 0, pace: 1 }], revealed: [] }
+    const r = reduce(timedPlan, initialState, { type: 'restore', wallMs: 120_000, snapshot: snap })
+    expect(reveals(r.effects).length).toBe(1)
+    expect(reveals(reduce(timedPlan, r.state, { type: 'tick', wallMs: 130_000 }).effects).length).toBe(0)
+  })
+  it('drops revealed ids that are not in the plan', () => {
+    const snap: Snapshot = { v: 1, recipeId: 'r', stepIndex: 1, stepStartWall: 0, paceHistory: [{ atWall: 0, pace: 1 }], revealed: ['a', 'gone'] }
+    expect(reduce(timedPlan, initialState, { type: 'restore', wallMs: 5, snapshot: snap }).state.revealed).toEqual(['a'])
+  })
+})

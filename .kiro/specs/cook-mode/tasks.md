@@ -113,7 +113,7 @@ Rules for every task:
   - Files: `src/cook/scheduler.ts`, `src/cook/scheduler.test.ts`.
   - Satisfies: R12.7, R12.8, R11.5, R10.4.
 
-- [ ] 17. Scheduler: wipe, advance, finish, `controlFor`, `nextDueWall`, snapshot, restore
+- [x] 17. Scheduler: wipe, advance, finish, `controlFor`, `nextDueWall`, snapshot, restore
   - Test first: `wipe` on a revealed note emits `advance` and, on arrival at a step-entry note, `reveal {scheduled}` in the same event; `wipe` on a no-note step advances; `wipe` on a pending note emits `reveal {cause: wipe}` then `advance`; `wipe` on the last step emits `finish` and the state is `finished`, after which every event changes nothing. The timer restarts at 0 on arrival and the pace carries over. `controlFor` returns each row of the Wipe table for hand-built states (named cases: "no note, not last", "pending", "revealed, not last", "last step revealed", "last step no note"). `nextDueWall` equals the wall time at which a tick first emits the reveal, for a pace history with two changes, and is null when asleep, finished, revealed or without a note. `toSnapshot` then `restore` gives the same step, history and revealed; a restore does not reveal a note in `revealed`; a restore on a step whose note is due reveals it once.
   - Implement `wipe` with `advance`, `controlFor`, `nextDueWall`, `toSnapshot`, `restore`.
   - Files: `src/cook/scheduler.ts`, `src/cook/scheduler.test.ts`.
