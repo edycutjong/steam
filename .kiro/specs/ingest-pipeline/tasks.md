@@ -56,7 +56,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/deskew.ts`, `src/ingest/deskew.test.ts`, `src/ingest/deskew.prop.test.ts`.
   - Satisfies: R7.1 to R7.5.
 
-- [ ] 10. Separators, blocks, region and marginalia
+- [x] 10. Separators, blocks, region and marginalia
   - Test first: synthetic pages with a full-width separator rule between two groups of lines give two blocks and select the larger; a rule joined to the last line's letters is still found by the row-sum test; a margin component separated by a gap ≥ P/2 becomes marginalia and is not in any line extent; `--block 0` selects the first block and records `selectedBy: "curator"`; the region rows extend by P/2 and clip at the rule; ink outside the region is counted, not owned. No coordinates are accepted anywhere.
   - Implement `findSeparators`, `findBlocks`, `chooseRegion`, `findMarginalia` in `src/ingest/lines.ts`.
   - Files: `src/ingest/lines.ts`, `src/ingest/region.test.ts`.

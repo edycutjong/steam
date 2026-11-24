@@ -33,7 +33,7 @@ describe('threshold', () => {
 
   it('clips the window at the borders (a stroke on the very first column is ink)', () => {
     const g = gray(60, 60, (x) => (x === 0 ? 40 : 200))
-    const ink = inkMap(g, { window: 41 })
+    const ink = inkMap(g, { win: 41 })
     expect(ink[30 * 60]).toBe(1)
     const t = sauvola(g, 41)
     expect(Number.isFinite(t[0])).toBe(true)

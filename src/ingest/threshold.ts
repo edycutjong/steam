@@ -10,8 +10,8 @@ export interface Rect {
   y1: number
 }
 
-/** Sauvola threshold map; the window is clipped to the image at the borders (R6.1). `window` should be odd. */
-export function sauvola(g: Gray, window = SAUVOLA_WINDOW, k = SAUVOLA_K, R = SAUVOLA_R): Float32Array {
+/** Sauvola threshold map; the window is clipped to the image at the borders (R6.1). `win` should be odd. */
+export function sauvola(g: Gray, win = SAUVOLA_WINDOW, k = SAUVOLA_K, R = SAUVOLA_R): Float32Array {
   const { width: w, height: h, data } = g
   const W = w + 1
   const sum = new Float64Array(W * (h + 1))
@@ -27,7 +27,7 @@ export function sauvola(g: Gray, window = SAUVOLA_WINDOW, k = SAUVOLA_K, R = SAU
       sq[(y + 1) * W + x + 1] = sq[y * W + x + 1]! + rq
     }
   }
-  const r = window >> 1
+  const r = win >> 1
   const out = new Float32Array(w * h)
   for (let y = 0; y < h; y++) {
     const ya = Math.max(0, y - r)
@@ -47,8 +47,8 @@ export function sauvola(g: Gray, window = SAUVOLA_WINDOW, k = SAUVOLA_K, R = SAU
 }
 
 /** The raw map `gray < T_sauvola` (R6.3): the recall definition of the hero fixture is stated on it. */
-export function rawInk(g: Gray, window = SAUVOLA_WINDOW): Uint8Array {
-  const t = sauvola(g, window)
+export function rawInk(g: Gray, win = SAUVOLA_WINDOW): Uint8Array {
+  const t = sauvola(g, win)
   const out = new Uint8Array(g.data.length)
   for (let i = 0; i < out.length; i++) out[i] = g.data[i]! < t[i]! ? 1 : 0
   return out
@@ -72,8 +72,8 @@ function medianOf(g: Gray, region?: Rect): number {
 }
 
 /** Ink = `gray < T_sauvola` and `gray < median(region gray) - 25` (R6.2). */
-export function inkMap(g: Gray, opts: { window?: number; region?: Rect } = {}): Uint8Array {
-  const raw = rawInk(g, opts.window)
+export function inkMap(g: Gray, opts: { win?: number; region?: Rect } = {}): Uint8Array {
+  const raw = rawInk(g, opts.win)
   const cut = medianOf(g, opts.region) - INK_MEDIAN_GUARD
   for (let i = 0; i < raw.length; i++) raw[i] = raw[i]! && g.data[i]! < cut ? 1 : 0
   return raw
