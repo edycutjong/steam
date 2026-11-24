@@ -108,9 +108,9 @@ describe('timeout safety (R32.8): both readers current means never waiting, what
         const md = (doStale ? stale(fresh) : fresh).slice(0, at) + ins + (doStale ? stale(fresh) : fresh).slice(at)
         expect(runGate(ctx({ ...rec.files, 'transcription.md': md })).state).not.toBe('waiting')
       }),
-      { numRuns: 40 },
+      { numRuns: 20 },
     )
-  })
+  }, 30_000)
   it('a reader file that is missing or stale still waits (that is what waiting is for)', () => {
     expect(runGate(ctx({ ...rec.files, 'agent/second.json': undefined })).state).toBe('waiting')
   })

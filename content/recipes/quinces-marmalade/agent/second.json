@@ -3,15 +3,15 @@
   "lines": [
     { "i": 0, "text": "To make Marmalade of Quinces" },
     { "i": 1, "text": "Let your quinces be full ripe, then wipe" },
-    { "i": 2, "text": "them, & pare them, & Quarter them, then", "uncertain": [ { "token": "pare", "alt": ["Pare"] } ] },
-    { "i": 3, "text": "take out the Cores and seeds, & boil the", "uncertain": [ { "token": "Cores", "alt": ["cores"] } ] },
-    { "i": 4, "text": "Pareings & seeds in Spring water. strain", "uncertain": [ { "token": "water.", "alt": ["water,"] } ] },
+    { "i": 2, "text": "them, & pare them, & Quarter them, then" },
+    { "i": 3, "text": "take out the cores and seeds, & boil the" },
+    { "i": 4, "text": "Pareings & seeds in Spring water, strain" },
     { "i": 5, "text": "the Liquor, & weigh your Quinces, with" },
     { "i": 6, "text": "the same weight of dry C. Sugar, boil", "uncertain": [ { "token": "C.", "alt": ["L.", "6."] } ] },
     { "i": 7, "text": "the Quince, in that Liquor, & when" },
-    { "i": 8, "text": "Tender, mash them, & then put your sugʳ.", "uncertain": [ { "token": "sugʳ.", "alt": ["sug.", "sugᵗ."] } ] },
-    { "i": 9, "text": "to the Quinces. & boil it till it Looks", "uncertain": [ { "token": "Quinces.", "alt": ["Quinces,"] } ] },
-    { "i": 10, "text": "red. & smooth, keeping it stir'd all", "uncertain": [ { "token": "stir'd", "alt": ["stirr'd", "stirred"] } ] },
+    { "i": 8, "text": "Tender, mash them, & then put your sugʳ.", "uncertain": [ { "token": "sugʳ.", "alt": ["sug.", "sugar"] } ] },
+    { "i": 9, "text": "to the Quinces, & boil it till it Looks" },
+    { "i": 10, "text": "red & smooth, keeping it stirred all" },
     { "i": 11, "text": "The time it Boils" }
   ]
 }

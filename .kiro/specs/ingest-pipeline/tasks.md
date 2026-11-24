@@ -317,7 +317,8 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/data/schema.ts`, `src/ingest/gate.ts`, `src/ingest/merge.ts` and tests.
   - Satisfies: R30.9.
 
-- [ ] 54. Prove the workflow ends: re-run `ingest-recipe` on `quinces-marmalade`
+- [x] 54. Prove the workflow ends: re-run `ingest-recipe` on `quinces-marmalade`
   - Re-running the workflow re-runs both readers: the third agent run on this page, allowed because the fix is in the gate, not in the readers. Report the watch payload verbatim. If the readers' new files differ from the committed ones, the gate decides; nothing is edited by hand.
+  - Result (turn 24): the watch answered `terminal-state` with `pass: true` on its first poll after both readers had written; no `waiting stale transcription.md` line. The new readings differ from the committed ones (the second reader and the scribe now read "red" without the period, "(N.26)" on line 3, five steps); the gate decided, nothing was edited by hand, and the hero stays cut by components with recall 0.9572.
   - Files: `content/recipes/quinces-marmalade/*`, `docs/kiro-evidence/hooks.log`.
   - Satisfies: R32.8.

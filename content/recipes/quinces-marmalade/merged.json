@@ -1,16 +1,18 @@
 {
   "disagreements": [
     {
-      "a": "marmalade",
-      "b": "Marmalade",
-      "line": 0,
-      "word": 2
+      "a": "(N.26)",
+      "b": "",
+      "countMismatch": true,
+      "line": 3,
+      "word": 0
     },
     {
-      "a": "water,",
-      "b": "water.",
-      "line": 4,
-      "word": 5
+      "a": "Cores",
+      "b": "cores",
+      "countMismatch": true,
+      "line": 3,
+      "word": 4
     },
     {
       "a": "6.",
@@ -25,14 +27,8 @@
       "word": 7
     },
     {
-      "a": "Quinces,",
-      "b": "Quinces.",
-      "line": 9,
-      "word": 2
-    },
-    {
-      "a": "stired",
-      "b": "stir'd",
+      "a": "stir'd",
+      "b": "stirred",
       "line": 10,
       "word": 5
     }
@@ -40,8 +36,8 @@
   "lines": [
     {
       "i": 0,
-      "merged": "To make †[marmalade|Marmalade] of Quinces",
-      "primary": "To make marmalade of Quinces",
+      "merged": "To make Marmalade of Quinces",
+      "primary": "To make Marmalade of Quinces",
       "wordCount": 5
     },
     {
@@ -58,13 +54,13 @@
     },
     {
       "i": 3,
-      "merged": "take out the Cores and seeds, & boil the",
-      "primary": "take out the Cores and seeds, & boil the",
-      "wordCount": 9
+      "merged": "†[(N.26)|] take out the †[Cores|cores] and seeds, & boil the",
+      "primary": "(N.26) take out the Cores and seeds, & boil the",
+      "wordCount": null
     },
     {
       "i": 4,
-      "merged": "Pareings & seeds in Spring †[water,|water.] strain",
+      "merged": "Pareings & seeds in Spring water, strain",
       "primary": "Pareings & seeds in Spring water, strain",
       "wordCount": 7
     },
@@ -94,14 +90,14 @@
     },
     {
       "i": 9,
-      "merged": "to the †[Quinces,|Quinces.] & boil it till it Looks",
+      "merged": "to the Quinces, & boil it till it Looks",
       "primary": "to the Quinces, & boil it till it Looks",
       "wordCount": 9
     },
     {
       "i": 10,
-      "merged": "red. & smooth, keeping it †[stired|stir'd] all",
-      "primary": "red. & smooth, keeping it stired all",
+      "merged": "red & smooth, keeping it †[stir'd|stirred] all",
+      "primary": "red & smooth, keeping it stir'd all",
       "wordCount": 7
     },
     {
@@ -114,57 +110,33 @@
   "readerUncertain": [
     {
       "alt": [
-        "Marmalade"
-      ],
-      "line": 0,
-      "reader": "scribe",
-      "token": "marmalade"
-    },
-    {
-      "alt": [
-        "Pare"
-      ],
-      "line": 2,
-      "reader": "second-reader",
-      "token": "pare"
-    },
-    {
-      "alt": [
-        "cores",
-        "Coree"
+        "(No.26)",
+        "(N.20)"
       ],
       "line": 3,
       "reader": "scribe",
-      "token": "Cores"
+      "token": "(N.26)"
     },
     {
       "alt": [
         "cores"
       ],
       "line": 3,
-      "reader": "second-reader",
+      "reader": "scribe",
       "token": "Cores"
     },
     {
       "alt": [
-        "Parings"
+        "water."
       ],
       "line": 4,
       "reader": "scribe",
-      "token": "Pareings"
+      "token": "water,"
     },
     {
       "alt": [
-        "water,"
-      ],
-      "line": 4,
-      "reader": "second-reader",
-      "token": "water."
-    },
-    {
-      "alt": [
-        "L.",
-        "D."
+        "b.",
+        "d."
       ],
       "line": 6,
       "reader": "scribe",
@@ -181,16 +153,8 @@
     },
     {
       "alt": [
-        "Liquors,"
-      ],
-      "line": 7,
-      "reader": "scribe",
-      "token": "Liquor,"
-    },
-    {
-      "alt": [
-        "sug.",
-        "sugr"
+        "sugr.",
+        "sug."
       ],
       "line": 8,
       "reader": "scribe",
@@ -199,7 +163,7 @@
     {
       "alt": [
         "sug.",
-        "sugᵗ."
+        "sugar"
       ],
       "line": 8,
       "reader": "second-reader",
@@ -207,36 +171,11 @@
     },
     {
       "alt": [
-        "Quinces,"
-      ],
-      "line": 9,
-      "reader": "second-reader",
-      "token": "Quinces."
-    },
-    {
-      "alt": [
-        "red"
+        "stired",
+        "stirrd"
       ],
       "line": 10,
       "reader": "scribe",
-      "token": "red."
-    },
-    {
-      "alt": [
-        "stir'd",
-        "stirid"
-      ],
-      "line": 10,
-      "reader": "scribe",
-      "token": "stired"
-    },
-    {
-      "alt": [
-        "stirr'd",
-        "stirred"
-      ],
-      "line": 10,
-      "reader": "second-reader",
       "token": "stir'd"
     }
   ],

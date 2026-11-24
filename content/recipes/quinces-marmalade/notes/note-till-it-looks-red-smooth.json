@@ -56,16 +56,16 @@
     1786
   ],
   "resampled": true,
-  "shownText": "till it Looks red. & smooth,",
+  "shownText": "till it Looks red & smooth,",
   "size": [
     1250,
     186
   ],
   "source": "Wellcome Collection",
-  "span": "till it Looks red. & smooth",
+  "span": "till it Looks red & smooth",
   "splitShare": 0.18127587046505966,
   "splitStatus": "reviewed",
-  "step": 4,
+  "step": 5,
   "trace": "a path traced from the ink, left to right",
   "verifyApproximate": true,
   "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:17.3617,77.2801,78.3701,10.7617/full/0/default.jpg"

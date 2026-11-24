@@ -105,14 +105,15 @@
       ]
     }
   ],
-  "at": "2026-11-24T21:30:18.896Z",
-  "disagreements": 6,
+  "at": "2026-11-24T21:33:06.589Z",
+  "disagreements": 5,
   "goldCheck": {
     "differing": [
+      3,
       6,
       10
     ],
-    "equal": 9,
+    "equal": 8,
     "informational": true,
     "of": 11
   },
@@ -121,18 +122,18 @@
     "lines": "9afea4c817bbfe31ce13e7249de70347e6eb789fac2bdd6e8aa7efc7f0b35b2c",
     "ownershipReview": "a823d20d69d5f5c016e80bf9e9d71813beeecc8695d2d7f15c3bb0b395c9ad0e",
     "page": "b3f76797227163567b1edc7b72f410a239287f555234c2e79fc395469c632015",
-    "scribe": "4b4d439b01a62ebc88b3dfef34b31893fc3274f0d638b082a0605476054acdd1",
-    "second": "dbd17ab5a56f9b791da5764383bb1df4595bfc5d9c4c42d74a9b56025bd50f40",
-    "transcription": "327200db316482bfac370aef19946e083db8bb656ea66e22715705597bc9441e"
+    "scribe": "db6c656339c77a96d83997a4ee34025acf987d8cd31a0a60dc185d7ffb0fc370",
+    "second": "76ff8608e5e1db4f4f80be966df3a55442219936d7f118373a249d5629745453",
+    "transcription": "8677daa50d208a8fe5e53bca584d68b28d93c92c057be8585d9740289efd36ab"
   },
   "outputs": {
     "notes/note-full-ripe.json": "f01b98f8de39593a7ae959dfb49bcb4edfc4d58befb6e656e3631bdf8177fb7d",
     "notes/note-full-ripe.png": "5837558f9c38cd7a71cad5147c13dabdc2e5979d5a6fd78b563962828a738db3",
     "notes/note-full-ripe.toi.png": "8fde65f8827b81e3ecd1456c652f1475dc9e999e9231f56ac34d77c99980cde8",
-    "notes/note-till-it-looks-red-smooth.json": "9bf1c62d2a2c78314e76512ae40c28fa1a64aa88ab35f2c4fee0290ba717b527",
+    "notes/note-till-it-looks-red-smooth.json": "e50a1642f1071eda35e9a84f58f0fbdb1a5be08844bd9861007e173732cf2d07",
     "notes/note-till-it-looks-red-smooth.png": "7ffc04757b5b272fd13eda6217cae68f2c631e2447275cd5b5595439742f633c",
     "notes/note-till-it-looks-red-smooth.toi.png": "1044ee394dd084915bf0e88af11518cf67e30f6e7e65d27e8ae759998dde0d58",
-    "notes/note-when-tender.json": "5a11fff4512db13f953a0c7acef0a21e97ee7a99c715459b5b20e9530531da6e",
+    "notes/note-when-tender.json": "8aa61785c299e2dcec9266a41b5a45038d40b4a6bc0aa30e444e4a3520042a3e",
     "notes/note-when-tender.png": "9c38d89eeb1e7c03f6dbb540c3a3f834b71888b96420d8e292048ca2333b458a",
     "notes/note-when-tender.toi.png": "720d3948b4dbac6f8ca18f780b3f1a2374de778e2d996e8a078499b8d3ab63be"
   },
@@ -281,7 +282,7 @@
   "recipeId": "quinces-marmalade",
   "results": {
     "P1": {
-      "detail": "4 steps cover 11 lines; 3 notes, one mask each",
+      "detail": "5 steps cover 11 lines; 3 notes, one mask each",
       "pass": true
     },
     "P2": {
