@@ -229,7 +229,7 @@ Rules for every task:
   - Files: `src/app/facsimile.ts`, `src/app/facsimile.test.ts`, `src/app/facsimile.prop.test.ts`.
   - Satisfies: R5.3, R5.4.
 
-- [ ] 35. Facsimile component
+- [x] 35. Facsimile component
   - Test first: `src/app/components/Facsimile.test.tsx` (happy-dom): the image has the text alternative of R5.1 and the credit line; three buttons "Zoom in", "Zoom out", "Reset" of at least 48×48; the keys `+`, `-`, `0` and arrows act when the viewport has focus; Ctrl+wheel zooms and a plain wheel at scale 1 is not prevented; a plain wheel at scale 2 pans; two-pointer pinch zooms; no CSS `filter` on the image.
   - Implement `Facsimile.tsx` with pointer events and the reducer.
   - Files: `src/app/components/Facsimile.tsx`, `src/app/components/Facsimile.test.tsx`, `src/app/app.css`.
