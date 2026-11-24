@@ -271,6 +271,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `scripts/measure-ingest.ts`, `docs/kiro-evidence/ingest/`.
   - Satisfies: R39.2, R40.3.
 
-- [ ] 46. Final check
+- [x] 46. Final check
   - Run `npm run typecheck`, `npm test`, `npm run props`, `npm run build`. Confirm `src/ingest/purity.test.ts`, the threshold-constant tests and the French-Bread guard pass. Update this file's checkboxes. Do not run the held-out page.
+  - Result (turn 18): typecheck, test and build pass; `npm run props` exits 1 because the committed `quinces-marmalade` gate fails P5 (crop "when-tender/line 8": no background). That is the recipe's real state and is reported, not hidden. Added `src/ingest/props-version.test.ts` for R30.8, which no earlier task had covered.
   - Satisfies: R1.4, R38.4, R39.3, R39.5, R40.1, R40.2.
