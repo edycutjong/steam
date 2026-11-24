@@ -151,7 +151,7 @@ Rules for every task:
   - Files: `src/cook/revealGate.ts`, `src/cook/revealGate.test.ts`, `src/cook/revealGate.prop.test.ts`.
   - Satisfies: R15.7, R12.8.
 
-- [ ] 23. Announcements
+- [x] 23. Announcements
   - Test first: `src/cook/announce.test.ts`: arrival at step 3 of 5 gives "Step 3 of 5. Pareings & seeds in Spring water, strain the Liquor, & weigh your Quinces, with"; arrival at the hero step adds " The writer's note, handwritten: till it Looks red & smooth" built from `span`; a wipe prefixes "Glass wiped. "; a pace change gives "Pace ×12" and "Pace real time"; a restore gives "Resumed at step 5 of 5."; a deep link gives "Started at step 5 of 5."; plain step text turns "†[Cores|cores]" into "Cores (the second reader reads cores)". Strings come from `src/copy/strings.ts` (created here with only these strings).
   - Implement `compose` and the first strings.
   - Files: `src/cook/announce.ts`, `src/cook/announce.test.ts`, `src/copy/strings.ts`.
