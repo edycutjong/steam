@@ -91,7 +91,8 @@ a:hover {
 }
 
 .screen-title:focus-visible {
-  outline: 2px solid var(--ghost);
+  /* The heading is focused by the router, not by Tab (tabindex -1), so it carries no ring. */
+  outline: none;
 }
 
 .kicker {
@@ -335,7 +336,7 @@ a:hover {
 
 .shelf__item {
   display: grid;
-  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
   gap: clamp(20px, 4vw, 56px);
   align-items: start;
   padding: 28px 0;
@@ -379,8 +380,17 @@ a:hover {
 
 .shelf__hint {
   margin: 0;
-  font-size: 15px;
+  max-width: 32em;
+  font-size: 17px;
   color: var(--muted);
+}
+
+.shelf__body .kicker {
+  margin: 0;
+}
+
+.shelf__body .credit-line {
+  margin: 0;
 }
 
 .shelf__empty {

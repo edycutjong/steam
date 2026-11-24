@@ -45,6 +45,8 @@ export const SHELF = {
   watch: 'Watch it at ×12',
   empty: 'No recipe could be loaded.',
   thumbAlt: (shelfmark: string, page: string): string => `The manuscript page, ${shelfmark} ${page}`,
+  hint: (steps: number, notes: number): string =>
+    `${steps} ${steps === 1 ? 'step' : 'steps'}. ${notes === 0 ? 'No note' : notes === 1 ? 'One note' : `${notes} notes`} in the writer's own words, shown in the writer's hand at ${notes === 1 ? 'its' : 'their'} step.`,
 } as const
 
 export const NOT_FOUND = { title: 'This recipe is not on the shelf', back: 'Back to the shelf' } as const

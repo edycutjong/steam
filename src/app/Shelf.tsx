@@ -31,15 +31,19 @@ function Card({ recipe, onLeave }: { recipe: LoadedRecipe; onLeave: () => void }
         <div className="mat">
           <img src={`/recipes/${b.id}/page.jpg`} loading="lazy" width={b.source.frame?.width} height={b.source.frame?.height} alt={SHELF.thumbAlt(b.source.shelfmark, b.source.page)} />
         </div>
-        <p className="credit-line">{creditLine(b)}</p>
       </div>
       <div className="shelf__body">
+        <p className="kicker">
+          {b.source.institution} · {b.source.shelfmark} · {b.source.page}
+        </p>
         <h2 className="shelf__title">
           <a href={formatRoute({ name: 'edition', id: b.id })} onClick={onLeave}>
             {b.title}
           </a>
         </h2>
+        <p className="shelf__hint">{SHELF.hint(b.steps.length, recipe.notes.length)}</p>
         <ArchiveSlip bundle={b} />
+        <p className="credit-line">{creditLine(b)}</p>
         <div className="btn-row">
           <button type="button" className="btn btn--primary" onClick={() => go(1)}>
             {SHELF.cook}
