@@ -52,6 +52,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Resizing across 640 changes the kind.
   - Files: `src/steam/layout.test.ts`.
   - Satisfies: R11.1 to R11.5, R12.1 to R12.3.
+  - Note: design §3 quotes 342/438 at 390 px (24 px each side); with `PAD_PX = 16` the code gives 358/438 (0.817) and 358/465 (0.770). Tests assert the `PAD_PX` formula. `GroupPlacement` gained an `inked` rect (dst without margin) so fit checks do not count the transparent margin.
 
 - [x] 9. Layout property test
   - For any pane width in [320, 2560] and height in [400, 1600], the result has finite numbers, `src` inside the note, and in phone mode every `coreBandCssPx >= 16`.
