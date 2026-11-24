@@ -188,7 +188,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `e2e/steam-hold.spec.ts`.
   - Satisfies: R7.3 to R7.5, R9.1 to R9.6, R10.2 to R10.7.
 
-- [ ] 35. E2E: phone layout and accessibility (failure 6)
+- [x] 35. E2E: phone layout and accessibility (failure 6)
   - At 390×844 and 360×800: assert the lower pane contains two stacked groups, each core band ≥ 16 CSS px (read from the layout exposed on a `data-` attribute used only for tests), no ink in the right-most `PAD_PX` px, button ≥ 48×48, the live-region text equals the expected string after reveal start, Space operates the button, and a `prefers-reduced-motion` run renders `StaticPane` with the same live-region text and an opacity-only crossfade.
   - Files: `e2e/steam-phone.spec.ts`.
   - Satisfies: R10.1, R10.6, R11.1 to R11.5, R19.2, R19.4, R20.1 to R20.5.
