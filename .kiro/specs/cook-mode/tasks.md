@@ -55,7 +55,7 @@ Rules for every task:
   - Files: `src/data/provenance.prop.test.ts`.
   - Satisfies: R22.3.
 
-- [ ] 8. Reading marks: parse, join, primary and plain text
+- [x] 8. Reading marks: parse, join, primary and plain text
   - Test first: `src/data/reading.test.ts`. `parseReading` on the real line 3 ("†[(N.26)|] take out the †[Cores|cores] and seeds, & boil the") gives two marks, the first with an empty `b`; `joinReading` inverts it; `primaryText` gives "(N.26) take out the Cores and seeds, & boil the" which equals `lines[3].primary`; `plainText` writes "(N.26) (the second reader reads nothing) …" and "Cores (the second reader reads cores)"; a lone `†` without brackets stays text; a marker with spaces inside (`†[a b|c]`) parses as one mark.
   - Implement `parseReading`, `joinReading`, `primaryText`, `plainText` in `src/data/reading.ts`.
   - Files: `src/data/reading.ts`, `src/data/reading.test.ts`.
