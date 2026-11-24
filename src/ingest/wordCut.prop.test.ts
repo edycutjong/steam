@@ -135,6 +135,7 @@ import { loadScan } from '../../tools/steam-ingest/segment.ts'
 import { runGate } from './gate.ts'
 import { pixelSha256 } from './image.ts'
 import { sha256Hex } from './sha256.ts'
+import { withoutHeroPartition } from './heroAlignment.fixture.ts'
 
 const root = new URL('../../', import.meta.url).pathname
 const dir = join(root, 'content/recipes/quinces-marmalade')
@@ -145,7 +146,7 @@ const before = JSON.parse(readFileSync(join(root, 'docs/kiro-evidence/word-align
 }
 const g = runGate({
   recipeId: 'quinces-marmalade', pageBytes: readFileSync(join(dir, 'page.jpg')), scan: loadScan(dir).scan,
-  files: { 'source.json': txt('source.json'), 'lines.json': txt('lines.json'), 'fallback/reading.json': txt('fallback/reading.json'), 'ownership-review.json': txt('ownership-review.json'), 'alignment.json': txt('alignment.json') },
+  files: { 'source.json': txt('source.json'), 'lines.json': txt('lines.json'), 'fallback/reading.json': txt('fallback/reading.json'), 'ownership-review.json': txt('ownership-review.json'), 'alignment.json': withoutHeroPartition(txt('alignment.json')) },
   heroFixture: readFileSync(join(root, 'fixtures/hero-word-bounds.json'), 'utf8'), gold: readFileSync(join(root, 'fixtures/gold-readings.json'), 'utf8'),
 })
 

@@ -5,7 +5,7 @@
   },
   "method": "curator",
   "by": "Kiro (agent), turn-21",
-  "rationale": "Word boundaries chosen from the code-found runs of runs.json only, by looking at each line strip PNG straightened into sheared columns with the runs drawn on it (turn-21), after the automatic alignment of lines 1, 7 and 8 was rejected as implausible (word-cut-inside-word). Line 1: Let|your is run 2, your|quinces run 6, quinces|be run 14, be|full run 16, full|ripe, run 20, ripe,|then run 24, then|wipe run 28. Line 7: the|Quince, run 2, Quince,|in run 7, in|that run 11, that|Liquor, run 14, Liquor,|& run 19, &|when run 20. Line 8: Tender,|mash is run 3 (the automatic cut at run 1 fell between the d and the e of Tender); mash|them, run 8; them,|& has no run (the comma touches the &), so it is null and the two words share one box; &|then run 11, then|put run 14, put|your run 16, your|sug.r run 19. The hero lines 9 and 10 are not listed: in line 9 no run separates 'to', 'the' and 'Quinces,', so the hero stays whole lines.",
+  "rationale": "Word boundaries chosen from the code-found runs of runs.json only, by looking at each line strip PNG straightened into sheared columns with the runs drawn on it (turn-21), after the automatic alignment of lines 1, 7 and 8 was rejected as implausible (word-cut-inside-word). Line 1: Let|your is run 2, your|quinces run 6, quinces|be run 14, be|full run 16, full|ripe, run 20, ripe,|then run 24, then|wipe run 28. Line 7: the|Quince, run 2, Quince,|in run 7, in|that run 11, that|Liquor, run 14, Liquor,|& run 19, &|when run 20. Line 8: Tender,|mash is run 3 (the automatic cut at run 1 fell between the d and the e of Tender); mash|them, run 8; them,|& has no run (the comma touches the &), so it is null and the two words share one box; &|then run 11, then|put run 14, put|your run 16, your|sug.r run 19. Lines 9 and 10 (turn-24), by component partition, chosen from the candidates of `steam-ingest partition` after looking at the strip and the overlay of the line's components (each component tinted, a numbered tick at each candidate); a note needs only its own edges. Line 9: the note starts at 'till': the boundary is after component 2652341 (order position 45, the 5 px speck at the end of the t-bar of the 'it' that follows 'boil'), before component 2626771 (the tall t-stroke of 'till'); candidate rank 14, 9 empty columns. Line 10: the note ends at 'smooth,': the boundary is after component 2776920 (position 13, the comma), before component 2716156 (the k of 'keeping'); candidate rank 4, 16 empty columns. The comma is kept: shownText and the caption say 'smooth,', so the ink shown includes it.",
   "lines": [
     {
       "line": 1,
@@ -40,6 +40,38 @@
         14,
         16,
         19
+      ]
+    },
+    {
+      "line": 9,
+      "by": "Kiro (agent), turn-24",
+      "boundaryRuns": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        {
+          "kind": "component",
+          "after": 2652341
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "line": 10,
+      "by": "Kiro (agent), turn-24",
+      "boundaryRuns": [
+        null,
+        null,
+        {
+          "kind": "component",
+          "after": 2776920
+        },
+        null,
+        null,
+        null
       ]
     }
   ]

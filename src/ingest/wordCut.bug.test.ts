@@ -16,7 +16,8 @@ import { WORD_SHAPE_RATIO_MAX } from './constants.ts'
 import { runGate } from './gate.ts'
 import { applyReview } from './masks.ts'
 import { tokenise } from './merge.ts'
-import { cutThroughViolation, lineComponentSpans, shapeViolation, wordShapes } from './plausible.ts'
+import { assignGroups, lineComponents } from './partition.ts'
+import { charCount, cutThroughViolation, lineComponentSpans, shapeViolation, wordShapes } from './plausible.ts'
 import { collectLinePixels, shearedColumn } from './runs.ts'
 import { segmentRecipe } from './segment.ts'
 
@@ -69,7 +70,10 @@ function extentOf(line: number): [number, number] {
   return [lo, hi]
 }
 
-const parts = g.gate.alignment!.flatMap((n) => n.parts.filter((p) => p.method !== 'lines').map((p) => ({ note: n.noteId, ...p })))
+const allParts = g.gate.alignment!.flatMap((n) => n.parts.filter((p) => p.method !== 'lines').map((p) => ({ note: n.noteId, ...p })))
+// tests 1 and 2 judge boundary columns; a part cut by a component partition has none (ink share and cut-by-construction, below)
+const parts = allParts.filter((p) => p.boundary !== 'component')
+const componentParts = allParts.filter((p) => p.boundary === 'component')
 const curatorGaps = existsAlignment() ? (JSON.parse(txt('alignment.json')).lines as { line: number; boundaryRuns: (number | null)[] }[]) : []
 /** The line's words as boxes: where the curator named no run (null) the two words share one box and are judged as one. */
 const tokensOf = (line: number, method?: string) => {
@@ -104,19 +108,63 @@ describe('word-cut-inside-word on the real page: quinces-marmalade', () => {
     expect(bad).toEqual([])
   })
 
-  it('test 3, fixture: every eye-marked word shown by a word-aligned note has recall and precision of at least the fixture threshold', () => {
+  it('test 1b, component partition (design 3.5): the ink share of the quoted words is within the factor of the character share, re-derived from the labels and the owner map', () => {
+    const bad: string[] = []
+    const alignment = JSON.parse(txt('alignment.json')).lines as { line: number; boundaryRuns: ({ kind: string; after: number } | null)[] }[]
+    for (const p of componentParts) {
+      const entries = alignment.find((l) => l.line === p.line)!.boundaryRuns
+      const tokens = tokenise(reading.lines.find((l) => l.i === p.line)!.text)
+      const extent = extentOf(p.line)
+      const order = lineComponents(seg.labels, own.owner, p.line, yMidOf(p.line), s, extent)
+      const groups = assignGroups(order, entries.flatMap((e) => (e ? [e.after] : [])))
+      const boxOfWord = [0]
+      for (const e of entries) boxOfWord.push(boxOfWord[boxOfWord.length - 1]! + (e === null ? 0 : 1))
+      const quotedGroup = boxOfWord[p.fromWord]!
+      // ink: owned pixels of components of 30 px or more inside the extent, counted from the pixels, not from the order
+      const inkOf = new Map<number, number>()
+      for (let i = 0; i < lp[p.line]!.xs.length; i++) {
+        if (lp[p.line]!.big![i] !== 1) continue
+        const id = seg.labels.label[lp[p.line]!.ys[i]! * W + lp[p.line]!.xs[i]!]!
+        const c = shearedColumn(lp[p.line]!.xs[i]!, lp[p.line]!.ys[i]!, yMidOf(p.line), s)
+        if (c >= extent[0] && c <= extent[1] && groups.has(id)) inkOf.set(id, (inkOf.get(id) ?? 0) + 1)
+      }
+      let all = 0
+      let quoted = 0
+      for (const [id, n] of inkOf) {
+        all += n
+        if (groups.get(id) === quotedGroup) quoted += n
+      }
+      const chars = tokens.map(charCount)
+      const cq = chars.slice(p.fromWord, p.toWord + 1).reduce((a, b) => a + b, 0)
+      const ratio = quoted / all / (cq / chars.reduce((a, b) => a + b, 0))
+      console.log(`${p.note}/line ${p.line} (component partition): ink share ${(quoted / all).toFixed(3)}, character share ${(cq / chars.reduce((a, b) => a + b, 0)).toFixed(3)}, ratio ${ratio.toFixed(2)}`)
+      if (ratio > WORD_SHAPE_RATIO_MAX || ratio < 1 / WORD_SHAPE_RATIO_MAX) bad.push(`${p.note}/line ${p.line}: ratio ${ratio.toFixed(2)}`)
+      // no component is cut: every pixel of a component that the line owns has the component's group, by construction of the map
+      for (const id of inkOf.keys()) expect(groups.has(id)).toBe(true)
+    }
+    expect(bad).toEqual([])
+  })
+
+  it('test 3, fixture: every eye-marked word of a word-aligned note is reported; a note cut by words is judged per word, one cut by components by its own recall and precision (design 3.5, written before measuring)', () => {
     const bad: string[] = []
     let judged = 0
     for (const r of g.gate.recall ?? []) {
       const note = g.gate.alignment!.find((n) => n.noteId === r.noteId)!
+      const byComponents = note.parts.some((p) => p.boundary === 'component')
       for (const w of r.shipped.words) {
-        console.log(`${r.noteId} fixture word "${w.word}": recall ${w.recall.toFixed(3)} precision ${w.precision === null ? 'n/a (whole lines)' : w.precision.toFixed(3)} (note is ${note.alignment})`)
-        if (note.granularity !== 'words') continue
+        console.log(`${r.noteId} fixture word "${w.word}": recall ${w.recall.toFixed(3)} precision ${w.precision === null ? 'n/a (no pixel carries a word number)' : w.precision.toFixed(3)} (note is ${note.alignment}${byComponents ? ', cut by components' : ''})`)
+        if (note.granularity !== 'words' || byComponents) continue
         judged++
         if (w.recall < r.threshold || (w.precision ?? 1) < r.threshold) bad.push(`${r.noteId} "${w.word}": recall ${w.recall.toFixed(3)}, precision ${w.precision?.toFixed(3)}, threshold ${r.threshold}`)
       }
+      if (byComponents) {
+        judged++
+        console.log(`${r.noteId}: note recall ${r.shipped.recall.toFixed(4)}, precision (mask inside the fixture boxes) ${r.shipped.precision?.toFixed(4)}, threshold ${r.threshold}`)
+        if (r.shipped.recall < r.threshold || (r.shipped.precision ?? 0) < r.threshold) bad.push(`${r.noteId} (components): recall ${r.shipped.recall.toFixed(3)}, precision ${r.shipped.precision?.toFixed(3)}, threshold ${r.threshold}`)
+      }
     }
-    console.log(`fixture words judged for a word-aligned note: ${judged} (the only eye-marked note is the hero, shipped as whole lines)`)
+    console.log(`fixture notes or words judged: ${judged}`)
+    expect(judged).toBeGreaterThan(0)
     expect(bad).toEqual([])
   })
 })

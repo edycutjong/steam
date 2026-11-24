@@ -45,3 +45,12 @@ State `fail`: P1, P2, P3, P4, P6 pass; P5 fails.
 - Hero recall unchanged: 0.9802 on whole lines.
 - Path coverage: 1.000 for every note (path pixels equal skeleton pixels).
 - `goldCheck` (informational): 11 of 11 body lines equal the gold reading, as expected for the fallback reader.
+
+## Hero note after the component partition (turn 24)
+
+`npx tsx scripts/hero-after-partition.ts` writes `hero-after-component-partition.png` (the note on whole lines 9 and 10 above, the note cut by components below) and `hero-after-component-partition.json` (every number below). The red run of the tests that came first is `component-partition-red.txt`.
+
+- Boundaries (alignment.json, by "Kiro (agent), turn-24", chosen from `steam-ingest partition quinces-marmalade --line 9|10`): line 9 after component 2652341 (between "it" and "till"), line 10 after component 2776920, the comma after "smooth," (kept: the caption says "smooth,").
+- The note shows "till it Looks" and "red. & smooth," and none of "to the Quinces, & boil it" or "keeping it stirred all" (looked at word by word on the PNG).
+- Note recall 0.9572 against 0.85 (whole lines: 0.9802). Per word recall: till 0.981, it 0.605, Looks 0.930, red 1, & 0.993, smooth 1. Per-word precision is not defined for a note cut by components (no pixel carries a word number); the note-level precision, the share of the mask inside the fixture boxes, is 0.8745.
+- Not kept inside the fixture boxes: "it" 116 px of line 8 and 6 of no line; "Looks" 169 px of line 10 (the strokes of "keeping" under it) and 17 of no line; "till" 21 px of line 8. These are other lines' ink in loose boxes: P4 forbids them.

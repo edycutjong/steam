@@ -59,6 +59,12 @@ describe('the hero note on the committed real folder (R40.4)', { timeout: 60_000
     expect(committed.pass).toBe(true)
     expect(r.gate.readers).toEqual(['scribe', 'second-reader'])
     expect(r.gate.splits!.notes.find((n) => n.noteId === 'till-it-looks-red-smooth')!.status).toBe('reviewed')
+    // turn 24: lines 9 and 10 of the hero are cut by component partition, from the candidates, by a curator who is named per line
+    const hero = r.gate.alignment!.find((n) => n.noteId === 'till-it-looks-red-smooth')!
+    expect([hero.alignment, hero.granularity]).toEqual(['curator', 'words'])
+    expect(hero.parts.map((p) => [p.line, p.boundary, p.components?.length])).toEqual([[9, 'component', 1], [10, 'component', 1]])
+    const rec = r.gate.recall!.find((x) => x.noteId === 'till-it-looks-red-smooth')!
+    expect(rec.shipped.recall).toBeGreaterThanOrEqual(rec.threshold)
     expect(stripAt(r.gate)).toBe(stripAt(committed))
     for (const f of ['agent/scribe.json', 'agent/second.json', 'transcription.md', 'ownership-review.json', 'alignment.json']) rmSync(join(dir, f))
   })

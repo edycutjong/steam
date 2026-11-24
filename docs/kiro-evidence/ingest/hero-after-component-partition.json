@@ -1,0 +1,82 @@
+{
+  "after": {
+    "alignment": "curator",
+    "litPx": 17318,
+    "notePrecisionInBoxes": 0.8745088701035838,
+    "recall": 0.9572199383350463,
+    "results": {
+      "P1": true,
+      "P2": true,
+      "P3": true,
+      "P4": true,
+      "P5": true,
+      "P6": true
+    }
+  },
+  "afterLitPixelsOutsideEveryBox": {
+    "faint shell pixel (no ink)": 1265,
+    "ink of line 10": 454,
+    "ink of line 9": 554
+  },
+  "before": {
+    "alignment": "lines",
+    "litPx": "43546",
+    "recall": 0.9802158273381295
+  },
+  "note": "till-it-looks-red-smooth",
+  "perWord": [
+    {
+      "kept": 1086,
+      "notKeptBy": {
+        "ink owned by line 8": 21
+      },
+      "rawPx": 1107,
+      "recall": 0.981029810298103,
+      "word": "till"
+    },
+    {
+      "kept": 187,
+      "notKeptBy": {
+        "ink owned by line 8": 116,
+        "ink owned by no line": 6
+      },
+      "rawPx": 309,
+      "recall": 0.6051779935275081,
+      "word": "it"
+    },
+    {
+      "kept": 2464,
+      "notKeptBy": {
+        "ink owned by line 10": 169,
+        "ink owned by no line": 17
+      },
+      "rawPx": 2650,
+      "recall": 0.929811320754717,
+      "word": "Looks"
+    },
+    {
+      "kept": 828,
+      "notKeptBy": {},
+      "rawPx": 828,
+      "recall": 1,
+      "word": "red"
+    },
+    {
+      "kept": 562,
+      "notKeptBy": {
+        "ink owned by no line": 4
+      },
+      "rawPx": 566,
+      "recall": 0.9929328621908127,
+      "word": "&"
+    },
+    {
+      "kept": 2324,
+      "notKeptBy": {},
+      "rawPx": 2324,
+      "recall": 1,
+      "word": "smooth"
+    }
+  ],
+  "threshold": 0.85
+}

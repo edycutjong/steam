@@ -20,6 +20,7 @@ import { applyReview } from './masks.ts'
 import { collectLinePixels, wordInkCounts, zeroRuns, type LinePixels } from './runs.ts'
 import { runsOf, segmentRecipe } from './segment.ts'
 import { sha256Hex } from './sha256.ts'
+import { withoutHeroPartition } from './heroAlignment.fixture.ts'
 
 // ---------------------------------------------------------------------------------------------------------------
 // U1, U2: random lines
@@ -147,7 +148,7 @@ const now = runs.map((r, i) => {
 })
 const g = runGate({
   recipeId: 'quinces-marmalade', pageBytes: readFileSync(join(dir, 'page.jpg')), scan,
-  files: { 'source.json': txt('source.json'), 'lines.json': txt('lines.json'), 'fallback/reading.json': txt('fallback/reading.json'), 'ownership-review.json': txt('ownership-review.json'), 'alignment.json': txt('alignment.json') },
+  files: { 'source.json': txt('source.json'), 'lines.json': txt('lines.json'), 'fallback/reading.json': txt('fallback/reading.json'), 'ownership-review.json': txt('ownership-review.json'), 'alignment.json': withoutHeroPartition(txt('alignment.json')) },
   heroFixture: readFileSync(join(root, 'fixtures/hero-word-bounds.json'), 'utf8'), gold: readFileSync(join(root, 'fixtures/gold-readings.json'), 'utf8'),
 })
 const quoted = new Set((JSON.parse(txt('fallback/reading.json')).notes as { quote: { line: number }[] }[]).flatMap((n) => n.quote.map((q) => q.line)))

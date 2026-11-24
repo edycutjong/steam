@@ -276,32 +276,33 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Result (turn 18): typecheck, test and build pass; `npm run props` exits 1 because the committed `quinces-marmalade` gate fails P5 (crop "when-tender/line 8": no background). That is the recipe's real state and is reported, not hidden. Added `src/ingest/props-version.test.ts` for R30.8, which no earlier task had covered.
   - Satisfies: R1.4, R38.4, R39.3, R39.5, R40.1, R40.2.
 
-- [ ] 47. Component partition: order, candidates, groups
+- [x] 47. Component partition: order, candidates, groups
   - Test first (`src/ingest/partition.test.ts`, `partition.prop.test.ts`): order by slant-corrected centroid, ties by id; candidates are the n−1 gaps with `gap` computed from prefix maxima and suffix minima, ranked largest first, ties left first; a speck outside the extent is in no group; **tie rule**: a long t-cross whose centroid is inside the neighbour word goes with the neighbour; for random components and any chosen boundaries, no component has pixels in two groups, every owned component of the extent is in exactly one group, and groups are contiguous in the order.
   - Implement `src/ingest/partition.ts` (`lineComponents`, `partitionCandidates`, `groupsOf`).
   - Files: `src/ingest/partition.ts`, `src/ingest/partition.test.ts`, `src/ingest/partition.prop.test.ts`.
   - Satisfies: R19.8, R19.9, R19.12.
 
-- [ ] 48. Component boundary in `alignment.json` and in alignment
+- [x] 48. Component boundary in `alignment.json` and in alignment
   - Test first: `Alignment` accepts `{kind: "component", after}` beside integers and `null`, rejects extra keys, a negative id, a coordinate; accepts `by` per line. `alignCurator` with component entries: not a candidate, mixed kinds, an entry inside the quote, a quote edge inside a null group, ink floor, and ink-share against character-share (factor 2 both ways) each fall to whole lines with the reason; a valid partition gives method `curator`, `boundary: "component"` and the group range.
   - Implement the schema, `alignComponents` in `src/ingest/align.ts`, the ink-share test in `src/ingest/plausible.ts`, `PartAlignment.partition`.
   - Files: `src/data/schema.ts`, `src/ingest/align.ts`, `src/ingest/plausible.ts` and their tests.
   - Satisfies: R19.10, R19.11, R19.13, R19.15.
 
-- [ ] 49. Mask and P4 for a component partition
+- [x] 49. Mask and P4 for a component partition
   - Test first: `noteMask` keeps only the owned pixels of the quoted groups' components and none of the others; the mask equals the independent mask of P4 (by the owner map, the labels and the allowed ids); P4 fails a lit pixel of a component outside the quoted groups and of another line; `PROPS_VERSION` is "2" and `props-version.test.ts` records the new hash; the end-to-end synthetic gate gives a curator note cut by components, `gate.json` records `boundary: "component"` and `components`.
   - Implement `noteMask` / `cropSource` labels, `P4Part.allowedComponents`, `runGate` wiring, `gate.json` schema.
   - Files: `src/ingest/timeofink.ts`, `src/ingest/cropSource.ts`, `src/ingest/props.ts`, `src/ingest/gate.ts`, `src/data/schema.ts`, `src/ingest/props-version.test.ts`.
   - Satisfies: R19.14, R19.15, R27.
 
-- [ ] 50. `steam-ingest partition`
+- [x] 50. `steam-ingest partition`
   - Test first: lists candidates ranked; with `--png` writes an overlay whose size is the strip's and which draws a tick per candidate; writes nothing else.
   - Implement `tools/steam-ingest/partition.ts`, the subcommand and its usage line.
   - Files: `tools/steam-ingest/partition.ts`, `tools/steam-ingest/partition.test.ts`, `tools/steam-ingest/cli.ts`.
   - Satisfies: R19.9, R38.1.
 
-- [ ] 51. Hero: curator boundaries for lines 9 and 10, then the gate
+- [x] 51. Hero: curator boundaries for lines 9 and 10, then the gate
   - Written before measuring: if the hero fails any property it stays on whole lines and the failure is reported (nothing tuned). Look at the strips and the `partition` overlay; write the two boundaries in `alignment.json` (`by` per line entry); re-run `ingest:gate`; report per-word recall and precision against `fixtures/hero-word-bounds.json` and the note's recall against the frozen 0.85; look at the note PNG word by word; save `docs/kiro-evidence/ingest/hero-after-component-partition.png`.
+  - Result (turn 24): P1 to P6 pass. Line 9 boundary after component 2652341 (rank 14, gap 9), line 10 after 2776920, the comma, kept (rank 4, gap 16). Note recall 0.9572 against the frozen 0.85 (was 0.9802 on whole lines); note-level precision 0.8745. Per word: till 0.981, it 0.605, Looks 0.930, red 1, & 0.993, smooth 1. "it" is 0.605 on whole lines too: 116 of its 309 raw pixels in the loose fixture box are ink of line 8, which no note on line 9 may keep (P4). The ink-share ratios are in the wordCut test output. `docs/kiro-evidence/ingest/hero-after-component-partition.{png,json}`, `scripts/hero-after-partition.ts`.
   - Files: `content/recipes/quinces-marmalade/alignment.json`, `docs/kiro-evidence/ingest/`.
   - Satisfies: R19.8 to R19.15, R20, R27.4.
 

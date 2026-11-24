@@ -11,7 +11,7 @@ import { partitionCmd } from './partition.ts'
 const f = syntheticFolder({ id: 'aaa' })
 afterAll(() => rmSync(f.root, { recursive: true, force: true }))
 const out: string[] = []
-vi.spyOn(console, 'log').mockImplementation((...a: unknown[]) => void out.push(a.join(' ')))
+vi.spyOn(process.stdout, 'write').mockImplementation((chunk: unknown) => (out.push(String(chunk)), true))
 vi.spyOn(console, 'error').mockImplementation(() => {})
 
 const tree = (d: string): string[] => readdirSync(d, { recursive: true }).map(String).sort()

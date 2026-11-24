@@ -101,7 +101,8 @@ export async function main(argv: string[], root = process.cwd()): Promise<number
         if (ln === undefined || !/^\d+$/.test(ln)) throw new Bad(USAGE.partition!)
         const png = flag(args, '--png')
         if (!existsSync(recipeDir(root, id))) throw new Bad(`no recipe folder content/recipes/${id}`)
-        console.log(JSON.stringify(partitionCmd(recipeDir(root, id), { line: Number(ln), ...(png ? { png: resolve(root, png) } : {}) })))
+        // stdout (watch.ts sends console.log to stderr, so that a library cannot corrupt the --once line)
+        process.stdout.write(JSON.stringify(partitionCmd(recipeDir(root, id), { line: Number(ln), ...(png ? { png: resolve(root, png) } : {}) })) + '\n')
         return 0
       }
       case 'gate': {

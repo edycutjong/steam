@@ -28,6 +28,7 @@ import { collectLinePixels, zeroRuns } from './runs.ts'
 import { blank, mulberry32, stroke, textRow, type Canvas } from './synth.ts'
 import { inkMap, rawInk } from './threshold.ts'
 import { buildNote, noteMask, type BuiltPart } from './timeofink.ts'
+import { withoutHeroPartition } from './heroAlignment.fixture.ts'
 
 // ---------------------------------------------------------------------------------------------------------------
 // S1: random pages
@@ -250,7 +251,7 @@ describe('S4: the gate result without eye-read boxes is what the unfixed code ga
     pageBytes: readFileSync(join(dir, 'page.jpg')),
     scan: loadScan(dir).scan,
     files: {
-      'source.json': txt('source.json'), 'lines.json': txt('lines.json'), 'fallback/reading.json': txt('fallback/reading.json'), 'ownership-review.json': txt('ownership-review.json'), 'alignment.json': txt('alignment.json'),
+      'source.json': txt('source.json'), 'lines.json': txt('lines.json'), 'fallback/reading.json': txt('fallback/reading.json'), 'ownership-review.json': txt('ownership-review.json'), 'alignment.json': withoutHeroPartition(txt('alignment.json')),
     },
     heroFixture: readFileSync(join(root, 'fixtures/hero-word-bounds.json'), 'utf8'),
     gold: readFileSync(join(root, 'fixtures/gold-readings.json'), 'utf8'),
