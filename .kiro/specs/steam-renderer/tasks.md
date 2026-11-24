@@ -107,7 +107,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/tokens.test.ts`.
   - Satisfies: R14.9.
 
-- [ ] 19. Shader sources: vertex and fog pass
+- [x] 19. Shader sources: vertex and fog pass
   - Write the shared vertex shader and pass-1 fragment shader (hash, value noise, 4-octave fbm, domain warp, low-pane density, thicken mix).
   - Files: `src/steam/shaders.ts`.
   - Satisfies: R6.2, R14.1, R14.2.
