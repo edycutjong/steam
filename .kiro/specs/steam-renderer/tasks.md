@@ -132,7 +132,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/renderer.ts`.
   - Satisfies: R12.3, R14.2, R14.4, R14.8, R19.1.
 
-- [ ] 24. Renderer allocation guard test
+- [x] 24. Renderer allocation guard test
   - In vitest with a stubbed GL context (a hand-written mock recording calls), check that `play` plus 120 simulated frames calls `drawArrays` twice per frame, creates no textures or buffers after `create`, and that `dispose` called twice deletes each resource once. Add a lint-style test that greps the frame function source for `new `, `[`…`]` literals, and `=>` (a cheap guard). Mark it a guard, not proof; the real check is task 36.
   - Files: `src/steam/renderer.test.ts`.
   - Satisfies: R14.5, R14.6, R14.8.
