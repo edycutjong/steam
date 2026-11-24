@@ -97,6 +97,9 @@ export const THROUGH_K = 1.0
 /** Luminance cap inside strokes, 0..1 (D14). Applied by scaling the colour, so the ember hue survives. */
 export const STROKE_LUMA_MAX = 0.92
 
+/** Write-on leading edge: feather = TOI_SOFT * FEATHER_K in toi units, about 9 texels along the hero's path (D15). */
+export const FEATHER_K = 0.8
+
 export const FOG_MAX = 0.94
 export const CH_GAIN = 1.0
 export const RIM_K = 6.0
@@ -111,9 +114,11 @@ export const BEAD_ZONE = 0.07
 /** Pot plume vertical falloff: exp(-h^2 / PLUME_H2), h = height above the bottom edge (pane fraction). */
 export const PLUME_H2 = 0.008
 /** Height above which the plume adds under 2 levels of red-minus-blue (checked in shaders.test.ts). */
-export const PLUME_REACH = 0.17
+export const PLUME_REACH = 0.2
 /** Plume strength (D11). */
-export const PLUME_A = 0.45
+export const PLUME_A = 0.36
+/** Height of the plume peak above the bottom edge (pane fraction). */
+export const PLUME_H0 = 0.03
 
 /**
  * Pass 2: composite at full canvas resolution.
@@ -161,6 +166,7 @@ const float HEAD_A = ${HEAD_A.toFixed(2)};
 const float STREAK_A = ${STREAK_A.toFixed(2)};
 const float STREAK_HALF = ${STREAK_HALF_CSS.toFixed(1)};
 const float SWEEP_SOFT = ${SWEEP_SOFT.toFixed(2)};
+const float FEATHER_K = ${FEATHER_K.toFixed(2)};
 const float TOI_SOFT = ${TOI_SOFT.toFixed(4)};
 const float RESIDUAL_CLEAR = 0.78;
 const float THROUGH_FAR = ${THROUGH_FAR.toFixed(2)};
@@ -281,10 +287,14 @@ void main() {
   float px = uDpr;
 
   // 1. Wipe-on. uU is -1 before writing, so wiped is 0 everywhere and nothing of the note exists.
-  float wiped = clamp((uU - ch.g) / TOI_SOFT, 0.0, 1.0);
+  // The leading edge is a smooth ramp in the time-of-ink domain (D15), applied after the alpha curve below, so
+  // the letter keeps its shape while it clears and its ember fades in.
+  float wiped = clamp((uU - ch.g) / (TOI_SOFT * FEATHER_K), 0.0, 1.0);
+  float wf = wiped * wiped * (3.0 - 2.0 * wiped);
   float depth = 0.9 + 0.1 * ch.b;
   float c = ch.r * wiped;
-  float clearM = clamp(c * depth, 0.0, 1.0);
+  float aRaw = clamp(ch.r * depth, 0.0, 1.0);
+  float clearM = aRaw;
   // Edge width: follows the fog density (D13), and never narrower than about one screen px of the alpha ramp.
   float fogK = smoothstep(EDGE_FOG_LO, EDGE_FOG_HI, fogD);
   float edgeHalf = mix(CLEAR_HALF_THIN, CLEAR_HALF_THICK, fogK);
@@ -322,9 +332,9 @@ void main() {
       drip = hit * colMatch;
     }
   }
-  clearM = max(clearM, drip);
   // Glass is clear exactly where the scan has ink: one narrow band over the scan's alpha (D12).
-  float clearS = smoothstep(CLEAR_MID - edgeHalf, CLEAR_MID + edgeHalf, clearM);
+  float clearRaw = smoothstep(CLEAR_MID - edgeHalf, CLEAR_MID + edgeHalf, aRaw);
+  float clearS = max(clearRaw * wf, smoothstep(CLEAR_MID - edgeHalf, CLEAR_MID + edgeHalf, drip));
 
   // 2. Cook's wipe: a soft front sweeps left to right. The hull stays clear, the rest re-fogs.
   float front = uWipe * (1.0 + SWEEP_SOFT) - vUv.x;
@@ -356,11 +366,11 @@ void main() {
   col += uAfter * BLOOM_A * far * outside * (0.5 + 0.5 * low);
 
   // 3. Cold wet rim on the channel's outer edge: thin, brighter below, fainter above.
-  vec2 g2 = vec2(dFdx(c), dFdy(c));
+  vec2 g2 = vec2(dFdx(ch.r), dFdy(ch.r));
   float grad = length(g2) * px;
   float lower = smoothstep(-0.6, 0.6, g2.y / max(length(g2), 1e-4));
   // Only on the fog side of the edge (outside the clear band), and softer in thin fog (D13).
-  float rim = smoothstep(0.05, 0.05 + 1.0 / RIM_K, grad) * (1.0 - smoothstep(0.3, 0.6, c)) * (1.0 - clearS) * (1.0 - clearS);
+  float rim = smoothstep(0.05, 0.05 + 1.0 / RIM_K, grad) * (1.0 - smoothstep(0.3, 0.6, ch.r)) * wf * (1.0 - clearRaw) * (1.0 - clearRaw);
   col = mix(col, uGhost, rim * RIM_A * mix(0.55, 1.0, fogK) * mix(0.2, 1.0, lower));
 
   // 4. Writing head: cold white at the toi frontier. Never amber.
@@ -381,8 +391,11 @@ void main() {
   float sway = 0.012 * sin(uTime * 1.3 + vUv.y * 7.0) + 0.006 * sin(uTime * 2.7 + vUv.y * 13.0);
   float px0 = (vUv.x - uPot.x + sway) * aspect;
   float height = 1.0 - vUv.y;
-  float spread = 0.07 + 0.9 * height;
-  float plume = exp(-px0 * px0 / (spread * spread)) * exp(-height * height / ${PLUME_H2.toFixed(4)});
+  float spread = 0.11 + 0.9 * height;
+  // Raised: zero at the rail, peak PLUME_H0 above it, then the old falloff, so the rail never cuts a hot spot (D15).
+  float above = max(height - ${PLUME_H0.toFixed(2)}, 0.0);
+  float plume = exp(-px0 * px0 / (spread * spread)) * exp(-above * above / ${PLUME_H2.toFixed(4)})
+              * smoothstep(0.0, ${PLUME_H0.toFixed(2)}, height);
   plume *= 0.9 + 0.1 * sin(uTime * 5.1 + height * 9.0);
   col += uAfter * PLUME_A * plume;
 

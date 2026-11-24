@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CLEAR_HALF_THICK, CLEAR_HALF_THIN, COMPOSITE_FRAG, PLUME_A, PLUME_H2, PLUME_REACH, STREAK_A, STREAK_HALF_CSS, STROKE_LUMA_MAX, THROUGH_FAR, THROUGH_K, THROUGH_NEAR } from './shaders.ts'
+import { CLEAR_HALF_THICK, CLEAR_HALF_THIN, COMPOSITE_FRAG, PLUME_A, PLUME_H0, PLUME_H2, PLUME_REACH, STREAK_A, STREAK_HALF_CSS, STROKE_LUMA_MAX, THROUGH_FAR, THROUGH_K, THROUGH_NEAR } from './shaders.ts'
 import { parseColor } from './tokens.ts'
 
 /** --after, the only colour the plume adds. */
@@ -8,7 +8,7 @@ const AFTER = '#F2A65A'
 describe('composite constants', () => {
   it('keeps the plume under 2 levels of warmth above PLUME_REACH', () => {
     const [r, , b] = parseColor(AFTER)
-    expect(PLUME_A * Math.exp(-(PLUME_REACH ** 2) / PLUME_H2) * (r - b) * 255).toBeLessThan(2)
+    expect(PLUME_A * Math.exp(-((PLUME_REACH - PLUME_H0) ** 2) / PLUME_H2) * (r - b) * 255).toBeLessThan(2)
   })
   it('keeps the streak faint and narrow (D10)', () => {
     expect(STREAK_A).toBeLessThanOrEqual(0.12)
