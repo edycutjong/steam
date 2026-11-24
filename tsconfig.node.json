@@ -5,6 +5,7 @@
     "lib": ["ES2023", "DOM"],
     "types": ["node"],
     "skipLibCheck": true,
+    "strict": true,
 
     /* Bundler mode */
     "module": "nodenext",
@@ -19,5 +20,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts", "vitest.config.ts", "playwright.config.ts", "scripts", "e2e"]
+  "include": ["vite.config.ts", "vitest.config.ts", "playwright.config.ts", "scripts", "e2e", "tools", "src/ingest", "src/data"]
 }

@@ -2,7 +2,7 @@
 
 Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CLI, then measurement. Every task writes its test first, watches it fail, then implements. Requirement numbers refer to `requirements.md` (R12.3 = requirement 12, criterion 3). Tests sit beside code as `*.test.ts`; property tests as `*.prop.test.ts` with fast-check, in `src/**/` (the one gate-level property test is under `tools/`, per `design.md` S7). Commits that change product code carry `[kiro]`. No task uses French Bread (R39.3).
 
-- [ ] 1. Scaffolding and dependencies
+- [x] 1. Scaffolding and dependencies
   - Test first: `src/ingest/purity.test.ts` fails when a non-test file in `src/ingest/` imports `node:*` or names `window`, `document`, `process`, `Buffer`, `fetch`. Add `src/ingest/smoke.test.ts` importing `constants.ts`.
   - Implement: `npm i jpeg-js`, `npm i -D tsx`; add `tools/**/*.test.ts` to `vitest.config.ts`; add `tools` to `tsconfig.node.json` includes; create `src/ingest/constants.ts` with the table in design §4 (value, reason, source) and a test that `SPLIT_SHARE_MAX === 0.02`, `RUN_MIN_PX === 4`, `RUN_RATIO === 1.5`, `CONTRAST_MIN === 40`, `PATH_COVERAGE_MIN === 0.95`, `MIN_COMPONENT_PX === 30`.
   - Files: `package.json`, `vitest.config.ts`, `tsconfig.node.json`, `src/ingest/constants.ts`, `src/ingest/purity.test.ts`.
