@@ -20,7 +20,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/image.ts`, `src/ingest/image.test.ts`.
   - Satisfies: R1.1, R2.1, R2.4, R2.5, R2.6, R7.3.
 
-- [ ] 4. Binarisation
+- [x] 4. Binarisation
   - Test first: uniform image has no ink; a dark stroke on a left-to-right gradient is found at both ends; adding a constant to every pixel leaves the ink unchanged; border windows are clipped; `rawInk` is a superset of `inkMap`.
   - Implement `src/ingest/threshold.ts` with integral images (`sauvola`, `inkMap`, `rawInk`).
   - Files: `src/ingest/threshold.ts`, `src/ingest/threshold.test.ts`.
