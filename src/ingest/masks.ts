@@ -123,3 +123,56 @@ export function ownership(labels: Labels, bands: Bands): Ownership {
   }
   return { width: w, height: h, owner, components: info, splits }
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Split share (R12)
+
+import { SPLIT_SHARE_MAX } from './constants.ts'
+
+export type SplitStatus = 'auto' | 'reviewed' | 'failed'
+
+export interface NoteOwnership {
+  noteId: string
+  maskPx: number
+  /** Mask pixels whose component was split (by the automatic rule, whether or not a decision then moved the cut). */
+  splitPx: number
+  /** splitPx / maskPx (0 for an empty mask). */
+  share: number
+  /** Split components that contribute mask pixels; the ones to look at when the share is over the threshold. */
+  flagged: number[]
+  /** Flagged components that carry a review decision. */
+  decided: number[]
+  status: SplitStatus
+}
+
+/** R12.1: share = split pixels / mask pixels. A pixel counts when the component it belongs to was split. */
+export function splitShare(own: Ownership, labels: Labels, mask: Uint8Array): { maskPx: number; splitPx: number; share: number; contributing: number[] } {
+  let maskPx = 0
+  let splitPx = 0
+  const contrib = new Map<number, number>()
+  for (let i = 0; i < mask.length; i++) {
+    if (!mask[i]) continue
+    maskPx++
+    const id = labels.label[i]!
+    if (id >= 0 && own.components.get(id)?.split) {
+      splitPx++
+      contrib.set(id, (contrib.get(id) ?? 0) + 1)
+    }
+  }
+  return { maskPx, splitPx, share: maskPx === 0 ? 0 : splitPx / maskPx, contributing: [...contrib.keys()].sort((a, b) => a - b) }
+}
+
+/** The one place the 0.02 comparison is made (R12.2). Exactly 0.02 passes; one pixel more fails. */
+export const shareWithinThreshold = (splitPx: number, maskPx: number): boolean => maskPx === 0 || splitPx / maskPx <= SPLIT_SHARE_MAX + 1e-12
+
+/**
+ * R12.3, R12.5, R13.4. `auto`: share within the threshold. Over it, every flagged component with a decision is
+ * `reviewed`, anything else is `failed`. A reviewed note is never counted as an automatic pass.
+ */
+export function noteOwnership(own: Ownership, labels: Labels, noteId: string, mask: Uint8Array): NoteOwnership {
+  const s = splitShare(own, labels, mask)
+  if (shareWithinThreshold(s.splitPx, s.maskPx)) return { noteId, maskPx: s.maskPx, splitPx: s.splitPx, share: s.share, flagged: [], decided: [], status: 'auto' }
+  const flagged = s.contributing
+  const decided = flagged.filter((id) => own.components.get(id)!.reviewed)
+  return { noteId, maskPx: s.maskPx, splitPx: s.splitPx, share: s.share, flagged, decided, status: decided.length === flagged.length ? 'reviewed' : 'failed' }
+}

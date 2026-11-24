@@ -74,7 +74,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/masks.ts`, `src/ingest/masks.test.ts`, `src/ingest/masks.prop.test.ts`.
   - Satisfies: R10.2 to R10.6, R11.1, R26.2.
 
-- [ ] 13. Split share and the frozen threshold
+- [x] 13. Split share and the frozen threshold
   - Test first: share = split pixels / mask pixels on hand-built cases; a mask at exactly 0.02 passes and at 0.02 + one pixel fails with "joined strokes: needs review"; flagged list = split components contributing mask pixels; a test fails if the threshold constant changes. Extend `masks.prop.test.ts` (P3 e).
   - Implement `splitShare`, `flagComponents`, `checkP3` (in `props.ts` skeleton).
   - Files: `src/ingest/masks.ts`, `src/ingest/props.ts`, `src/ingest/props.test.ts`.
