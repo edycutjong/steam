@@ -235,7 +235,7 @@ Rules for every task:
   - Files: `src/app/components/Facsimile.tsx`, `src/app/components/Facsimile.test.tsx`, `src/app/app.css`.
   - Satisfies: R5.1, R5.2, R5.6, R23.2.
 
-- [ ] 36. Edition view: transcription, gutter, notices
+- [x] 36. Edition view: transcription, gutter, notices
   - Test first: `src/app/Edition.test.tsx` (real bundle): 12 rows with numbers "00" to "11"; row 03 has two marks and row 10 one; the legend and the reading credit are present; the count text equals `disagreements.length`; rows 01, 07 and 09 and 10 carry the judgement glyph (`aria-hidden`) and the text "Judgement note on this line: <span>" (lines from `groups[].line` of the real notes: 1, 7 and 8, 9 and 10); each judgement shows "with its step"; with a variant bundle with a `corrected` line, the merged text shows beneath, labelled "as merged"; with a withheld note (licence variant) the notice "1 note withheld: the source of the note could not be checked." appears and the line stays; a "Cook it" primary button (starts fresh, as the shelf) and the link back; the layout classes switch at 1025 px (computed in a media-query test of the CSS text).
   - Implement `Edition.tsx` with `Facsimile`, the list and the notices.
   - Files: `src/app/Edition.tsx`, `src/app/Edition.test.tsx`, `src/app/app.css`.
