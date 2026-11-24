@@ -67,7 +67,7 @@ Rules for every task:
   - Files: `src/data/reading.ts`, `src/data/reading.test.ts`, `src/data/reading.prop.test.ts`.
   - Satisfies: R6.6, R9.2, R20.4.
 
-- [ ] 10. Router and K1
+- [x] 10. Router and K1
   - Test first: `src/app/router.test.ts`: the five routes parse; `?pace=12&note=till-it-looks-red-smooth&lead=3&fps=1` parses; `pace=7`, `pace=`, `lead=-1`, `lead=NaN`, `lead=999` and a repeated key give the defaults; unknown keys are ignored; `#/r/Quinces` (capital) and `#/r/` and `#/x` are `notFound`; a trailing slash parses. `src/app/router.prop.test.ts` (K1): round trip over generated routes; `parseRoute` never throws on any string and its result re-parses to itself.
   - Implement `src/app/router.ts`.
   - Files: `src/app/router.ts`, `src/app/router.test.ts`, `src/app/router.prop.test.ts`.
