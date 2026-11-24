@@ -241,7 +241,7 @@ Rules for every task:
   - Files: `src/app/Edition.tsx`, `src/app/Edition.test.tsx`, `src/app/app.css`.
   - Satisfies: R5.5, R6.1, R6.2, R6.5, R6.7, R6.8, R7.1, R7.2, R7.5, R7.6.
 
-- [ ] 37. Timing stepper and provenance disclosure
+- [x] 37. Timing stepper and provenance disclosure
   - Test first: `src/app/components/TimingStepper.test.tsx` (fake store): opening from the moment label shows the value, the basis and the buttons ("Earlier", "Later", "Reset to the manuscript's", each at least 48×48); "Later" twice writes 60 s to the store and the label becomes "check from 1 min · set by you"; the live region says "<span>: check from 1 min · set by you"; "Reset" deletes the override and restores "with its step"; range ends clamp; with a non-persistent store "Not saved on this device." shows. `ProvenanceDisclosure` (in `Edition.test.tsx`): the button has `aria-expanded`, toggles the expanded slip; Space and Enter work.
   - Implement `TimingStepper.tsx`, the disclosure, and wire both into `Edition.tsx`.
   - Files: `src/app/components/TimingStepper.tsx`, `src/app/components/TimingStepper.test.tsx`, `src/app/Edition.tsx`, `src/app/Edition.test.tsx`.

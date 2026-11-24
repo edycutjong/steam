@@ -1,12 +1,12 @@
-import { Fragment, useEffect, useState, type ReactNode } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { EDITION, SLIP } from '../copy/strings.ts'
-import { checkLabel, effectiveCheckAt } from '../cook/timing.ts'
 import type { LoadedRecipe } from '../data/catalog.ts'
 import { parseReading } from '../data/reading.ts'
 import type { BundleNote } from '../data/schema.ts'
 import { useApp } from './AppContext.tsx'
 import ArchiveSlip, { creditLine, readersLine } from './components/ArchiveSlip.tsx'
 import Facsimile from './components/Facsimile.tsx'
+import TimingStepper from './components/TimingStepper.tsx'
 import ReadingText, { DisagreeDescription } from './components/ReadingText.tsx'
 import { startFresh } from './Shelf.tsx'
 import { formatRoute } from './router.ts'
@@ -14,13 +14,8 @@ import { useScreen } from './useScreen.ts'
 
 const pad2 = (i: number): string => String(i).padStart(2, String(0)) // "00" to "11", as in transcription.md
 
-export interface MomentSlot {
-  note: BundleNote
-  overrides: Record<string, number>
-}
-
 /** The edition view: the page beside its line-by-line reading, with every disagreement and every judgement line shown (R5 to R7). */
-export default function Edition({ recipe, renderMoment }: { recipe: LoadedRecipe; renderMoment?: (s: MomentSlot & { setOverrides: (o: Record<string, number>) => void }) => ReactNode }) {
+export default function Edition({ recipe }: { recipe: LoadedRecipe }) {
   const b = recipe.bundle
   const h1 = useScreen(b.title)
   const { store } = useApp()
@@ -89,7 +84,7 @@ export default function Edition({ recipe, renderMoment }: { recipe: LoadedRecipe
                     </span>
                     {showMoment ? (
                       <div className="tline__moment">
-                        {renderMoment ? renderMoment({ note, overrides, setOverrides }) : <span className="moment-btn">{checkLabel(effectiveCheckAt(note, overrides))}</span>}
+                        <TimingStepper recipeId={b.id} note={note} overrides={overrides} setOverrides={setOverrides} />
                       </div>
                     ) : null}
                   </div>

@@ -73,3 +73,26 @@ describe('Edition view (R5.5, R6, R7)', () => {
     expect(c).toMatch(/\.facsimile__viewport\s*\{[^}]*height:\s*40vh/)
   })
 })
+
+describe('ProvenanceDisclosure (R7.4, R3.4)', () => {
+  it('"Read the provenance" has aria-expanded and toggles the expanded slip with its review line', async () => {
+    const h = await open()
+    const b = [...h.querySelectorAll('button')].find((x) => x.textContent === 'Read the provenance')!
+    expect(b.getAttribute('aria-expanded')).toBe('false')
+    expect(text(h)).not.toContain('Reviewed by:')
+    click(b)
+    expect(b.getAttribute('aria-expanded')).toBe('true')
+    expect(text(h)).toContain('Reviewed by: Claude Code builder agent (autopilot P1b), not a human, 2026-11-25')
+    click(b)
+    expect(text(h)).not.toContain('Reviewed by:')
+  })
+  it('the disclosure is a native <button>, so Space and Enter activate it', async () => {
+    const b = [...(await open()).querySelectorAll('button')].find((x) => x.textContent === 'Read the provenance')!
+    expect(b.tagName).toBe('BUTTON')
+    expect(b.getAttribute('type')).toBe('button')
+  })
+  it('each judgement opens its stepper from the moment label', async () => {
+    const h = await open()
+    expect(h.querySelectorAll('.moment-btn').length).toBe(3)
+  })
+})
