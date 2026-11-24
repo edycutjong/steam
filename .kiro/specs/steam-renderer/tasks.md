@@ -178,7 +178,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `e2e/steam-timing.spec.ts`.
   - Satisfies: R1.1 to R1.4, R2.2, R2.3, R2.4.
 
-- [ ] 33. E2E: brightness, glass, and patch checks (failures 2, 3, 4)
+- [x] 33. E2E: brightness, glass, and patch checks (failures 2, 3, 4)
   - At `t = -1000, 1000, 2500, 5000, 9000` on desktop and 390 px: assert no pixel luminance above that of `#EFE7DA`; assert the CSS computed style has no `border-width` of 1px on pane, canvas, caption; assert the sash bar pixels match `--rule`; assert beads and the streak by region statistics; assert the fog-density step across each group rect edge is within the tolerance in R6.4.
   - Files: `e2e/steam-visual.spec.ts`.
   - Satisfies: R4.3, R4.4, R5.1 to R5.6, R6.1, R6.4.

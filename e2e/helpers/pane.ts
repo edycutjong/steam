@@ -131,3 +131,69 @@ export function sideStrips(r: Region, others: Region[], bounds: Region, depth = 
   const right: Region = { x: r.x + r.w, y: r.y, w: x1 - (r.x + r.w), h: r.h }
   return [left, right].filter((a) => a.w > 0 && !hits(a))
 }
+
+export interface Rect4 {
+  x0: number
+  y0: number
+  x1: number
+  y1: number
+}
+
+function lumAt(png: PNG, x: number, y: number): number {
+  const [R, G, B] = pixel(png, x, y)
+  return luminance(R, G, B)
+}
+
+/** Mean luminance of the columns/rows in a box, used for strip-to-strip steps. */
+function boxMean(png: PNG, x0: number, y0: number, x1: number, y1: number): number {
+  let s = 0
+  let n = 0
+  for (let y = Math.round(y0); y < Math.round(y1); y++) {
+    for (let x = Math.round(x0); x < Math.round(x1); x++) {
+      s += lumAt(png, x, y)
+      n++
+    }
+  }
+  return n ? s / n : 0
+}
+
+/** Step across a vertical edge at `x` over rows y0..y1: inside strip minus outside strip, `depth` px each. */
+export function stepAcrossX(png: PNG, x: number, y0: number, y1: number, depth = 4): number {
+  return Math.abs(boxMean(png, x, y0, x + depth, y1) - boxMean(png, x - depth, y0, x, y1))
+}
+
+export function stepAcrossY(png: PNG, y: number, x0: number, x1: number, depth = 4): number {
+  return Math.abs(boxMean(png, x0, y, x1, y + depth) - boxMean(png, x0, y - depth, x1, y))
+}
+
+/** Largest step across the four edges of a rect (corners trimmed by `trim` px). */
+export function rectEdgeStep(png: PNG, r: Rect4, trim = 8): number {
+  return Math.max(
+    stepAcrossX(png, r.x0, r.y0 + trim, r.y1 - trim),
+    stepAcrossX(png, r.x1, r.y0 + trim, r.y1 - trim),
+    stepAcrossY(png, r.y0, r.x0 + trim, r.x1 - trim),
+    stepAcrossY(png, r.y1, r.x0 + trim, r.x1 - trim),
+  )
+}
+
+/**
+ * The largest step across a virtual edge placed in plain fog: boxes of `box` px clear of every group
+ * (and of the canvas edge tint), each tested with a vertical and a horizontal edge through its centre.
+ */
+export function baselineEdgeStep(png: PNG, bounds: Region, groups: Region[], box = 48): number {
+  const inset = Math.round(0.1 * Math.min(bounds.w, bounds.h))
+  let worst = 0
+  let boxes = 0
+  for (let y = bounds.y + inset; y + box <= bounds.y + bounds.h - inset; y += box / 2) {
+    for (let x = bounds.x + inset; x + box <= bounds.x + bounds.w - inset; x += box / 2) {
+      const clear = groups.every((g) => x + box < g.x - 8 || g.x + g.w + 8 < x || y + box < g.y - 8 || g.y + g.h + 8 < y)
+      if (!clear) continue
+      boxes++
+      const cx = x + box / 2
+      const cy = y + box / 2
+      worst = Math.max(worst, stepAcrossX(png, cx, y + 4, y + box - 4), stepAcrossY(png, cy, x + 4, x + box - 4))
+    }
+  }
+  if (boxes < 3) throw new Error(`only ${boxes} clear fog boxes for the baseline`)
+  return worst
+}
