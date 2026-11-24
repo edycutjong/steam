@@ -1,0 +1,74 @@
+# word-align-speck, commit A: exploration test on the real page, unfixed code (RED, expected)
+# command: npx vitest run src/ingest/alignSpeck.bug.test.ts --no-color
+# recorded: 2026-11-24T19:37:23Z, on the tree whose parent commit is 676fb65; exit code follows the output
+
+
+ RUN  v5.1.1 /Users/edycu/Hackathon/devpost/devpost-kiroween/steam/build
+
+ ❯ src/ingest/alignSpeck.bug.test.ts (3 tests | 3 failed) 15ms
+   ❯ word-align-speck on the real page: quinces-marmalade, note when-tender, line 8 (3)
+     × every word of every accepted (auto or curator) alignment holds at least the piece floor of ink 9ms
+     × the note when-tender shows at least the piece floor of ink from line 8, the line its second word lies on 4ms
+     × the gate passes P5 for when-tender 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/ingest/alignSpeck.bug.test.ts > word-align-speck on the real page: quinces-marmalade, note when-tender, line 8 > every word of every accepted (auto or curator) alignment holds at least the piece floor of ink
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "when-tender/line 8: word 0 holds 0 ink px (floor 30); the alignment was auto: accepted: 7 boundaries",
++ ]
+
+ ❯ src/ingest/alignSpeck.bug.test.ts:67:17
+     65|       }
+     66|     expect(judged, 'some part is word-aligned on the page').toBeGreate…
+     67|     expect(bad).toEqual([])
+       |                 ^
+     68|   })
+     69|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/ingest/alignSpeck.bug.test.ts > word-align-speck on the real page: quinces-marmalade, note when-tender, line 8 > the note when-tender shows at least the piece floor of ink from line 8, the line its second word lies on
+AssertionError: when-tender's line 8 part shows 4 px (floor 30): expected 4 to be greater than or equal to 30
+ ❯ src/ingest/alignSpeck.bug.test.ts:77:88
+     75|     for (let y = 0; y < png.height; y++)
+     76|       for (let x = 0; x < png.width; x++) if (png.data[(y * png.width …
+     77|     expect(px, `when-tender's line 8 part shows ${px} px (floor ${MIN_…
+       |                                                                                        ^
+     78|   })
+     79|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/ingest/alignSpeck.bug.test.ts > word-align-speck on the real page: quinces-marmalade, note when-tender, line 8 > the gate passes P5 for when-tender
+AssertionError: P5: contrast when-tender: 111; when-tender/line 7: 90; when-tender/line 8: no background: expected 'contrast when-tender: 111; when-tende…' not to match /no background/
+
+- Expected:
+/no background/
+
++ Received:
+"contrast when-tender: 111; when-tender/line 7: 90; when-tender/line 8: no background"
+
+ ❯ src/ingest/alignSpeck.bug.test.ts:83:43
+     81|     const when = g.gate.results!.P5.detail.split(' | ').filter((s) => …
+     82|     expect(when.length).toBe(1)
+     83|     expect(when[0], `P5: ${when[0]}`).not.toMatch(/no background/)
+       |                                           ^
+     84|     expect(g.gate.results!.P5.pass, `P5: ${g.gate.results!.P5.detail}`…
+     85|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  02:37:23
+   Duration  4.88s (import 99%)
+
+# exit code: 1
