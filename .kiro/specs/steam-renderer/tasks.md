@@ -142,7 +142,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/steam.css`.
   - Satisfies: R4.4, R5.1, R5.5, R5.6, R10.1, R13.1 to R13.3, R21.5.
 
-- [ ] 26. `SteamPane`: structure, assets, renderer wiring
+- [x] 26. `SteamPane`: structure, assets, renderer wiring
   - Build the component: load assets, run `derive`, `computeLayout` on `ResizeObserver`, create the renderer, set the frozen or live clock from `parseParams`, fall back to `StaticPane` on null, unmount cleanly with `dispose`. Render the credit line and the load-failure text.
   - Files: `src/steam/SteamPane.tsx`.
   - Satisfies: R2.2, R12.3, R16.6, R17.6, R19.1, R21.1, R22.1, R22.2.
