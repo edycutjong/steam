@@ -28,7 +28,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/timeline.prop.test.ts`.
   - Satisfies: R3.3, R3.4, R9.1, R9.2.
 
-- [ ] 5. URL parameter parsing
+- [x] 5. URL parameter parsing
   - Create `parseParams(search, hash)` returning `{ t: number | null, lead: number, fps: boolean }`. `location.search` wins over the hash query. Ignore non-finite, missing, negative `lead`, and `fps` values other than `1`.
   - Add `params.test.ts`: defaults, negative `t`, bad values, precedence, `t` overriding `lead`.
   - Files: `src/steam/params.ts`, `src/steam/params.test.ts`.
