@@ -333,7 +333,7 @@ File: `src/ingest/timeofink.prop.test.ts`.
 | # | Statement | Requirements | File |
 |---|---|---|---|
 | S1 | For all inputs, `sha256` equals `node:crypto` | R1.5 | `src/ingest/sha256.prop.test.ts` |
-| S2 | For all page images and rotations by `θ ∈ ±3°` (below the apply threshold), the line count is unchanged; for `|θ| ≥ 0.5°` the estimate is within 0.2° | R7.1 to R7.4 | `src/ingest/deskew.prop.test.ts` |
+| S2 | For all synthetic ruled pages tilted by `θ ∈ ±3°`, the estimate is within 0.2°; the page is rotated only when `|estimate| ≥ 0.5°` (below that the pixels are returned untouched); in both cases the line count after `applyDeskew` is N. (Corrected in task 9: the first wording called ±3° "below the apply threshold", which it is not; the 0.5° threshold applies to the small angles.) | R7.1 to R7.4 | `src/ingest/deskew.prop.test.ts` |
 | S3 | For all N-row synthetic pages, `findLines` returns N lines, core bands disjoint, valley rows strictly between them | R8.1 to R8.4 | `src/ingest/lines.prop.test.ts` |
 | S4 | For all pairs of readings, `parse(format(merge(a, b)))` equals `merge(a, b)`; no disagreement disappears; a correction keeps its entry | R15.1 to R15.8, R16.3 | `src/ingest/merge.prop.test.ts` |
 | S5 | For all owned-pixel sets and slants `|s| ≤ 1`, no 8-connected piece spans two words of an accepted alignment; accepted alignments always satisfy the 1.5× rule | R18.3 to R18.5 | `src/ingest/align.prop.test.ts` |

@@ -50,7 +50,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/lines.ts`, `src/ingest/lines.test.ts`, `src/ingest/lines.prop.test.ts`.
   - Satisfies: R8.1 to R8.6.
 
-- [ ] 9. Deskew
+- [x] 9. Deskew
   - Test first: synthetic ruled text rotated by −4, −1, 0, 0.3, 0.7, 3° gives estimates within 0.2°; angles under 0.5° are recorded but not applied; applied rotation straightens the page (line count recovered); `deskew.prop.test.ts` (S2).
   - Implement `src/ingest/deskew.ts` (`estimateTilt`, `applyDeskew`).
   - Files: `src/ingest/deskew.ts`, `src/ingest/deskew.test.ts`, `src/ingest/deskew.prop.test.ts`.
