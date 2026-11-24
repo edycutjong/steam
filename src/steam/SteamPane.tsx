@@ -64,7 +64,10 @@ function usePrefersReducedMotion(): boolean {
 }
 
 export default function SteamPane({ stem = NOTE_STEM }: { stem?: string }) {
-  const params = useMemo(() => parseParams(window.location.search, window.location.hash), [])
+  const params = useMemo(
+    () => (typeof window === 'undefined' ? parseParams('', '') : parseParams(window.location.search, window.location.hash)),
+    [],
+  )
   const reducedMotion = usePrefersReducedMotion()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [loaded, setLoaded] = useState<Loaded | null>(null)
