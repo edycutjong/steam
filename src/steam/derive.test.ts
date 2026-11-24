@@ -107,3 +107,32 @@ describe('derive on the real hero files', () => {
     expect(Array.from(d.head).every(Number.isFinite)).toBe(true)
   })
 })
+
+describe('derive: no unwritten stroke shows (D1)', () => {
+  it('gives every pixel with channel alpha > 0 the toi of its stroke, so the rim cannot appear early', () => {
+    const w = 60
+    const h = 20
+    const toi = new Uint8ClampedArray(w * h * 4)
+    const note = new Uint8ClampedArray(w * h * 4)
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const o = (y * w + x) * 4
+        toi[o + 3] = 255
+        if (x >= 20 && x < 40 && y >= 8 && y < 12) {
+          toi[o] = 255
+          toi[o + 1] = 200
+          toi[o + 2] = 128
+        }
+      }
+    }
+    const d = derive({ data: toi, width: w, height: h }, { data: note, width: w, height: h })
+    let halo = 0
+    for (let p = 0; p < w * h; p++) {
+      if (d.chan[p * 4] > 0) {
+        expect(d.chan[p * 4 + 1]).toBe(200)
+        if (toi[p * 4] === 0) halo++
+      }
+    }
+    expect(halo).toBeGreaterThan(0)
+  })
+})

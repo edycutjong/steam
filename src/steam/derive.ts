@@ -18,6 +18,7 @@ export interface Derived {
 
 export const DILATE_PX = 2
 export const SOFT_PX = 2
+export const TOI_REACH_PX = DILATE_PX + SOFT_PX + 1
 export const HULL_DILATE_PX = 6
 export const HULL_FEATHER_PX = 24
 export const HEAD_BINS = 256
@@ -41,7 +42,10 @@ function deriveChannel(toi: PixelSource, note: PixelSource, chan: Uint8Array): v
   const { width: w, height: h } = toi
   const t = toi.data
   const n = note.data
-  const offs = dilationOffsets(DILATE_PX)
+  // Toi and pressure reach as far as the blurred alpha halo (plus one texel for bilinear
+  // sampling), so no pixel with alpha > 0 has toi 0 and shows before its stroke is written.
+  const offsT = dilationOffsets(TOI_REACH_PX)
+  const reach2 = DILATE_PX * DILATE_PX
   const dil = new Float32Array(w * h)
   const press = new Float32Array(w * h)
 
@@ -52,15 +56,15 @@ function deriveChannel(toi: PixelSource, note: PixelSource, chan: Uint8Array): v
       let bestT = 0
       let bestP = 0
       let maxA = 0
-      for (let k = 0; k < offs.length; k += 2) {
-        const xx = x + offs[k]
-        const yy = y + offs[k + 1]
+      for (let k = 0; k < offsT.length; k += 2) {
+        const xx = x + offsT[k]
+        const yy = y + offsT[k + 1]
         if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue
         const q = (yy * w + xx) * 4
         const a = t[q]
         if (a === 0) continue
-        if (a > maxA) maxA = a
-        const d = offs[k] * offs[k] + offs[k + 1] * offs[k + 1]
+        const d = offsT[k] * offsT[k] + offsT[k + 1] * offsT[k + 1]
+        if (d <= reach2 && a > maxA) maxA = a
         const tt = t[q + 1]
         if (d < bestD || (d === bestD && tt < bestT)) {
           bestD = d
@@ -68,7 +72,7 @@ function deriveChannel(toi: PixelSource, note: PixelSource, chan: Uint8Array): v
           bestP = t[q + 2]
         }
       }
-      if (maxA === 0) continue
+      if (bestD === Infinity) continue
       dil[p] = maxA
       const o = p * 4
       chan[o + 1] = bestT
