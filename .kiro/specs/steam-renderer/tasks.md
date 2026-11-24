@@ -168,7 +168,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/App.tsx`, `src/main.tsx` (only if needed), `index.html` (fonts, if not present).
   - Satisfies: R21.5, R22.2, R22.3.
 
-- [ ] 31. Playwright frame capture helper
+- [x] 31. Playwright frame capture helper
   - Write a helper that opens `/?t=<ms>` at a viewport and saves a PNG, and computes per-pixel luminance and per-region statistics in Node (using `pngjs` as a dev dependency).
   - Files: `e2e/helpers/capture.ts`, `package.json`.
   - Satisfies: supports R1, R4, R6, R9, R11 checks below.
