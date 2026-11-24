@@ -39,7 +39,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/layout.ts`.
   - Satisfies: R11.1, R12.1.
 
-- [ ] 7. Layout: `computeLayout` for `page` and `groups`
+- [x] 7. Layout: `computeLayout` for `page` and `groups`
   - Implement the desktop uniform scale and the phone per-group scale with the `fits` flag. Order groups by `t[0]`. Inflate `src` by `MARGIN_PX` and clamp to the note size.
   - Files: `src/steam/layout.ts`.
   - Satisfies: R11.2, R11.3, R11.4, R11.6, R12.1, R12.2.

@@ -47,3 +47,85 @@ export function chooseLayout(paneW: number): LayoutKind {
   return paneW <= PHONE_MAX_W ? 'groups' : 'page'
 }
 
+function inflate(rect: Rect, size: [number, number]): Rect {
+  return [
+    Math.max(0, rect[0] - MARGIN_PX),
+    Math.max(0, rect[1] - MARGIN_PX),
+    Math.min(size[0], rect[2] + MARGIN_PX),
+    Math.min(size[1], rect[3] + MARGIN_PX),
+  ]
+}
+
+/** Map a note-px rect to CSS px given the note-px point `(ox, oy)` lands at `(dx, dy)`. */
+function mapRect(r: Rect, ox: number, oy: number, dx: number, dy: number, s: number): Rect {
+  return [dx + (r[0] - ox) * s, dy + (r[1] - oy) * s, dx + (r[2] - ox) * s, dy + (r[3] - oy) * s]
+}
+
+function placement(
+  index: number,
+  meta: LayoutMeta,
+  s: number,
+  /** CSS position of the inked rect's top-left corner. */
+  inkX: number,
+  inkY: number,
+): GroupPlacement {
+  const g = meta.groups[index]
+  const src = inflate(g.rect, meta.size)
+  const dst = mapRect(src, g.rect[0], g.rect[1], inkX, inkY, s)
+  const inked = mapRect(g.rect, g.rect[0], g.rect[1], inkX, inkY, s)
+  return { index, src, dst, inked, scale: s, coreBandCssPx: (g.coreBand[1] - g.coreBand[0]) * s }
+}
+
+function inkedFits(p: GroupPlacement, paneW: number, paneH: number): boolean {
+  const e = 1e-9
+  return (
+    p.inked[0] >= PAD_PX - e &&
+    p.inked[1] >= PAD_PX - e &&
+    p.inked[2] <= paneW - PAD_PX + e &&
+    p.inked[3] <= paneH - PAD_PX + e
+  )
+}
+
+export function computeLayout(kind: LayoutKind, paneW: number, paneH: number, meta: LayoutMeta): Layout {
+  const order = meta.groups.map((_, i) => i).sort((a, b) => meta.groups[a].t[0] - meta.groups[b].t[0])
+
+  if (kind === 'page') {
+    const [nw, nh] = meta.size
+    const s = Math.max(
+      1e-6,
+      Math.min((paneW - 2 * PAD_PX) / nw, (paneH * 0.5) / nh, S_MAX),
+    )
+    const ox = (paneW - nw * s) / 2
+    const oy = (paneH - nh * s) / 2
+    const groups = order.map((i) => {
+      const g = meta.groups[i]
+      return placement(i, meta, s, ox + g.rect[0] * s, oy + g.rect[1] * s)
+    })
+    return { kind, groups, fits: groups.every((p) => inkedFits(p, paneW, paneH)) }
+  }
+
+  const scales = order.map((i) => {
+    const g = meta.groups[i]
+    const rectW = g.rect[2] - g.rect[0]
+    let s = Math.min((paneW - 2 * PAD_PX) / rectW, S_MAX)
+    let forced = false
+    const band = g.coreBand[1] - g.coreBand[0]
+    if (band * s < MIN_CORE_CSS_PX) {
+      s = MIN_CORE_CSS_PX / band
+      forced = true
+    }
+    return { i, s, forced }
+  })
+  const heights = scales.map(({ i, s }) => (meta.groups[i].rect[3] - meta.groups[i].rect[1]) * s)
+  const block = heights.reduce((a, b) => a + b, 0) + GROUP_GAP_CSS * (scales.length - 1)
+  let y = (paneH - block) / 2
+  const groups = scales.map(({ i, s }, k) => {
+    const g = meta.groups[i]
+    const inkW = (g.rect[2] - g.rect[0]) * s
+    const p = placement(i, meta, s, (paneW - inkW) / 2, y)
+    y += heights[k] + GROUP_GAP_CSS
+    return p
+  })
+  const fits = scales.every((x) => !x.forced) && groups.every((p) => inkedFits(p, paneW, paneH))
+  return { kind, groups, fits }
+}
