@@ -187,6 +187,28 @@ Plausibility of a word cut (bugfix `word-cut-inside-word`, `.kiro/specs/word-cut
 
 Curator alignment, as built for this fix: `boundaryRuns` has one entry per gap between words (k-1). An entry is an index into the runs of `runs.json` (segment time, as this section always said; the gate had used the runs of the reviewed ownership, which can number differently, and now uses `runs.json` for a curator), or `null` where no code-found run separates two words (a stroke joins them). Words around a `null` share one box: the shape test judges them as one word of their joined characters, the part's `fromBox`/`toBox` name the boxes, and a quote that starts or ends inside a shared box falls to whole lines (it would show words that are not quoted). Non-null indices are distinct and, when a `null` is present, listed from left to right.
 
+Component-partition boundary (turn 24, requirements R19.8 to R19.15). Written before the hero lines were measured with it; no number in it is tuned.
+
+Why. A column run is a gap in the *projection* of the owned ink. In this hand the letters of neighbouring words overlap in the slanted projection (the spike noted that "it" and "till" overlap at the boundary; nothing separates "to", "the" and "Quinces,"), so for hero lines 9 and 10 the runs do not exist and the note fell to whole lines, showing "to the Quinces, & boil it" and "keeping it stirred all" on the glass. A note needs only its **own two edges** per line, and the unit of this hand is the ink **component**, not the column. Two components that overlap in `x'` are still two components with two centroids.
+
+The order. For the line `l` with middle `yMid` and slant `s`: `C_l` = the components with at least one pixel owned by `l` (size does not matter: a speck is a dot, a comma, a tail), whose owned-pixel centroid column `cx = mean(x − s·(yMid − y))` over the pixels `l` owns lies in `[lo, hi]` (the text extent, so a margin speck is in no word). Sort by `(cx, id)`: component ids are raster indices, so the order is deterministic. Position `q(c)` is the index in that order.
+
+Candidates. For `i = 0 … n−2`, `L_i` = the first `i+1` components, `R_i` = the rest. `gap_i = min_{R_i} firstCol − max_{L_i} lastCol − 1`, with first and last column over the owned pixels of the components in `x'` rounded as for runs (`shearedColumn`). `gap_i ≥ 0` is a column run of that width between the two groups (and so `gap_i ≥ 4` is a run in the sense of `runs.json`); `gap_i < 0` is the overlap in columns. Candidate `i` is `{after: id(order[i]), before: id(order[i+1]), gap, rank}`, ranked by `gap` descending, ties left first. Prefix maxima and suffix minima make it linear in `n`.
+
+The boundary. `{kind: "component", after: <id>}` sits at the position of a gap in `boundaryRuns`. It names no coordinate; `after` must equal one candidate's `after`. Groups: with chosen boundaries at order positions `q_1 < … < q_m` (listed left to right), the group of a component at position `q` is the number of `q_j < q`. A word range maps to a group range through the `null` entries as for runs (`boxOfWord`), and the quote must start and end on a group edge.
+
+Tie rule. A component belongs to the group its centroid's place in the order gives it, nothing else: a long t-cross of "till" whose centroid column falls inside "it" is shown with "it", never with "till", and a long flourish of "Looks" is shown with the word its centroid is in. No component is split: every pixel of the component that the line owns is in the group of its component. The overlay lets the curator see such a component; the choices are the candidate that leaves it on the right side, or no boundary (whole lines). Equal centroids (a rare exact tie) are ordered by id, which is the raster index of the component's first pixel.
+
+Edges only. A component boundary is legal only at the gap before the quote's first word (`fromWord − 1`) or after its last (`toWord`). An entry at any other gap of the quote is refused: the words inside a note stay together, and a cut the note does not need is a cut that can be wrong. An entry is `null` where the curator names none: the words around it share a group. Run entries and component entries are not mixed in one line.
+
+Plausibility. (a) The ink floor of this section holds for every group of the quote (`WORD_INK_MIN_PX`). (b) Ink share against character share: with `I_q` the ink (owned pixels of components of at least `MIN_COMPONENT_PX` inside the extent) of the quoted groups, `I` the same for the line, `c_q` the characters of the quoted words and `C` those of the line (the character count of test 1 above), `ρ = (I_q / I) / (c_q / C)`; the part is implausible when `ρ > WORD_SHAPE_RATIO_MAX` or `ρ < 1/WORD_SHAPE_RATIO_MAX`. Test 2 (cut-through) holds by construction: the test file proves that no component has pixels in two groups. The fixture test (3) applies as before: the note's recall against `recallThreshold`, per-word recall and precision reported.
+
+Mask and P4. `noteMask` for such a part keeps the pixels the line owns whose component label is in a quoted group. `P4`'s independent mask states the same from the owner map and the label map alone, with the allowed component ids as data, so it still judges "no ink of any other line"; `PROPS_VERSION` becomes `"2"` because the word region of a part can now be a set of components.
+
+Provenance. `gate.json.alignment[].parts[]` records `boundary: "runs" | "component"`; for components `components` lists the chosen `after` ids in order, `boundaries` is empty. The note's `alignment` is `curator` and `alignmentBy` names who chose; `alignment.json` may carry `by` per line entry so that a file that holds run boundaries chosen in one turn and component boundaries chosen in another says so.
+
+Tool. `steam-ingest partition <id> --line <n> [--png <path>]` prints the line's ordered components, the candidates ranked, and which candidates are runs, and writes an overlay of the strip (components tinted in turn, a numbered tick at each candidate). It writes nothing to the recipe folder unless `--png` names a path.
+
 A word-aligned candidate that fails (1) or (2) is rejected with `alignment implausible: <reason>`. For the automatic candidate the chain continues (curator, then whole lines), for the curator candidate the part falls to whole lines. Both reasons are recorded in `autoDetail`/`reason`. A cut that passes all three can still be wrong; the shipped notes are therefore also looked at (bugfix spec, task 4).
 
 `alignAuto(runs, k)`: sort by `(−width, x0)`; take first `k−1`; accept if `widths[k−2] > widths[k−1]` (strictly wider than the next, unselected) and `widths[k−2] ≥ 1.5·median(unselected)`, with 4 as the median when nothing is unselected. Returns boundaries sorted by `x0`, each at `⌊(x0+x1)/2⌋`.
@@ -246,6 +268,18 @@ Decisions made in task 31, where the list above was open:
 - Curator boundary indices name the runs of `runs.json` (segment time, automatic ownership). Automatic alignment uses the runs of the effective owner map (after a review), so P4 is re-run on what a review changed.
 - When the note's alignment falls to whole lines, every part of the note is whole lines (R19.5), so `granularity` and the mask agree.
 - `gate.json` also carries `state`, `errors` (structural failures), `readers`, `ownership: {autoPass, reviewedPass}` and `disagreements` (the count), beside R30.2's fields.
+
+Transcription (turn 24, R16.2, R16.7, R16.8, R32.8). `transcription.md` is generated by code and may be revised by an agent (Markdown Review). Its header names the two reader files it was generated from; a second comment line `<!-- merge: <sha256> -->` records the hash of the L-lines as generated, which is how the gate knows whether an agent revised them (the readers' old text is not kept, so a comparison with an old merge is not possible). `classifyTranscription(md, expected, fresh)` in `src/ingest/merge.ts` returns one of:
+
+| State of the file | Gate does |
+|---|---|
+| missing | writes the fresh merge, uses it |
+| current (header = this segment run and these readers) | applies its lines as corrections (R16.3), as before |
+| stale, L-lines hash = recorded merge hash | regenerates (writes the fresh merge), uses it |
+| stale, L-lines differ from the recorded hash, or no recorded hash and not equal to a fresh merge of the header's readers | `fail`: "transcription.md was revised against an older reading: re-review", never overwritten |
+| malformed (header, line structure) | `fail`, as before |
+
+The gate never answers `waiting` for a transcription. `waiting` remains for a missing or stale reader file, so with both reader files present and current the first poll of `--once` ends in `terminal-state`. `runGate` stays pure: the regenerated text travels in `artifacts.text['transcription.md']` and the CLI writes it (and `--verify` compares it). The idle-timeout seen in turn 23 (about 50 polls of "waiting stale transcription.md", then `idle-timeout`) was this state; the retry run's readers changed, `merge` kept the old file, and the workflow has no merge step.
 
 Idempotency key: `propsVersion + segmentRun.id + sorted inputs + sorted outputs`. A deleted or edited note PNG changes `outputs` and forces a recompute.
 
@@ -378,6 +412,9 @@ File: `src/ingest/timeofink.prop.test.ts`.
 |---|---|---|
 | Licence not in the allow-list, or any lookup error | `fetch` exits non-zero, no `page.jpg` | R3.2, R3.3 |
 | Reader file missing or stale | `waiting`, exit 3 (`idle` in watch) | R14.4, R14.5, R31 |
+| `transcription.md` stale, unrevised | regenerated, gate goes on | R16.2 |
+| `transcription.md` stale, revised | `fail`, "revised against an older reading: re-review" | R16.2 |
+| Component boundary not a candidate, not at a note edge, or implausible | whole lines for that part, reason recorded | R19.10 to R19.13 |
 | Reader file invalid | `fail`; in watch, `idle` once, then `fail` | R14.6, R32.5 |
 | Note over 2% split, no review | `fail`, "joined strokes: needs review" | R12.3 |
 | Review decision names an impossible line or row | `fail` with the component id | R13.2 |
@@ -405,3 +442,5 @@ File: `src/ingest/timeofink.prop.test.ts`.
 5. `props` is `gate --all --verify` (R38.3). CI runs the same code path as `ingest:gate`.
 6. Steps must quote their lines verbatim (R17.2). The scribe supplies grouping and indices, not rewording.
 7. Hashes of PNG files are pixel hashes (R2.6).
+8. (Turn 24) The curator's component boundary is an index into an order the code computed, never a coordinate and never a box; it is chosen only from the ranked candidates; a note may use it only at its own edges. The hero's lines 9 and 10 stay on whole lines if the result fails any property (nothing is tuned).
+9. (Turn 24) Whether an agent revised `transcription.md` is decided by a recorded hash of the generated L-lines, because the old readers' text is gone. A legacy file with no recorded hash is treated as revised unless it equals the fresh merge of its header's readers: the gate never overwrites text it cannot prove it wrote.

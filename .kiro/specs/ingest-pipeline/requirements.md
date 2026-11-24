@@ -187,7 +187,7 @@ Pixel-size constants are stated for a page frame 1600 px wide and scale linearly
    - no other non-blank line except comment lines starting with `<!--`.
 5. THE SYSTEM SHALL carry each reader's own `uncertain` entries into `merged.json` as `readerUncertain`, and SHALL NOT use them to resolve a disagreement.
 6. THE SYSTEM SHALL list every disagreement in `gate.json`-linked `merged.json` and in `recipe.json`; no step of the pipeline SHALL remove a disagreement. A correction (R16) adds `correctedTo` to the entry and keeps the entry.
-7. WHEN `steam-ingest merge <id>` runs and `transcription.md` does not exist, THE SYSTEM SHALL write it. WHEN it exists, THE SYSTEM SHALL leave it unchanged and print whether it equals the fresh merge.
+7. WHEN `steam-ingest merge <id>` runs and `transcription.md` does not exist, THE SYSTEM SHALL write it. WHEN it exists and is current or revised (R16.7), THE SYSTEM SHALL leave it unchanged and print whether it equals the fresh merge. WHEN it is stale and carries no revision, THE SYSTEM SHALL regenerate it (turn 24, R16.2).
 8. A property test SHALL show that parsing a merged `transcription.md` returns the same lines and disagreements that produced it.
 
 ## R16. Revised transcription and corrections
@@ -195,11 +195,13 @@ Pixel-size constants are stated for a page frame 1600 px wide and scale linearly
 **User story:** As a reviewer, I want a Markdown review pass to be able to fix a reading, with every change on record.
 
 1. WHEN `transcription.md` exists, THE SYSTEM SHALL parse its `L`-lines. IF the count or the indices differ from `lines.json`, or any non-comment line is not an `L`-line, THEN THE SYSTEM SHALL fail the gate with "transcription.md: line structure changed".
-2. IF the header's `segmentRun` or reader hashes differ from the current ones, THEN THE SYSTEM SHALL report `waiting` with "stale transcription.md".
+2. IF the header's `segmentRun` or reader hashes differ from the current ones, THEN THE SYSTEM SHALL NOT report `waiting` (turn 24: a stale `transcription.md` kept the workflow's watch idle until it timed out). WHEN the file carries no agent revision (criterion 7) THE SYSTEM SHALL regenerate it from the current readings and go on with the regenerated text. WHEN it does carry a revision, THE SYSTEM SHALL keep the revision authoritative as corrections, SHALL NOT overwrite it, and SHALL fail the gate with "transcription.md was revised against an older reading: re-review".
 3. THE SYSTEM SHALL compare each parsed line with the fresh merged line. FOR each difference it SHALL record `{line, before, after}` in `gate.json.corrections` and SHALL use `after` as the line's text from then on.
 4. WHEN a correction changes the token count of a line that a note quotes, THE SYSTEM SHALL fail the gate with "correction changes the word count of a quoted line".
 5. THE SYSTEM SHALL hash `transcription.md` into `gate.json.inputs.transcription`.
 6. THE SYSTEM SHALL show a corrected line, in `recipe.json`, with both its merged and corrected text.
+7. THE SYSTEM SHALL record in `transcription.md`, as a second comment line `<!-- merge: <sha256 of the L-lines as generated> -->` after the header, what the generator wrote. A file **carries an agent revision** when its L-lines hash to something else than that value; a file without the line (written before turn 24) carries no revision only when its header names the current readers and its L-lines equal the fresh merge, otherwise it is treated as revised (never overwritten). The header's `readers: <sha256 scribe>:<sha256 second-reader>` already names the two reader files it was generated from (R15.4).
+8. WHEN `transcription.md` is missing, THE SYSTEM SHALL (the gate, not only `steam-ingest merge`) write it from the current readings. `steam-ingest merge` and the gate SHALL share one rule: write when missing, rewrite when stale and unrevised, leave a revised file alone and say so.
 
 ## R17. Steps and notes
 
@@ -235,6 +237,14 @@ Pixel-size constants are stated for a page frame 1600 px wide and scale linearly
 5. WHEN neither alignment is available for a line, THE SYSTEM SHALL use whole lines (fallback 2): the note's mask is the owned pixels of every quoted line, `granularity: "lines"`, and `shownText` is the primary text of those whole lines.
 6. FOR every note THE SYSTEM SHALL record `granularity: "words" | "lines"`, `alignment: "auto" | "curator" | "lines"` and `shownText`, so that the caption equals the ink shown.
 7. THE SYSTEM SHALL hash `alignment.json` into `gate.json.inputs.alignment` when it exists.
+8. (Component-partition boundary, turn 24.) THE SYSTEM SHALL offer the curator a second kind of boundary, built by code from ink components, for a gap where no code-found run separates two words (the hero: "it" and "till" overlap in the slanted projection). For one line it SHALL order the line's **owned components** (R10; the components that have at least one pixel owned by the line, whatever their size, whose centroid column lies inside the line's text extent, R18.2) by the **slant-corrected centroid column** `x'` of their owned pixels, `x' = x − s·(yMid − y)` (unrounded mean, the `s` the pipeline measured, R18.2); ties go to the smaller component id. A boundary is an index into that order: every component up to and including the named one belongs to the left word group, every component after it to the right.
+9. THE SYSTEM SHALL compute the **candidates** of a line: the gaps between consecutive components in that order, each as `{after, before, gap, rank}` where `after` and `before` are the ids of the two components, `gap = (first column of the right group) − (last column of the left group) − 1` over the owned pixels of all components on each side (the number of empty columns between the two groups when it is zero or more; minus the number of shared columns when the groups overlap), and `rank` orders the candidates by `gap`, largest first, ties left first. THE SYSTEM SHALL list the candidates in a command (`steam-ingest partition <id> --line <n>`) and in an overlay PNG that draws the components and the candidates; no candidate is a coordinate.
+10. THE SYSTEM SHALL read, in `alignment.json`, a boundary of this kind as the object `{kind: "component", after: <componentId>}` in the position of a gap in `boundaryRuns` (R19.3; run indices and `null` stay as they were). THE SYSTEM SHALL require `after` to be the `after` of one of the line's candidates; otherwise the part falls to whole lines with the reason. Entries of the two kinds SHALL NOT be mixed in one line. A `null` entry of a line with component boundaries means that the words either side of the gap stay together (they share one group).
+11. THE SYSTEM SHALL accept a component boundary only at an **edge of the note**: the gap just before the quote's first word, or just after its last word. A component boundary inside the quote (the words inside a note stay together) makes the part fall to whole lines with the reason. A quote that starts or ends in a group that joins words through a `null` falls to whole lines, as for run boundaries.
+12. THE SYSTEM SHALL assign every owned component to exactly one word group by its place in the order and shall never split a component: all pixels of a component owned by the line belong to the group of the component. **Tie rule:** a component whose centroid column falls inside the neighbouring word (a long t-cross, a flourish) goes with the neighbour, because the group of a component is decided by its centroid and by nothing else; equal centroids are ordered by component id. The curator sees such a component in the overlay and either chooses the candidate that puts it on the right side of the order or leaves the part on whole lines. THE SYSTEM SHALL prove the rule by test.
+13. THE SYSTEM SHALL reject a component partition (the part then falls to whole lines, with the reason recorded in `reason` and `autoDetail`) when (a) a group of the quote holds fewer than `WORD_INK_MIN_PX` ink pixels (R18's ink floor), or (b) the **ink share** of the quoted groups (owned pixels of components of at least `MIN_COMPONENT_PX` pixels inside the extent, over the same count for the whole line) differs from the **character share** of the quoted words (the characters of design 3.5, over the line's) by more than a factor `WORD_SHAPE_RATIO_MAX` (2) either way. No component is cut by a component boundary, so the cut-through test of design 3.5 holds by construction.
+14. THE SYSTEM SHALL build the note mask of a part with a component partition from the owned pixels of the line that belong to the components of the quoted groups, and from nothing else; the components outside the quoted groups are excluded. P4 SHALL keep its meaning: no lit pixel is ink owned by any other line or by a component outside the quoted groups of the quoted lines (the check states the mask from the owner map and the component labels alone, R27).
+15. THE SYSTEM SHALL record in `gate.json.alignment[].parts[]` `boundary: "component"` and `components: [<after id>…]` for such a part (and `boundary: "runs"` for a part cut by runs), SHALL name the alignment `curator` and carry `alignmentBy` into the note and the bundle's provenance. `alignment.json` MAY carry `by` on a line entry, which overrides the file's `by` for that line, so that `by` names who chose each boundary truthfully.
 
 ## R20. Alignment score against the hero fixture
 
@@ -330,11 +340,12 @@ Pixel-size constants are stated for a page frame 1600 px wide and scale linearly
 6. THE SYSTEM SHALL set `pass` true only when P1 to P6 all pass, no gate state is waiting, and every disagreement is retained.
 7. THE SYSTEM SHALL write `goldCheck` (informational, never gating): the number of lines whose primary text equals `fixtures/gold-readings.json` after the title offset, and the differing line indices. The gold file SHALL NOT be merged into any agent reading.
 8. THE SYSTEM SHALL bump `propsVersion` whenever a property's definition changes, and a test SHALL fail if `props.ts` changes without the bump.
+9. `gate.json.readers`, `merged.json.readers` and the reader labels of `readerUncertain` SHALL name the readers by their agent names, `scribe` and `second-reader` (turn 24; they had said `second`). The file is still `agent/second.json` and `inputs.second` still hashes it.
 
 ## R31. Gate states and exit codes
 
 1. THE SYSTEM SHALL end every gate run in one of three states: `pass`, `fail`, `waiting`.
-2. `waiting` SHALL mean only that a reader file is missing or stale, or `transcription.md` is stale (R14.4, R14.5, R16.2). It SHALL NOT be used for a property failure.
+2. `waiting` SHALL mean only that a reader file is missing or stale (R14.4, R14.5). A stale `transcription.md` is never `waiting` (R16.2, turn 24). It SHALL NOT be used for a property failure.
 3. `steam-ingest gate` SHALL exit 0 for `pass`, 1 for `fail`, 3 for `waiting`, 2 for bad usage or bad configuration.
 4. THE SYSTEM SHALL list every failing property and structural error in `gate.json.results` and on stderr, with the first failing item in the exit message.
 5. WHERE `gate.json` is written for a `waiting` run, THE SYSTEM SHALL set `pass: false` and `waiting: [reasons]`.
@@ -350,6 +361,7 @@ Pixel-size constants are stated for a page frame 1600 px wide and scale linearly
 5. THE SYSTEM SHALL carry in `cursor` `{v: 1, polls, invalid: {<file>: <sha256>}}`. WHEN a reader file fails validation, THE SYSTEM SHALL answer `idle` and store its hash; WHEN the same hash is seen on the next poll, THE SYSTEM SHALL treat it as a `fail`.
 6. THE SYSTEM SHALL answer an unexpected exception with a non-zero exit other than 2, so that Kiro counts an idle poll, and SHALL write the stack to stderr.
 7. A test SHALL replay `docs/kiro-evidence/probe-3.5.0/workspace/tools/gate.mjs` semantics (cursor present on idle, payload string on terminal) against the real output shape with a schema.
+8. (Timeout safety, turn 24.) WHEN both reader files exist, validate and echo the current `segmentRun`, THE SYSTEM SHALL answer `terminal-state` on the first poll that sees them, whatever state `transcription.md`, `alignment.json` and `ownership-review.json` are in; `idle` remains possible only for a missing or stale reader file, or a reader file that fails validation for the first time (criterion 5). A property test SHALL run every state of `transcription.md` (missing, current, stale and unrevised, stale and revised, legacy without the merge line, malformed) against current readers and require a state other than `waiting`.
 
 ## R33. `hooks.log`
 
@@ -400,7 +412,7 @@ Pixel-size constants are stated for a page frame 1600 px wide and scale linearly
 
 ## R38. CLI and scripts
 
-1. THE SYSTEM SHALL provide `tools/steam-ingest/cli.ts`, run with `tsx`, with subcommands `fetch`, `segment`, `merge`, `fallback`, `gate`, `catalog`.
+1. THE SYSTEM SHALL provide `tools/steam-ingest/cli.ts`, run with `tsx`, with subcommands `fetch`, `segment`, `merge`, `fallback`, `partition` (R19.9), `gate`, `catalog`.
 2. THE SYSTEM SHALL add npm scripts `ingest:gate` (`tsx tools/steam-ingest/cli.ts gate quinces-marmalade`), `props` (`tsx tools/steam-ingest/cli.ts gate --all --verify`) and `catalog` (`tsx tools/steam-ingest/cli.ts catalog`).
 3. `gate --all --verify` SHALL recompute the gate for every recipe without writing any file, SHALL compare the result with the committed `gate.json` (ignoring `at`), and SHALL exit non-zero on any difference, any failing property or any waiting recipe.
 4. THE SYSTEM SHALL add `npm run props` to the CI job in `.github/workflows/ci.yml`, after `npm test`.
