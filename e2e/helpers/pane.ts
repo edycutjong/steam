@@ -95,6 +95,40 @@ export interface Stats {
   warmth: number
 }
 
+/** Box half-size of the local mean removed by `detailVariance`: strokes are a few px, fog drifts over hundreds. */
+export const DETAIL_R = 4
+
+/**
+ * Variance of luminance minus its local (2 * DETAIL_R + 1)^2 mean, pooled over regions.
+ * It measures stroke-scale detail and ignores the fog's slow shading across the pane,
+ * so a wide group rect and narrow strips beside it are comparable (needed by the stacked desktop layout).
+ */
+export function detailVariance(png: PNG, regions: Region[]): number {
+  let s2 = 0
+  let n = 0
+  for (const r of regions) {
+    for (let y = r.y; y < r.y + r.h; y++) {
+      for (let x = r.x; x < r.x + r.w; x++) {
+        let m = 0
+        let k = 0
+        for (let dy = -DETAIL_R; dy <= DETAIL_R; dy++) {
+          for (let dx = -DETAIL_R; dx <= DETAIL_R; dx++) {
+            const xx = x + dx
+            const yy = y + dy
+            if (xx < r.x || yy < r.y || xx >= r.x + r.w || yy >= r.y + r.h) continue
+            m += lumAt(png, xx, yy)
+            k++
+          }
+        }
+        const d = lumAt(png, x, y) - m / k
+        s2 += d * d
+        n++
+      }
+    }
+  }
+  return n ? s2 / n : 0
+}
+
 /** Luminance mean and variance and the warmest pixel over a set of regions taken together. */
 export function poolStats(png: PNG, regions: Region[]): Stats {
   let s = 0
