@@ -58,7 +58,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/layout.prop.test.ts`.
   - Satisfies: R11.2, R11.3, R11.6.
 
-- [ ] 10. Asset schema (zod)
+- [x] 10. Asset schema (zod)
   - Add `NoteMeta` to `src/steam/assets.ts` (or a sibling schema block in the same file) per design §4. Strip unknown keys. Include the cross-field checks (rects inside `size`, `coreBand` inside rect, `t` ordered, group time ranges not overlapping).
   - Files: `src/steam/assets.ts`.
   - Satisfies: R17.2, R17.3, R17.5.
