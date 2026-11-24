@@ -26,7 +26,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/threshold.ts`, `src/ingest/threshold.test.ts`.
   - Satisfies: R6.1, R6.2, R6.3, R6.5.
 
-- [ ] 5. Connected components
+- [x] 5. Connected components
   - Test first: 8-connectivity (diagonal touch joins), ids equal `y·width + x` of the first raster pixel, ids stable under a different scan order of the implementation, sizes sum to the ink count. Property: for random binary images, every ink pixel has one component id and component count equals a reference flood fill.
   - Implement `src/ingest/components.ts` (union-find with path halving).
   - Files: `src/ingest/components.ts`, `src/ingest/components.test.ts`.
