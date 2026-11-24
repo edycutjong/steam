@@ -88,6 +88,8 @@ describe('the only writer of content/catalog.json (R35.5)', () => {
       }
     }
     for (const d of ['src', 'tools', 'scripts']) if (existsSync(join(repo, d))) walk(join(repo, d))
-    expect(hits).toEqual(['tools/steam-ingest/catalog.ts'])
+    // the app reads the catalog at build time (cook-mode design 2.1); it never writes it
+    expect(hits).toEqual(['src/data/catalog.ts', 'tools/steam-ingest/catalog.ts'])
+    expect(readFileSync(join(repo, 'src/data/catalog.ts'), 'utf8')).not.toMatch(/writeFile|writeJson|appendFile|fs\.|node:fs/)
   })
 })

@@ -73,7 +73,7 @@ Rules for every task:
   - Files: `src/app/router.ts`, `src/app/router.test.ts`, `src/app/router.prop.test.ts`.
   - Satisfies: R1.1, R1.2, R1.3, R1.4, R1.7.
 
-- [ ] 11. Catalog and bundle loader
+- [x] 11. Catalog and bundle loader
   - Test first: `src/data/catalog.test.ts` with an injected `fetch` that serves the real files and variants: the real catalog yields one recipe with three displayable notes and none withheld; an invalid bundle (a deleted required field), a `gateSha256` different from the catalog's, a `bundle.id` mismatch, a note on step 9, two notes on one step, a group on line 99, a 404 and a network error each leave the recipe out, with one `console.warn` naming the id and reason (spy); an invalid catalog gives the error result; a note with licence `cc-by-nc` leaves the recipe in and the note in `withheld`; results are cached (one fetch per id). A scan test fails if `src/` outside `*.test.*` contains the string `"Marmalade of Quinces"` or the id `quinces-marmalade` in a data position.
   - Implement `loadShelf`, `checkCookable` in `src/data/catalog.ts` with `import catalogJson from '../../content/catalog.json'`.
   - Files: `src/data/catalog.ts`, `src/data/catalog.test.ts`.
