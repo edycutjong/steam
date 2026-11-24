@@ -62,7 +62,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/lines.ts`, `src/ingest/region.test.ts`.
   - Satisfies: R5.1 to R5.5, R5.7, R9.4.
 
-- [ ] 11. Slant estimate and shear
+- [x] 11. Slant estimate and shear
   - Test first: synthetic strokes leaning right by 0.2, 0.4 and left by 0.2 give the correct sign and size within one step; vertical strokes give `s < 0.05` → 0 reported as vertical; `shear(x, y, yMid, s)` round trip.
   - Implement `src/ingest/slant.ts` (`estimateSlant`, `shear`).
   - Files: `src/ingest/slant.ts`, `src/ingest/slant.test.ts`.
