@@ -1,0 +1,27 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "props-on-save-save",
+      "trigger": "PostFileSave",
+      "matcher": "content/recipes/[^/]+/(agent/[^/]+\\.json|alignment\\.json|transcription\\.md|ownership-review\\.json)$",
+      "action": {
+        "type": "command",
+        "command": "npx tsx tools/hooks/props-on-save.ts"
+      },
+      "timeout": 120,
+      "enabled": true
+    },
+    {
+      "name": "props-on-save-create",
+      "trigger": "PostFileCreate",
+      "matcher": "content/recipes/[^/]+/(agent/[^/]+\\.json|alignment\\.json|transcription\\.md|ownership-review\\.json)$",
+      "action": {
+        "type": "command",
+        "command": "npx tsx tools/hooks/props-on-save.ts"
+      },
+      "timeout": 120,
+      "enabled": true
+    }
+  ]
+}
