@@ -112,7 +112,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/shaders.ts`.
   - Satisfies: R6.2, R14.1, R14.2.
 
-- [ ] 20. Shader sources: composite pass
+- [x] 20. Shader sources: composite pass
   - Write pass 2: `kitchen()`, `sampleNote()`, wipe-on, cook's wipe sweep with hull latch, fog mix, ember channel light, derivative-based rim, writing head, glass edge tint, specular streak (alpha ≤ 0.55 in `--ink`), beads, final per-channel clamp to `uInk`.
   - Files: `src/steam/shaders.ts`.
   - Satisfies: R1.1, R4.1, R4.2, R4.5, R5.2 to R5.4, R6.1, R7.1 to R7.5, R8.2, R8.3, R9.2 to R9.5, R14.3.
