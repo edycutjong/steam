@@ -122,7 +122,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/merge.ts`, `src/ingest/corrections.test.ts`.
   - Satisfies: R16.1 to R16.6, R15.6.
 
-- [ ] 21. Steps and notes validation
+- [x] 21. Steps and notes validation
   - Test first: steps numbered 1..m with consecutive ascending `lineIdx`; step text equals the primary text joined; note quote rules (step membership, bounds, multi-line parts); `span` verbatim including trailing punctuation (the hero span "till it Looks red & smooth," passes; without the comma it fails); a quote starting inside a multi-token disagreement is "quote splits a disagreement". `notes.prop.test.ts` (S6): any one-character edit of a valid span is rejected.
   - Implement `src/ingest/notes.ts` (`primaryText`, `scribeToSlot`, `checkSteps`, `checkNotes`).
   - Files: `src/ingest/notes.ts`, `src/ingest/notes.test.ts`, `src/ingest/notes.prop.test.ts`.
