@@ -194,7 +194,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/bundle.ts`, `src/ingest/bundle.test.ts`.
   - Satisfies: R36.1 to R36.5, R37.1 to R37.4.
 
-- [ ] 33. CLI io
+- [x] 33. CLI io
   - Test first: canonical JSON writer (sorted keys, trailing newline, stable bytes); JPEG decode of `fixtures/p0033.jpg` is 1601×2052 and stable (hash recorded in the test); PNG round trip keeps `pixelSha256`; frame resampling when sizes differ.
   - Implement `tools/steam-ingest/io.ts`.
   - Files: `tools/steam-ingest/io.ts`, `tools/steam-ingest/io.test.ts`.
