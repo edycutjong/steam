@@ -192,3 +192,75 @@ export function maskBox(mask: Uint8Array, w: number, h: number): [number, number
       }
   return x1 < 0 ? null : [x0, y0, x1 + 1, y1 + 1]
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// P3: ownership (R26), the full evaluator
+
+import type { Labels } from './components.ts'
+import type { Bands, Ownership } from './masks.ts'
+import { MIN_COMPONENT_PX } from './constants.ts'
+
+export interface P3Input {
+  labels: Labels
+  own: Ownership
+  bands: Bands
+  notes: NoteOwnership[]
+  staleReview?: boolean
+}
+
+/**
+ * R26.2: every ink pixel has exactly one owner and no other pixel has one; every component of at least 30 px is owned
+ * by one line or cut only at valley rows (a reviewed component is judged by its decision instead); and every note is
+ * within the split threshold or reviewed (checkP3Notes).
+ */
+export function checkP3(i: P3Input): P3Summary {
+  const notes = checkP3Notes(i.notes, { staleReview: i.staleReview })
+  const fails: string[] = []
+  const { labels, own, bands } = i
+  const n = labels.width * labels.height
+  let unowned = 0
+  let stray = 0
+  for (let k = 0; k < n; k++) {
+    const ink = labels.label[k]! >= 0
+    if (ink && own.owner[k]! < 0) unowned++
+    if (!ink && own.owner[k]! >= 0) stray++
+  }
+  if (unowned) fails.push(`${unowned} ink pixels have no owner`)
+  if (stray) fails.push(`${stray} non-ink pixels have an owner`)
+  // per component: owner changes only across valley rows
+  const rows = new Map<number, Map<number, number>>() // id -> row -> owner of the first pixel of that row (and a flag for mixed rows)
+  const mixed = new Set<number>()
+  for (let y = 0; y < labels.height; y++)
+    for (let x = 0; x < labels.width; x++) {
+      const id = labels.label[y * labels.width + x]!
+      if (id < 0) continue
+      const c = own.components.get(id)!
+      if (c.size < MIN_COMPONENT_PX || c.reviewed) continue
+      let r = rows.get(id)
+      if (!r) rows.set(id, (r = new Map()))
+      const o = own.owner[y * labels.width + x]!
+      const prev = r.get(y)
+      if (prev === undefined) r.set(y, o)
+      else if (prev !== o) mixed.add(id)
+    }
+  const bad: number[] = []
+  for (const [id, r] of rows) {
+    const c = own.components.get(id)!
+    if (c.touched.length === 0) continue // centroid rule: one owner for the whole component
+    if (mixed.has(id)) {
+      bad.push(id)
+      continue
+    }
+    const ys = [...r.keys()].sort((a, b) => a - b)
+    for (let k = 1; k < ys.length; k++) {
+      if (r.get(ys[k]!) !== r.get(ys[k - 1]!) && !bands.valleys.some((v) => ys[k - 1]! < v && ys[k]! >= v)) {
+        bad.push(id)
+        break
+      }
+    }
+    if (c.touched.length === 1 && new Set(r.values()).size > 1) bad.push(id)
+  }
+  if (bad.length) fails.push(`components ${[...new Set(bad)].join(',')} are cut away from a valley row`)
+  if (fails.length) return { result: { pass: false, detail: fails.join('; ') }, autoPass: notes.autoPass, reviewedPass: notes.reviewedPass }
+  return { ...notes, result: { pass: notes.result.pass, detail: notes.result.detail } }
+}

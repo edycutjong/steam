@@ -158,7 +158,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/props.ts`, `src/ingest/steps.prop.test.ts`, `src/ingest/bounds.prop.test.ts`.
   - Satisfies: R24.1 to R24.3, R25.1 to R25.3, R30.8.
 
-- [ ] 27. P3 evaluator integration
+- [x] 27. P3 evaluator integration
   - Test first: `checkP3` over a real owner map, flagged lists, reviewed status; detail strings equal the requirement text.
   - Implement the remaining `checkP3` glue.
   - Files: `src/ingest/props.ts`, `src/ingest/props.test.ts`.

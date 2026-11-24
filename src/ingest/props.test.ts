@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { labelComponents } from './components.ts'
 import { SPLIT_SHARE_MAX } from './constants.ts'
-import { noteOwnership, ownership, shareWithinThreshold, splitShare, type Bands } from './masks.ts'
-import { checkP3Notes } from './props.ts'
+import { applyReview, noteOwnership, ownership, shareWithinThreshold, splitShare, type Bands } from './masks.ts'
+import { checkP3, checkP3Notes } from './props.ts'
 
 const bands: Bands = { cores: [[10, 20], [40, 50]], valleys: [30] }
 const W = 120
@@ -84,5 +84,58 @@ describe('checkP3Notes', () => {
     expect(s.autoPass).toBe(1)
     expect(s.reviewedPass).toBe(1)
     expect(s.result.detail).toContain('reviewed (2 components, by A. Person)')
+  })
+})
+
+describe('checkP3 (the evaluator over a real owner map)', () => {
+  const bands2: Bands = { cores: [[10, 20], [40, 50]], valleys: [30] }
+  const mkScene = () => {
+    const ink = new Uint8Array(W * H)
+    for (let y = 15; y <= 45; y++) ink[y * W + 3] = 1
+    for (let x = 20; x < 40; x++) for (let y = 12; y < 15; y++) ink[y * W + x] = 1
+    const labels = labelComponents(ink, W, H)
+    return { ink, labels, own: ownership(labels, bands2) }
+  }
+  it('passes a clean owner map and carries the notes\' verdict text', () => {
+    const s = mkScene()
+    const mask = new Uint8Array(W * H)
+    for (let x = 20; x < 40; x++) for (let y = 12; y < 15; y++) mask[y * W + x] = 1
+    const note = noteOwnership(s.own, s.labels, 'plain', mask)
+    const r = checkP3({ labels: s.labels, own: s.own, bands: bands2, notes: [note] })
+    expect(r.result.pass).toBe(true)
+    expect(r.autoPass).toBe(1)
+  })
+  it('reports the joined strokes message with the note, share and component ids for a failing note', () => {
+    const s = mkScene()
+    const note = noteOwnership(s.own, s.labels, 'joined', s.ink)
+    const r = checkP3({ labels: s.labels, own: s.own, bands: bands2, notes: [note] })
+    expect(r.result.pass).toBe(false)
+    expect(r.result.detail).toMatch(new RegExp(`^joined strokes: needs review \\(joined: split share 0\\.3\\d+ over 0\\.02, components ${15 * W + 3}\\)`))
+  })
+  it('fails an owner map with an unowned ink pixel, a stray owner, or a cut away from a valley row', () => {
+    const s = mkScene()
+    const a = { ...s.own, owner: s.own.owner.slice() }
+    a.owner[20 * W + 3] = -1
+    expect(checkP3({ labels: s.labels, own: a, bands: bands2, notes: [] }).result.detail).toMatch(/1 ink pixels have no owner/)
+    const b = { ...s.own, owner: s.own.owner.slice() }
+    b.owner[0] = 0
+    expect(checkP3({ labels: s.labels, own: b, bands: bands2, notes: [] }).result.detail).toMatch(/1 non-ink pixels have an owner/)
+    const c = { ...s.own, owner: s.own.owner.slice() }
+    for (let y = 15; y <= 24; y++) c.owner[y * W + 3] = 1 // the cut moved from row 30 to row 25
+    c.owner[25 * W + 3] = 1
+    const r = checkP3({ labels: s.labels, own: c, bands: bands2, notes: [] })
+    expect(r.result.pass).toBe(false)
+    expect(r.result.detail).toMatch(/components \d+ are cut away from a valley row/)
+  })
+  it('a reviewed component is judged by its decision, and a reviewed note is not an automatic pass', () => {
+    const s = mkScene()
+    const id = 15 * W + 3
+    const { own } = applyReview(s.labels, bands2, [{ componentId: id, decision: { splitAtRow: 24 }, reviewer: 'Kiro (agent), turn-18' }])
+    const note = noteOwnership(own, s.labels, 'joined', s.ink)
+    const r = checkP3({ labels: s.labels, own, bands: bands2, notes: [note] })
+    expect(r.result.pass).toBe(true)
+    expect(r.autoPass).toBe(0)
+    expect(r.reviewedPass).toBe(1)
+    expect(r.result.detail).toContain('joined reviewed (1 components, by Kiro (agent), turn-18)')
   })
 })
