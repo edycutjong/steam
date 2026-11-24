@@ -54,6 +54,19 @@ export function alignAuto(runs: Run[], k: number): AlignAuto {
   return { ok: true, chosen, boundaries: chosen.map((r) => Math.floor((r.x0 + r.x1) / 2)) }
 }
 
+/**
+ * The boundaries the automatic rule would take before its acceptance test (the widest k-1 runs, ties left first).
+ * Used only to score a rejected automatic alignment against the fixture (R20.3); never shipped.
+ */
+export function candidateBoundaries(runs: Run[], k: number): number[] | null {
+  if (k - 1 > runs.length) return null
+  return [...runs]
+    .sort((a, b) => b.width - a.width || a.x0 - b.x0)
+    .slice(0, k - 1)
+    .sort((a, b) => a.x0 - b.x0)
+    .map((r) => Math.floor((r.x0 + r.x1) / 2))
+}
+
 /** R18.5: word number of each pixel, by sheared column between the boundaries (sorted ascending). */
 export function assignWords(p: LinePixels, yMid: number, s: number, boundaries: number[]): Uint16Array {
   const out = new Uint16Array(p.xs.length)
@@ -160,7 +173,8 @@ export function matchFixtureWords(shownText: string, words: FixtureWord[]): numb
 export interface WordScore {
   word: string
   recall: number
-  precision: number
+  /** null when the note's mask is not cut by words (whole lines): no pixel has a word to compare. */
+  precision: number | null
   rawPx: number
   maskPx: number
 }
@@ -196,7 +210,7 @@ export function scoreAgainstFixture(
         }
     const mine = maskWords.filter((p) => p.word === offset + j)
     const inside = mine.filter((p) => inBox(w.box, p.x, p.y)).length
-    return { word: w.word, recall: rawPx ? kept / rawPx : 0, precision: mine.length ? inside / mine.length : 0, rawPx, maskPx: mine.length }
+    return { word: w.word, recall: rawPx ? kept / rawPx : 0, precision: mine.length ? inside / mine.length : null, rawPx, maskPx: mine.length }
   })
   // union of boxes
   let tot = 0

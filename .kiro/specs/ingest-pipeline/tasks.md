@@ -254,7 +254,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `content/recipes/quinces-marmalade/*`, `docs/kiro-evidence/ingest/measurements.json`.
   - Satisfies: R5.7, R34.1, R34.2, R40.3.
 
-- [ ] 43. First real gate run on the fallback reading
+- [x] 43. First real gate run on the fallback reading
   - Test first: the end-to-end hero test from task 38 now runs on the committed real folder. Expected route, per the spike: the hero note fails P3 ("joined strokes: needs review") with the measured share.
   - Run `ingest:gate`; read `gate.json`, the flagged components and `ownership/flag-*.png`; report the automatic alignment score and recall against `fixtures/hero-word-bounds.json`, whatever they are.
   - Files: `content/recipes/quinces-marmalade/gate.json`, `docs/kiro-evidence/hooks.log`.

@@ -76,6 +76,7 @@ describe('scoreAgainstFixture', () => {
     const maskWords = [{ x: 2, y: 5, word: 0 }, { x: 3, y: 5, word: 0 }, { x: 15, y: 5, word: 0 }, { x: 22, y: 5, word: 1 }]
     const s = scoreAgainstFixture(raw, W, words, 0, lit, maskWords)
     expect(s.words[0]).toEqual({ word: 'a', recall: 4 / 8, precision: 2 / 3, rawPx: 8, maskPx: 3 })
+    expect(scoreAgainstFixture(raw, W, words, 0, lit, []).words[0]!.precision).toBeNull()
     expect(s.words[1]).toEqual({ word: 'b', recall: 1 / 4, precision: 1, rawPx: 4, maskPx: 1 })
     expect(s.recall).toBeCloseTo(5 / 12, 12)
   })

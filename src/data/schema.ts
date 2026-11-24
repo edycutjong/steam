@@ -173,6 +173,7 @@ export const NoteJson = z.strictObject({
 })
 export type NoteJson = z.infer<typeof NoteJson>
 
+const WordScoreZ = z.strictObject({ word: z.string(), recall: z.number(), precision: z.number().nullable(), rawPx: int0, maskPx: int0 })
 const P = z.strictObject({ P1: PropRes, P2: PropRes, P3: PropRes, P4: PropRes, P5: PropRes, P6: PropRes })
 
 export const Gate = z
@@ -200,10 +201,14 @@ export const Gate = z
       .array(
         z.strictObject({
           noteId: RecipeId,
-          shipped: z.strictObject({ alignment: AlignMethod, recall: z.number(), words: z.array(z.strictObject({ word: z.string(), recall: z.number(), precision: z.number(), rawPx: int0, maskPx: int0 })) }),
+          shipped: z.strictObject({ alignment: AlignMethod, recall: z.number(), words: z.array(WordScoreZ) }),
           auto: z.union([
-            z.strictObject({ recall: z.number(), words: z.array(z.strictObject({ word: z.string(), recall: z.number(), precision: z.number(), rawPx: int0, maskPx: int0 })) }),
-            z.strictObject({ notUsed: z.string() }),
+            z.strictObject({ recall: z.number(), words: z.array(WordScoreZ) }),
+            z.strictObject({
+              notUsed: z.string(),
+              /** The widest k-1 runs taken without the acceptance test: scored for the record, never shipped. */
+              rejectedCandidate: z.union([z.strictObject({ recall: z.number(), words: z.array(WordScoreZ), boundaries: z.array(z.strictObject({ line: int0, boundaries: z.array(z.number().int()) })) }), z.null()]),
+            }),
           ]),
           threshold: z.number(),
           frame: z.string(),

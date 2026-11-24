@@ -1,0 +1,329 @@
+{
+  "alignment": [
+    {
+      "alignment": "auto",
+      "granularity": "words",
+      "noteId": "full-ripe",
+      "parts": [
+        {
+          "autoDetail": "accepted: 7 boundaries",
+          "boundaries": [
+            413,
+            569,
+            818,
+            865,
+            899,
+            1035,
+            1282
+          ],
+          "fromWord": 4,
+          "line": 1,
+          "method": "auto",
+          "projection": "sheared",
+          "s": 0.8,
+          "toWord": 5
+        }
+      ]
+    },
+    {
+      "alignment": "lines",
+      "granularity": "lines",
+      "noteId": "when-tender",
+      "parts": [
+        {
+          "autoDetail": "alignment ambiguous: 6th widest run 12, next 12, 1.5 x median of the rest 8.5 = 12.75",
+          "boundaries": [],
+          "fromWord": 6,
+          "line": 7,
+          "method": "lines",
+          "projection": "sheared",
+          "reason": "alignment ambiguous: 6th widest run 12, next 12, 1.5 x median of the rest 8.5 = 12.75",
+          "s": 0.8,
+          "toWord": 6
+        },
+        {
+          "autoDetail": "accepted: 7 boundaries",
+          "boundaries": [
+            217,
+            467,
+            604,
+            723,
+            1098,
+            1228,
+            1496
+          ],
+          "fromWord": 0,
+          "line": 8,
+          "method": "auto",
+          "projection": "sheared",
+          "s": 0.8,
+          "toWord": 0
+        }
+      ]
+    },
+    {
+      "alignment": "lines",
+      "granularity": "lines",
+      "noteId": "looks-red-smooth",
+      "parts": [
+        {
+          "autoDetail": "alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 8 = 12",
+          "boundaries": [],
+          "fromWord": 6,
+          "line": 9,
+          "method": "lines",
+          "projection": "sheared",
+          "reason": "alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 8 = 12",
+          "s": 0.8,
+          "toWord": 8
+        },
+        {
+          "autoDetail": "alignment ambiguous: 6th widest run 15, next 15, 1.5 x median of the rest 11 = 16.5",
+          "boundaries": [],
+          "fromWord": 0,
+          "line": 10,
+          "method": "lines",
+          "projection": "sheared",
+          "reason": "alignment ambiguous: 6th widest run 15, next 15, 1.5 x median of the rest 11 = 16.5",
+          "s": 0.8,
+          "toWord": 2
+        }
+      ]
+    }
+  ],
+  "at": "2026-11-24T19:14:08.283Z",
+  "disagreements": 0,
+  "goldCheck": {
+    "differing": [],
+    "equal": 11,
+    "informational": true,
+    "of": 11
+  },
+  "inputs": {
+    "fallback": "b5e2d702691e0b8a95946a5b039e198035a323a5a604b259e0f5dca095858cac",
+    "lines": "9afea4c817bbfe31ce13e7249de70347e6eb789fac2bdd6e8aa7efc7f0b35b2c",
+    "page": "b3f76797227163567b1edc7b72f410a239287f555234c2e79fc395469c632015"
+  },
+  "outputs": {
+    "notes/note-full-ripe.json": "f76718cb7f5fadf1f667cee233d4dd80ae7a528ebcc5b81c56b2b178ad107273",
+    "notes/note-full-ripe.png": "7c4dcf88ad9b950428ee329b216c498846b1214207e0efb8a779b5c94db1584f",
+    "notes/note-full-ripe.toi.png": "39e2188f9be35f6601e39390dcb715366d79b4f0fe1e8e8f10b4164091947e8f",
+    "notes/note-looks-red-smooth.json": "68c0924366fb5e4d2963c7de78192d0cee643b4dcf00092e439858f046c534a0",
+    "notes/note-looks-red-smooth.png": "55856a35cffb33ec5f5e5e791e57ab0002a6ac5c86df3e9874a2977bc4afa792",
+    "notes/note-looks-red-smooth.toi.png": "54e5d45452aef756bdb57cf9087fd949b0a654623fb92ec915f2938a9dc55e31",
+    "notes/note-when-tender.json": "36b2331cda26f6e8c1b49157e028f03a5a265bf3ad955798a35234fec8c6e074",
+    "notes/note-when-tender.png": "58bb5468e02c373280c84c13d0c2f5f9e17628f2e98a5bb19a39660751e2f930",
+    "notes/note-when-tender.toi.png": "404fd009adb564e0452011a250bd91618722f3fd50665e5dbe2ed30064e7ae18"
+  },
+  "ownership": {
+    "autoPass": 0,
+    "reviewedPass": 0
+  },
+  "pass": false,
+  "propsVersion": "1",
+  "readers": [
+    "fallback"
+  ],
+  "recall": [
+    {
+      "auto": {
+        "notUsed": "line 9: alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 8 = 12; line 10: alignment ambiguous: 6th widest run 15, next 15, 1.5 x median of the rest 11 = 16.5",
+        "rejectedCandidate": {
+          "boundaries": [
+            {
+              "boundaries": [
+                320,
+                356,
+                649,
+                948,
+                1088,
+                1230,
+                1265,
+                1298
+              ],
+              "line": 9
+            },
+            {
+              "boundaries": [
+                430,
+                634,
+                805,
+                1039,
+                1096,
+                1382
+              ],
+              "line": 10
+            }
+          ],
+          "recall": 0.8177029804727647,
+          "words": [
+            {
+              "maskPx": 138,
+              "precision": 0,
+              "rawPx": 1107,
+              "recall": 0,
+              "word": "till"
+            },
+            {
+              "maskPx": 300,
+              "precision": 0.15,
+              "rawPx": 309,
+              "recall": 0.6051779935275081,
+              "word": "it"
+            },
+            {
+              "maskPx": 2373,
+              "precision": 0.9852507374631269,
+              "rawPx": 2650,
+              "recall": 0.929811320754717,
+              "word": "Looks"
+            },
+            {
+              "maskPx": 1005,
+              "precision": 0.8069651741293532,
+              "rawPx": 828,
+              "recall": 1,
+              "word": "red"
+            },
+            {
+              "maskPx": 1403,
+              "precision": 0.39344262295081966,
+              "rawPx": 566,
+              "recall": 0.9929328621908127,
+              "word": "&"
+            },
+            {
+              "maskPx": 1773,
+              "precision": 0.8584320360970107,
+              "rawPx": 2324,
+              "recall": 1,
+              "word": "smooth"
+            }
+          ]
+        }
+      },
+      "frame": "fixture frame; shipped alpha looked up through the applied deskew rotation (1.6 deg, nearest pixel)",
+      "noteId": "looks-red-smooth",
+      "shipped": {
+        "alignment": "lines",
+        "recall": 0.9802158273381295,
+        "words": [
+          {
+            "maskPx": 0,
+            "precision": null,
+            "rawPx": 1107,
+            "recall": 0.981029810298103,
+            "word": "till"
+          },
+          {
+            "maskPx": 0,
+            "precision": null,
+            "rawPx": 309,
+            "recall": 0.6051779935275081,
+            "word": "it"
+          },
+          {
+            "maskPx": 0,
+            "precision": null,
+            "rawPx": 2650,
+            "recall": 0.9973584905660378,
+            "word": "Looks"
+          },
+          {
+            "maskPx": 0,
+            "precision": null,
+            "rawPx": 828,
+            "recall": 1,
+            "word": "red"
+          },
+          {
+            "maskPx": 0,
+            "precision": null,
+            "rawPx": 566,
+            "recall": 0.9929328621908127,
+            "word": "&"
+          },
+          {
+            "maskPx": 0,
+            "precision": null,
+            "rawPx": 2324,
+            "recall": 1,
+            "word": "smooth"
+          }
+        ]
+      },
+      "threshold": 0.85
+    }
+  ],
+  "recipeId": "quinces-marmalade",
+  "results": {
+    "P1": {
+      "detail": "5 steps cover 11 lines; 3 notes, one mask each",
+      "pass": true
+    },
+    "P2": {
+      "detail": "3 notes inside the 1601x2052 page",
+      "pass": true
+    },
+    "P3": {
+      "detail": "joined strokes: needs review (full-ripe: split share 0.2201 over 0.02, components 1794062; when-tender: split share 0.0496 over 0.02, components 2287181,2324313,2551877; looks-red-smooth: split share 0.1093 over 0.02, components 2551877,2658036,2765987)",
+      "pass": false
+    },
+    "P4": {
+      "detail": "full-ripe: 3109 lit px, all owned by the quoted words or within the shell | when-tender: 44941 lit px, all owned by the quoted words or within the shell | looks-red-smooth: 43546 lit px, all owned by the quoted words or within the shell; recall 0.9802 >= 0.85",
+      "pass": true
+    },
+    "P5": {
+      "detail": "contrast full-ripe: 85; full-ripe/line 1: 84 | contrast when-tender: 84; when-tender/line 7: 84; when-tender/line 8: 85 | contrast looks-red-smooth: 84; looks-red-smooth/line 9: 84; looks-red-smooth/line 10: 86",
+      "pass": true
+    },
+    "P6": {
+      "detail": "full-ripe: 3109 px timed, path coverage 1.000 | when-tender: 44941 px timed, path coverage 1.000 | looks-red-smooth: 43546 px timed, path coverage 1.000",
+      "pass": true
+    }
+  },
+  "segmentRun": {
+    "id": "sr-07e3ef462278",
+    "stripsHash": "e02d0e3532a4c77054665007dffd24c8621b99d359f67e3a999fe4149bc9f515"
+  },
+  "splits": {
+    "notes": [
+      {
+        "flagged": [
+          1794062
+        ],
+        "maskPx": 1545,
+        "noteId": "full-ripe",
+        "share": 0.22006472491909385,
+        "splitPx": 340,
+        "status": "failed"
+      },
+      {
+        "flagged": [
+          2287181,
+          2324313,
+          2551877
+        ],
+        "maskPx": 20887,
+        "noteId": "when-tender",
+        "share": 0.049600229808014554,
+        "splitPx": 1036,
+        "status": "failed"
+      },
+      {
+        "flagged": [
+          2551877,
+          2658036,
+          2765987
+        ],
+        "maskPx": 20819,
+        "noteId": "looks-red-smooth",
+        "share": 0.10932321437148758,
+        "splitPx": 2276,
+        "status": "failed"
+      }
+    ],
+    "segmentSplits": 16
+  },
+  "state": "fail"
+}

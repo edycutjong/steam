@@ -2,7 +2,7 @@
 // writes none. The CLI writes what it returns, decodes the written PNGs again and calls `verifyWritten`.
 
 import { Alignment as AlignmentZ, Fallback, Lines, OwnershipReview, Reading, Scribe, Source, TRACE_DESCRIPTION, type Gate, type NoteJson } from '../data/schema.ts'
-import { alignPart, matchFixtureWords, noteAlignment, scoreAgainstFixture, type FixtureScore, type FixtureWord, type PartAlignment } from './align.ts'
+import { alignPart, candidateBoundaries, matchFixtureWords, noteAlignment, scoreAgainstFixture, type FixtureScore, type FixtureWord, type PartAlignment } from './align.ts'
 import { verifyUrl } from './bundle.ts'
 import { canonicalJson } from './canon.ts'
 import { pixelSha256, rotatedPoint, toGray, type Gray, type Rgba } from './image.ts'
@@ -355,18 +355,13 @@ export function runGate(ctx: GateCtx): GateResult {
       const y = (i - x) / W
       const line = own.owner[i]!
       const part = partsForWords.find((p) => p.line === line)!
-      let wi = 0
-      if (!part.whole) {
-        const c = Math.round(x - s * ((seg.bands.cores[line]![0] + seg.bands.cores[line]![1]) / 2 - y))
-        let j = 0
-        while (j < part.boundaries.length && c > part.boundaries[j]!) j++
-        wi = j - part.fromWord
-      } else {
-        // whole line: word index by the line's own runs is not known; count as the part's first word
-        wi = 0
-      }
+      // a whole-line part has no word regions: its pixels carry no word and no precision is computed for them
+      if (part.whole) continue
+      const c = Math.round(x - s * ((seg.bands.cores[line]![0] + seg.bands.cores[line]![1]) / 2 - y))
+      let j = 0
+      while (j < part.boundaries.length && c > part.boundaries[j]!) j++
       const [fx, fy] = rotatedPoint(x, y, tilt, W, H)
-      maskWords.push({ x: Math.round(fx), y: Math.round(fy), word: bases.get(line)! + wi })
+      maskWords.push({ x: Math.round(fx), y: Math.round(fy), word: bases.get(line)! + j - part.fromWord })
     }
     return scoreAgainstFixture(raw0!, ctx.scan.width, words, offset, lit, maskWords)
   }
@@ -421,7 +416,22 @@ export function runGate(ctx: GateCtx): GateResult {
         else {
           const autoParts = nd.parts.map((p) => alignPart({ line: p.line, fromWord: p.fromWord, toWord: p.toWord, tokenCount: p.tokenCount, k: p.k, runs: effRuns[p.line]!.runs }))
           const an = noteAlignment(autoParts)
-          if (an.alignment !== 'auto') auto = { notUsed: autoParts.map((p) => p.autoDetail).join('; ') }
+          if (an.alignment !== 'auto') {
+            // score the rejected candidate (widest k-1 runs, no acceptance test) for the record only
+            const cand = nd.parts.map((p) => ({ p, b: p.k !== null && !(p.fromWord === 0 && p.toWord === p.tokenCount - 1) ? candidateBoundaries(effRuns[p.line]!.runs, p.k) : [] }))
+            let rejectedCandidate: { recall: number; words: FixtureScore['words']; boundaries: { line: number; boundaries: number[] }[] } | null = null
+            if (cand.every((c) => c.b !== null)) {
+              const cbp: BuiltPart[] = cand.map(({ p, b }) => ({ line: p.line, fromWord: p.fromWord, toWord: p.toWord, method: 'auto', boundaries: b!, whole: b!.length === 0, autoDetail: 'rejected candidate' }))
+              const cm = noteMask(own, seg.bands, s, cbp)
+              const cn2 = buildNote({
+                noteId: nd.id, step: nd.step, span: nd.span, shownText: nd.quoted, granularity: 'words', alignment: 'auto', credit: source.credit,
+                scan: sf.scan, gray, raw, pageInk: seg.pageInkMap, own, bands: seg.bands, s, resampled: seg.deskewApplied, parts: cbp, ownership: noteOwnership(own, seg.labels, nd.id, cm),
+              })
+              const sc3 = scoreOf(cn2, cbp, matchFixtureWords(nd.quoted, hero.words) ?? 0, hero.words)
+              rejectedCandidate = { recall: sc3.recall, words: sc3.words, boundaries: cbp.map((c) => ({ line: c.line, boundaries: c.boundaries })) }
+            }
+            auto = { notUsed: autoParts.map((p) => `line ${p.line}: ${p.autoDetail}`).join('; '), rejectedCandidate }
+          }
           else {
             const abp = autoParts.map((p) => ({ ...p, whole: false }))
             const am = noteMask(own, seg.bands, s, abp)
@@ -530,6 +540,6 @@ export function runGate(ctx: GateCtx): GateResult {
   const revTxt = reviewed.map((r) => `${r.note} reviewed (${r.components} components by ${r.reviewer})`).join(' · ')
   const logDetail = pass
     ? ['P1-P6 ok', recallTxt, revTxt].filter(Boolean).join(' · ')
-    : [`failing ${failing.join(',')}`, ...failing.map((k) => `${k}: ${results[k].detail.split(' | ')[0]!.slice(0, 160)}`), recallTxt].filter(Boolean).join(' · ')
+    : [`failing ${failing.join(',')}`, ...failing.map((k) => `${k}: ${results[k].detail}`), recallTxt].filter(Boolean).join(' · ')
   return { state: pass ? 'pass' : 'fail', gate, artifacts, checks, firstFailure, logDetail }
 }

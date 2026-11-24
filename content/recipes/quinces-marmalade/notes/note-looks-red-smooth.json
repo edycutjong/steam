@@ -1,0 +1,65 @@
+{
+  "alignment": "lines",
+  "granularity": "lines",
+  "groups": [
+    {
+      "coreBand": [
+        57,
+        82
+      ],
+      "inkPx": 10156,
+      "line": 9,
+      "rect": [
+        32,
+        32,
+        1244,
+        103
+      ],
+      "t": [
+        0,
+        0.5083934866543562
+      ],
+      "words": "line"
+    },
+    {
+      "coreBand": [
+        123,
+        143
+      ],
+      "inkPx": 10663,
+      "line": 10,
+      "rect": [
+        58,
+        88,
+        1231,
+        183
+      ],
+      "t": [
+        0.5083934866543562,
+        1
+      ],
+      "words": "line"
+    }
+  ],
+  "noteId": "looks-red-smooth",
+  "pageBox": [
+    273,
+    1600,
+    1549,
+    1815
+  ],
+  "resampled": true,
+  "shownText": "to the Quinces, & boil it till it Looks red & smooth, keeping it stirred all",
+  "size": [
+    1276,
+    215
+  ],
+  "source": "Wellcome Collection",
+  "span": "till it Looks red & smooth",
+  "splitShare": 0.10932321437148758,
+  "splitStatus": "failed",
+  "step": 5,
+  "trace": "a path traced from the ink, left to right",
+  "verifyApproximate": true,
+  "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:15.6878,77.2447,80.0441,12.2098/full/0/default.jpg"
+}

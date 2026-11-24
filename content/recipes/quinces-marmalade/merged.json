@@ -1,0 +1,119 @@
+{
+  "disagreements": [],
+  "lines": [
+    {
+      "i": 0,
+      "merged": "To make Marmalade of Quinces",
+      "primary": "To make Marmalade of Quinces",
+      "wordCount": 5
+    },
+    {
+      "i": 1,
+      "merged": "Let your quinces be full ripe, then wipe",
+      "primary": "Let your quinces be full ripe, then wipe",
+      "wordCount": 8
+    },
+    {
+      "i": 2,
+      "merged": "them, & pare them, & Quarter them, then",
+      "primary": "them, & pare them, & Quarter them, then",
+      "wordCount": 8
+    },
+    {
+      "i": 3,
+      "merged": "take out the Cores and seeds, & boil the",
+      "primary": "take out the Cores and seeds, & boil the",
+      "wordCount": 9
+    },
+    {
+      "i": 4,
+      "merged": "Pareings & seeds in Spring water, strain",
+      "primary": "Pareings & seeds in Spring water, strain",
+      "wordCount": 7
+    },
+    {
+      "i": 5,
+      "merged": "the Liquor, & weigh your Quinces, with",
+      "primary": "the Liquor, & weigh your Quinces, with",
+      "wordCount": 7
+    },
+    {
+      "i": 6,
+      "merged": "the same weight of dry L. Sugar, boil",
+      "primary": "the same weight of dry L. Sugar, boil",
+      "wordCount": 8
+    },
+    {
+      "i": 7,
+      "merged": "the Quince, in that Liquor, & when",
+      "primary": "the Quince, in that Liquor, & when",
+      "wordCount": 7
+    },
+    {
+      "i": 8,
+      "merged": "Tender, mash them, & then put your sug.r",
+      "primary": "Tender, mash them, & then put your sug.r",
+      "wordCount": 8
+    },
+    {
+      "i": 9,
+      "merged": "to the Quinces, & boil it till it Looks",
+      "primary": "to the Quinces, & boil it till it Looks",
+      "wordCount": 9
+    },
+    {
+      "i": 10,
+      "merged": "red & smooth, keeping it stirred all",
+      "primary": "red & smooth, keeping it stirred all",
+      "wordCount": 7
+    },
+    {
+      "i": 11,
+      "merged": "The time it Boils",
+      "primary": "The time it Boils",
+      "wordCount": 4
+    }
+  ],
+  "readerUncertain": [
+    {
+      "alt": [
+        "Parings",
+        "Parcings"
+      ],
+      "line": 4,
+      "reader": "fallback",
+      "token": "Pareings"
+    },
+    {
+      "alt": [
+        "E."
+      ],
+      "line": 6,
+      "reader": "fallback",
+      "token": "L."
+    },
+    {
+      "alt": [
+        "sugar"
+      ],
+      "line": 8,
+      "reader": "fallback",
+      "token": "sug.r"
+    },
+    {
+      "alt": [
+        "stirr'd"
+      ],
+      "line": 10,
+      "reader": "fallback",
+      "token": "stirred"
+    }
+  ],
+  "readers": [
+    "fallback"
+  ],
+  "segmentRun": {
+    "id": "sr-07e3ef462278",
+    "stripsHash": "e02d0e3532a4c77054665007dffd24c8621b99d359f67e3a999fe4149bc9f515"
+  }
+}
