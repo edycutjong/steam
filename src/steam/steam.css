@@ -1,0 +1,177 @@
+/* The steamed window. Colours come only from the design tokens in index.css.
+   Wood is gradients: no 1 px borders and no outline-like box shadows (R5.5). */
+
+.steam-root {
+  --upper-h: 36dvh;
+  --bar: clamp(10px, 2.2vw, 22px);
+  --rail: clamp(10px, 2.2dvh, 20px);
+  --wood: color-mix(in srgb, var(--rule) 82%, var(--bg));
+  --wood-lip: color-mix(in srgb, var(--rule) 78%, var(--muted));
+  --grain: repeating-linear-gradient(
+    90deg,
+    transparent 0 5px,
+    color-mix(in srgb, var(--bg) 14%, transparent) 5px 6px,
+    transparent 6px 11px
+  );
+  display: grid;
+  grid-template-rows: var(--upper-h) auto minmax(0, 1fr) auto auto;
+  height: 100dvh;
+  min-height: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Literata', Georgia, serif;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .steam-root {
+    --upper-h: 24dvh;
+  }
+}
+
+/* Sash: left and right bars frame the glass. */
+.sash {
+  position: relative;
+  min-height: 0;
+  padding: 0 var(--bar);
+}
+
+.sash::before,
+.sash::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--bar);
+  background:
+    var(--grain),
+    linear-gradient(90deg, var(--wood-lip) 0%, var(--wood) 22%, var(--wood) 78%, var(--bg) 100%);
+  pointer-events: none;
+}
+
+.sash::before {
+  left: 0;
+}
+
+.sash::after {
+  right: 0;
+  transform: scaleX(-1);
+}
+
+/* Upper sash: the night outside, never fogged. */
+.sash--upper {
+  background: var(--night);
+  overflow: hidden;
+}
+
+.moon {
+  position: absolute;
+  right: 22%;
+  bottom: 14%;
+  width: clamp(56px, 16vmin, 140px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  opacity: 0.96;
+  background: radial-gradient(
+    circle at 38% 36%,
+    var(--moon) 0%,
+    var(--moon) 55%,
+    color-mix(in srgb, var(--moon) 80%, var(--night)) 100%
+  );
+}
+
+/* Rails: the meeting rail between the sashes and the bottom rail under the glass. */
+.rail {
+  height: var(--rail);
+  background:
+    var(--grain),
+    linear-gradient(180deg, var(--wood-lip) 0%, var(--wood) 30%, var(--wood) 100%);
+}
+
+.rail--bottom {
+  background:
+    var(--grain),
+    linear-gradient(180deg, var(--wood) 0%, var(--wood) 70%, var(--bg) 100%);
+}
+
+/* Lower sash: the glass. The canvas fills it. */
+.sash--lower {
+  background: var(--bg);
+}
+
+.steam-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.static-pane {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.static-pane img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+/* Footer: the credit and the one control, below the glass so they never cover the writing. */
+.steam-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding: 12px var(--bar) 16px;
+}
+
+.credit {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.credit-note {
+  display: block;
+}
+
+.load-error {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.wipe-btn {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0 28px;
+  height: 56px;
+  border: 0;
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--rule) 70%, var(--bg));
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.wipe-btn[aria-disabled='true'] {
+  color: var(--muted);
+  cursor: default;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

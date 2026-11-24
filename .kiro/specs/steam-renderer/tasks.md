@@ -137,7 +137,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/renderer.test.ts`.
   - Satisfies: R14.5, R14.6, R14.8.
 
-- [ ] 25. Pane styles: sash frame, rails, upper sash and moon
+- [x] 25. Pane styles: sash frame, rails, upper sash and moon
   - Add CSS for the sash bars and rails from `--rule` using gradients only, the upper sash in `--night` with the moon (`--moon` at 0.96), the layout split (36% desktop, 24% phone), and the button style with `min-width/min-height: 48px`. No `border: 1px`, no outline-like box shadow.
   - Files: `src/steam/steam.css`.
   - Satisfies: R4.4, R5.1, R5.5, R5.6, R10.1, R13.1 to R13.3, R21.5.
