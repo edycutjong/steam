@@ -74,7 +74,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/assets.ts`.
   - Satisfies: R17.1, R17.4, R17.6, R17.7.
 
-- [ ] 13. Derive: channel alpha, toi propagation, pressure
+- [x] 13. Derive: channel alpha, toi propagation, pressure
   - Implement the disc dilation, nearest-ink toi and pressure propagation, and separable box softening, into preallocated arrays. Blend 12% scan darkness into pressure.
   - Files: `src/steam/derive.ts`.
   - Satisfies: R7.2, R7.7, R18.1, R18.2.
