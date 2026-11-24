@@ -12,3 +12,8 @@
 2026-11-24T19:46:43.000Z · word-align-speck · quinces-marmalade · pass P5 when-tender/line 8: 78 (was no background); line 8 extent 301-1514 (was 127-1514, three specks of 1, 1, 2 px at x 126 ignored); auto alignment accepted with every word box over the floor 30
 2026-11-24T19:49:39.143Z · cli · quinces-marmalade · pass P1-P6 ok · recall 0.9802 · full-ripe reviewed (1 components by Kiro (agent), turn-18) · looks-red-smooth reviewed (3 components by Kiro (agent), turn-18) · no-op (inputs unchanged)
 2026-11-24T19:57:29.018Z · watch · quinces-marmalade · pass P1-P6 ok · recall 0.9802 · full-ripe reviewed (1 components by Kiro (agent), turn-18) · looks-red-smooth reviewed (3 components by Kiro (agent), turn-18) · no-op (inputs unchanged)
+2026-11-24T20:07:21.642Z · catalog-gate · content/catalog.json · blocked: quinces-marmalade: no valid review.json with a reviewedBy (a person reviews a recipe; an agent does not write it)
+2026-11-24T20:07:22.084Z · no-imitation · src/steam/zz-hook-probe-voice.ts · blocked: speechSynthesis (line 1), SpeechSynthesisUtterance (line 1)
+2026-11-24T20:07:22.088Z · no-imitation · src/steam/zz-hook-probe-ok.ts · pass (no speech synthesis, handwriting font or handwriting package)
+2026-11-24T20:07:22.585Z · props-on-save · zz-hook-probe ← content/recipes/zz-hook-probe/agent/scribe.json · error content/recipes/zz-hook-probe: source.json and lines.json are needed (run fetch and segment)
+2026-11-24T20:07:23.029Z · props-on-save · zz-hook-probe ← content/recipes/zz-hook-probe/agent/scribe.json · error content/recipes/zz-hook-probe: source.json and lines.json are needed (run fetch and segment)
