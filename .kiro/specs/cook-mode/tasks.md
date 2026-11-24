@@ -61,7 +61,7 @@ Rules for every task:
   - Files: `src/data/reading.ts`, `src/data/reading.test.ts`.
   - Satisfies: R6.3, R6.6, R23.3.
 
-- [ ] 9. Quote segments and K2
+- [x] 9. Quote segments and K2
   - Test first: `quoteSegments` on the three real notes: the hero gives "till it Looks" + " " + "red & smooth," whose `primaryText` equals `shownText` and, without the trailing comma, `span`; `full-ripe` and `when-tender` likewise. A note whose words touch a marker keeps the marker whole (use a variation of the bundle where `groups[].words` covers "Cores"). `words: 'line'` takes the whole line. `src/data/reading.prop.test.ts` (K2): lossless round trip, mark count equals `†[` count, `primaryText` equals the marker-replaced string; on the real bundle, every step without a `corrected` line has `primaryText` of its joined `corrected ?? merged` lines equal to `steps[n-1].text`.
   - Implement `quoteSegments` in `src/data/reading.ts`.
   - Files: `src/data/reading.ts`, `src/data/reading.test.ts`, `src/data/reading.prop.test.ts`.
