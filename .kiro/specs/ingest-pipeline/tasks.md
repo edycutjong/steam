@@ -242,7 +242,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `tools/steam-ingest/cli.ts`, `tools/steam-ingest/gate.ts`, `package.json`, `.github/workflows/ci.yml`.
   - Satisfies: R38.1 to R38.5.
 
-- [ ] 41. `catalog` subcommand
+- [x] 41. `catalog` subcommand
   - Test first: refuses a recipe with a failing, stale, or hash-mismatched `gate.json`; refuses an agent-transcribed recipe without `review.json`, with an empty `reviewedBy`, or whose `gateSha256` is not the current gate's; accepts the fallback recipe without a review; writes `content/catalog.json` sorted and `recipe.json`; copies the public bundle; removes stale public files of a refused recipe; verifies everything before writing anything; a source-scan test finds no other writer of `content/catalog.json`.
   - Implement `tools/steam-ingest/catalog.ts`.
   - Files: `tools/steam-ingest/catalog.ts`, `tools/steam-ingest/catalog.test.ts`.
