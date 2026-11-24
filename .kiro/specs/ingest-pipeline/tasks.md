@@ -212,7 +212,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `tools/steam-ingest/fetch.ts`, `tools/steam-ingest/fetch.test.ts`.
   - Satisfies: R3.1 to R3.5, R4.1 to R4.6, R40.1.
 
-- [ ] 36. `segment` subcommand
+- [x] 36. `segment` subcommand
   - Test first: run on `fixtures/p0033.jpg`; assert only structural facts (files exist, schema valid, region inside the page, canonical JSON, second run is byte-identical, `segmentRun` stable); write the measured line count, block count, marginalia count, deskew angle, slant, split count and hero split share to `docs/kiro-evidence/ingest/measurements.json`; print the region (R5.7). If the measured line count is not the 12 the design predicts, record it and stop to review before any parameter is touched.
   - Implement `tools/steam-ingest/segment.ts`; write `lines.json`, `region.json`, `runs.json`, `strips/`, `ownership/`.
   - Files: `tools/steam-ingest/segment.ts`, `tools/steam-ingest/segment.test.ts`, `docs/kiro-evidence/ingest/measurements.json`.

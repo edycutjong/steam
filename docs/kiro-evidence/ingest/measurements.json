@@ -1,0 +1,49 @@
+{
+  "segment": {
+    "blockCount": 2,
+    "blockIndex": 1,
+    "blockLineCounts": [
+      13,
+      12
+    ],
+    "deskewApplied": true,
+    "deskewDeg": 1.6,
+    "lineCount": 12,
+    "marginaliaCount": 0,
+    "outsideRegionInkPx": 334406,
+    "pageLineCount": 25,
+    "pitch": 66.5,
+    "region": {
+      "columns": [
+        116,
+        1537
+      ],
+      "rows": [
+        1029,
+        1853
+      ]
+    },
+    "segmentRun": {
+      "id": "sr-07e3ef462278",
+      "stripsHash": "e02d0e3532a4c77054665007dffd24c8621b99d359f67e3a999fe4149bc9f515"
+    },
+    "selectedBy": "curator",
+    "separators": [
+      {
+        "columns": [
+          800,
+          1372
+        ],
+        "method": "row-run",
+        "rows": [
+          996,
+          1000
+        ]
+      }
+    ],
+    "slant": 0.8,
+    "slantVertical": false,
+    "source": "tools/steam-ingest/segment.test.ts on fixtures/p0033.jpg, --block 1",
+    "splitCount": 16
+  }
+}
