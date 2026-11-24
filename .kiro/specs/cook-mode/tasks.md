@@ -49,7 +49,7 @@ Rules for every task:
   - Files: `src/data/provenance.ts`, `src/data/provenance.test.ts`.
   - Satisfies: R22.1, R22.2, R22.4.
 
-- [ ] 7. P8 property test
+- [x] 7. P8 property test
   - Test first: `src/data/provenance.prop.test.ts`: generators edit the real bundle (licence id, manifest, canvas id and size, frame, `verifyBox`, each `provenance` field, field deletion). Assert P8.1 to P8.5 of `design.md` against an independent predicate written in the test. P8.6 is asserted in task 31 (where the lists exist) and noted here as a pending case. Mutation check: temporarily change the licence set, the floor to a round, and the 1 px agreement bound, and see the property fail each time; record the three failing runs in the task's commit message, then restore.
   - Implement: nothing new; fix what the property finds.
   - Files: `src/data/provenance.prop.test.ts`.

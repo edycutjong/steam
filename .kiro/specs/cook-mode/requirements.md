@@ -308,7 +308,7 @@ The bundle lacks four things that the app needs. They are added at catalog time,
 3. THE SYSTEM SHALL produce `verifyBox` and the percentage URL from one computation, so that the two cannot disagree. A test SHALL check that regenerating the bundle leaves `gateSha256` unchanged and changes no file of `content/recipes/quinces-marmalade/` that `gate.json` hashes.
 4. THE SYSTEM SHALL build the region URL as `{imageService}/{x},{y},{w},{h}/full/0/default.jpg`, with `x = floor(vx·sx)`, `y = floor(vy·sy)`, `x1 = ceil((vx+vw)·sx)`, `y1 = ceil((vy+vh)·sy)` clipped to the canvas, `w = x1−x`, `h = y1−y`, `sx = canvas.width / frame.width`, `sy = canvas.height / frame.height`, so that the crop contains every pixel of the note's box. All four numbers are integers and `w`, `h` ≥ 1.
 5. THE SYSTEM SHALL compute the region in `src/data/provenance.ts` by the pure `regionOf(bundle, note)` and `regionUrl(bundle, note)`.
-6. THE SYSTEM SHALL agree with the percentage `verifyUrl` of the bundle: each edge of the pixel region SHALL be within 1 canvas px of the corresponding percentage times the canvas size.
+6. THE SYSTEM SHALL agree with the percentage `verifyUrl` of the bundle: each edge of the pixel region SHALL be within 1 canvas px of the corresponding percentage times the canvas size, plus the rounding of the 4-decimal percentage (at most 1e-6 × the canvas side).
 7. IF `source.canvas` or `verifyBox` is missing, THEN the schema SHALL fail and the recipe SHALL NOT be shown (R2.3); the app SHALL NOT guess a canvas width.
 
 ## R22. Property P8: every displayed note resolves to its source

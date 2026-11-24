@@ -159,7 +159,7 @@ x1 = clamp(ceil((vx+vw)·sx), 0, W)  y1 = clamp(ceil((vy+vh)·sy), 0, H)
 region = { x: x0, y: y0, w: x1−x0, h: y1−y0 }       // null when w < 1 or h < 1
 ```
 
-Floor and ceiling make the crop a superset of the scaled box, by less than 2 px per axis. The percentage URL names the same box with 4-decimal percentages, so each edge agrees within 1 canvas px (R21.6).
+Floor and ceiling make the crop a superset of the scaled box, by less than 2 px per axis. The percentage URL names the same box with 4-decimal percentages, so each edge agrees within 1 canvas px plus the rounding of the percentage, which is at most 1e-6 × the canvas side (0.004 px on the 3695×4737 canvas) (R21.6). The first version of this sentence said "within 1 canvas px" flat. The P8.4 property found a canvas 1 px wide where the gap was 1.0016, so the bound is stated with its rounding term.
 
 Worked example (recomputed by the task's test, not trusted from here): the hero note's committed `verifyUrl` is `…/pct:17.3617,77.2801,78.3701,10.7617/full/0/default.jpg`. On the 3695×4737 canvas that is x 641.51, y 3660.76, right 3537.29, bottom 4170.54, so the region is `641,3660,2897,511` and the link is `https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/641,3660,2897,511/full/0/default.jpg`.
 
@@ -641,7 +641,7 @@ Test: `src/cook/scheduler.prop.test.ts`, with the oracle and the generators in t
 1. A note is in `displayableNotes(bundle)` if and only if `resolveNote` is ok, which holds if and only if R22.2 holds, evaluated by an independent predicate in the test.
 2. For a displayable note, `parseRegionUrl(regionUrl)` returns exactly `{service: imageService, region}`; `region` is four integers, `w, h ≥ 1`, inside the canvas.
 3. The region contains the scaled `verifyBox`, and exceeds it by less than 2 canvas px on each edge, except where it is clipped to the canvas.
-4. Each region edge is within 1 canvas px of the percentage form of the note's `verifyUrl` times the canvas size.
+4. Each region edge is within 1 canvas px of the percentage form of the note's `verifyUrl` times the canvas size, plus the 4-decimal rounding of that percentage (at most 1e-6 × the canvas side; see §2.3).
 5. No displayable note has a licence id outside `pdm`, `cc0`, `cc-by`.
 6. The sets of note ids offered by the shelf's count, the edition view, the plan, and the quoted list are all equal to the displayable ids.
 
