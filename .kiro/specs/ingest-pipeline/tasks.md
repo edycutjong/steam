@@ -44,7 +44,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/licence.ts`, `src/ingest/licence.test.ts`.
   - Satisfies: R3.1, R3.2, R3.3, R3.4, R3.5.
 
-- [ ] 8. Row projection and line finding
+- [x] 8. Row projection and line finding
   - Test first: synthetic pages with N rows of random strokes at known pitch give N lines with peaks within 3 rows of the truth; core band = rows ≥ 60% of the peak; valley row is the minimum between neighbours (lowest index on a tie); cores never overlap; `lines.prop.test.ts` (S3) for random N, pitch, row thickness.
   - Implement `rowProfile`, `findLines` in `src/ingest/lines.ts`.
   - Files: `src/ingest/lines.ts`, `src/ingest/lines.test.ts`, `src/ingest/lines.prop.test.ts`.
