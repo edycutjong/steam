@@ -183,7 +183,7 @@ Rules for every task:
   - Files: `src/steam/assets.ts`, `src/steam/assets.test.ts`, `src/steam/SteamPane.tsx`, `src/steam/derive.test.ts`, `src/steam/hero.coverage.test.ts`.
   - Satisfies: R15.3, R15.9.
 
-- [ ] 28. Extract `SteamGlass`
+- [x] 28. Extract `SteamGlass`
   - Test first: `src/steam/SteamGlass.test.tsx` (happy-dom, `renderToString` where the DOM is not needed): no read of `window.location` (a spy on `location` getters throws); with `params = {t: null, lead: Infinity, fps: false}` on the `StaticPane` path (the renderer needs a GPU, the clock logic does not) the controller reports `fogged` after 3 s of fake time and never starts by itself, and `startReveal()` moves it to `writing`; with `lead: −WRITE_ON_MS` the first state is `holding`; `onReady` fires once. The existing `src/steam/*.test.ts` and the renderer e2e specs stay green with no change of meaning. Add `RevealClock` cases for `Infinity` and negative `lead` to `src/steam/timeline.test.ts` or a new `StaticPane.test.ts`.
   - Implement: move the renderer lifecycle, `StaticPane` choice and load error from `SteamPane.tsx` into `SteamGlass.tsx` with the props of R15.2; `SteamPane` composes `SteamGlass` and keeps its foot. Move `usePrefersReducedMotion` to `src/steam/useReducedMotion.ts`. Parametrise `.steam-root` height with `--glass-h` (default `100dvh`).
   - Files: `src/steam/SteamGlass.tsx`, `src/steam/SteamPane.tsx`, `src/steam/useReducedMotion.ts`, `src/steam/steam.css`, `src/steam/SteamGlass.test.tsx`.

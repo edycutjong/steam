@@ -9,12 +9,12 @@ import type { SteamParams } from './params.ts'
 import type { Phase, RevealState } from './timeline.ts'
 import { revealState, THICKEN_MS } from './timeline.ts'
 
-export const HERO_DIR = '/hero'
 export const CROSSFADE_MS = 600
 const STATE_PERIOD_MS = 100
 
-export function paneImage(kind: LayoutKind, which: 'fogged' | 'held' | 'wiped'): string {
-  return `${HERO_DIR}/pane-${kind}-${which}.webp`
+/** `<dir>/<noteId>-<kind>-<state>.webp`: one image per note, layout kind and state, made by `npm run static-panes` (R15.10). */
+export function paneImage(dir: string, noteId: string, kind: LayoutKind, which: 'fogged' | 'held' | 'wiped'): string {
+  return `${dir}/${noteId}-${kind}-${which}.webp`
 }
 
 /** Which of the stacked images are visible in a phase. Fogged is always the base. */
@@ -55,18 +55,34 @@ export class RevealClock {
 }
 
 interface Props {
+  /** Folder of the pane images and the note they belong to. */
+  paneDir: string
+  noteId: string
   params: SteamParams
   /** Receives the controller the button and Space key drive. */
   controllerRef: RefObject<{ startReveal(): void; wipe(): void } | null>
   onState: (s: RevealState) => void
+  /** Called once when the fogged image has decoded (or at once where decoding is unavailable). */
+  onReady?: () => void
   /** Show only the fogged image and run no clock (the note could not be loaded). */
   fogOnly?: boolean
 }
 
-export default function StaticPane({ params, controllerRef, onState, fogOnly = false }: Props) {
+export default function StaticPane({ paneDir, noteId, params, controllerRef, onState, onReady, fogOnly = false }: Props) {
   const rootRef = useRef<HTMLDivElement>(null)
   const [kind, setKind] = useState<LayoutKind>(() => chooseLayout(window.innerWidth))
   const [phase, setPhase] = useState<Phase>('fogged')
+  const fogRef = useRef<HTMLImageElement>(null)
+  const readyRef = useRef(onReady)
+  readyRef.current = onReady
+
+  // Ready when the fogged base image has decoded; a missing or broken image does not hold the reveal back.
+  useEffect(() => {
+    const img = fogRef.current
+    const done = (): void => readyRef.current?.()
+    if (img && typeof img.decode === 'function') void img.decode().then(done, done)
+    else done()
+  }, [paneDir, noteId, kind])
 
   useEffect(() => {
     const el = rootRef.current
@@ -112,9 +128,9 @@ export default function StaticPane({ params, controllerRef, onState, fogOnly = f
   })
   return (
     <div ref={rootRef} className="static-pane">
-      <img src={paneImage(kind, 'fogged')} alt="" aria-hidden="true" />
-      <img src={paneImage(kind, 'held')} alt="" aria-hidden="true" style={layer(show.held)} />
-      <img src={paneImage(kind, 'wiped')} alt="" aria-hidden="true" style={layer(show.wiped)} />
+      <img ref={fogRef} src={paneImage(paneDir, noteId, kind, 'fogged')} alt="" aria-hidden="true" />
+      <img src={paneImage(paneDir, noteId, kind, 'held')} alt="" aria-hidden="true" style={layer(show.held)} />
+      <img src={paneImage(paneDir, noteId, kind, 'wiped')} alt="" aria-hidden="true" style={layer(show.wiped)} />
     </div>
   )
 }

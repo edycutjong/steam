@@ -1,31 +1,15 @@
-// The steamed window: sash frame, upper sash, the canvas (or its static fallback), credit and load errors.
+// The spike's page: SteamGlass plus its chrome (credit, button, live region, URL reading). Cook Mode uses SteamGlass directly.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { loadNoteAssets } from './assets.ts'
-import type { NoteAssets } from './assets.ts'
-import { derive } from './derive.ts'
-import type { Derived } from './derive.ts'
-import { chooseLayout, computeLayout } from './layout.ts'
-import type { Layout } from './layout.ts'
 import { parseParams } from './params.ts'
-import { SteamRenderer } from './renderer.ts'
-import StaticPane from './StaticPane.tsx'
+import SteamGlass, { LOAD_FAILED } from './SteamGlass.tsx'
+import type { GlassStatus, RevealController } from './SteamGlass.tsx'
 import type { Phase, RevealState } from './timeline.ts'
 import './steam.css'
 
+export type { RevealController }
+export { LOAD_FAILED }
 export const NOTE_STEM = '/hero/note-looks-red-smooth'
 export const CREDIT = 'Wellcome Collection, Public Domain Mark'
-export const LOAD_FAILED = 'The note could not be loaded.'
-
-interface Loaded {
-  assets: NoteAssets
-  derived: Derived
-}
-
-/** What the button and the Space key drive. Implemented by the live renderer. */
-export interface RevealController {
-  startReveal(): void
-  wipe(): void
-}
 
 const SHOW = 'Show the note'
 const WIPE = 'Wipe the glass'
@@ -46,137 +30,42 @@ export function announcement(text: string): string {
   return `The writer's note, handwritten: ${text}`
 }
 
-/** Test-only: the placement in use, read by the e2e specs from `data-layout` on the canvas. */
-function publishLayout(canvas: HTMLCanvasElement, layout: Layout): void {
-  canvas.dataset.layout = JSON.stringify({
-    kind: layout.kind,
-    fits: layout.fits,
-    groups: layout.groups.map((g) => ({
-      index: g.index,
-      dst: g.dst,
-      inked: g.inked,
-      scale: g.scale,
-      coreBandCssPx: g.coreBandCssPx,
-    })),
-  })
+interface Props {
+  stem?: string
+  paneDir?: string
+  noteId?: string
+  /** The hash query without its leading "?" (the harness route), read in place of location. */
+  query?: string
 }
 
-type Status = 'loading' | 'ready' | 'error' | 'fallback'
-
-/** True while the user prefers reduced motion. Re-evaluated when the preference changes. */
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(
-    () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches,
-  )
-  useEffect(() => {
-    if (typeof matchMedia !== 'function') return
-    const mq = matchMedia('(prefers-reduced-motion: reduce)')
-    const onChange = (): void => setReduced(mq.matches)
-    onChange()
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
-  }, [])
-  return reduced
-}
-
-export default function SteamPane({ stem = NOTE_STEM }: { stem?: string }) {
+export default function SteamPane({ stem = NOTE_STEM, paneDir = '/hero', noteId = 'looks-red-smooth', query }: Props) {
   const params = useMemo(
-    () => (typeof window === 'undefined' ? parseParams('', '') : parseParams(window.location.search, window.location.hash)),
-    [],
+    () => (typeof window === 'undefined' ? parseParams('', '') : query !== undefined ? parseParams('', `#/?${query}`) : parseParams(window.location.search, window.location.hash)),
+    [query],
   )
-  const reducedMotion = usePrefersReducedMotion()
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [loaded, setLoaded] = useState<Loaded | null>(null)
-  const [failed, setFailed] = useState(false)
-  const [contextLost, setContextLost] = useState(false)
-  const [noWebGl, setNoWebGl] = useState(false)
   const [phase, setPhase] = useState<Phase>('fogged')
+  const [status, setStatus] = useState<GlassStatus>('loading')
   const [announced, setAnnounced] = useState('')
+  const [noteText, setNoteText] = useState('')
   const ctlRef = useRef<RevealController | null>(null)
   const phaseRef = useRef<Phase>('fogged')
-  const fpsRef = useRef<HTMLDivElement>(null)
   const frozen = params.t !== null
   const handleState = useCallback((st: RevealState): void => {
     phaseRef.current = st.phase
     setPhase(st.phase)
   }, [])
-  const noteText = loaded?.assets.meta.shownText ?? ''
 
-  // Load, validate and derive once.
+  // The shown words come from the note's own JSON.
   useEffect(() => {
-    const ctl = new AbortController()
-    loadNoteAssets(stem, undefined, ctl.signal)
-      .then((assets) => {
-        if (ctl.signal.aborted) return
-        const start = performance.now()
-        const derived = derive(assets.toi, assets.noteData)
-        // Read by scripts/measure-steam.ts (R15.5: the one-time derivation against its 50 ms budget).
-        performance.measure('steam:derive', { start, end: performance.now() })
-        setLoaded({ assets, derived })
-      })
-      .catch((e: unknown) => {
-        if (ctl.signal.aborted) return
-        console.error('steam: could not load the note', e)
-        setFailed(true)
-      })
-    return () => ctl.abort()
-  }, [stem])
-
-  const useStatic = reducedMotion || noWebGl || contextLost
-  const status: Status = failed ? 'error' : useStatic ? 'fallback' : loaded ? 'ready' : 'loading'
-
-  // Create the renderer once assets are in and the live path is selected.
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!loaded || !canvas || status !== 'ready') return
-    const { assets, derived } = loaded
-    const meta = assets.meta
-    const w = canvas.clientWidth
-    const h = canvas.clientHeight
-    const layout = computeLayout(chooseLayout(w), w, h, meta)
-    const renderer = SteamRenderer.create(
-      canvas,
-      { meta, note: assets.note, derived },
-      layout,
-      { dprCap: 2, frozenT: params.t, lead: params.lead },
-    )
-    if (!renderer) {
-      setNoWebGl(true)
-      return
-    }
-    renderer.resize(w, h, layout)
-    publishLayout(canvas, layout)
-    ctlRef.current = renderer
-    renderer.onState(handleState)
-    let fpsTimer = 0
-    if (params.fps) {
-      renderer.resetStats()
-      fpsTimer = window.setInterval(() => {
-        const el = fpsRef.current
-        const { frames, sumMs, worstMs, over } = renderer.stats
-        if (!el || frames === 0 || sumMs === 0) return
-        el.textContent = `${((frames * 1000) / sumMs).toFixed(1)} fps  worst ${worstMs.toFixed(1)} ms  over 18.2 ms: ${over}`
-      }, 250)
-    }
-    renderer.onContextLost(() => setContextLost(true))
-    if (params.t !== null) renderer.setClock(params.t)
-    renderer.play()
-
-    const ro = new ResizeObserver((entries) => {
-      const box = entries[0]?.contentRect
-      if (!box || box.width < 1 || box.height < 1) return
-      const next = computeLayout(chooseLayout(box.width), box.width, box.height, meta)
-      renderer.resize(box.width, box.height, next)
-      publishLayout(canvas, next)
-    })
-    ro.observe(canvas)
+    let live = true
+    fetch(`${stem}.json`)
+      .then((r) => r.json())
+      .then((j: { shownText?: string }) => live && setNoteText(j.shownText ?? ''))
+      .catch(() => {})
     return () => {
-      window.clearInterval(fpsTimer)
-      ro.disconnect()
-      ctlRef.current = null
-      renderer.dispose()
+      live = false
     }
-  }, [loaded, status, params, handleState])
+  }, [stem])
 
   const act = useCallback((): void => {
     const ctl = ctlRef.current
@@ -205,19 +94,7 @@ export default function SteamPane({ stem = NOTE_STEM }: { stem?: string }) {
 
   return (
     <section className="steam-root" aria-label="Steamed window">
-      <div className="sash sash--upper">
-        <div className="moon" />
-      </div>
-      <div className="rail rail--meeting" />
-      <div className="sash sash--lower">
-        {status === 'fallback' || status === 'error' ? (
-          <StaticPane params={params} controllerRef={ctlRef} onState={handleState} fogOnly={status === 'error'} />
-        ) : (
-          <canvas ref={canvasRef} className="steam-canvas" aria-hidden="true" />
-        )}
-        {params.fps ? <div ref={fpsRef} className="fps" /> : null}
-      </div>
-      <div className="rail rail--bottom" />
+      <SteamGlass stem={stem} paneDir={paneDir} noteId={noteId} params={params} controllerRef={ctlRef} onState={handleState} onStatus={setStatus} showError={false} />
       <div className="steam-foot">
         {status === 'error' ? <p className="load-error">{LOAD_FAILED}</p> : null}
         <p className="credit">{CREDIT}</p>

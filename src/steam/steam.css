@@ -15,7 +15,7 @@
   );
   display: grid;
   grid-template-rows: var(--upper-h) auto minmax(0, 1fr) auto auto;
-  height: 100dvh;
+  height: var(--glass-h, 100dvh);
   min-height: 0;
   background: var(--bg);
   color: var(--ink);
@@ -197,4 +197,11 @@
   font-size: 0.75rem;
   white-space: pre;
   pointer-events: none;
+}
+
+/* A load error drawn on the glass itself (SteamGlass with showError). */
+.load-error--glass {
+  position: absolute;
+  inset: auto var(--bar) 12px;
+  text-align: center;
 }
