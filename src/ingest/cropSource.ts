@@ -24,7 +24,7 @@ export interface CropNote {
   lines: number[]
   /** Word-level parts, when the note is word-aligned. Absent: every quoted line whole. */
   parts?: BuiltPart[]
-  /** An eye-read rectangle, only for notes that arrive with one (the prototype). The pipeline's notes never do. */
+  /** An eye-read rectangle, only for notes that arrive with one (the prototype). The pipeline's notes never do, and the default source ignores it. */
   box?: CropBox
 }
 
@@ -46,12 +46,12 @@ export interface Crop {
 }
 
 /**
- * The mode a note's crop is taken in when the caller does not name one.
- *
- * Current behaviour (the bug): a note that comes with a box is cropped by the box, as the prototype did.
+ * The mode a note's crop is taken in when the caller does not name one: always the ownership masks, whether or not
+ * the note arrives with a box. (The unfixed default was `note.box ? 'eyeread-box' : 'ownership'`.) The box is
+ * only ever used when a test names `{ mode: 'eyeread-box' }`.
  */
-export function defaultCropMode(note: Pick<CropNote, 'box'>): CropMode {
-  return note.box ? 'eyeread-box' : 'ownership'
+export function defaultCropMode(_note: Pick<CropNote, 'box'>): CropMode {
+  return 'ownership'
 }
 
 const wholePart = (line: number): BuiltPart => ({ line, fromWord: 0, toWord: 0, method: 'lines', boundaries: [], autoDetail: 'whole line', whole: true })

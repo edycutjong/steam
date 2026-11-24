@@ -1,0 +1,14 @@
+# crop-overlap, commit B: the same exploration test on the fixed code (GREEN)
+# command: npx vitest run src/ingest/cropOverlap.bug.test.ts --no-color
+# recorded: 2026-11-24T19:29:33Z, on the tree whose parent commit is 354f560; exit code follows the output
+
+
+ RUN  v5.1.1 /Users/edycu/Hackathon/devpost/devpost-kiroween/steam/build
+
+
+ Test Files  1 passed (1)
+      Tests  9 passed | 5 expected fail (14)
+   Start at  02:29:33
+   Duration  2.18s (import 57%, tests 40%, transform 2%)
+
+# exit code: 0

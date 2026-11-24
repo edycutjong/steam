@@ -307,6 +307,8 @@ export interface NoteBuildInput {
   s: number
   resampled: boolean
   parts: BuiltPart[]
+  /** The note's crop mask from `cropSource` (the bundle's crop source). Absent: built here from `parts`, the same ownership mask. */
+  mask?: Uint8Array
   ownership: NoteOwnership
 }
 
@@ -405,7 +407,7 @@ export function buildNote(inp: NoteBuildInput): BuiltNote {
   const { own, bands, scan } = inp
   const W = own.width
   const H = own.height
-  const mask = noteMask(own, bands, inp.s, inp.parts)
+  const mask = inp.mask ?? noteMask(own, bands, inp.s, inp.parts)
   let x0 = W
   let y0 = H
   let x1 = -1

@@ -4,6 +4,7 @@
 import { Alignment as AlignmentZ, Fallback, Lines, OwnershipReview, Reading, Scribe, Source, TRACE_DESCRIPTION, type Gate, type NoteJson } from '../data/schema.ts'
 import { alignPart, candidateBoundaries, matchFixtureWords, noteAlignment, scoreAgainstFixture, type FixtureScore, type FixtureWord, type PartAlignment } from './align.ts'
 import { verifyUrl } from './bundle.ts'
+import { cropSource, type CropPage } from './cropSource.ts'
 import { canonicalJson } from './canon.ts'
 import { pixelSha256, rotatedPoint, toGray, type Gray, type Rgba } from './image.ts'
 import { applyReview, noteOwnership, renderFlagCrop, type NoteOwnership, type Ownership, type ReviewInput } from './masks.ts'
@@ -15,7 +16,7 @@ import {
 import { runsOf, segmentRecipe, type SegmentFiles } from './segment.ts'
 import { sha256Hex } from './sha256.ts'
 import { rawInk } from './threshold.ts'
-import { buildNote, noteMask, type BuiltNote, type BuiltPart } from './timeofink.ts'
+import { buildNote, type BuiltNote, type BuiltPart } from './timeofink.ts'
 
 export interface GateCtx {
   recipeId: string
@@ -322,6 +323,9 @@ export function runGate(ctx: GateCtx): GateResult {
   const gray = toGray(sf.scan)
   const raw = seg.raw
   const tilt = seg.deskewApplied ? seg.deskewDeg : 0
+  // the bundle's crop source for every note: ownership masks built from the quoted lines, never a box (crop-overlap)
+  const cropOf = (o: Ownership, id: string, step: number, parts: BuiltPart[]): Uint8Array =>
+    cropSource({ own: o, bands: seg.bands, s, ink: seg.ink, tilt } satisfies CropPage, { id, step, lines: parts.map((p) => p.line), parts }).mask
   const hero = ctx.heroFixture ? (JSON.parse(ctx.heroFixture) as { recallThreshold: number; words: FixtureWord[] }) : null
   const raw0 = hero ? rawInk(toGray(ctx.scan)) : null
 
@@ -385,10 +389,10 @@ export function runGate(ctx: GateCtx): GateResult {
     let note: BuiltNote
     try {
       // the mask first, for the split share; then the note
-      const ownership = noteOwnership(autoOwn, seg.labels, nd.id, noteMask(autoOwn, seg.bands, s, bp), own.reviewers)
+      const ownership = noteOwnership(autoOwn, seg.labels, nd.id, cropOf(autoOwn, nd.id, nd.step, bp), own.reviewers)
       note = buildNote({
         noteId: nd.id, step: nd.step, span: nd.span, shownText, granularity: na.granularity, alignment: na.alignment, credit: source.credit,
-        scan: sf.scan, gray, raw, pageInk: seg.pageInkMap, own, bands: seg.bands, s, resampled: seg.deskewApplied, parts: bp, ownership,
+        scan: sf.scan, gray, raw, pageInk: seg.pageInkMap, own, bands: seg.bands, s, resampled: seg.deskewApplied, parts: bp, mask: cropOf(own, nd.id, nd.step, bp), ownership,
       })
       built.push({ id: nd.id, note, parts, bp, alignment: na.alignment, granularity: na.granularity, shownText, ownership, step: nd.step, span: nd.span })
     } catch (e) {
@@ -422,10 +426,10 @@ export function runGate(ctx: GateCtx): GateResult {
             let rejectedCandidate: { recall: number; words: FixtureScore['words']; boundaries: { line: number; boundaries: number[] }[] } | null = null
             if (cand.every((c) => c.b !== null)) {
               const cbp: BuiltPart[] = cand.map(({ p, b }) => ({ line: p.line, fromWord: p.fromWord, toWord: p.toWord, method: 'auto', boundaries: b!, whole: b!.length === 0, autoDetail: 'rejected candidate' }))
-              const cm = noteMask(own, seg.bands, s, cbp)
+              const cm = cropOf(own, nd.id, nd.step, cbp)
               const cn2 = buildNote({
                 noteId: nd.id, step: nd.step, span: nd.span, shownText: nd.quoted, granularity: 'words', alignment: 'auto', credit: source.credit,
-                scan: sf.scan, gray, raw, pageInk: seg.pageInkMap, own, bands: seg.bands, s, resampled: seg.deskewApplied, parts: cbp, ownership: noteOwnership(own, seg.labels, nd.id, cm),
+                scan: sf.scan, gray, raw, pageInk: seg.pageInkMap, own, bands: seg.bands, s, resampled: seg.deskewApplied, parts: cbp, mask: cm, ownership: noteOwnership(own, seg.labels, nd.id, cm),
               })
               const sc3 = scoreOf(cn2, cbp, matchFixtureWords(nd.quoted, hero.words) ?? 0, hero.words)
               rejectedCandidate = { recall: sc3.recall, words: sc3.words, boundaries: cbp.map((c) => ({ line: c.line, boundaries: c.boundaries })) }
@@ -434,10 +438,10 @@ export function runGate(ctx: GateCtx): GateResult {
           }
           else {
             const abp = autoParts.map((p) => ({ ...p, whole: false }))
-            const am = noteMask(own, seg.bands, s, abp)
+            const am = cropOf(own, nd.id, nd.step, abp)
             const an2 = buildNote({
               noteId: nd.id, step: nd.step, span: nd.span, shownText: nd.quoted, granularity: 'words', alignment: 'auto', credit: source.credit,
-              scan: sf.scan, gray, raw, pageInk: seg.pageInkMap, own, bands: seg.bands, s, resampled: seg.deskewApplied, parts: abp, ownership: noteOwnership(own, seg.labels, nd.id, am),
+              scan: sf.scan, gray, raw, pageInk: seg.pageInkMap, own, bands: seg.bands, s, resampled: seg.deskewApplied, parts: abp, mask: am, ownership: noteOwnership(own, seg.labels, nd.id, am),
             })
             const sc2 = scoreOf(an2, abp, matchFixtureWords(nd.quoted, hero.words) ?? 0, hero.words)
             auto = { recall: sc2.recall, words: sc2.words }
