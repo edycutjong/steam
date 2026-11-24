@@ -81,6 +81,14 @@ export const STREAK_A = 0.1
 /** Streak half-width, CSS px (D10): the visible band is ~10 px. */
 export const STREAK_HALF_CSS = 5.0
 export const SWEEP_SOFT = 0.35
+/** Fraction of the pane height above the bottom rail where beads form. */
+export const BEAD_ZONE = 0.07
+/** Pot plume vertical falloff: exp(-h^2 / PLUME_H2), h = height above the bottom edge (pane fraction). */
+export const PLUME_H2 = 0.008
+/** Height above which the plume adds under 2 levels of red-minus-blue (checked in shaders.test.ts). */
+export const PLUME_REACH = 0.17
+/** Plume strength (D11). */
+export const PLUME_A = 0.45
 
 /**
  * Pass 2: composite at full canvas resolution.
@@ -132,9 +140,9 @@ const float TOI_SOFT = ${TOI_SOFT.toFixed(4)};
 const float RESIDUAL_CLEAR = 0.85;
 const float BLOOM_A = 0.5;
 const float RIM_A = 0.45;
-const float PLUME_A = 0.34;
+const float PLUME_A = ${PLUME_A.toFixed(2)};
 const float BEAD_CELL_CSS = 14.0;
-const float BEAD_ZONE = 0.07;
+const float BEAD_ZONE = ${BEAD_ZONE.toFixed(2)};
 ${NOISE_GLSL}
 float potGlow(vec2 uv) {
   float aspect = uRes.x / uRes.y;
@@ -278,7 +286,7 @@ void main() {
   }
   clearM = max(clearM, drip);
   // Glass is either clear or fogged across a narrow edge. The low threshold keeps hairline upstrokes.
-  float clearS = smoothstep(0.08, 0.5, clearM);
+  float clearS = smoothstep(0.06, 0.55, clearM);
 
   // 2. Cook's wipe: a soft front sweeps left to right. The hull stays clear, the rest re-fogs.
   float front = uWipe * (1.0 + SWEEP_SOFT) - vUv.x;
@@ -291,7 +299,10 @@ void main() {
   float low = smoothstep(0.1, 1.0, vUv.y);
   float anchor = mix(0.8, 1.2, low) * (0.8 + 0.25 * potGlow(vUv));
   vec3 behind = kitchen(vUv);
-  behind += uAfter * CH_GAIN * clearS * anchor;
+  // The ember lights the whole written stroke, faint ink included. Scaling it by clearS let the dark room
+  // through partly cleared (faint) ink, which read as dark smudges inside strokes (D9).
+  float emberM = smoothstep(0.02, 0.12, clearM);
+  behind += uAfter * CH_GAIN * emberM * anchor;
 
   vec3 fog = uBefore * (0.78 + 0.22 * fogD);
   fog = mix(fog, glassEdgeTint(fog), edgeMask(vUv));
@@ -328,8 +339,8 @@ void main() {
   float sway = 0.012 * sin(uTime * 1.3 + vUv.y * 7.0) + 0.006 * sin(uTime * 2.7 + vUv.y * 13.0);
   float px0 = (vUv.x - uPot.x + sway) * aspect;
   float height = 1.0 - vUv.y;
-  float spread = 0.07 + 0.55 * height;
-  float plume = exp(-px0 * px0 / (spread * spread)) * exp(-height * 4.2);
+  float spread = 0.07 + 0.9 * height;
+  float plume = exp(-px0 * px0 / (spread * spread)) * exp(-height * height / ${PLUME_H2.toFixed(4)});
   plume *= 0.9 + 0.1 * sin(uTime * 5.1 + height * 9.0);
   col += uAfter * PLUME_A * plume;
 
