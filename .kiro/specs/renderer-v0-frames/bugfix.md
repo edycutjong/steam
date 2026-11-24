@@ -55,7 +55,7 @@ Evidence: `docs/kiro-evidence/renderer-v0/after/desktop-t6500.png` and `mobile-t
 - D6. The channel follows the scan's own alpha: `DILATE_PX` 0, `SOFT_PX` 1 (at most about 15% growth), linear sampling at device resolution, a low clear threshold so hairlines and open loops survive.
 - D7. Clear glass: ember gradient anchored to the pot (brightest low), 15% residual fog grain inside the channel, a warm bloom 7 to 11 px outside, a thin `--ghost` rim (1 to 1.5 CSS px) brighter on the lower edge and fainter on the upper, slight fog pile-up just outside the edge.
 - D8. Desktop uses the phone's stacked layout: group 1 above group 2, left-aligned, stack centred, one scale for both, the wider group about 67.5% of the pane width, scale at most 1.6. Time-of-ink order unchanged.
-- D9. The cause is found and removed. Hypothesis: where the inflated dst rects of the stacked groups overlap, the first group's rect masked the second group's ink; a flat fog multiply inside the channel also darkened it.
+- D9. The cause is found and removed. Found: the scan's ink is faint in places (in "ks" only 15% of ink pixels have alpha 255, against 26% for the group), and the ember behind the glass was scaled by the partial clear, so faint ink let the dark room through and read darker than the fog. The ember now lights every written ink pixel at full strength (`emberM`). Also fixed: where the stacked groups' margin rects overlap, the sample with the larger alpha wins, so one group's empty margin never masks the other's ink.
 - D10. Streak 8 to 12 px wide with soft falloff, opacity at most 0.12.
 - D11. A warm rising plume from the bottom edge, brightest at the bottom; a few short run-off drips under written stroke ends.
 
@@ -68,4 +68,5 @@ Concealment before the reveal, timing constants, the no-hotspot clamp to `--ink`
 - [x] B7. D8: stacked desktop layout in `layout.ts`, tests updated.
 - [x] B8. D6: `derive.ts` constants and test.
 - [x] B9. D7, D9, D10, D11: `shaders.ts`.
+- [x] B11. e2e concealment check made layout-independent: detail (high-pass) variance, rows above the bead zone and plume reach, `WARMTH_MAX` 6 to 16 (pot glow under the centred lower group measured at 7 to 8; a written note asserted above 48).
 - [x] B10. Capture into `docs/kiro-evidence/renderer-v0/after-v01/` and read.
