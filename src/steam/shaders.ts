@@ -73,11 +73,11 @@ void main() {
 `
 
 export const FOG_MAX = 0.94
-export const CH_GAIN = 0.55
-export const RIM_K = 7.0
+export const CH_GAIN = 1.0
+export const RIM_K = 6.0
 export const HEAD_R = 11.0
 export const HEAD_A = 0.42
-export const STREAK_A = 0.55
+export const STREAK_A = 0.14
 export const SWEEP_SOFT = 0.35
 
 /**
@@ -174,7 +174,7 @@ int locate(vec2 fragPx, out vec2 nuv, out vec2 npos) {
 vec3 addBeadsAndStreak(vec3 col, vec2 uv, vec2 fragPx, float fogD) {
   // Specular streak across the top third: colour is the ink token, alpha capped.
   float s = uv.x * 0.8 + uv.y * 1.2;
-  float streak = exp(-pow((s - 0.55) / 0.1, 2.0)) * 0.5 * (1.0 - smoothstep(0.2, 0.45, uv.y));
+  float streak = exp(-pow((s - 0.55) / 0.045, 2.0)) * 0.4 * (1.0 - smoothstep(0.2, 0.45, uv.y));
   col = mix(col, uInk, min(streak, STREAK_A));
 
   // Beads on the bottom rail. Density falls away from the rail.
@@ -185,16 +185,17 @@ vec3 addBeadsAndStreak(vec3 col, vec2 uv, vec2 fragPx, float fogD) {
   float h = hash(id);
   float h2 = hash(id + 41.7);
   float h3 = hash(id + 7.3);
-  float present = step(0.62 + 0.3 * clamp(rail, 0.0, 1.0), h) * zone;
+  float present = step(0.86 + 0.12 * clamp(rail, 0.0, 1.0), h) * zone;
   vec2 centre = (id + 0.5 + (vec2(h2, h3) - 0.5) * 0.4) * cell;
   float rad = (0.16 + 0.14 * h2) * cell;
   float d = length(fragPx - centre);
   float inside = (1.0 - smoothstep(rad - 1.0, rad, d)) * present;
   float ring = smoothstep(rad * 0.6, rad, d) * inside;
-  col = mix(col, uBg, ring * 0.35);
-  col = mix(col, kitchen(uv), inside * 0.5 * (1.0 - ring));
-  float hl = exp(-pow(length(fragPx - (centre - vec2(0.35 * rad))) / (0.22 * rad), 2.0)) * inside;
-  col += uGhost * 0.6 * hl * fogD;
+  // A transparent drop: darker rim, the ember showing through the middle, a small catch-light.
+  col = mix(col, uBg, ring * 0.55);
+  col = mix(col, kitchen(uv) + uAfter * 0.22, inside * 0.7 * (1.0 - ring));
+  float hl = exp(-pow(length(fragPx - (centre - vec2(0.38 * rad, 0.38 * rad))) / (0.2 * rad), 2.0)) * inside;
+  col += mix(uGhost, uMoon, 0.6) * 0.7 * hl;
   return col;
 }
 
@@ -214,15 +215,17 @@ void main() {
   float wiped = clamp((uU - ch.g) / TOI_SOFT, 0.0, 1.0);
   float depth = 0.85 + 0.15 * ch.b;
   float clearM = clamp(ch.r * wiped * depth, 0.0, 1.0);
+  // Glass is either clear or fogged across a narrow edge, so the ember reads without a muddy grey ring.
+  float clearS = smoothstep(0.12, 0.62, clearM);
 
   // 2. Cook's wipe: a soft front sweeps left to right. The hull stays clear, the rest re-fogs.
   float front = uWipe * (1.0 + SWEEP_SOFT) - vUv.x;
   float sweepC = clamp(front / SWEEP_SOFT, 0.0, 1.0) * step(0.0001, uWipe);
   float stay = max(1.0 - uRefog, hullF);
-  float fogOpacity = clamp(fogD, 0.0, 1.0) * FOG_MAX * (1.0 - clearM) * (1.0 - sweepC * stay);
+  float fogOpacity = clamp(fogD, 0.0, 1.0) * FOG_MAX * (1.0 - clearS) * (1.0 - sweepC * stay);
 
   vec3 behind = kitchen(vUv);
-  behind += uAfter * CH_GAIN * clearM * (0.55 + 0.45 * potGlow(vUv));
+  behind += uAfter * CH_GAIN * clearS * (0.8 + 0.2 * potGlow(vUv));
 
   vec3 fog = uBefore * (0.78 + 0.22 * fogD);
   fog = mix(fog, glassEdgeTint(fog), edgeMask(vUv));
@@ -230,8 +233,10 @@ void main() {
 
   // 3. Cold wet rim from the channel's own edge gradient.
   float c = ch.r * wiped;
-  float rim = clamp(length(vec2(dFdx(c), dFdy(c))) * RIM_K * uDpr, 0.0, 1.0) * (1.0 - clearM * 0.6);
-  col = mix(col, uGhost, rim * 0.85);
+  // A thin edge on the outer side of wiped ink only: c is 0 until the stroke's toi is reached.
+  float grad = length(vec2(dFdx(c), dFdy(c))) * uDpr;
+  float rim = smoothstep(0.05, 0.05 + 1.0 / RIM_K, grad) * (1.0 - smoothstep(0.3, 0.6, c));
+  col = mix(col, uGhost, rim * 0.5);
 
   // 4. Writing head: cold white at the toi frontier. Never amber.
   if (uHead > 0.0 && gi == uHeadGroup) {
