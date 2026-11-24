@@ -37,7 +37,7 @@ Rules for every task:
 
 ## B. Provenance, reading marks, routes, loading, store
 
-- [ ] 5. The IIIF region and its URL
+- [x] 5. The IIIF region and its URL
   - Test first: `src/data/provenance.test.ts`. `regionOf` on the real bundle's hero note returns `{x: 641, y: 3660, w: 2897, h: 511}` (recomputed in the test from the bundle's `verifyBox`, frame and canvas, not pasted) and `regionUrl` is `https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/641,3660,2897,511/full/0/default.jpg`; floor/ceil containment on hand-made boxes; clipping at the canvas edge; a zero-area box gives null; `parseRegionUrl(regionUrl(...))` returns the same service and region; `parseRegionUrl` rejects a URL with non-integer, negative or missing numbers, another size or rotation segment, or a `pct:` region. Each edge is within 1 canvas px of the percentage `verifyUrl` times the canvas size, for all three notes.
   - Implement `regionOf`, `regionUrl`, `parseRegionUrl` in `src/data/provenance.ts`.
   - Files: `src/data/provenance.ts`, `src/data/provenance.test.ts`.

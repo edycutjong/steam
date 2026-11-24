@@ -291,6 +291,8 @@ export const BundleNote = z.strictObject({
   provenance: Provenance,
 })
 
+export type BundleNote = z.infer<typeof BundleNote>
+
 export const RecipeBundle = z.strictObject({
   id: RecipeId,
   title: nonEmpty,
