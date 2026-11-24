@@ -21,7 +21,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/timeline.test.ts`.
   - Satisfies: R1.1, R2.1, R2.3, R3.2 to R3.7, R9.1.
 
-- [ ] 4. Timeline property test (fast-check)
+- [x] 4. Timeline property test (fast-check)
   - Property A: for any `t` (`fc.double` including NaN and infinities) and any `wipeAt` (`null` or double), the state is valid: `u` in [-1, 1], other fields in [0, 1], phase is one of five.
   - Property B: for any `t1 <= t2` and a fixed `wipeAt`, the revealed fraction `u` and `wipe` never decrease, and phase index never decreases.
   - Property C: for any `t >= WRITE_ON_MS` and any `wipeAt`, `u === 1` (hold never re-fogs the note).
