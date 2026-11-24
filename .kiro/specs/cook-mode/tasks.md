@@ -333,7 +333,7 @@ Rules for every task:
   - Files: `e2e/helpers/cook.ts`, `e2e/cook-flow.spec.ts`.
   - Satisfies: R27.1, R19.4, R23.7, R21.4, R2.6.
 
-- [ ] 51. E2E: the ×12 walk and the Wipe table
+- [x] 51. E2E: the ×12 walk and the Wipe table
   - Test first: in `e2e/cook-flow.spec.ts`: from the shelf, "Watch it at ×12"; the badge "×12 pace" is visible from the first frame to the quoted screen; step 1 arrives with its note (label "Show the note" or the wipe label once the reveal has applied: assert the row by `data-note-state`), then each of: "Wipe the glass" (steps 1 and 4), "Next step" (steps 2 and 3, with a fogged pane: no ink pixel of any note on the canvas, measured with the helper of `e2e/helpers/pane.ts`), "The hand, quoted" (step 5). The Wipe control is at least 48×48. Pressing "Show the note" at a pending note starts the write-on at once. A drag across the pane at a held note advances.
   - Implement what the run finds missing.
   - Files: `e2e/cook-flow.spec.ts`.
