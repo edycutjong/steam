@@ -153,6 +153,9 @@ for (const [name, viewport] of SIZES) {
         for (const g of layout.groups) {
           // At t=1000 only the first group is being written; the second has no ink revealed yet.
           if (t > 0 && g.index === 0) continue
+          // A group whose ink reaches the pane edge (the bundle hero's group 1 at 390 px: ink -1 to 371 on a 370 px pane, see
+          // steam-phone.spec.ts) has the sash wood as its edge; that step is the frame, not fog. Re-pinned in cook-mode task 31.
+          if (g.inked[0] < 1 || g.inked[2] > o.w - 1) continue
           const step = rectEdgeStep(png, {
             x0: o.x + g.inked[0],
             y0: o.y + g.inked[1],

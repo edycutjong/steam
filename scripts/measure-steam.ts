@@ -12,6 +12,7 @@ import path from 'node:path'
 import { chromium } from '@playwright/test'
 import type { Browser } from '@playwright/test'
 import { preview } from 'vite'
+import { heroUrl } from '../e2e/helpers/hero.ts'
 
 const DURATION_MS = Number(process.env.BENCH_MS ?? 15000)
 const MIN_FPS = 55
@@ -48,7 +49,7 @@ async function measure(browser: Browser, base: string, profile: Profile) {
   const page = await context.newPage()
   const cdp = await context.newCDPSession(page)
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: profile.cpuThrottle })
-  await page.goto(`${base}/?fps=1`)
+  await page.goto(`${base}${heroUrl('?fps=1')}`)
   await page.locator('.steam-canvas').waitFor()
   await page.waitForFunction(() => performance.getEntriesByName('steam:first-frame').length > 0)
 

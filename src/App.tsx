@@ -65,7 +65,7 @@ export default function App({ loader = loadShelf, store }: Props) {
     <AppContext.Provider value={api}>
       <p className="sr-only">{PRODUCT}</p>
       {/* One screen at a time; the key resets a screen's own state and its focus when the route changes. */}
-      <div key={route.name === 'pane' ? `pane/${route.id}/${route.noteId}` : route.name === 'notFound' ? 'notFound' : route.name === 'shelf' ? 'shelf' : `${route.name}/${route.id}`}>{screen}</div>
+      <div key={route.name === 'pane' ? `pane/${route.id}/${route.noteId}?${route.query}` : route.name === 'notFound' ? 'notFound' : route.name === 'shelf' ? 'shelf' : `${route.name}/${route.id}`}>{screen}</div>
       {route.name === 'pane' ? null : (
         <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
           {message}

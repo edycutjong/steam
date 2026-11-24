@@ -6,11 +6,13 @@ import { luminance } from './helpers/capture.ts'
 import {
   TOKENS,
   VIEWPORTS,
+  canvasOrigin,
   canvasRegion,
   channelPixels,
   meanLumAt,
   openPane,
   pixel,
+  readLayout,
   shot,
 } from './helpers/pane.ts'
 
@@ -84,13 +86,21 @@ async function label(page: Page): Promise<string> {
 }
 
 /** Fraction of columns in a top band of plain glass whose luminance moved from the fogged reference. */
+// Columns under a group's destination rect (the note and its hull margin) are not plain glass: the hull never refogs (D10).
+// Re-pinned in cook-mode task 31: the bundle's hero note puts group 0's dst rect at y 0 to 210 of a 345 px desktop pane, so the old
+// top band (y 4 to 40) now crosses the hull over 742 of 1236 columns; the spike's note left that band clear.
 async function clearedFraction(page: Page, ref: Awaited<ReturnType<typeof shot>>): Promise<number> {
   const png = await shot(page)
   const c = await canvasRegion(page)
+  const o = await canvasOrigin(page)
+  const covered = (await readLayout(page)).groups.map((g) => [o.x + g.dst[0], o.x + g.dst[2]] as const)
   let cleared = 0
+  let cols = 0
   const y0 = c.y + 4
   const y1 = c.y + 40
   for (let x = c.x; x < c.x + c.w; x++) {
+    if (covered.some(([a, b]) => x >= a - 2 && x <= b + 2)) continue
+    cols++
     let d = 0
     for (let y = y0; y < y1; y++) {
       const [r1, g1, b1] = pixel(png, x, y)
@@ -99,7 +109,7 @@ async function clearedFraction(page: Page, ref: Awaited<ReturnType<typeof shot>>
     }
     if (Math.abs(d / (y1 - y0)) > 15) cleared++
   }
-  return cleared / c.w
+  return cols ? cleared / cols : 0
 }
 
 test('the button and Space: disabled while writing, wipe sweeps, fog returns off the channels', async ({ page }) => {

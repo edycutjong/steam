@@ -3,6 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { chromium } from '@playwright/test'
 import { PNG } from 'pngjs'
+import { heroUrl } from './hero.ts'
 
 export interface Viewport {
   width: number
@@ -73,7 +74,7 @@ export async function captureFrame(
       hasTouch: viewport.mobile ?? false,
     })
     const page = await context.newPage()
-    await page.goto(tMs === null ? baseUrl : `${baseUrl}/?t=${tMs}`)
+    await page.goto(`${baseUrl}${heroUrl(tMs === null ? '' : `?t=${tMs}`)}`)
     await page.locator('.steam-canvas').waitFor()
     await page.waitForTimeout(1500)
     const png = await page.screenshot({ type: 'png' })

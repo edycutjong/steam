@@ -5,6 +5,7 @@ import type { Page } from '@playwright/test'
 import { PNG } from 'pngjs'
 import { decodePng, luminance } from './capture.ts'
 import type { Region } from './capture.ts'
+import { HERO_DIR_FS, HERO_NOTE, heroUrl } from './hero.ts'
 
 export const VIEWPORTS = {
   desktop: { width: 1280, height: 720 },
@@ -33,9 +34,9 @@ export interface PaneLayout {
   }>
 }
 
-/** Opens `/` with the query, waits for the renderer's first frame, and lets the frame settle. */
+/** Opens the hero note's harness route with the query (`?t=2000&lead=0`, in the hash), waits for the renderer's first frame, and lets the frame settle. */
 export async function openPane(page: Page, query = ''): Promise<void> {
-  await page.goto(`/${query}`)
+  await page.goto(heroUrl(query))
   await page.locator('.steam-canvas').waitFor()
   await page.waitForFunction(() => performance.getEntriesByName('steam:first-frame').length > 0)
   await page.waitForTimeout(400)
@@ -234,8 +235,6 @@ export function baselineEdgeStep(png: PNG, bounds: Region, groups: Region[], box
   return worst
 }
 
-const HERO = path.resolve('public/hero')
-
 interface HeroMeta {
   groups: Array<{ rect: [number, number, number, number] }>
 }
@@ -245,8 +244,8 @@ interface HeroMeta {
  * mapped through the layout the page reports. Read from the scan's own alpha, not from a screenshot.
  */
 export async function channelPixels(page: Page): Promise<Array<[number, number]>> {
-  const note = PNG.sync.read(await readFile(path.join(HERO, 'note-looks-red-smooth.png')))
-  const meta = JSON.parse(await readFile(path.join(HERO, 'note-looks-red-smooth.json'), 'utf8')) as HeroMeta
+  const note = PNG.sync.read(await readFile(path.join(HERO_DIR_FS, `note-${HERO_NOTE}.png`)))
+  const meta = JSON.parse(await readFile(path.join(HERO_DIR_FS, `note-${HERO_NOTE}.json`), 'utf8')) as HeroMeta
   const [layout, o] = await Promise.all([readLayout(page), canvasOrigin(page)])
   const seen = new Set<number>()
   const out: Array<[number, number]> = []

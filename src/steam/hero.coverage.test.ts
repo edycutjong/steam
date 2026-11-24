@@ -1,6 +1,6 @@
 // D12: the revealed channel must not be wider than the scan's own ink at the displayed scale.
 //
-// Re-pinned in cook-mode task 27, when the spike note (public/hero) was replaced by the bundle's hero note.
+// Re-pinned in cook-mode task 27, when the spike note was replaced by the bundle's hero note.
 // Measured with a throwaway script that ran this file's own revealedArea() over both notes (revealed area / scan ink area):
 //                                  1x      2x      thin    thick
 //   spike  note-looks-red-smooth   1.0951  1.0985  1.0980  1.0989

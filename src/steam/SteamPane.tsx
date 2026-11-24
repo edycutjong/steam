@@ -8,7 +8,6 @@ import './steam.css'
 
 export type { RevealController }
 export { LOAD_FAILED }
-export const NOTE_STEM = '/hero/note-looks-red-smooth'
 export const CREDIT = 'Wellcome Collection, Public Domain Mark'
 
 const SHOW = 'Show the note'
@@ -31,14 +30,14 @@ export function announcement(text: string): string {
 }
 
 interface Props {
-  stem?: string
-  paneDir?: string
-  noteId?: string
+  stem: string
+  paneDir: string
+  noteId: string
   /** The hash query without its leading "?" (the harness route), read in place of location. */
   query?: string
 }
 
-export default function SteamPane({ stem = NOTE_STEM, paneDir = '/hero', noteId = 'looks-red-smooth', query }: Props) {
+export default function SteamPane({ stem, paneDir, noteId, query }: Props) {
   const params = useMemo(
     () => (typeof window === 'undefined' ? parseParams('', '') : query !== undefined ? parseParams('', `#/?${query}`) : parseParams(window.location.search, window.location.hash)),
     [query],
@@ -55,12 +54,12 @@ export default function SteamPane({ stem = NOTE_STEM, paneDir = '/hero', noteId 
     setPhase(st.phase)
   }, [])
 
-  // The shown words come from the note's own JSON.
+  // The announced words are the note's span (R23.3), from its own JSON.
   useEffect(() => {
     let live = true
     fetch(`${stem}.json`)
       .then((r) => r.json())
-      .then((j: { shownText?: string }) => live && setNoteText(j.shownText ?? ''))
+      .then((j: { span?: string; shownText?: string }) => live && setNoteText(j.span ?? j.shownText ?? ''))
       .catch(() => {})
     return () => {
       live = false
