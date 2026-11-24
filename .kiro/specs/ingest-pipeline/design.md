@@ -178,7 +178,7 @@ Why a single piece cannot straddle two words (R18.5): in sheared coordinates two
 
 Scoring (R20): `scoreAgainstFixture(maskAlpha, rawInk, fixtureWords)` returns per-word recall/precision and overall recall `|rawInk ∩ ∪boxes ∩ alpha>0| / |rawInk ∩ ∪boxes|`. The fixture words are matched to `shownText` words by text, in order.
 
-Method order per line: auto → curator → whole lines. A note with several quoted lines can use different methods per line; the note's `alignment` is the weakest used (`lines` < `curator` < `auto`), and each line's method is in `gate.json.alignment`.
+Method order per line: auto → curator → whole lines. A note with several quoted lines can use different methods per line; the note's `alignment` is the weakest method among the parts that needed an alignment (`lines` < `curator` < `auto`), and each line's method is in `gate.json.alignment`. A part that quotes a whole line needs none and does not weaken the note (task 26: otherwise a note of one whole line plus one aligned part would be `alignment: lines` with `granularity: words`, which P1 rightly refuses). A note whose parts are all whole lines is `lines`/`lines`. So `alignment = lines` if and only if `granularity = lines`.
 
 ### 3.6 Masks, time of ink and PNGs (R21 to R23)
 

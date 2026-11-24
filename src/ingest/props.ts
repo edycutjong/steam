@@ -107,3 +107,88 @@ export function checkP6(i: P6Input): PropResult {
   if (fails.length) return { pass: false, detail: fails.join('; ') }
   return { pass: true, detail: `${n} px timed, path coverage ${coverage.toFixed(3)}` }
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// P1: structure (R24)
+
+export interface P1Input {
+  lineCount: number
+  titleLine: number | null
+  steps: { n: number; lineIdx: number[] }[]
+  notes: { id: string; alignment: 'auto' | 'curator' | 'lines'; granularity: 'words' | 'lines' }[]
+  masks: { noteId: string; granularity: 'words' | 'lines' }[]
+}
+
+/**
+ * Every non-title line lies in exactly one step, no step names the title or an unknown line, every note has exactly one
+ * mask whose granularity matches its alignment (`lines` if and only if the alignment is `lines`).
+ */
+export function checkP1(i: P1Input): PropResult {
+  const fails: string[] = []
+  const count = new Array<number>(Math.max(0, i.lineCount)).fill(0)
+  for (const s of i.steps)
+    for (const l of s.lineIdx) {
+      if (!Number.isInteger(l) || l < 0 || l >= i.lineCount) fails.push(`step ${s.n} names unknown line ${l}`)
+      else if (l === i.titleLine) fails.push(`step ${s.n} names the title line ${l}`)
+      else count[l]!++
+    }
+  for (let l = 0; l < i.lineCount; l++) {
+    if (l === i.titleLine) continue
+    if (count[l] === 0) fails.push(`line ${l} is in no step`)
+    else if (count[l]! > 1) fails.push(`line ${l} is in ${count[l]} steps`)
+  }
+  for (const n of i.notes) {
+    const ms = i.masks.filter((m) => m.noteId === n.id)
+    if (ms.length !== 1) fails.push(`note ${n.id} has ${ms.length} masks, needs exactly one`)
+    else if ((ms[0]!.granularity === 'lines') !== (n.alignment === 'lines') || ms[0]!.granularity !== n.granularity)
+      fails.push(`note ${n.id}: mask granularity ${ms[0]!.granularity} does not match alignment ${n.alignment}`)
+  }
+  for (const m of i.masks) if (!i.notes.some((n) => n.id === m.noteId)) fails.push(`mask ${m.noteId} belongs to no note`)
+  return fails.length ? { pass: false, detail: fails.join('; ') } : { pass: true, detail: `${i.steps.length} steps cover ${i.lineCount - (i.titleLine === null ? 0 : 1)} lines; ${i.notes.length} notes, one mask each` }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// P2: inside the page (R25)
+
+export interface P2Note {
+  id: string
+  /** Half-open bounding box [x0, y0, x1, y1] of the mask pixels, null for an empty mask. */
+  maskBox: [number, number, number, number] | null
+  pageBox: [number, number, number, number]
+  /** Width and height of the PNG. */
+  png: [number, number]
+}
+
+export function checkP2(page: { width: number; height: number }, notes: P2Note[]): PropResult {
+  const fails: string[] = []
+  const { width: W, height: H } = page
+  for (const n of notes) {
+    const [bx0, by0, bx1, by1] = n.pageBox
+    if (bx0 < 0 || by0 < 0 || bx1 > W || by1 > H || bx0 >= bx1 || by0 >= by1) fails.push(`${n.id}: pageBox [${n.pageBox.join(',')}] is not inside the ${W}x${H} page`)
+    if (!n.maskBox) fails.push(`${n.id}: the mask is empty`)
+    else {
+      const [mx0, my0, mx1, my1] = n.maskBox
+      if (mx0 < 0 || my0 < 0 || mx1 > W || my1 > H) fails.push(`${n.id}: mask pixel outside the page at [${n.maskBox.join(',')}]`)
+      if (mx0 < bx0 || my0 < by0 || mx1 > bx1 || my1 > by1) fails.push(`${n.id}: mask [${n.maskBox.join(',')}] is not inside its pageBox`)
+    }
+    if (n.png[0] !== bx1 - bx0 || n.png[1] !== by1 - by0) fails.push(`${n.id}: PNG ${n.png[0]}x${n.png[1]} is not the size of its pageBox ${bx1 - bx0}x${by1 - by0}`)
+  }
+  return fails.length ? { pass: false, detail: fails.join('; ') } : { pass: true, detail: `${notes.length} notes inside the ${W}x${H} page` }
+}
+
+/** Half-open bounding box of a 0/1 mask, null when empty. */
+export function maskBox(mask: Uint8Array, w: number, h: number): [number, number, number, number] | null {
+  let x0 = w
+  let y0 = h
+  let x1 = -1
+  let y1 = -1
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++)
+      if (mask[y * w + x]) {
+        if (x < x0) x0 = x
+        if (x > x1) x1 = x
+        if (y < y0) y0 = y
+        if (y > y1) y1 = y
+      }
+  return x1 < 0 ? null : [x0, y0, x1 + 1, y1 + 1]
+}

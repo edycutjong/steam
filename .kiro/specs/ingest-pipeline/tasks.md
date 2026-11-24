@@ -152,7 +152,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/bundle.ts`, `src/ingest/verify-url.test.ts`.
   - Satisfies: R23.3, R23.4.
 
-- [ ] 26. P1 and P2
+- [x] 26. P1 and P2
   - Test first: `steps.prop.test.ts` (P1) and `bounds.prop.test.ts` (P2) with the generators in design §5.
   - Implement `checkP1`, `checkP2` in `src/ingest/props.ts`, with `PROPS_VERSION = "1"`.
   - Files: `src/ingest/props.ts`, `src/ingest/steps.prop.test.ts`, `src/ingest/bounds.prop.test.ts`.
