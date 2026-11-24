@@ -123,7 +123,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Satisfies: R16.1 to R16.6, R15.6.
 
 - [x] 21. Steps and notes validation
-  - Test first: steps numbered 1..m with consecutive ascending `lineIdx`; step text equals the primary text joined; note quote rules (step membership, bounds, multi-line parts); `span` verbatim including trailing punctuation (the hero span "till it Looks red & smooth," passes; without the comma it fails); a quote starting inside a multi-token disagreement is "quote splits a disagreement". `notes.prop.test.ts` (S6): any one-character edit of a valid span is rejected.
+  - Test first: steps numbered 1..m with consecutive ascending `lineIdx`; step text equals the primary text joined; note quote rules (step membership, bounds, multi-line parts); `span` verbatim; the trailing punctuation of the last word may be left off (the hero span "till it Looks red & smooth" passes, amended in task 42 per addendum 2c); a quote starting inside a multi-token disagreement is "quote splits a disagreement". `notes.prop.test.ts` (S6): any one-character edit of a valid span is rejected.
   - Implement `src/ingest/notes.ts` (`primaryText`, `scribeToSlot`, `checkSteps`, `checkNotes`).
   - Files: `src/ingest/notes.ts`, `src/ingest/notes.test.ts`, `src/ingest/notes.prop.test.ts`.
   - Satisfies: R17.1 to R17.7.
@@ -207,7 +207,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Satisfies: R33.1 to R33.5.
 
 - [x] 35. `fetch` subcommand
-  - Test first: with an injected `get` serving the recorded catalogue response: licence refusal writes nothing; success writes `page.jpg` and `source.json` with every field from its source; `--from-fixture` uses the fixture and no network; a request to any canvas other than index 33 fails the test; failures leave existing files untouched.
+  - Test first: with an injected `get` serving the recorded catalogue response: licence refusal writes nothing; success writes `page.jpg` and `source.json` with every field from its source; `--from-fixture` uses the fixture and no network; a request to any canvas other than index 32 (image `_0033.JP2`, corrected in task 42) fails the test; failures leave existing files untouched.
   - Implement `tools/steam-ingest/fetch.ts`.
   - Files: `tools/steam-ingest/fetch.ts`, `tools/steam-ingest/fetch.test.ts`.
   - Satisfies: R3.1 to R3.5, R4.1 to R4.6, R40.1.
@@ -248,7 +248,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `tools/steam-ingest/catalog.ts`, `tools/steam-ingest/catalog.test.ts`.
   - Satisfies: R35.1 to R35.6, R36.3, R37.1.
 
-- [ ] 42. First real run: fetch, segment, fallback structure
+- [x] 42. First real run: fetch, segment, fallback structure
   - Test first: none new (measurement task). Run `steam-ingest fetch quinces-marmalade --from-fixture` and `segment`; read `docs/kiro-evidence/ingest/measurements.json`. Compare the measured region and line count with the design's prediction; record any difference in the file as a note, change no constant, and decide on `--block` only through the documented ordinal.
   - Write `content/recipes/quinces-marmalade/fallback-structure.json` (steps and the hero note by indices, spans verbatim) and run `fallback`.
   - Files: `content/recipes/quinces-marmalade/*`, `docs/kiro-evidence/ingest/measurements.json`.

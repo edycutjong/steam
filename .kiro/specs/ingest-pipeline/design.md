@@ -116,7 +116,7 @@ Reader schemas are `.strict()` so a stray `box` or `x` key is a validation error
 
 `resolveLicence(work)` is pure. It filters `work.items[].locations[]` by `locationType.id === "iiif-presentation"`, collects their `license.id`, and returns `{ok, id, label, url}` or `{ok: false, reason}`. Zero locations, no id, or two different ids are refusals. The allow-list is `["pdm", "cc0", "cc-by"]` in `constants.ts`. The CLI calls it before any image request. `fetch` takes an injectable `get(url)`; tests pass a function that serves the recorded fixture and fails the test on any other URL, which also guards French Bread (R4.6).
 
-The image URL is `${imageService}/full/1600,/0/default.jpg`. The `imageService` comes from `manifest.sequences[0].canvases[33].images[0].resource.service["@id"]`. The CLI decodes the download, compares its size with the fixture, and records the frame (R2.4).
+The image URL is `${imageService}/full/1600,/0/default.jpg`. The `imageService` comes from `manifest.sequences[0].canvases[32].images[0].resource.service["@id"]` (0-based index 32, image `_0033.JP2`; corrected in task 42, see R4.1). The CLI decodes the download, compares its size with the fixture, and records the frame (R2.4).
 
 ### 3.2 Page, region and lines (R5 to R9)
 
@@ -382,7 +382,7 @@ File: `src/ingest/timeofink.prop.test.ts`.
 ## 8. Decisions made where the request was open
 
 1. The region is the block between separator rules, with a curator ordinal override (R5). The request required "code, not hand numbers".
-2. Quote words index the scribe's tokens and map to merged slots (R17.6); a `span` must equal the primary text exactly, trailing punctuation included (so the hero note's span is "till it Looks red & smooth,", with the comma; the UI may display it without if the caption policy says so, but the ink shown includes it).
+2. Quote words index the scribe's tokens and map to merged slots (R17.6); a `span` must equal the primary text exactly, except that it may leave off the trailing punctuation of its last word (addendum 2c, amended in task 42: the hero span is "till it Looks red & smooth"). `shownText` is the quoted words with their punctuation ("till it Looks red & smooth,"), because the ink shown includes the comma; the caption that the UI shows next to the ink is `shownText`.
 3. `gate.json.inputs` also carries `page` and `lines`, and `outputs` carries the note files. Without them a changed scan or a deleted PNG under a passing gate would go unnoticed (R30.3).
 4. `review.json` must carry the `gateSha256` that was reviewed (R35.3). A review of an older gate does not count.
 5. `props` is `gate --all --verify` (R38.3). CI runs the same code path as `ingest:gate`.

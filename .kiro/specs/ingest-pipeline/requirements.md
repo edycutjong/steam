@@ -57,12 +57,12 @@ Pixel-size constants are stated for a page frame 1600 px wide and scale linearly
 
 **User story:** As a cook, I want every reveal to say exactly where the page comes from.
 
-1. WHEN the licence check passes, THE SYSTEM SHALL fetch the manifest `https://iiif.wellcomecollection.org/presentation/v2/b18419665`, take canvas index 33 (0-based), and download `<canvas image service>/full/1600,/0/default.jpg` to `content/recipes/<id>/page.jpg`.
+1. WHEN the licence check passes, THE SYSTEM SHALL fetch the manifest `https://iiif.wellcomecollection.org/presentation/v2/b18419665`, take canvas index 32 (0-based; its image is `b18419665_MS_1810_0033.JP2`, the page of `fixtures/p0033.jpg`. Corrected in task 42: the first wording said index 33, which is the next page, `_0034.JP2`, 1600×1865; the live download of index 32 is byte-identical to the fixture), and download `<canvas image service>/full/1600,/0/default.jpg` to `content/recipes/<id>/page.jpg`.
 2. THE SYSTEM SHALL write `source.json` validated by zod with: `institution`, `shelfmark` ("MS.1810"), `workUrl` ("https://wellcomecollection.org/works/zgtk6n7e"), `manifest`, `canvasIndex`, `imageService`, `page` ("p.23"), `date` ("c. 1750 (IIIF manifest)"), `licence` ({id, label, url} from the record), `credit` ("Wellcome Collection"), `retrieved` (ISO date) and, per R2.4, `frame` when it applies.
 3. THE SYSTEM SHALL take every `source.json` field from the catalogue response, the manifest or the command line, and from no other place; the date SHALL be copied from the manifest.
 4. IF the manifest, the canvas or the image request fails, THEN THE SYSTEM SHALL exit non-zero and leave any existing `page.jpg` and `source.json` untouched.
 5. WHEN `steam-ingest fetch` is given `--from-fixture`, THE SYSTEM SHALL copy `fixtures/p0033.jpg` and the recorded catalogue response instead of using the network, so that CI and tests never depend on the archive.
-6. THE SYSTEM SHALL NOT fetch French Bread (canvas 27) in any command, test or script (R39.3).
+6. THE SYSTEM SHALL NOT fetch French Bread (canvas 27, counted from 1 like "canvas 33" for p.23; the CLI refuses 0-based indices 26 and 27) in any command, test or script (R39.3).
 
 ## R5. Region chosen by code
 
@@ -209,7 +209,7 @@ Pixel-size constants are stated for a page frame 1600 px wide and scale linearly
 2. THE SYSTEM SHALL require each step's `text` to equal the primary text (R17.4) of its lines joined by one space.
 3. THE SYSTEM SHALL require each note's `step` to exist, each `quote.line` to belong to that step's `lineIdx`, `0 ≤ fromWord ≤ toWord < tokenCount(line)`, quote entries in increasing line order, and, when a note quotes more than one line, every part except the last to end at the line's last word and every part except the first to start at word 0.
 4. THE SYSTEM SHALL define the primary text of a line as the corrected merged text with each `†[a|b]` replaced by `a` (the scribe's reading).
-5. THE SYSTEM SHALL require a note's `span` to equal, character for character, the primary text of its quoted words joined by one space, trailing punctuation included. Any other `span` SHALL be rejected as "span is not a quotation".
+5. THE SYSTEM SHALL require a note's `span` to equal, character for character, the primary text of its quoted words joined by one space; the only allowed difference is that the span may leave off the trailing punctuation (`, . ; :`) of its last quoted word, so the hero span is "till it Looks red & smooth". The note's `shownText` stays the quoted words with their punctuation, because the word region of "smooth," includes the comma's ink. Any other `span` SHALL be rejected as "span is not a quotation". (Amended in task 42 per addendum 2c.)
 6. THE SYSTEM SHALL index quote words in the scribe's tokens and map them to the merged tokens with the diff of R15. IF a quote starts or ends inside a disagreement region that spans several tokens, THEN THE SYSTEM SHALL reject the note with "quote splits a disagreement".
 7. THE SYSTEM SHALL accept no step or note field named like a pixel coordinate, and SHALL NOT take a mask, box or time from the scribe.
 

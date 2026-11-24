@@ -385,10 +385,8 @@ export function runGate(ctx: GateCtx): GateResult {
     )
     const na = noteAlignment(parts)
     const bp: BuiltPart[] = parts.map((p) => ({ ...p, whole: na.granularity === 'lines' || p.method === 'lines' }))
-    const shownText =
-      na.granularity === 'words'
-        ? nd.span
-        : bp.map((p) => eff[p.line]!.primary).join(' ')
+    // the caption equals the ink shown: the quoted words (with their punctuation) or the whole lines (R19.6)
+    const shownText = na.granularity === 'words' ? nd.quoted : bp.map((p) => eff[p.line]!.primary).join(' ')
     let note: BuiltNote
     try {
       // the mask first, for the split share; then the note
@@ -428,10 +426,10 @@ export function runGate(ctx: GateCtx): GateResult {
             const abp = autoParts.map((p) => ({ ...p, whole: false }))
             const am = noteMask(own, seg.bands, s, abp)
             const an2 = buildNote({
-              noteId: nd.id, step: nd.step, span: nd.span, shownText: nd.span, granularity: 'words', alignment: 'auto', credit: source.credit,
+              noteId: nd.id, step: nd.step, span: nd.span, shownText: nd.quoted, granularity: 'words', alignment: 'auto', credit: source.credit,
               scan: sf.scan, gray, raw, pageInk: seg.pageInkMap, own, bands: seg.bands, s, resampled: seg.deskewApplied, parts: abp, ownership: noteOwnership(own, seg.labels, nd.id, am),
             })
-            const sc2 = scoreOf(an2, abp, matchFixtureWords(nd.span, hero.words) ?? 0, hero.words)
+            const sc2 = scoreOf(an2, abp, matchFixtureWords(nd.quoted, hero.words) ?? 0, hero.words)
             auto = { recall: sc2.recall, words: sc2.words }
           }
         }

@@ -20,10 +20,13 @@ export interface FetchTarget {
 
 /** Command-line defaults per known recipe (R4.3: fields may come from the command line). */
 export const KNOWN: Record<string, FetchTarget> = {
-  'quinces-marmalade': { workId: 'zgtk6n7e', canvasIndex: 33, page: 'p.23' },
+  'quinces-marmalade': { workId: 'zgtk6n7e', canvasIndex: 32, page: 'p.23' },
 }
-/** R4.6, R39.3: the held-out page is never fetched. */
-export const HELD_OUT = { manifestId: 'b18419665', canvasIndex: 27 }
+/**
+ * R4.6, R39.3: the held-out page (p.17, "canvas 27") is never fetched. Both readings of "canvas 27" are refused:
+ * 0-based index 26 (image _0027.JP2, the 1-based count that names p.23 as canvas 33) and 0-based index 27.
+ */
+export const HELD_OUT = { manifestId: 'b18419665', canvasIndices: [26, 27] }
 
 export const catalogueUrl = (workId: string) => `https://api.wellcomecollection.org/catalogue/v2/works/${workId}?include=items`
 export const imageUrl = (service: string) => `${service}/full/1600,/0/default.jpg`
@@ -59,7 +62,7 @@ export async function fetchRecipe(t: FetchTarget, get: Get, retrieved: string): 
   const lic = resolveLicence(work)
   if (!lic.ok) throw new Error(`licence refused: ${lic.reason}`)
   if (!lic.manifest) throw new Error('the iiif-presentation location has no manifest url')
-  if (lic.manifest.endsWith(`/${HELD_OUT.manifestId}`) && t.canvasIndex === HELD_OUT.canvasIndex) throw new Error('canvas 27 of b18419665 is the held-out page and is never fetched')
+  if (lic.manifest.endsWith(`/${HELD_OUT.manifestId}`) && HELD_OUT.canvasIndices.includes(t.canvasIndex)) throw new Error('canvas 27 of b18419665 is the held-out page and is never fetched')
   const m = json(await get(lic.manifest), 'manifest request') as Manifest
   const canvas = m.sequences?.[0]?.canvases?.[t.canvasIndex]
   const service = canvas?.images?.[0]?.resource?.service?.['@id']
@@ -96,7 +99,7 @@ export function fixtureGet(root: string): Get {
   const manifest = readFileSync(join(root, 'fixtures/wellcome-manifest-b18419665.trimmed.json'))
   const page = readFileSync(join(root, 'fixtures/p0033.jpg'))
   const m = JSON.parse(manifest.toString('utf8')) as Manifest
-  const service = m.sequences![0]!.canvases![33]!.images![0]!.resource!.service!['@id']!
+  const service = m.sequences![0]!.canvases![KNOWN['quinces-marmalade']!.canvasIndex]!.images![0]!.resource!.service!['@id']!
   return async (url) => {
     if (url === catalogueUrl('zgtk6n7e')) return { status: 200, body: work }
     if (url === 'https://iiif.wellcomecollection.org/presentation/v2/b18419665') return { status: 200, body: manifest }

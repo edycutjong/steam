@@ -1,0 +1,188 @@
+{
+  "by": "Claude Code builder agent (Opus 5.5)",
+  "lines": [
+    {
+      "i": 0,
+      "text": "To make Marmalade of Quinces"
+    },
+    {
+      "i": 1,
+      "text": "Let your quinces be full ripe, then wipe"
+    },
+    {
+      "i": 2,
+      "text": "them, & pare them, & Quarter them, then"
+    },
+    {
+      "i": 3,
+      "text": "take out the Cores and seeds, & boil the"
+    },
+    {
+      "i": 4,
+      "text": "Pareings & seeds in Spring water, strain",
+      "uncertain": [
+        {
+          "alt": [
+            "Parings",
+            "Parcings"
+          ],
+          "token": "Pareings"
+        }
+      ]
+    },
+    {
+      "i": 5,
+      "text": "the Liquor, & weigh your Quinces, with"
+    },
+    {
+      "i": 6,
+      "text": "the same weight of dry L. Sugar, boil",
+      "uncertain": [
+        {
+          "alt": [
+            "E."
+          ],
+          "token": "L."
+        }
+      ]
+    },
+    {
+      "i": 7,
+      "text": "the Quince, in that Liquor, & when"
+    },
+    {
+      "i": 8,
+      "text": "Tender, mash them, & then put your sug.r",
+      "uncertain": [
+        {
+          "alt": [
+            "sugar"
+          ],
+          "token": "sug.r"
+        }
+      ]
+    },
+    {
+      "i": 9,
+      "text": "to the Quinces, & boil it till it Looks"
+    },
+    {
+      "i": 10,
+      "text": "red & smooth, keeping it stirred all",
+      "uncertain": [
+        {
+          "alt": [
+            "stirr'd"
+          ],
+          "token": "stirred"
+        }
+      ]
+    },
+    {
+      "i": 11,
+      "text": "The time it Boils"
+    }
+  ],
+  "notes": [
+    {
+      "id": "full-ripe",
+      "quote": [
+        {
+          "fromWord": 4,
+          "line": 1,
+          "toWord": 5
+        }
+      ],
+      "span": "full ripe",
+      "step": 1
+    },
+    {
+      "id": "when-tender",
+      "quote": [
+        {
+          "fromWord": 6,
+          "line": 7,
+          "toWord": 6
+        },
+        {
+          "fromWord": 0,
+          "line": 8,
+          "toWord": 0
+        }
+      ],
+      "span": "when Tender",
+      "step": 4
+    },
+    {
+      "id": "looks-red-smooth",
+      "quote": [
+        {
+          "fromWord": 6,
+          "line": 9,
+          "toWord": 8
+        },
+        {
+          "fromWord": 0,
+          "line": 10,
+          "toWord": 2
+        }
+      ],
+      "span": "till it Looks red & smooth",
+      "step": 5
+    }
+  ],
+  "readers": [
+    "fallback"
+  ],
+  "segmentRun": {
+    "id": "sr-07e3ef462278",
+    "stripsHash": "e02d0e3532a4c77054665007dffd24c8621b99d359f67e3a999fe4149bc9f515"
+  },
+  "source": "fixtures/gold-readings.json",
+  "sourceSha256": "d351dea858514800c5c76bee69f643717cd22eb7839ff168cb5f9ce59cb90d53",
+  "steps": [
+    {
+      "lineIdx": [
+        1,
+        2
+      ],
+      "n": 1,
+      "text": "Let your quinces be full ripe, then wipe them, & pare them, & Quarter them, then"
+    },
+    {
+      "lineIdx": [
+        3,
+        4
+      ],
+      "n": 2,
+      "text": "take out the Cores and seeds, & boil the Pareings & seeds in Spring water, strain"
+    },
+    {
+      "lineIdx": [
+        5,
+        6
+      ],
+      "n": 3,
+      "text": "the Liquor, & weigh your Quinces, with the same weight of dry L. Sugar, boil"
+    },
+    {
+      "lineIdx": [
+        7,
+        8
+      ],
+      "n": 4,
+      "text": "the Quince, in that Liquor, & when Tender, mash them, & then put your sug.r"
+    },
+    {
+      "lineIdx": [
+        9,
+        10,
+        11
+      ],
+      "n": 5,
+      "text": "to the Quinces, & boil it till it Looks red & smooth, keeping it stirred all The time it Boils"
+    }
+  ],
+  "title": "To make Marmalade of Quinces",
+  "titleLine": 0
+}

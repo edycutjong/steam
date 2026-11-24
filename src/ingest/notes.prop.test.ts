@@ -1,4 +1,5 @@
-// S6: a span is accepted iff it equals the primary text of its quote; any one-character edit is rejected.
+// S6: a span is accepted iff it equals the primary text of its quote (the last word's trailing punctuation may be left
+// off); any other one-character edit is rejected.
 import fc from 'fast-check'
 import { describe, expect, it } from 'vitest'
 import { mergeSingle, tokenise } from './merge.ts'
@@ -34,6 +35,8 @@ describe('S6 notes', () => {
         const ch = String.fromCharCode(97 + (chr % 26))
         const edited = editKind === 0 ? span.slice(0, p) + ch + span.slice(p) : editKind === 1 && span.length > 0 ? span.slice(0, p % span.length) + span.slice((p % span.length) + 1) : span.slice(0, p % Math.max(1, span.length)) + (span[p % Math.max(1, span.length)] === ch ? 'Z' : ch) + span.slice((p % Math.max(1, span.length)) + 1)
         if (edited === span || edited === '') return
+        // the one accepted edit: leaving off the trailing punctuation of the last word (addendum 2c)
+        if (/[,.;:]$/.test(span) && span.replace(/[,.;:]+$/, '') === edited) return
         const bad = checkNotes(lines, steps, [{ id: 'n', step: 1, span: edited, quote }])
         expect(bad.errors.length).toBeGreaterThan(0)
         expect(bad.errors.join()).toMatch(/span is not a quotation/)

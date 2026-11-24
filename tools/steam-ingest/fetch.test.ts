@@ -10,7 +10,7 @@ afterAll(() => rmSync(dir, { recursive: true, force: true }))
 const target = KNOWN['quinces-marmalade']!
 const work = JSON.parse(readFileSync(join(root, 'fixtures/wellcome-work-zgtk6n7e.json'), 'utf8'))
 
-/** Serves the recorded responses and fails the test on any other URL (including any canvas but index 33). */
+/** Serves the recorded responses and fails the test on any other URL (including any canvas but index 32, image _0033.JP2). */
 function guarded(override?: (url: string) => Promise<{ status: number; body: Uint8Array } | undefined>): { get: Get; seen: string[] } {
   const base = fixtureGet(root)
   const seen: string[] = []
@@ -18,7 +18,7 @@ function guarded(override?: (url: string) => Promise<{ status: number; body: Uin
     seen,
     get: async (url) => {
       seen.push(url)
-      if (!/zgtk6n7e|b18419665$|b18419665_MS_1810_0034\.JP2\/full\/1600,\/0\/default\.jpg$/.test(url)) throw new Error(`test: unexpected request ${url}`)
+      if (!/zgtk6n7e|b18419665$|b18419665_MS_1810_0033\.JP2\/full\/1600,\/0\/default\.jpg$/.test(url)) throw new Error(`test: unexpected request ${url}`)
       return (await override?.(url)) ?? base(url)
     },
   }
@@ -33,8 +33,8 @@ describe('fetch', () => {
       shelfmark: 'MS.1810',
       workUrl: 'https://wellcomecollection.org/works/zgtk6n7e',
       manifest: 'https://iiif.wellcomecollection.org/presentation/v2/b18419665',
-      canvasIndex: 33,
-      imageService: 'https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0034.JP2',
+      canvasIndex: 32,
+      imageService: 'https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2',
       page: 'p.23',
       date: 'c. 1750 (IIIF manifest)',
       licence: { id: 'pdm', label: 'Public Domain Mark', url: 'https://creativecommons.org/share-your-work/public-domain/pdm/' },
@@ -69,7 +69,7 @@ describe('fetch', () => {
     expect(existsSync(join(d, '.page.jpg.tmp'))).toBe(false)
   })
   it('never fetches the held-out canvas', async () => {
-    await expect(fetchRecipe({ ...target, canvasIndex: 27 }, guarded().get, 'x')).rejects.toThrow(/held-out/)
+    for (const canvasIndex of [26, 27]) await expect(fetchRecipe({ ...target, canvasIndex }, guarded().get, 'x')).rejects.toThrow(/held-out/)
   })
   it('--from-fixture uses no network: the fixture get refuses any other URL', async () => {
     const g = fixtureGet(root)

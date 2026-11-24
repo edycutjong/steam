@@ -1,0 +1,17 @@
+{
+  "canvasIndex": 32,
+  "credit": "Wellcome Collection",
+  "date": "c. 1750 (IIIF manifest)",
+  "imageService": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2",
+  "institution": "Wellcome Collection",
+  "licence": {
+    "id": "pdm",
+    "label": "Public Domain Mark",
+    "url": "https://creativecommons.org/share-your-work/public-domain/pdm/"
+  },
+  "manifest": "https://iiif.wellcomecollection.org/presentation/v2/b18419665",
+  "page": "p.23",
+  "retrieved": "2026-11-24",
+  "shelfmark": "MS.1810",
+  "workUrl": "https://wellcomecollection.org/works/zgtk6n7e"
+}

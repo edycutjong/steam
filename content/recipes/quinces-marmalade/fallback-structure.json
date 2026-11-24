@@ -1,0 +1,16 @@
+{
+  "rationale": "Proposed by Kiro (agent) in turn 18 from the labelled fallback reading (fixtures/gold-readings.json), not from the agents' readings, which do not exist yet. Steps group whole lines so that each step reads as one action: prepare the fruit (1-2), cores and parings (3-4), weigh with sugar (5-6), boil and mash (7-8), boil with the sugar until done (9-11). Notes quote the three judgements the writer left in their own words; each span leaves off the trailing comma of its last word.",
+  "titleLine": 0,
+  "steps": [
+    { "n": 1, "lineIdx": [1, 2], "text": "Let your quinces be full ripe, then wipe them, & pare them, & Quarter them, then" },
+    { "n": 2, "lineIdx": [3, 4], "text": "take out the Cores and seeds, & boil the Pareings & seeds in Spring water, strain" },
+    { "n": 3, "lineIdx": [5, 6], "text": "the Liquor, & weigh your Quinces, with the same weight of dry L. Sugar, boil" },
+    { "n": 4, "lineIdx": [7, 8], "text": "the Quince, in that Liquor, & when Tender, mash them, & then put your sug.r" },
+    { "n": 5, "lineIdx": [9, 10, 11], "text": "to the Quinces, & boil it till it Looks red & smooth, keeping it stirred all The time it Boils" }
+  ],
+  "notes": [
+    { "id": "full-ripe", "step": 1, "span": "full ripe", "quote": [{ "line": 1, "fromWord": 4, "toWord": 5 }] },
+    { "id": "when-tender", "step": 4, "span": "when Tender", "quote": [{ "line": 7, "fromWord": 6, "toWord": 6 }, { "line": 8, "fromWord": 0, "toWord": 0 }] },
+    { "id": "looks-red-smooth", "step": 5, "span": "till it Looks red & smooth", "quote": [{ "line": 9, "fromWord": 6, "toWord": 8 }, { "line": 10, "fromWord": 0, "toWord": 2 }] }
+  ]
+}

@@ -44,9 +44,18 @@ describe('checkNotes (R17.3 to R17.6)', () => {
       { line: 2, fromWord: 0, toWord: 2, tokenCount: 7, k: 7 },
     ])
   })
-  it('rejects the hero span without its comma', () => {
+  it('accepts the hero span without the trailing comma of its last word, and records the quoted words', () => {
     const r = checkNotes(lines, steps, [{ ...hero, span: 'till it Looks red & smooth' }])
-    expect(r.errors.join()).toMatch(/looks-red-smooth: span is not a quotation/)
+    expect(r.errors).toEqual([])
+    expect(r.notes[0]!.quoted).toBe('till it Looks red & smooth,')
+  })
+  it('rejects any other edit: a comma dropped inside the span, a word changed, a comma added', () => {
+    for (const span of ['till it Looks red & smoot', 'till it looks red & smooth', 'till it Looks red & smooth,,', 'till it Looks red &smooth'])
+      expect(checkNotes(lines, steps, [{ ...hero, span }]).errors.join(), span).toMatch(/span is not a quotation/)
+    const mid = checkNotes(lines, steps, [{ ...hero, span: 'to the Quinces', quote: [{ line: 1, fromWord: 0, toWord: 2 }] }])
+    expect(mid.errors).toEqual([])
+    const midBad = checkNotes(lines, steps, [{ ...hero, span: 'to the Quinces &', quote: [{ line: 1, fromWord: 0, toWord: 3 }] }])
+    expect(midBad.errors.join()).toMatch(/span is not a quotation/)
   })
   it('rejects a missing step, a line outside the step, bad bounds and unordered or partial multi-line parts', () => {
     const bad = (n: Partial<NoteDef>) => checkNotes(lines, steps, [{ ...hero, ...n }]).errors.join()

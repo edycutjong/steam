@@ -1,0 +1,46 @@
+{
+  "blocks": [
+    {
+      "index": 0,
+      "lineCount": 13,
+      "yMax": 995,
+      "yMin": 0
+    },
+    {
+      "index": 1,
+      "lineCount": 12,
+      "yMax": 2051,
+      "yMin": 1001
+    }
+  ],
+  "chosen": {
+    "blockIndex": 1,
+    "columns": [
+      116,
+      1537
+    ],
+    "rows": [
+      1029,
+      1853
+    ],
+    "selectedBy": "curator"
+  },
+  "columnWidth": 1484,
+  "marginaliaCount": 0,
+  "pageLineCount": 25,
+  "pitch": 66.5,
+  "segmentRun": {
+    "id": "sr-07e3ef462278",
+    "stripsHash": "e02d0e3532a4c77054665007dffd24c8621b99d359f67e3a999fe4149bc9f515"
+  },
+  "separators": [
+    {
+      "method": "row-run",
+      "x0": 800,
+      "x1": 1372,
+      "y0": 996,
+      "y1": 1000
+    }
+  ],
+  "summary": "region rows 1029-1853 columns 116-1537, 12 lines, 2 blocks (13/12 lines), block 1 (curator), 0 marginalia, 1 separators"
+}

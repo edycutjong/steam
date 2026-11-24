@@ -50,7 +50,7 @@ describe('gate --all --verify (R38.3)', () => {
     writeFileSync(sp, second)
     const sc = join(f.root, 'content/recipes/bbb/agent/scribe.json')
     const scribe = readFileSync(sc, 'utf8')
-    writeFileSync(sc, scribe.replace('"span": "full ripe,"', '"span": "full ripe"'))
+    writeFileSync(sc, scribe.replace('"span": "full ripe,"', '"span": "full rip"'))
     expect(await main(['gate', '--all', '--verify'], f.root)).toBe(1)
     writeFileSync(sc, scribe)
   })

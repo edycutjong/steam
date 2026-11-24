@@ -60,7 +60,7 @@ describe('runGate states', () => {
     expect(g.gate.errors![0]).toMatch(/title does not equal line 1 verbatim/)
   })
   it('fails a span that is not a quotation', () => {
-    const g = runGate(ctx(withScribe((s) => ({ ...s, notes: [{ ...s.notes[0]!, span: 'full ripe' }] }))))
+    const g = runGate(ctx(withScribe((s) => ({ ...s, notes: [{ ...s.notes[0]!, span: 'full ripes' }] }))))
     expect(g.state).toBe('fail')
     expect(g.gate.errors!.join()).toMatch(/full-ripe: span is not a quotation/)
   })

@@ -81,64 +81,63 @@
     null,
     null,
     null,
-    null,
     {
-     "@id": "https://iiif.wellcomecollection.org/presentation/b18419665/canvases/b18419665_MS_1810_0034.JP2",
+     "@id": "https://iiif.wellcomecollection.org/presentation/b18419665/canvases/b18419665_MS_1810_0033.JP2",
      "@type": "sc:Canvas",
      "label": "-",
      "thumbnail": {
-      "@id": "https://iiif.wellcomecollection.org/thumbs/b18419665_MS_1810_0034.JP2/full/86,100/0/default.jpg",
+      "@id": "https://iiif.wellcomecollection.org/thumbs/b18419665_MS_1810_0033.JP2/full/78,100/0/default.jpg",
       "@type": "dctypes:Image",
       "service": {
        "@context": "http://iiif.io/api/image/2/context.json",
-       "@id": "https://iiif.wellcomecollection.org/thumbs/b18419665_MS_1810_0034.JP2",
+       "@id": "https://iiif.wellcomecollection.org/thumbs/b18419665_MS_1810_0033.JP2",
        "profile": "http://iiif.io/api/image/2/level0.json",
        "protocol": "http://iiif.io/api/image",
-       "width": 879,
+       "width": 799,
        "height": 1024,
        "sizes": [
         {
-         "width": 86,
+         "width": 78,
          "height": 100
         },
         {
-         "width": 172,
+         "width": 156,
          "height": 200
         },
         {
-         "width": 343,
+         "width": 312,
          "height": 400
         },
         {
-         "width": 879,
+         "width": 799,
          "height": 1024
         }
        ]
       }
      },
-     "height": 4739,
-     "width": 4066,
+     "height": 4737,
+     "width": 3695,
      "images": [
       {
-       "@id": "https://iiif.wellcomecollection.org/presentation/b18419665/canvases/b18419665_MS_1810_0034.JP2/painting/anno",
+       "@id": "https://iiif.wellcomecollection.org/presentation/b18419665/canvases/b18419665_MS_1810_0033.JP2/painting/anno",
        "@type": "oa:Annotation",
        "motivation": "sc:painting",
        "resource": {
-        "@id": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0034.JP2/full/879,1024/0/default.jpg",
+        "@id": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/full/799,1024/0/default.jpg",
         "@type": "dctypes:Image",
         "format": "image/jpeg",
         "height": 1024,
-        "width": 879,
+        "width": 799,
         "service": {
          "@context": "http://iiif.io/api/image/2/context.json",
-         "@id": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0034.JP2",
+         "@id": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2",
          "profile": "http://iiif.io/api/image/2/level1.json",
          "protocol": "http://iiif.io/api/image",
-         "width": 4066,
-         "height": 4739
+         "width": 3695,
+         "height": 4737
         }
        },
-       "on": "https://iiif.wellcomecollection.org/presentation/b18419665/canvases/b18419665_MS_1810_0034.JP2"
+       "on": "https://iiif.wellcomecollection.org/presentation/b18419665/canvases/b18419665_MS_1810_0033.JP2"
       }
      ],
      "within": ""
@@ -268,9 +267,10 @@
     null,
     null,
     null,
+    null,
     null
    ]
   }
  ],
- "_trimmed": "Recorded 2026-11-25 from https://iiif.wellcomecollection.org/presentation/v2/b18419665 by the ingest-pipeline build. Trimmed: every canvas except index 33 (p.23) is replaced by null; the indices are unchanged; structures, thumbnail, service, seeAlso and related removed. The held-out page is not in this file."
+ "_trimmed": "Recorded 2026-11-25 from https://iiif.wellcomecollection.org/presentation/v2/b18419665 by the ingest-pipeline build. Trimmed: every canvas except index 32 (0-based; image b18419665_MS_1810_0033.JP2, p.23, the page of fixtures/p0033.jpg) is replaced by null; the indices are unchanged; structures, thumbnail, service, seeAlso and related removed. The held-out page is not in this file."
 }

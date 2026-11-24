@@ -50,8 +50,13 @@ export interface CheckedNote {
   id: string
   step: number
   span: string
+  /** The quoted words exactly as the primary text has them; what the ink of a word-aligned note shows. */
+  quoted: string
   parts: QuotePart[]
 }
+
+/** Trailing punctuation that a span may leave off its last quoted word (addendum 2c, R17.5). */
+const TRAILING = /[,.;:]+$/
 
 /** R17.3 to R17.6. Errors are prefixed with the note id. */
 export function checkNotes(lines: EffectiveLine[], steps: StepDef[], notes: NoteDef[]): { errors: string[]; notes: CheckedNote[] } {
@@ -85,11 +90,12 @@ export function checkNotes(lines: EffectiveLine[], steps: StepDef[], notes: Note
     const want = parts
       .map((p) => tokenise(lines[p.line]!.primary).slice(p.fromWord, p.toWord + 1).join(' '))
       .join(' ')
-    if (n.span !== want) {
+    const trimmed = want.replace(TRAILING, '')
+    if (n.span !== want && !(trimmed !== want && n.span === trimmed)) {
       err(`span is not a quotation (the quoted words are ${JSON.stringify(want)})`)
       continue
     }
-    out.push({ id: n.id, step: n.step, span: n.span, parts })
+    out.push({ id: n.id, step: n.step, span: n.span, quoted: want, parts })
   }
   return { errors, notes: out }
 }

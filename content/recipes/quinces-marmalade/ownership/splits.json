@@ -1,0 +1,316 @@
+{
+  "segmentRun": {
+    "id": "sr-07e3ef462278",
+    "stripsHash": "e02d0e3532a4c77054665007dffd24c8621b99d359f67e3a999fe4149bc9f515"
+  },
+  "splits": [
+    {
+      "componentId": 1661441,
+      "lines": [
+        0,
+        1
+      ],
+      "pixelsPerLine": [
+        1062,
+        317
+      ],
+      "rows": [
+        1037,
+        1154
+      ],
+      "totalPixels": 1379,
+      "valleyRows": [
+        1104
+      ]
+    },
+    {
+      "componentId": 1776988,
+      "lines": [
+        1,
+        2
+      ],
+      "pixelsPerLine": [
+        632,
+        1009
+      ],
+      "rows": [
+        1109,
+        1224
+      ],
+      "totalPixels": 1641,
+      "valleyRows": [
+        1170
+      ]
+    },
+    {
+      "componentId": 1794062,
+      "lines": [
+        1,
+        2
+      ],
+      "pixelsPerLine": [
+        340,
+        223
+      ],
+      "rows": [
+        1120,
+        1199
+      ],
+      "totalPixels": 563,
+      "valleyRows": [
+        1170
+      ]
+    },
+    {
+      "componentId": 1840149,
+      "lines": [
+        1,
+        2
+      ],
+      "pixelsPerLine": [
+        91,
+        301
+      ],
+      "rows": [
+        1149,
+        1220
+      ],
+      "totalPixels": 392,
+      "valleyRows": [
+        1170
+      ]
+    },
+    {
+      "componentId": 1921459,
+      "lines": [
+        2,
+        3,
+        4
+      ],
+      "pixelsPerLine": [
+        202,
+        283,
+        96
+      ],
+      "rows": [
+        1200,
+        1333
+      ],
+      "totalPixels": 581,
+      "valleyRows": [
+        1234,
+        1298
+      ]
+    },
+    {
+      "componentId": 1937447,
+      "lines": [
+        2,
+        3
+      ],
+      "pixelsPerLine": [
+        146,
+        345
+      ],
+      "rows": [
+        1210,
+        1260
+      ],
+      "totalPixels": 491,
+      "valleyRows": [
+        1234
+      ]
+    },
+    {
+      "componentId": 1950176,
+      "lines": [
+        2,
+        3
+      ],
+      "pixelsPerLine": [
+        295,
+        573
+      ],
+      "rows": [
+        1218,
+        1266
+      ],
+      "totalPixels": 868,
+      "valleyRows": [
+        1234
+      ]
+    },
+    {
+      "componentId": 2006813,
+      "lines": [
+        3,
+        4
+      ],
+      "pixelsPerLine": [
+        573,
+        506
+      ],
+      "rows": [
+        1253,
+        1342
+      ],
+      "totalPixels": 1079,
+      "valleyRows": [
+        1298
+      ]
+    },
+    {
+      "componentId": 2115483,
+      "lines": [
+        4,
+        5
+      ],
+      "pixelsPerLine": [
+        367,
+        239
+      ],
+      "rows": [
+        1321,
+        1400
+      ],
+      "totalPixels": 606,
+      "valleyRows": [
+        1362
+      ]
+    },
+    {
+      "componentId": 2116075,
+      "lines": [
+        4,
+        5
+      ],
+      "pixelsPerLine": [
+        368,
+        709
+      ],
+      "rows": [
+        1321,
+        1414
+      ],
+      "totalPixels": 1077,
+      "valleyRows": [
+        1362
+      ]
+    },
+    {
+      "componentId": 2223102,
+      "lines": [
+        5,
+        6
+      ],
+      "pixelsPerLine": [
+        242,
+        410
+      ],
+      "rows": [
+        1388,
+        1488
+      ],
+      "totalPixels": 652,
+      "valleyRows": [
+        1426
+      ]
+    },
+    {
+      "componentId": 2287181,
+      "lines": [
+        6,
+        7
+      ],
+      "pixelsPerLine": [
+        816,
+        561
+      ],
+      "rows": [
+        1428,
+        1554
+      ],
+      "totalPixels": 1377,
+      "valleyRows": [
+        1496
+      ]
+    },
+    {
+      "componentId": 2324313,
+      "lines": [
+        6,
+        7
+      ],
+      "pixelsPerLine": [
+        369,
+        172
+      ],
+      "rows": [
+        1451,
+        1543
+      ],
+      "totalPixels": 541,
+      "valleyRows": [
+        1496
+      ]
+    },
+    {
+      "componentId": 2551877,
+      "lines": [
+        8,
+        9
+      ],
+      "pixelsPerLine": [
+        303,
+        1009
+      ],
+      "rows": [
+        1593,
+        1701
+      ],
+      "totalPixels": 1312,
+      "valleyRows": [
+        1632
+      ]
+    },
+    {
+      "componentId": 2658036,
+      "lines": [
+        9,
+        10
+      ],
+      "pixelsPerLine": [
+        454,
+        480
+      ],
+      "rows": [
+        1660,
+        1744
+      ],
+      "totalPixels": 934,
+      "valleyRows": [
+        1695
+      ]
+    },
+    {
+      "componentId": 2765987,
+      "lines": [
+        10,
+        11
+      ],
+      "pixelsPerLine": [
+        333,
+        3654
+      ],
+      "rows": [
+        1727,
+        1854
+      ],
+      "totalPixels": 3987,
+      "valleyRows": [
+        1761
+      ]
+    }
+  ],
+  "total": 16
+}

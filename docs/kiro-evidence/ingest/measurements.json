@@ -1,4 +1,36 @@
 {
+  "firstRun": {
+    "blocks": [
+      {
+        "index": 0,
+        "lineCount": 13
+      },
+      {
+        "index": 1,
+        "lineCount": 12
+      }
+    ],
+    "deskewApplied": true,
+    "deskewDeg": 1.6,
+    "lineCount": 12,
+    "marginaliaCount": 0,
+    "notes": [
+      "line count 12: the design predicted 12 (title + 11 body lines); no difference",
+      "default block selection took block 0 (13 lines, the previous recipe \"Ground rice Pudding\") over block 1 (12 lines); the recipe was selected with the documented ordinal --block 1 (selectedBy curator); no constant changed",
+      "deskew measured 1.6 deg and applied (|angle| >= 0.5); the design expected it not to be applied on p0033",
+      "marginalia 0: the design expected \"(No. 26)\" to be cut as marginalia, but its gap to the text column is under P/2, so its ink is owned by the lines beside it; no constant changed",
+      "slant 0.8: the upper end of the search range [-0.5, 0.8]",
+      "canvas: the spec said 0-based canvas index 33; that is the next page (_0034.JP2, 1600x1865). The fixture is index 32 (_0033.JP2); the live download of index 32 is byte-identical to fixtures/p0033.jpg. R4.1 corrected."
+    ],
+    "region": {
+      "x0": 116,
+      "x1": 1537,
+      "y0": 1029,
+      "y1": 1853
+    },
+    "slant": 0.8,
+    "source": "steam-ingest fetch quinces-marmalade --fallback-to-fixture (live API answered), then segment quinces-marmalade, then segment --block 1"
+  },
   "segment": {
     "blockCount": 2,
     "blockIndex": 1,

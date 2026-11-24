@@ -38,7 +38,7 @@ describe('fallback (R34)', () => {
   })
   it('refuses a structure whose span is not a quotation', () => {
     const s2 = join(dir, 's2.json')
-    writeFileSync(s2, JSON.stringify({ ...structure, notes: [{ ...structure.notes[0], span: 'full ripe' }] }))
+    writeFileSync(s2, JSON.stringify({ ...structure, notes: [{ ...structure.notes[0], span: 'full rip' }] }))
     expect(() => fallbackCmd({ recipeDir: dir, goldPath, goldName: 'x', structurePath: s2 })).toThrow(/span is not a quotation/)
   })
 })
