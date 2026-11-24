@@ -1,10 +1,47 @@
 {
-  "disagreements": [],
+  "disagreements": [
+    {
+      "a": "marmalade",
+      "b": "Marmalade",
+      "line": 0,
+      "word": 2
+    },
+    {
+      "a": "water,",
+      "b": "water.",
+      "line": 4,
+      "word": 5
+    },
+    {
+      "a": "6.",
+      "b": "C.",
+      "line": 6,
+      "word": 5
+    },
+    {
+      "a": "sug.r",
+      "b": "sugʳ.",
+      "line": 8,
+      "word": 7
+    },
+    {
+      "a": "Quinces,",
+      "b": "Quinces.",
+      "line": 9,
+      "word": 2
+    },
+    {
+      "a": "stired",
+      "b": "stir'd",
+      "line": 10,
+      "word": 5
+    }
+  ],
   "lines": [
     {
       "i": 0,
-      "merged": "To make Marmalade of Quinces",
-      "primary": "To make Marmalade of Quinces",
+      "merged": "To make †[marmalade|Marmalade] of Quinces",
+      "primary": "To make marmalade of Quinces",
       "wordCount": 5
     },
     {
@@ -27,7 +64,7 @@
     },
     {
       "i": 4,
-      "merged": "Pareings & seeds in Spring water, strain",
+      "merged": "Pareings & seeds in Spring †[water,|water.] strain",
       "primary": "Pareings & seeds in Spring water, strain",
       "wordCount": 7
     },
@@ -39,8 +76,8 @@
     },
     {
       "i": 6,
-      "merged": "the same weight of dry L. Sugar, boil",
-      "primary": "the same weight of dry L. Sugar, boil",
+      "merged": "the same weight of dry †[6.|C.] Sugar, boil",
+      "primary": "the same weight of dry 6. Sugar, boil",
       "wordCount": 8
     },
     {
@@ -51,20 +88,20 @@
     },
     {
       "i": 8,
-      "merged": "Tender, mash them, & then put your sug.r",
+      "merged": "Tender, mash them, & then put your †[sug.r|sugʳ.]",
       "primary": "Tender, mash them, & then put your sug.r",
       "wordCount": 8
     },
     {
       "i": 9,
-      "merged": "to the Quinces, & boil it till it Looks",
+      "merged": "to the †[Quinces,|Quinces.] & boil it till it Looks",
       "primary": "to the Quinces, & boil it till it Looks",
       "wordCount": 9
     },
     {
       "i": 10,
-      "merged": "red & smooth, keeping it stirred all",
-      "primary": "red & smooth, keeping it stirred all",
+      "merged": "red. & smooth, keeping it †[stired|stir'd] all",
+      "primary": "red. & smooth, keeping it stired all",
       "wordCount": 7
     },
     {
@@ -77,40 +114,135 @@
   "readerUncertain": [
     {
       "alt": [
-        "Parings",
-        "Parcings"
+        "Marmalade"
+      ],
+      "line": 0,
+      "reader": "scribe",
+      "token": "marmalade"
+    },
+    {
+      "alt": [
+        "Pare"
+      ],
+      "line": 2,
+      "reader": "second",
+      "token": "pare"
+    },
+    {
+      "alt": [
+        "cores",
+        "Coree"
+      ],
+      "line": 3,
+      "reader": "scribe",
+      "token": "Cores"
+    },
+    {
+      "alt": [
+        "cores"
+      ],
+      "line": 3,
+      "reader": "second",
+      "token": "Cores"
+    },
+    {
+      "alt": [
+        "Parings"
       ],
       "line": 4,
-      "reader": "fallback",
+      "reader": "scribe",
       "token": "Pareings"
     },
     {
       "alt": [
-        "E."
+        "water,"
       ],
-      "line": 6,
-      "reader": "fallback",
-      "token": "L."
+      "line": 4,
+      "reader": "second",
+      "token": "water."
     },
     {
       "alt": [
-        "sugar"
+        "L.",
+        "D."
+      ],
+      "line": 6,
+      "reader": "scribe",
+      "token": "6."
+    },
+    {
+      "alt": [
+        "L.",
+        "6."
+      ],
+      "line": 6,
+      "reader": "second",
+      "token": "C."
+    },
+    {
+      "alt": [
+        "Liquors,"
+      ],
+      "line": 7,
+      "reader": "scribe",
+      "token": "Liquor,"
+    },
+    {
+      "alt": [
+        "sug.",
+        "sugr"
       ],
       "line": 8,
-      "reader": "fallback",
+      "reader": "scribe",
       "token": "sug.r"
     },
     {
       "alt": [
-        "stirr'd"
+        "sug.",
+        "sugᵗ."
+      ],
+      "line": 8,
+      "reader": "second",
+      "token": "sugʳ."
+    },
+    {
+      "alt": [
+        "Quinces,"
+      ],
+      "line": 9,
+      "reader": "second",
+      "token": "Quinces."
+    },
+    {
+      "alt": [
+        "red"
       ],
       "line": 10,
-      "reader": "fallback",
-      "token": "stirred"
+      "reader": "scribe",
+      "token": "red."
+    },
+    {
+      "alt": [
+        "stir'd",
+        "stirid"
+      ],
+      "line": 10,
+      "reader": "scribe",
+      "token": "stired"
+    },
+    {
+      "alt": [
+        "stirr'd",
+        "stirred"
+      ],
+      "line": 10,
+      "reader": "second",
+      "token": "stir'd"
     }
   ],
   "readers": [
-    "fallback"
+    "scribe",
+    "second"
   ],
   "segmentRun": {
     "id": "sr-07e3ef462278",

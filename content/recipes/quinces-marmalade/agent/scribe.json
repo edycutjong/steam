@@ -1,29 +1,30 @@
 {
   "segmentRun": { "id": "sr-07e3ef462278", "stripsHash": "e02d0e3532a4c77054665007dffd24c8621b99d359f67e3a999fe4149bc9f515" },
-  "title": "To make Marmalade of Quinces",
+  "title": "To make marmalade of Quinces",
   "titleLine": 0,
   "lines": [
-    { "i": 0, "text": "To make Marmalade of Quinces", "uncertain": [ { "token": "make", "alt": ["Make"] } ] },
+    { "i": 0, "text": "To make marmalade of Quinces", "uncertain": [ { "token": "marmalade", "alt": ["Marmalade"] } ] },
     { "i": 1, "text": "Let your quinces be full ripe, then wipe" },
-    { "i": 2, "text": "(No1) them, & pare them, & Quarter them, then", "uncertain": [ { "token": "(No1)", "alt": ["(N.o1)", "(?)"] } ] },
-    { "i": 3, "text": "(N.26) take out the Cores and seeds, & boil the", "uncertain": [ { "token": "(N.26)", "alt": ["(No26)"] }, { "token": "Cores", "alt": ["cores", "Corer"] } ] },
-    { "i": 4, "text": "Pareings & seeds in Spring water, strain", "uncertain": [ { "token": "water,", "alt": ["water."] } ] },
-    { "i": 5, "text": "the Quince, in that Liquor, & when (?)", "uncertain": [ { "token": "(?)", "alt": [] } ] },
-    { "i": 6, "text": "the Liquor, & weigh your Quinces, with" },
-    { "i": 7, "text": "the same weight of dry b. Sugar, boil", "uncertain": [ { "token": "b.", "alt": ["6.", "B."] } ] },
-    { "i": 8, "text": "to the Quinces, & boil it till it Looks" },
-    { "i": 9, "text": "Tender, mash them, & then put your sug.r" },
-    { "i": 10, "text": "red. & smooth, keeping it stirid all", "uncertain": [ { "token": "red.", "alt": ["red"] }, { "token": "stirid", "alt": ["stir'd", "stired"] } ] },
+    { "i": 2, "text": "them, & pare them, & Quarter them, then" },
+    { "i": 3, "text": "take out the Cores and seeds, & boil the", "uncertain": [ { "token": "Cores", "alt": ["cores", "Coree"] } ] },
+    { "i": 4, "text": "Pareings & seeds in Spring water, strain", "uncertain": [ { "token": "Pareings", "alt": ["Parings"] } ] },
+    { "i": 5, "text": "the Liquor, & weigh your Quinces, with" },
+    { "i": 6, "text": "the same weight of dry 6. Sugar, boil", "uncertain": [ { "token": "6.", "alt": ["L.", "D."] } ] },
+    { "i": 7, "text": "the Quince, in that Liquor, & when", "uncertain": [ { "token": "Liquor,", "alt": ["Liquors,"] } ] },
+    { "i": 8, "text": "Tender, mash them, & then put your sug.r", "uncertain": [ { "token": "sug.r", "alt": ["sug.", "sugr"] } ] },
+    { "i": 9, "text": "to the Quinces, & boil it till it Looks" },
+    { "i": 10, "text": "red. & smooth, keeping it stired all", "uncertain": [ { "token": "red.", "alt": ["red"] }, { "token": "stired", "alt": ["stir'd", "stirid"] } ] },
     { "i": 11, "text": "The time it Boils" }
   ],
   "steps": [
-    { "n": 1, "lineIdx": [1, 2], "text": "Let your quinces be full ripe, then wipe (No1) them, & pare them, & Quarter them, then" },
-    { "n": 2, "lineIdx": [3, 4], "text": "(N.26) take out the Cores and seeds, & boil the Pareings & seeds in Spring water, strain" },
-    { "n": 3, "lineIdx": [5, 6], "text": "the Quince, in that Liquor, & when (?) the Liquor, & weigh your Quinces, with" },
-    { "n": 4, "lineIdx": [7, 8, 9, 10, 11], "text": "the same weight of dry b. Sugar, boil to the Quinces, & boil it till it Looks Tender, mash them, & then put your sug.r red. & smooth, keeping it stirid all The time it Boils" }
+    { "n": 1, "lineIdx": [1, 2], "text": "Let your quinces be full ripe, then wipe them, & pare them, & Quarter them, then" },
+    { "n": 2, "lineIdx": [3, 4, 5], "text": "take out the Cores and seeds, & boil the Pareings & seeds in Spring water, strain the Liquor, & weigh your Quinces, with" },
+    { "n": 3, "lineIdx": [6, 7, 8], "text": "the same weight of dry 6. Sugar, boil the Quince, in that Liquor, & when Tender, mash them, & then put your sug.r" },
+    { "n": 4, "lineIdx": [9, 10, 11], "text": "to the Quinces, & boil it till it Looks red. & smooth, keeping it stired all The time it Boils" }
   ],
   "notes": [
     { "id": "full-ripe", "step": 1, "span": "full ripe", "quote": [ { "line": 1, "fromWord": 4, "toWord": 5 } ] },
-    { "id": "till-it-looks-red-smooth", "step": 4, "span": "till it Looks red. & smooth", "quote": [ { "line": 8, "fromWord": 6, "toWord": 8 }, { "line": 10, "fromWord": 0, "toWord": 2 } ] }
+    { "id": "when-tender", "step": 3, "span": "when Tender", "quote": [ { "line": 7, "fromWord": 6, "toWord": 6 }, { "line": 8, "fromWord": 0, "toWord": 0 } ] },
+    { "id": "till-it-looks-red-smooth", "step": 4, "span": "till it Looks red. & smooth", "quote": [ { "line": 9, "fromWord": 6, "toWord": 8 }, { "line": 10, "fromWord": 0, "toWord": 2 } ] }
   ]
 }
