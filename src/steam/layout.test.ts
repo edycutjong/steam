@@ -93,9 +93,9 @@ describe('desktop layout', () => {
       expect(top + (bottom - top) / 2).toBeCloseTo(h / 2, 6)
     })
   }
-  it('makes the wider group ~67.5% of a roomy pane, capped at 1.6x', () => {
-    const [a] = computeLayout('page', 1236, 345, heroMeta).groups
-    expect(a.scale).toBeCloseTo((1236 * DESKTOP_FILL) / 465, 6)
+  it('makes the wider group ~67.5% of a 1000 px pane, capped at 1.6x', () => {
+    const [a] = computeLayout('page', 1000, 600, heroMeta).groups
+    expect(a.scale).toBeCloseTo((1000 * DESKTOP_FILL) / 465, 6)
     const big = computeLayout('page', 3000, 2000, heroMeta).groups
     expect(big[0].scale).toBe(S_MAX_DESKTOP)
   })
