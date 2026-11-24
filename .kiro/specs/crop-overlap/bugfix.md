@@ -29,7 +29,7 @@ Measured on the fixed code (`green.txt`): 9 passed, 5 expected fail (the eye-rea
 1. P2 (inside the page) and P5 (contrast) hold for every note of every recipe exactly as before.
 2. Step grouping and note spans in `merged.json` and the gate's `alignment` block are byte-identical before and after.
 3. The hero note's time-of-ink map is unchanged when its mask is unchanged (the map is a function of the mask alone).
-4. The gate result for a recipe with no eye-read boxes is identical: same `gate.json` content (apart from `at`), same note PNGs and time-of-ink PNGs, byte for byte. Frozen from the unfixed tree in `docs/kiro-evidence/crop-overlap/before-fix.json` (the two synthetic recipes in full; the real recipe's merged.json, verdicts and the full-ripe and looks-red-smooth notes. when-tender is left out of the freeze because the word-align-speck spec changes its alignment on purpose).
+4. The gate result for a recipe with no eye-read boxes is identical: same `gate.json` content (apart from `at`), same note PNGs and time-of-ink PNGs, byte for byte. Frozen from the unfixed tree in `docs/kiro-evidence/crop-overlap/before-fix.json` (the two synthetic recipes in full; the real recipe's merged.json, verdicts and the full-ripe and looks-red-smooth notes. when-tender is left out of the freeze because the word-align-speck spec changes its alignment on purpose). After word-align-speck, S4 no longer compares the overall gate state (it follows P5, which that fix turns to pass) or the hero's rejected candidate, which is never shipped and is cut from line 9's runs, which that fix changes.
 5. `checkP4`, `noteMask` and the ownership masks are not edited.
 6. Nothing is tuned: no threshold, constant or tolerance changes.
 

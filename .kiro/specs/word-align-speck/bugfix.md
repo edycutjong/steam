@@ -32,16 +32,34 @@ Terms. "Speck": an ink component of fewer than `MIN_COMPONENT_PX` (30) pixels. T
 5. `runs.json` changes only for lines whose extent held a speck outside the writing.
 6. No constant is edited; one is added (`WORD_INK_MIN_PX`, equal to `MIN_COMPONENT_PX`).
 
+## Measured
+
+- Red (`red.txt`, unfixed code, 3 of 3 fail): `when-tender/line 8: word 0 holds 0 ink px (floor 30); the alignment was auto: accepted: 7 boundaries`; `when-tender's line 8 part shows 4 px (floor 30)`; `P5: contrast when-tender: 111; when-tender/line 7: 90; when-tender/line 8: no background`.
+- Green (`green.txt`, fixed code): 3 of 3 pass. Line 8's extent is 301 to 1514 (was 127 to 1514); its automatic alignment is accepted with boundaries 467, 604, 723, 1028, 1098, 1228, 1496 (was 217, 467, 604, 723, 1098, 1228, 1496). The note's line 8 part grew from 1362 to 3023 mask px; P5 for `when-tender/line 8` is 78.
+- Preservation (`preservation.txt`, 9 of 9 pass; baseline `before-fix.json` from the red commit's tree): the lines quoted by notes other than line 8 (1, 7, 9, 10) align exactly as before; the P3 result, split shares and reviews are unchanged; the hero note's whole-line mask, PNG, time-of-ink map and JSON are byte-identical.
+- Lines whose automatic alignment changed, none of them quoted by a note: 0 (the title; a speck past the end of the writing moved the last boundary from 1503 to 1365), 2 (extent 136 to 1520 became 163 to 1506; now accepted), 4 (extent 92 to 1542 became 210 to 1533; still ambiguous, with different widths in the detail), 11 (the unfixed code accepted boundaries 687, 720, 799 with word 1 holding 0 ink px; the floor rejects that). So the statement "other lines' alignment is unchanged" holds for every line a note quotes, and for every line whose extent held no speck, except where the floor caught an inkless word.
+- Gate after the fix (`npm run ingest:gate`): pass, P1 to P6; `npm run props` exits 0. No curator `alignment.json` was written: none is needed for the gate, and the gate never reads one for a line whose automatic alignment is accepted.
+
+## Found during this fix, not fixed (open)
+
+A visual check of the shipped note PNGs (Kiro, flattening the alpha on white) shows that every word-aligned part on this page is cut in the wrong place, although P1 to P6 pass:
+
+- `full-ripe` (line 1, words 4 to 5, captioned "full ripe,") shows the last letter of "be" and "full", not "ripe,". This was already the case before this fix.
+- `when-tender` line 7 word 6 (captioned "when") shows the final "n" of "when" and the blot after it: the last boundary falls inside "when". This was already the case before this fix.
+- `when-tender` line 8 word 0 (captioned "Tender,") shows "Tend": the first boundary falls in the gap inside "Tender" (between "d" and "e"), which in this hand is wider than the gap before "mash". Before the fix it showed the speck.
+
+Root cause, as far as measured: the automatic rule ranks gaps by width, and in this hand gaps inside a word are often as wide as gaps between words. The acceptance test (k-1th run strictly wider than the next, and 1.5 times the median of the rest) does not detect a cut that is wrong but confident. P4 restates the mask from the same word regions, so it cannot detect a wrong cut. Recall is scored only for the hero note, whose fixture words would show the problem; the hero ships as whole lines. This needs its own bugfix spec (for example: score every word-aligned note against a fixture or reject alignment where word widths contradict the reading). It is left open here because no fix inside this spec's scope exists without changing the method or a threshold.
+
 ## Tasks
 
-- [ ] 1. Commit A, `[kiro] word-align-speck: exploration test reproducing it on the real page (red)`
+- [x] 1. Commit A, `[kiro] word-align-speck: exploration test reproducing it on the real page (red)`
   - `src/ingest/alignSpeck.bug.test.ts` on the real Quinces page: line 8's accepted alignment must give every word at least the floor of ink, and the gate must pass P5 for `when-tender`. Both fail on the unfixed code and name the line, the word and the pixel count.
   - Save the failing output to `docs/kiro-evidence/word-align-speck/red.txt` and append a line to `hooks.log`.
-- [ ] 2. Commit B, `[kiro] word-align-speck: fix from the root cause (green)`
+- [x] 2. Commit B, `[kiro] word-align-speck: fix from the root cause (green)`
   - Extent from components of at least 30 px in `zeroRuns`; the ink floor in `alignAuto` and `alignCurator`; word regions clipped to the extent in `noteMask` and P4's independent mask; design.md and the constants table updated.
   - The same test now passes; save `green.txt`; append a line to `hooks.log`.
-- [ ] 3. Commit C, `[kiro] word-align-speck: preservation properties (Unchanged)`
+- [x] 3. Commit C, `[kiro] word-align-speck: preservation properties (Unchanged)`
   - `src/ingest/alignSpeck.prop.test.ts`: other lines' alignment, the P3 review result and the hero note's whole-line mask are unchanged; random lines with a speck added outside the writing align exactly as the line without it; a candidate with an inkless word is always rejected.
-- [ ] 4. Re-run the gate on the real recipe
+- [x] 4. Re-run the gate on the real recipe
   - `npm run ingest:gate`, report every P1 to P6 line; `npm run props` exits 0 if the gate passes. Re-write the recipe's artifacts the gate produces and commit them. A curator `alignment.json` only from code-found runs, if still needed.
-- [ ] 5. Evidence and ticks; final check: `npm test`, `npm run typecheck`, `npm run build` pass.
+- [x] 5. Evidence and ticks; final check: `npm test`, `npm run typecheck`, `npm run build` pass.
