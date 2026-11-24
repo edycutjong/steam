@@ -211,7 +211,7 @@ Rules for every task:
 
 ## H. Shelf and edition view
 
-- [ ] 32. `ArchiveSlip`, `ReadingText`, credit line
+- [x] 32. `ArchiveSlip`, `ReadingText`, credit line
   - Test first: `src/app/components/ArchiveSlip.test.tsx`: renders institution, shelfmark, page, date "c. 1750 (IIIF manifest)", licence label as a link to the licence `url`, and the credit line "Wellcome Collection, Public Domain Mark" from the real bundle; the DM Mono class and the `--rule` hairline are present (class names asserted); an expanded slip adds work URL, manifest, canvas, image service, retrieved date; the reading line for scribe and second-reader, and for a `["fallback"]` variant with `by` "Test Reader" gives "Read by Test Reader (fallback reading, not by the Kiro readers)"; the disagreement count equals the bundle's `disagreements.length`; the review line is "Reviewed by: Claude Code builder agent (autopilot P1b), not a human, 2026-11-25" read from the bundle; ownership reviewers and `alignmentBy` appear verbatim; the strings "curator", "verified" and "approved" never appear. `ReadingText.test.tsx`: marks render as `†[a|b]` with `role="group"`, the accessible name and the shared description id; an empty reading renders `†[(N.26)|]`.
   - Implement the two components and the credit helper `creditLine(bundle)`.
   - Files: `src/app/components/ArchiveSlip.tsx`, `src/app/components/ReadingText.tsx`, `src/app/components/*.test.tsx`, `src/app/app.css`.
