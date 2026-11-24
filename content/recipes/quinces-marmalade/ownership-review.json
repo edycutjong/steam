@@ -1,0 +1,62 @@
+{
+  "decisions": [
+    {
+      "componentId": 1794062,
+      "decision": {
+        "assignToLine": 1
+      },
+      "overlay": "ownership/flag-1794062.png",
+      "rationale": "The stroke is the long descender of the f of \"full\" (line 1), which loops down past \"them,\" of line 2 without joining any letter there.",
+      "reviewer": "Kiro (agent), turn-18"
+    },
+    {
+      "componentId": 2287181,
+      "decision": {
+        "assignToLine": 6
+      },
+      "overlay": "ownership/flag-2287181.png",
+      "rationale": "The stroke is the long f of \"of\" in \"weight of dry\" (line 6); its tail crosses into \"that\" on line 7 but none of line 7's letters is part of this component.",
+      "reviewer": "Kiro (agent), turn-18"
+    },
+    {
+      "componentId": 2324313,
+      "decision": {
+        "assignToLine": 6
+      },
+      "overlay": "ownership/flag-2324313.png",
+      "rationale": "The stroke is the g of \"Sugar\" (line 6) with its descender tail, which ends above \"Liquor,\" on line 7.",
+      "reviewer": "Kiro (agent), turn-18"
+    },
+    {
+      "componentId": 2551877,
+      "decision": {
+        "splitAtRow": 1632
+      },
+      "overlay": "ownership/flag-2551877.png",
+      "rationale": "Two letters really joined: the tail of the g of \"sug.\" (line 8) runs into the top of the k of \"Looks\" (line 9); the automatic valley row 1632 lies at the meeting point and is kept as the cut.",
+      "reviewer": "Kiro (agent), turn-18"
+    },
+    {
+      "componentId": 2658036,
+      "decision": {
+        "splitAtRow": 1684
+      },
+      "overlay": "ownership/flag-2658036.png",
+      "rationale": "Two letters really joined: the o of \"to\" (line 9) touches the curled ascender of the d of \"red\" (line 10); the cut is moved up to row 1684, just under the bowl of the o, so the whole curl stays with the d.",
+      "reviewer": "Kiro (agent), turn-18"
+    },
+    {
+      "componentId": 2765987,
+      "decision": {
+        "splitAtRow": 1761
+      },
+      "overlay": "ownership/flag-2765987.png",
+      "rationale": "One pen stroke: the bowl of the g of \"keeping\" (line 10) continues as the long descender that becomes the closing rule under \"The time it Boils\" (line 11); the bowl stays with line 10 and the descender and rule go with line 11 at the automatic valley row 1761.",
+      "reviewer": "Kiro (agent), turn-18"
+    }
+  ],
+  "segmentRun": {
+    "id": "sr-07e3ef462278",
+    "stripsHash": "e02d0e3532a4c77054665007dffd24c8621b99d359f67e3a999fe4149bc9f515"
+  }
+}

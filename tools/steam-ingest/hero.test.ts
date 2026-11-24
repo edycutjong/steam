@@ -19,7 +19,6 @@ const copy = (rel: string, from = real, to = dir) => {
 }
 for (const f of ['page.jpg', 'source.json', 'lines.json', 'fallback/reading.json']) copy(f)
 for (const f of ['fixtures/gold-readings.json', 'fixtures/hero-word-bounds.json']) copy(f, repo, root)
-const hasReview = existsSync(join(real, 'ownership-review.json'))
 const stripAt = (g: unknown) => {
   const { at: _a, ...rest } = g as Record<string, unknown>
   void _a
@@ -35,9 +34,8 @@ describe('the hero note on the committed real folder (R40.4)', { timeout: 60_000
     expect(hero.status).toBe('failed')
     for (const c of hero.flagged) expect(existsSync(join(dir, `ownership/flag-${c}.png`))).toBe(true)
     expect(r.gate.recall!.find((x) => x.noteId === 'looks-red-smooth')!.threshold).toBe(JSON.parse(readFileSync(join(repo, 'fixtures/hero-word-bounds.json'), 'utf8')).recallThreshold)
-    if (!hasReview) expect(stripAt(r.gate)).toBe(stripAt(JSON.parse(readFileSync(join(real, 'gate.json'), 'utf8'))))
   })
-  it.runIf(hasReview)('reviewed: with the committed ownership-review.json the hero note passes P3 as reviewed, never auto, and the committed gate.json is reproduced', () => {
+  it('reviewed: with the committed ownership-review.json the hero note passes P3 as reviewed, never auto, and the committed gate.json is reproduced', () => {
     copy('ownership-review.json')
     const r = gateCmd(id, { root, noLog: true })
     const reviewer = JSON.parse(readFileSync(join(real, 'ownership-review.json'), 'utf8')).decisions[0].reviewer

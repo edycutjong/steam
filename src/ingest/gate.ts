@@ -486,6 +486,11 @@ export function runGate(ctx: GateCtx): GateResult {
       artifacts.png.set(`ownership/flag-${id}.png`, renderFlagCrop(sf.scan, own, seg.labels, seg.bands, id).image)
     }
   }
+  // every reviewed component keeps the crop its decision names (R13.1 `overlay`), flagged now or not
+  for (const d of decisions) {
+    const rel = `ownership/flag-${d.componentId}.png`
+    if (!artifacts.png.has(rel)) artifacts.png.set(rel, renderFlagCrop(sf.scan, own, seg.labels, seg.bands, d.componentId).image)
+  }
 
   // 9. Properties
   const p1 = checkP1({

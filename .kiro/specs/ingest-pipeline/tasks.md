@@ -260,7 +260,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `content/recipes/quinces-marmalade/gate.json`, `docs/kiro-evidence/hooks.log`.
   - Satisfies: R12.3, R20.1 to R20.3, R27.4, R27.5, R33.1.
 
-- [ ] 44. Ownership review for the hero note (curator or agent step)
+- [x] 44. Ownership review for the hero note (curator or agent step)
   - Only when P3 failed with "joined strokes: needs review": the writer (a person, or an agent that names itself in `reviewer`) looks at each `ownership/flag-<id>.png` and writes `ownership-review.json` with a decision, reviewer and one-line rationale per flagged component. Re-run `ingest:gate`; the hero note must report `reviewed (n components, by <reviewer>)`, never an automatic pass. `review.json` stays hand-written and is not part of this task.
   - Files: `content/recipes/quinces-marmalade/ownership-review.json`.
   - Satisfies: R13.1 to R13.7.

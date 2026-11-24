@@ -1,65 +1,71 @@
 {
-  "alignment": "lines",
-  "granularity": "lines",
+  "alignment": "auto",
+  "granularity": "words",
   "groups": [
     {
       "coreBand": [
-        67,
-        89
+        49,
+        71
       ],
-      "inkPx": 10236,
+      "inkPx": 1358,
       "line": 7,
       "rect": [
-        222,
+        1317,
         32,
         1443,
-        127
+        109
       ],
       "t": [
         0,
-        0.46881241358119524
+        0.9476744186046512
       ],
-      "words": "line"
+      "words": {
+        "from": 6,
+        "to": 6
+      }
     },
     {
       "coreBand": [
-        135,
-        155
+        117,
+        137
       ],
-      "inkPx": 10651,
+      "inkPx": 4,
       "line": 8,
       "rect": [
         32,
-        102,
-        1419,
-        187
+        128,
+        33,
+        138
       ],
       "t": [
-        0.46881241358119524,
+        0.9476744186046512,
         1
       ],
-      "words": "line"
+      "words": {
+        "from": 0,
+        "to": 0
+      }
     }
   ],
   "noteId": "when-tender",
   "pageBox": [
     94,
-    1464,
+    1482,
     1569,
-    1683
+    1652
   ],
   "resampled": true,
-  "shownText": "the Quince, in that Liquor, & when Tender, mash them, & then put your sug.r",
+  "shownText": "when Tender,",
   "size": [
     1475,
-    219
+    170
   ],
   "source": "Wellcome Collection",
   "span": "when Tender",
-  "splitShare": 0.049600229808014554,
-  "splitStatus": "failed",
+  "splitShare": 0,
+  "splitStatus": "auto",
   "step": 4,
   "trace": "a path traced from the ink, left to right",
   "verifyApproximate": true,
-  "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:4.7418,70.3760,92.4759,12.6754/full/0/default.jpg"
+  "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:4.7959,71.2529,92.3905,10.2884/full/0/default.jpg"
 }

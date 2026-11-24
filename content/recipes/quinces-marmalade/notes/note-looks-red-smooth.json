@@ -7,7 +7,7 @@
         57,
         82
       ],
-      "inkPx": 10156,
+      "inkPx": 9971,
       "line": 9,
       "rect": [
         32,
@@ -17,7 +17,7 @@
       ],
       "t": [
         0,
-        0.5083934866543562
+        0.5080523402113739
       ],
       "words": "line"
     },
@@ -26,16 +26,16 @@
         123,
         143
       ],
-      "inkPx": 10663,
+      "inkPx": 10848,
       "line": 10,
       "rect": [
         58,
-        88,
+        84,
         1231,
         183
       ],
       "t": [
-        0.5083934866543562,
+        0.5080523402113739,
         1
       ],
       "words": "line"
@@ -57,7 +57,7 @@
   "source": "Wellcome Collection",
   "span": "till it Looks red & smooth",
   "splitShare": 0.10932321437148758,
-  "splitStatus": "failed",
+  "splitStatus": "reviewed",
   "step": 5,
   "trace": "a path traced from the ink, left to right",
   "verifyApproximate": true,

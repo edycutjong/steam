@@ -12,7 +12,7 @@
             569,
             818,
             865,
-            899,
+            898,
             1035,
             1282
           ],
@@ -26,18 +26,24 @@
       ]
     },
     {
-      "alignment": "lines",
-      "granularity": "lines",
+      "alignment": "auto",
+      "granularity": "words",
       "noteId": "when-tender",
       "parts": [
         {
-          "autoDetail": "alignment ambiguous: 6th widest run 12, next 12, 1.5 x median of the rest 8.5 = 12.75",
-          "boundaries": [],
+          "autoDetail": "accepted: 6 boundaries",
+          "boundaries": [
+            559,
+            806,
+            843,
+            948,
+            1282,
+            1409
+          ],
           "fromWord": 6,
           "line": 7,
-          "method": "lines",
+          "method": "auto",
           "projection": "sheared",
-          "reason": "alignment ambiguous: 6th widest run 12, next 12, 1.5 x median of the rest 8.5 = 12.75",
           "s": 0.8,
           "toWord": 6
         },
@@ -67,13 +73,13 @@
       "noteId": "looks-red-smooth",
       "parts": [
         {
-          "autoDetail": "alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 8 = 12",
+          "autoDetail": "alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 9 = 13.5",
           "boundaries": [],
           "fromWord": 6,
           "line": 9,
           "method": "lines",
           "projection": "sheared",
-          "reason": "alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 8 = 12",
+          "reason": "alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 9 = 13.5",
           "s": 0.8,
           "toWord": 8
         },
@@ -91,7 +97,7 @@
       ]
     }
   ],
-  "at": "2026-11-24T19:14:08.283Z",
+  "at": "2026-11-24T19:18:16.752Z",
   "disagreements": 0,
   "goldCheck": {
     "differing": [],
@@ -102,22 +108,23 @@
   "inputs": {
     "fallback": "b5e2d702691e0b8a95946a5b039e198035a323a5a604b259e0f5dca095858cac",
     "lines": "9afea4c817bbfe31ce13e7249de70347e6eb789fac2bdd6e8aa7efc7f0b35b2c",
+    "ownershipReview": "9b237d215419dd7b61a4487b0f18b361386a19371d2bef9f2ed282bab22fc8d9",
     "page": "b3f76797227163567b1edc7b72f410a239287f555234c2e79fc395469c632015"
   },
   "outputs": {
-    "notes/note-full-ripe.json": "f76718cb7f5fadf1f667cee233d4dd80ae7a528ebcc5b81c56b2b178ad107273",
-    "notes/note-full-ripe.png": "7c4dcf88ad9b950428ee329b216c498846b1214207e0efb8a779b5c94db1584f",
-    "notes/note-full-ripe.toi.png": "39e2188f9be35f6601e39390dcb715366d79b4f0fe1e8e8f10b4164091947e8f",
-    "notes/note-looks-red-smooth.json": "68c0924366fb5e4d2963c7de78192d0cee643b4dcf00092e439858f046c534a0",
+    "notes/note-full-ripe.json": "67840b7c7e80e7e52cd2b955b26469383dc36ac80b8a1806e500151e4e4f712e",
+    "notes/note-full-ripe.png": "0d12496a3ca7b5509890336a8e2279aa17a63b870ec5382adc06edbe73144d30",
+    "notes/note-full-ripe.toi.png": "8a43e0a02cb78d324d74de457f45ab77ace485d33c71893f5cb8b7e76f831366",
+    "notes/note-looks-red-smooth.json": "215ec74c9c6be0459a7eb1067326aa1f1beddac5aaf660ae2dcc45cf2196e0ed",
     "notes/note-looks-red-smooth.png": "55856a35cffb33ec5f5e5e791e57ab0002a6ac5c86df3e9874a2977bc4afa792",
-    "notes/note-looks-red-smooth.toi.png": "54e5d45452aef756bdb57cf9087fd949b0a654623fb92ec915f2938a9dc55e31",
-    "notes/note-when-tender.json": "36b2331cda26f6e8c1b49157e028f03a5a265bf3ad955798a35234fec8c6e074",
-    "notes/note-when-tender.png": "58bb5468e02c373280c84c13d0c2f5f9e17628f2e98a5bb19a39660751e2f930",
-    "notes/note-when-tender.toi.png": "404fd009adb564e0452011a250bd91618722f3fd50665e5dbe2ed30064e7ae18"
+    "notes/note-looks-red-smooth.toi.png": "980c316d28434fc3471a37a3b36f919d0112d54be2d8281b82fa1393823a550c",
+    "notes/note-when-tender.json": "33ff9376c4e142a9b931c41c0af46bc73848d8675a872ca4181ec4e48d5c4402",
+    "notes/note-when-tender.png": "7f0e38665ed3be1572346bdcd10fd99b27f4f8e38e659a4fc2af76df636643dc",
+    "notes/note-when-tender.toi.png": "42bd10f410f60326964b7d7574b4c8452add53a8a8d6aa870922b07a6e39b054"
   },
   "ownership": {
-    "autoPass": 0,
-    "reviewedPass": 0
+    "autoPass": 1,
+    "reviewedPass": 2
   },
   "pass": false,
   "propsVersion": "1",
@@ -127,7 +134,7 @@
   "recall": [
     {
       "auto": {
-        "notUsed": "line 9: alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 8 = 12; line 10: alignment ambiguous: 6th widest run 15, next 15, 1.5 x median of the rest 11 = 16.5",
+        "notUsed": "line 9: alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 9 = 13.5; line 10: alignment ambiguous: 6th widest run 15, next 15, 1.5 x median of the rest 11 = 16.5",
         "rejectedCandidate": {
           "boundaries": [
             {
@@ -179,8 +186,8 @@
               "word": "Looks"
             },
             {
-              "maskPx": 1005,
-              "precision": 0.8069651741293532,
+              "maskPx": 1190,
+              "precision": 0.6815126050420168,
               "rawPx": 828,
               "recall": 1,
               "word": "red"
@@ -266,22 +273,34 @@
       "pass": true
     },
     "P3": {
-      "detail": "joined strokes: needs review (full-ripe: split share 0.2201 over 0.02, components 1794062; when-tender: split share 0.0496 over 0.02, components 2287181,2324313,2551877; looks-red-smooth: split share 0.1093 over 0.02, components 2551877,2658036,2765987)",
-      "pass": false
+      "detail": "1 auto, full-ripe reviewed (1 components, by Kiro (agent), turn-18); looks-red-smooth reviewed (3 components, by Kiro (agent), turn-18)",
+      "pass": true
     },
     "P4": {
-      "detail": "full-ripe: 3109 lit px, all owned by the quoted words or within the shell | when-tender: 44941 lit px, all owned by the quoted words or within the shell | looks-red-smooth: 43546 lit px, all owned by the quoted words or within the shell; recall 0.9802 >= 0.85",
+      "detail": "full-ripe: 3594 lit px, all owned by the quoted words or within the shell | when-tender: 2630 lit px, all owned by the quoted words or within the shell | looks-red-smooth: 43546 lit px, all owned by the quoted words or within the shell; recall 0.9802 >= 0.85",
       "pass": true
     },
     "P5": {
-      "detail": "contrast full-ripe: 85; full-ripe/line 1: 84 | contrast when-tender: 84; when-tender/line 7: 84; when-tender/line 8: 85 | contrast looks-red-smooth: 84; looks-red-smooth/line 9: 84; looks-red-smooth/line 10: 86",
-      "pass": true
+      "detail": "contrast full-ripe: 82; full-ripe/line 1: 82 | contrast when-tender: 111; when-tender/line 7: 90; when-tender/line 8: no background | contrast looks-red-smooth: 84; looks-red-smooth/line 9: 84; looks-red-smooth/line 10: 85",
+      "pass": false
     },
     "P6": {
-      "detail": "full-ripe: 3109 px timed, path coverage 1.000 | when-tender: 44941 px timed, path coverage 1.000 | looks-red-smooth: 43546 px timed, path coverage 1.000",
+      "detail": "full-ripe: 3594 px timed, path coverage 1.000 | when-tender: 2630 px timed, path coverage 1.000 | looks-red-smooth: 43546 px timed, path coverage 1.000",
       "pass": true
     }
   },
+  "reviewed": [
+    {
+      "components": 1,
+      "note": "full-ripe",
+      "reviewer": "Kiro (agent), turn-18"
+    },
+    {
+      "components": 3,
+      "note": "looks-red-smooth",
+      "reviewer": "Kiro (agent), turn-18"
+    }
+  ],
   "segmentRun": {
     "id": "sr-07e3ef462278",
     "stripsHash": "e02d0e3532a4c77054665007dffd24c8621b99d359f67e3a999fe4149bc9f515"
@@ -296,19 +315,15 @@
         "noteId": "full-ripe",
         "share": 0.22006472491909385,
         "splitPx": 340,
-        "status": "failed"
+        "status": "reviewed"
       },
       {
-        "flagged": [
-          2287181,
-          2324313,
-          2551877
-        ],
-        "maskPx": 20887,
+        "flagged": [],
+        "maskPx": 1362,
         "noteId": "when-tender",
-        "share": 0.049600229808014554,
-        "splitPx": 1036,
-        "status": "failed"
+        "share": 0,
+        "splitPx": 0,
+        "status": "auto"
       },
       {
         "flagged": [
@@ -320,7 +335,7 @@
         "noteId": "looks-red-smooth",
         "share": 0.10932321437148758,
         "splitPx": 2276,
-        "status": "failed"
+        "status": "reviewed"
       }
     ],
     "segmentSplits": 16
