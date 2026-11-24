@@ -188,7 +188,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/gate.ts`, `src/ingest/gate.test.ts`.
   - Satisfies: R14.2 to R14.6, R30.1, R30.2, R30.6, R30.7, R31.1, R31.2, R31.4, R31.5.
 
-- [ ] 32. Check times and bundle
+- [x] 32. Check times and bundle
   - Test first: default `checkAt` is `step-entry`, `seconds` 0, with the stated basis; `timing.json` with a basis that is not a substring of the step text is refused; `cook` is never written; the generated JSON never contains "she" or "her".
   - Implement `buildRecipeBundle`, `checkAt` in `src/ingest/bundle.ts`.
   - Files: `src/ingest/bundle.ts`, `src/ingest/bundle.test.ts`.
