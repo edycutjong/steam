@@ -18,11 +18,12 @@ const Group = z.object({
   inkPx: Int.nonnegative(),
 })
 
-/** Unknown keys (spike-only fields such as `p3`, `splitDetail`) are stripped. */
+/** Unknown keys (the bundle's `words`, `alignment`, `trace`, `verifyUrl` and the like) are stripped. */
 export const NoteMeta = z
   .object({
     noteId: z.string().min(1),
-    text: z.string().min(1),
+    /** The words shown in the glass (the quoted words with their trailing punctuation). */
+    shownText: z.string().min(1),
     source: z.string().min(1),
     size: z.tuple([Int.positive(), Int.positive()]),
     pageBox: z.tuple([z.number(), z.number(), z.number(), z.number()]),
@@ -104,11 +105,17 @@ async function decode(url: string, field: string, signal?: AbortSignal): Promise
   }
 }
 
+/** What the bundle says about the note; the note's own JSON must agree (R15.3). */
+export interface NoteCheck {
+  noteId: string
+  size: readonly [number, number]
+}
+
 /**
- * `stem` is the URL without extension, for example `/hero/note-looks-red-smooth`.
- * It loads `<stem>.json`, `<stem>.png` and `<stem>.toi.png`.
+ * `stem` is the URL without extension, for example `/recipes/<id>/note-<noteId>`.
+ * It loads `<stem>.json`, `<stem>.png` and `<stem>.toi.png`. With `check`, the JSON's `noteId` and `size` must equal the bundle's.
  */
-export async function loadNoteAssets(stem: string, signal?: AbortSignal): Promise<NoteAssets> {
+export async function loadNoteAssets(stem: string, check?: NoteCheck, signal?: AbortSignal): Promise<NoteAssets> {
   const jsonRes = await fetchOk(`${stem}.json`, 'meta', signal)
   let raw: unknown
   try {
@@ -122,6 +129,10 @@ export async function loadNoteAssets(stem: string, signal?: AbortSignal): Promis
     throw new AssetError(`meta.${issue.path.join('.')}`, issue.message)
   }
   const meta = parsed.data
+  if (check && meta.noteId !== check.noteId) throw new AssetError('meta.noteId', `${meta.noteId} is not the bundle's note ${check.noteId}`)
+  if (check && (meta.size[0] !== check.size[0] || meta.size[1] !== check.size[1])) {
+    throw new AssetError('meta.size', `${meta.size.join('x')} differs from the bundle's ${check.size.join('x')}`)
+  }
 
   const [note, toiBitmap] = await Promise.all([
     decode(`${stem}.png`, 'note', signal),

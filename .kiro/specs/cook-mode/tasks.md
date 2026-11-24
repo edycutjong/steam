@@ -177,7 +177,7 @@ Rules for every task:
 
 ## F. The renderer changes the bundle needs
 
-- [ ] 27. Pane metadata from the bundle's note files
+- [x] 27. Pane metadata from the bundle's note files
   - Test first: change `src/steam/assets.test.ts` to read `public/recipes/quinces-marmalade/note-till-it-looks-red-smooth.json` and expect `shownText` ("till it Looks red & smooth,"), two groups with the bundle's rects, and stripped extra keys (`words`, `alignment`, `trace`). `NoteMeta` rejects a file with `text` and no `shownText`. `loadNoteAssets(stem, {noteId, size})` (new optional check argument) throws `AssetError` when the JSON `noteId` or `size` differs from the bundle's. Point `derive.test.ts` and `hero.coverage.test.ts` at the bundle's hero note, remove their `skipIf(!existsSync(...))` so a missing file fails, and re-pin any number that was pinned to the spike from a fresh run, writing the measured value and the command that produced it in a comment (never loosen a bound to pass).
   - Implement: `NoteMeta.text` → `shownText`, the cross-check, `SteamPane`'s announcement reads `shownText`.
   - Files: `src/steam/assets.ts`, `src/steam/assets.test.ts`, `src/steam/SteamPane.tsx`, `src/steam/derive.test.ts`, `src/steam/hero.coverage.test.ts`.

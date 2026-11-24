@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 import { HEAD_BINS, HULL_DILATE_PX, HULL_FEATHER_PX, derive, type PixelSource } from './derive.ts'
@@ -81,13 +81,12 @@ describe('feather', () => {
   })
 })
 
-describe('derive on the real hero files', () => {
-  const base = new URL('../../public/hero/', import.meta.url)
-  const toiUrl = new URL('note-looks-red-smooth.toi.png', base)
-  const noteUrl = new URL('note-looks-red-smooth.png', base)
-  const have = existsSync(toiUrl) && existsSync(noteUrl)
+describe('derive on the bundle\'s hero note', () => {
+  const base = new URL('../../public/recipes/quinces-marmalade/', import.meta.url)
+  const toiUrl = new URL('note-till-it-looks-red-smooth.toi.png', base)
+  const noteUrl = new URL('note-till-it-looks-red-smooth.png', base)
 
-  it.skipIf(!have)('keeps the hull reach off the outer 1 px ring', () => {
+  it('keeps the hull reach off the outer 1 px ring', () => {
     const decode = (u: URL): PixelSource => {
       const p = PNG.sync.read(readFileSync(u))
       return { data: p.data, width: p.width, height: p.height }

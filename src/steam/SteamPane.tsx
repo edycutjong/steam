@@ -100,12 +100,12 @@ export default function SteamPane({ stem = NOTE_STEM }: { stem?: string }) {
     phaseRef.current = st.phase
     setPhase(st.phase)
   }, [])
-  const noteText = loaded?.assets.meta.text ?? ''
+  const noteText = loaded?.assets.meta.shownText ?? ''
 
   // Load, validate and derive once.
   useEffect(() => {
     const ctl = new AbortController()
-    loadNoteAssets(stem, ctl.signal)
+    loadNoteAssets(stem, undefined, ctl.signal)
       .then((assets) => {
         if (ctl.signal.aborted) return
         const start = performance.now()
