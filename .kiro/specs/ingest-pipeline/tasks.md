@@ -182,7 +182,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/data/schema.ts`, `src/data/schema.test.ts`.
   - Satisfies: R23.5, R30.2, R37.1, R37.2, R35.4.
 
-- [ ] 31. `runGate`
+- [x] 31. `runGate`
   - Test first: with synthetic bytes, `runGate` returns `waiting` for a missing or stale reader, `fail` for an invalid reader line count, wrong `titleLine`, a bad span, an over-threshold note without review, and `pass` for a clean synthetic recipe; `goldCheck` is informational only; disagreements are retained; output is deterministic.
   - Implement `src/ingest/gate.ts` (pure orchestrator over `ctx` bytes).
   - Files: `src/ingest/gate.ts`, `src/ingest/gate.test.ts`.

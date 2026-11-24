@@ -252,3 +252,111 @@ export function segmentRunOf(stripPixelHashes: string[], linesWithoutRun: unknow
   const id = 'sr-' + sha256Hex(new TextEncoder().encode(stripsHash + canonicalJson(linesWithoutRun))).slice(0, 12)
   return { id, stripsHash }
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// The segment stage as files (R9): lines.json, region.json, runs.json, strips, ownership/{splits.json, overlay.png}
+
+import { crop, pixelSha256, rotateRgba, toGray, type Rgba } from './image.ts'
+import { renderOverlay, splitsJson } from './masks.ts'
+import { collectLinePixels, zeroRuns, type Run } from './runs.ts'
+
+export interface LinesFile {
+  segmentRun: { id: string; stripsHash: string }
+  frame: { width: number; height: number }
+  region: { x0: number; y0: number; x1: number; y1: number }
+  selectedBy: 'default' | 'curator'
+  blockIndex: number
+  deskewDeg: number
+  deskewApplied: boolean
+  slant: number
+  marginalia: { box: [number, number, number, number]; inkPx: number }[]
+  outsideRegionInkPx: number
+  lines: LineRecord[]
+}
+
+export interface RunsFile {
+  segmentRun: { id: string; stripsHash: string }
+  s: number
+  projection: 'sheared' | 'vertical'
+  lines: { line: number; yMid: number; lo: number; hi: number; runs: Run[] }[]
+}
+
+export interface SegmentFiles {
+  seg: SegmentResult
+  /** The scan in the analysis frame (rotated when the deskew was applied). */
+  scan: Rgba
+  lines: LinesFile
+  region: unknown
+  runs: RunsFile
+  splits: unknown
+  strips: Rgba[]
+  overlay: Rgba
+}
+
+const medianRgb = (img: Rgba): [number, number, number] => {
+  const out: number[] = []
+  for (let c = 0; c < 3; c++) {
+    const h = new Uint32Array(256)
+    for (let i = c; i < img.data.length; i += 4) h[img.data[i]!]!++
+    let acc = 0
+    const n = img.width * img.height
+    let v = 0
+    for (; v < 256; v++) {
+      acc += h[v]!
+      if (acc * 2 >= n) break
+    }
+    out.push(v)
+  }
+  return out as [number, number, number]
+}
+
+/** Runs per line in sheared coordinates, from an owner map (R19.2). */
+export function runsOf(owner: Int16Array, width: number, height: number, bands: Bands, s: number): RunsFile['lines'] {
+  const lp = collectLinePixels(owner, width, height, bands.cores.length)
+  return bands.cores.map((c, line) => {
+    const yMid = (c[0] + c[1]) / 2
+    const r = zeroRuns(lp[line]!, yMid, s)
+    return { line, yMid, lo: r.lo, hi: r.hi, runs: r.runs }
+  })
+}
+
+/** The whole segment stage over a decoded scan in the page frame. Deterministic (R9.6). */
+export function segmentRecipe(scanIn: Rgba, opts: SegmentOptions = {}): SegmentFiles {
+  const seg = segmentPage(toGray(scanIn), opts)
+  const scan = seg.deskewApplied ? rotateRgba(scanIn, -seg.deskewDeg, medianRgb(scanIn)) : scanIn
+  const { region } = seg
+  const strips = seg.stripRows.map(([a, b]) => crop(scan, region.x0, a, region.x1, b))
+  const body = {
+    frame: seg.frame,
+    region: { x0: region.x0, y0: region.y0, x1: region.x1, y1: region.y1 },
+    selectedBy: region.selectedBy,
+    blockIndex: region.blockIndex,
+    deskewDeg: seg.deskewDeg,
+    deskewApplied: seg.deskewApplied,
+    slant: seg.slant.s,
+    marginalia: seg.marginalia,
+    outsideRegionInkPx: seg.outsideRegionInkPx,
+    lines: seg.lines,
+  }
+  const segmentRun = segmentRunOf(strips.map(pixelSha256), body)
+  const lines: LinesFile = { segmentRun, ...body }
+  const regionFile = {
+    segmentRun,
+    pitch: seg.pitch,
+    columnWidth: seg.columnWidth,
+    pageLineCount: seg.pageLineCount,
+    separators: seg.separators,
+    blocks: seg.blocks.map((b, i) => ({ index: i, ...b })),
+    chosen: { blockIndex: region.blockIndex, selectedBy: region.selectedBy, rows: [region.y0, region.y1], columns: [region.x0, region.x1] },
+    marginaliaCount: seg.marginalia.length,
+    summary: seg.summary,
+  }
+  const runs: RunsFile = {
+    segmentRun,
+    s: seg.slant.s,
+    projection: seg.slant.vertical ? 'vertical' : 'sheared',
+    lines: runsOf(seg.own.owner, seg.frame.width, seg.frame.height, seg.bands, seg.slant.s),
+  }
+  const splits = { segmentRun, total: seg.own.splits.length, splits: splitsJson(seg.own) }
+  return { seg, scan, lines, region: regionFile, runs, splits, strips, overlay: renderOverlay(scan, seg.own, seg.labels, seg.bands) }
+}

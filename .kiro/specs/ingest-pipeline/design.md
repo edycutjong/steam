@@ -223,6 +223,14 @@ PNG channels as in R21. `toi.png` G channel is `round(255·t)`; B is the normali
 7. Results from the arrays: P1, P2, P3 (pure from owner map and masks). P4, P5, P6 are re-run by the CLI on decoded written PNGs; `runGate` also computes them on its in-memory arrays and the CLI asserts equality of the verdicts (a mismatch is a bug and fails the gate with "written files differ from computed arrays").
 8. `gate.json` content with hashes; the CLI adds `at` only when the rest differs from the committed file (R30.4).
 
+Decisions made in task 31, where the list above was open:
+
+- `runGate` re-runs `segmentRecipe` on the decoded page (with the block ordinal recorded in `lines.json` when `selectedBy` is `curator`) and requires the canonical `lines.json` to be identical. The owner map is therefore always computed from the scan, never read from a file, and a hand-edited `lines.json` fails ("lines.json does not match the segmentation of page.jpg").
+- With the fallback reader, the `transcription.md` header carries the fallback file's hash twice (`<fb>:<fb>`), because the strict header has two reader slots.
+- Curator boundary indices name the runs of `runs.json` (segment time, automatic ownership). Automatic alignment uses the runs of the effective owner map (after a review), so P4 is re-run on what a review changed.
+- When the note's alignment falls to whole lines, every part of the note is whole lines (R19.5), so `granularity` and the mask agree.
+- `gate.json` also carries `state`, `errors` (structural failures), `readers`, `ownership: {autoPass, reviewedPass}` and `disagreements` (the count), beside R30.2's fields.
+
 Idempotency key: `propsVersion + segmentRun.id + sorted inputs + sorted outputs`. A deleted or edited note PNG changes `outputs` and forces a recompute.
 
 The `--once` handler is a thin wrapper:
