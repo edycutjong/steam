@@ -223,7 +223,7 @@ Rules for every task:
   - Files: `src/app/Shelf.tsx`, `src/app/Shelf.test.tsx`, `src/app/app.css`.
   - Satisfies: R4.1 to R4.9, R2.8, R25.5.
 
-- [ ] 34. Zoom and pan reducer and K4
+- [x] 34. Zoom and pan reducer and K4
   - Test first: `src/app/facsimile.test.ts`: `zoomAt` ×2 at the centre keeps the centre point; zoom out below 1 stays at 1; above `MAX_ZOOM` stays; pan beyond the edge clamps; `resize` re-clamps; `reset`. `src/app/facsimile.prop.test.ts` (K4).
   - Implement `zoomPan` and `MAX_ZOOM` in `src/app/facsimile.ts`.
   - Files: `src/app/facsimile.ts`, `src/app/facsimile.test.ts`, `src/app/facsimile.prop.test.ts`.
