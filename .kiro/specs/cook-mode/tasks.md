@@ -197,7 +197,7 @@ Rules for every task:
 
 ## G. The app shell, the harness route and the end of the spike
 
-- [ ] 30. App shell, route switch, harness route
+- [x] 30. App shell, route switch, harness route
   - Test first: `src/app/App.test.tsx` (happy-dom): `#/` renders the shelf's `<h1>`; `#/r/quinces-marmalade` the edition's; `#/r/nope` "This recipe is not on the shelf" with a link to `#/`; `#/zzz` the same screen; `#/pane/quinces-marmalade/till-it-looks-red-smooth` renders `SteamPane` with `stem = /recipes/quinces-marmalade/note-till-it-looks-red-smooth` and reads `t`, `lead`, `fps` from the hash query only; a `hashchange` back to the previous hash restores the previous screen; a route change sets `document.title` and focuses the `<h1>` (not on the cook route); one live region exists in the page. The smoke test of `src/__tests__/smoke.test.tsx` keeps its title assertion (the product title, `sr-only`, stays).
   - Implement `App.tsx`, `useRoute.ts`, `NotFound.tsx`, the shared live region, and the `pane` route. Screens are stubs that render their `<h1>`, filled in by later tasks.
   - Files: `src/App.tsx`, `src/app/useRoute.ts`, `src/app/NotFound.tsx`, `src/app/App.test.tsx`, `src/__tests__/smoke.test.tsx`.

@@ -84,7 +84,7 @@ describe('the only writer of content/catalog.json (R35.5)', () => {
       for (const e of readdirSync(d)) {
         const p = join(d, e)
         if (statSync(p).isDirectory()) walk(p)
-        else if (/\.(ts|tsx|mjs|js)$/.test(e) && !/\.test\.ts$/.test(e) && readFileSync(p, 'utf8').includes('catalog.json')) hits.push(p.slice(repo.length))
+        else if (/\.(ts|tsx|mjs|js)$/.test(e) && !/\.test\.tsx?$/.test(e) && readFileSync(p, 'utf8').includes('catalog.json')) hits.push(p.slice(repo.length))
       }
     }
     for (const d of ['src', 'tools', 'scripts']) if (existsSync(join(repo, d))) walk(join(repo, d))
