@@ -34,9 +34,9 @@ describe('transcription.md: current', () => {
     expect(g.gate.inputs.transcription).toBe(sha(fresh))
   })
   it('a revision of a line is a correction, as before (R16.3)', () => {
-    const g = runGate(ctx({ ...rec.files, 'transcription.md': fresh.replace('†[be|bee]', 'bee') }))
+    const g = runGate(ctx({ ...rec.files, 'transcription.md': fresh.replace('†[be|bee]', 'be') }))
     expect(g.state).toBe('pass')
-    expect(g.gate.corrections).toEqual([{ line: 1, before: 'Let your quinces †[be|bee]', after: 'Let your quinces bee' }])
+    expect(g.gate.corrections).toEqual([{ line: 1, before: 'Let your quinces †[be|bee]', after: 'Let your quinces be' }])
     expect(text(g)).toBeUndefined()
   })
   it('a legacy file (no merge comment) equal to the fresh merge gets the comment added; a legacy revision is left alone', () => {
@@ -44,7 +44,7 @@ describe('transcription.md: current', () => {
     const g = runGate(ctx({ ...rec.files, 'transcription.md': legacy }))
     expect(g.state).toBe('pass')
     expect(text(g)).toBe(fresh)
-    const rev = runGate(ctx({ ...rec.files, 'transcription.md': legacy.replace('†[be|bee]', 'bee') }))
+    const rev = runGate(ctx({ ...rec.files, 'transcription.md': legacy.replace('†[be|bee]', 'be') }))
     expect(rev.state).toBe('pass')
     expect(text(rev)).toBeUndefined()
   })

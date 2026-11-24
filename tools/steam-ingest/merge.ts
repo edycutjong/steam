@@ -3,7 +3,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { Fallback, Lines, Reading, Scribe } from '../../src/data/schema.ts'
-import { formatTranscription, mergeReadings, mergeSingle } from '../../src/ingest/merge.ts'
+import { classifyTranscription, formatTranscription, mergeReadings, mergeSingle, parseTranscription } from '../../src/ingest/merge.ts'
 import { sha256 } from './io.ts'
 
 export function freshTranscription(dir: string): string {
@@ -25,12 +25,23 @@ export function freshTranscription(dir: string): string {
   throw new Error('merge: needs agent/scribe.json and agent/second.json, or only fallback/reading.json')
 }
 
-export function mergeCmd(dir: string): { wrote: boolean; equal: boolean } {
+export type MergeState = 'missing' | 'current' | 'regenerated' | 'revised'
+
+/** R15.7, R16.2: write when missing, regenerate when stale and unrevised, leave a current or revised file alone. */
+export function mergeCmd(dir: string): { wrote: boolean; equal: boolean; state: MergeState } {
   const fresh = freshTranscription(dir)
   const p = join(dir, 'transcription.md')
   if (!existsSync(p)) {
     writeFileSync(p, fresh)
-    return { wrote: true, equal: true }
+    return { wrote: true, equal: true, state: 'missing' }
   }
-  return { wrote: false, equal: readFileSync(p, 'utf8') === fresh }
+  const have = readFileSync(p, 'utf8')
+  const f = parseTranscription(fresh)
+  if (!f.ok) throw new Error(f.error)
+  const cls = classifyTranscription(have, { segmentRun: f.header.segmentRun, readers: f.header.readers }, fresh)
+  if (cls.state === 'stale' && !cls.revised) {
+    writeFileSync(p, fresh)
+    return { wrote: true, equal: true, state: 'regenerated' }
+  }
+  return { wrote: false, equal: have === fresh, state: cls.state === 'stale' ? 'revised' : 'current' }
 }

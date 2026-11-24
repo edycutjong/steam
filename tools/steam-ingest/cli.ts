@@ -84,7 +84,7 @@ export async function main(argv: string[], root = process.cwd()): Promise<number
       case 'merge': {
         const id = recipeArg(args, 'merge')
         const r = mergeCmd(recipeDir(root, id))
-        console.log(r.wrote ? `merge ${id}: wrote transcription.md` : `merge ${id}: transcription.md exists and ${r.equal ? 'equals' : 'differs from'} the fresh merge; left unchanged`)
+        console.log(r.wrote ? `merge ${id}: ${r.state === 'regenerated' ? 'regenerated the stale transcription.md (no agent revision)' : 'wrote transcription.md'}` : r.state === 'revised' ? `merge ${id}: transcription.md was revised against an older reading: left unchanged, re-review` : `merge ${id}: transcription.md exists and ${r.equal ? 'equals' : 'differs from'} the fresh merge; left unchanged`)
         return 0
       }
       case 'fallback': {

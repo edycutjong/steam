@@ -306,13 +306,13 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `content/recipes/quinces-marmalade/alignment.json`, `docs/kiro-evidence/ingest/`.
   - Satisfies: R19.8 to R19.15, R20, R27.4.
 
-- [ ] 52. Stale `transcription.md` never waits
+- [x] 52. Stale `transcription.md` never waits
   - Test first: `classifyTranscription` for missing, current, stale unrevised (recorded merge hash), stale revised, legacy without the hash (equal to a fresh merge of the header's readers, and not), malformed; `formatTranscription` writes the merge line and `parseTranscription` accepts it; `runGate` regenerates and passes for a stale unrevised file and fails with "revised against an older reading: re-review" for a revised one, with `artifacts.text`; `gateCmd` writes the file and `--verify` flags a difference; `merge` rewrites a stale unrevised file; property: both readers current ⇒ never `waiting` whatever the file; `once` answers `terminal-state` on the first poll.
   - Implement `classifyTranscription` and the merge line in `src/ingest/merge.ts`, the gate branch, the CLI write, `steam-ingest merge`.
   - Files: `src/ingest/merge.ts`, `src/ingest/gate.ts`, `tools/steam-ingest/gate.ts`, `tools/steam-ingest/merge.ts`, tests.
   - Satisfies: R15.7, R16.2, R16.7, R16.8, R31.2, R32.8.
 
-- [ ] 53. `readers` names the agent: `second-reader`
+- [x] 53. `readers` names the agent: `second-reader`
   - Test first: every test that froze `second` expects `second-reader` in `readers` (gate, merged, reader labels).
   - Files: `src/data/schema.ts`, `src/ingest/gate.ts`, `src/ingest/merge.ts` and tests.
   - Satisfies: R30.9.

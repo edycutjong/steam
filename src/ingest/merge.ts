@@ -1,6 +1,7 @@
 // Merge of two readings, disagreements, and the transcription.md format (R15).
 
 import type { Reading } from '../data/schema.ts'
+import { sha256Hex } from './sha256.ts'
 
 export const tokenise = (text: string): string[] => text.split(/\s+/).filter((t) => t.length > 0)
 
@@ -161,12 +162,20 @@ export interface TranscriptionHeader {
 
 const pad = (i: number): string => String(i).padStart(2, '0')
 
+const enc = (t: string): Uint8Array => new TextEncoder().encode(t)
+const bodyOf = (lines: { i: number; text: string }[]): string => lines.map((l) => `L${pad(l.i)}: ${l.text}\n`).join('')
+
+/**
+ * R15.4, R16.7. The header names the segment run and the two reader files the text was generated from; the `merge` comment
+ * records the sha256 of the L-lines as generated, so that a later reader can tell whether anyone revised them.
+ */
 export function formatTranscription(h: TranscriptionHeader, lines: MergedLineData[]): string {
-  return `<!-- segmentRun: ${h.segmentRun} readers: ${h.readers[0]}:${h.readers[1]} -->\n${lines.map((l) => `L${pad(l.i)}: ${markedText(l.atoms)}\n`).join('')}`
+  const body = bodyOf(lines.map((l) => ({ i: l.i, text: markedText(l.atoms) })))
+  return `<!-- segmentRun: ${h.segmentRun} readers: ${h.readers[0]}:${h.readers[1]} -->\n<!-- merge: ${sha256Hex(enc(body))} -->\n${body}`
 }
 
 export type ParsedTranscription =
-  | { ok: true; header: TranscriptionHeader; lines: { i: number; text: string }[] }
+  | { ok: true; header: TranscriptionHeader; lines: { i: number; text: string }[]; /** The hash the generator recorded; absent in a file written before turn 24. */ merge?: string; /** sha256 of the L-lines as the file has them now. */ bodyHash: string }
   | { ok: false; error: string }
 
 /** R15.4, R16.1: strict. The header comes first; then only L-lines, blank lines and further comment lines. */
@@ -176,13 +185,46 @@ export function parseTranscription(md: string): ParsedTranscription {
   const m = /^<!-- segmentRun: (sr-[0-9a-f]{12}) readers: ([0-9a-f]{64}):([0-9a-f]{64}) -->$/.exec(rows[0] ?? '')
   if (!m) return { ok: false, error: 'transcription.md: header missing or malformed' }
   const lines: { i: number; text: string }[] = []
+  let merge: string | undefined
   for (const row of rows.slice(1)) {
+    const rec = /^<!-- merge: ([0-9a-f]{64}) -->$/.exec(row)
+    if (rec) {
+      merge = rec[1]
+      continue
+    }
     if (row.trim() === '' || row.startsWith('<!--')) continue
     const l = /^L(\d{2,}): (.+)$/.exec(row)
     if (!l) return { ok: false, error: `transcription.md: line structure changed (not an L-line: ${JSON.stringify(row.slice(0, 40))})` }
     lines.push({ i: Number(l[1]), text: l[2]! })
   }
-  return { ok: true, header: { segmentRun: m[1]!, readers: [m[2]!, m[3]!] }, lines }
+  return { ok: true, header: { segmentRun: m[1]!, readers: [m[2]!, m[3]!] }, lines, ...(merge ? { merge } : {}), bodyHash: sha256Hex(enc(bodyOf(lines))) }
+}
+
+export type TranscriptionClass =
+  | { state: 'missing' }
+  | { state: 'malformed'; error: string }
+  /** The header names this segment run and these readers. `legacy`: no merge comment (written before turn 24); `equalsFresh` then says whether its lines equal the fresh merge. */
+  | { state: 'current'; legacy: false }
+  | { state: 'current'; legacy: true; equalsFresh: boolean }
+  /** Other readers or another segment run. `revised`: an agent changed the generated lines (or nothing proves the generator wrote them). */
+  | { state: 'stale'; revised: boolean }
+
+/**
+ * R16.2, R16.7. `fresh` is the text the generator writes for the current readers.
+ * A stale file is unrevised only when it records the hash of the lines it was generated with and its lines still have it;
+ * a file with no such record cannot be shown to be the generator's own, so it counts as revised and is never overwritten.
+ */
+export function classifyTranscription(md: string | undefined, expected: TranscriptionHeader, fresh: string): TranscriptionClass {
+  if (md === undefined) return { state: 'missing' }
+  const p = parseTranscription(md)
+  if (!p.ok) return { state: 'malformed', error: p.error }
+  const same = p.header.segmentRun === expected.segmentRun && p.header.readers[0] === expected.readers[0] && p.header.readers[1] === expected.readers[1]
+  if (same) {
+    if (p.merge !== undefined) return { state: 'current', legacy: false }
+    const f = parseTranscription(fresh)
+    return { state: 'current', legacy: true, equalsFresh: f.ok && f.bodyHash === p.bodyHash }
+  }
+  return { state: 'stale', revised: p.merge === undefined || p.merge !== p.bodyHash }
 }
 
 // ---------------------------------------------------------------------------------------------------------------

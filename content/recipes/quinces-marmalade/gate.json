@@ -105,7 +105,7 @@
       ]
     }
   ],
-  "at": "2026-11-24T21:20:21.690Z",
+  "at": "2026-11-24T21:30:18.896Z",
   "disagreements": 6,
   "goldCheck": {
     "differing": [
@@ -123,7 +123,7 @@
     "page": "b3f76797227163567b1edc7b72f410a239287f555234c2e79fc395469c632015",
     "scribe": "4b4d439b01a62ebc88b3dfef34b31893fc3274f0d638b082a0605476054acdd1",
     "second": "dbd17ab5a56f9b791da5764383bb1df4595bfc5d9c4c42d74a9b56025bd50f40",
-    "transcription": "9861fe91cef71cf3449e8f557e77ca02c166ec229b6e494553b550b56e8592a6"
+    "transcription": "327200db316482bfac370aef19946e083db8bb656ea66e22715705597bc9441e"
   },
   "outputs": {
     "notes/note-full-ripe.json": "f01b98f8de39593a7ae959dfb49bcb4edfc4d58befb6e656e3631bdf8177fb7d",

@@ -30,7 +30,7 @@ describe('merge (R15.7)', () => {
   })
   it('regenerates a stale file that carries no revision, and leaves a stale revised file alone (turn 24)', () => {
     const p = join(dir, 'transcription.md')
-    writeFileSync(p, '')
+    rmSync(p)
     mergeCmd(dir)
     const fresh = readFileSync(p, 'utf8')
     const stale = fresh.replace(/readers: [0-9a-f]{64}:/, `readers: ${'e'.repeat(64)}:`)

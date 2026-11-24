@@ -97,14 +97,14 @@ describe('runGate details', () => {
     const a = runGate(ctx(rec.files))
     const b = runGate(ctx(rec.files))
     expect(canonicalJson(a.gate)).toBe(canonicalJson(b.gate))
-    expect(Object.keys(a.gate.inputs).sort()).toEqual(['lines', 'page', 'scribe', 'second'])
+    expect(Object.keys(a.gate.inputs).sort()).toEqual(['lines', 'page', 'scribe', 'second', 'transcription'])
   })
   it('the fallback reader is used when both agent files are absent', () => {
     const fb = { ...rec.scribe, readers: ['fallback'], by: 'test', source: 'fixtures/gold-readings.json', sourceSha256: 'a'.repeat(64) }
     const g = runGate(ctx({ 'source.json': rec.files['source.json'], 'lines.json': rec.files['lines.json'], 'fallback/reading.json': canonicalJson(fb) }))
     expect(g.state).toBe('pass')
     expect(g.gate.readers).toEqual(['fallback'])
-    expect(Object.keys(g.gate.inputs).sort()).toEqual(['fallback', 'lines', 'page'])
+    expect(Object.keys(g.gate.inputs).sort()).toEqual(['fallback', 'lines', 'page', 'transcription'])
     expect(g.gate.disagreements).toBe(0)
   })
 })

@@ -8,7 +8,7 @@ import { cropSource, type CropPage } from './cropSource.ts'
 import { canonicalJson } from './canon.ts'
 import { pixelSha256, rotatedPoint, toGray, type Gray, type Rgba } from './image.ts'
 import { applyReview, noteOwnership, renderFlagCrop, type NoteOwnership, type Ownership, type ReviewInput } from './masks.ts'
-import { applyCorrections, mergeReadings, mergeSingle, type Correction, type Disagreement, type EffectiveLine, type MergeResult } from './merge.ts'
+import { applyCorrections, classifyTranscription, formatTranscription, mergeReadings, mergeSingle, type Correction, type Disagreement, type EffectiveLine, type MergeResult } from './merge.ts'
 import { checkNotes, checkSteps, effectiveLines } from './notes.ts'
 import {
   PROPS_VERSION, checkP1, checkP2, checkP3, checkP4, checkP5, checkP6, maskBox, type ContrastCrop, type P4Part, type PropResult,
@@ -48,6 +48,8 @@ export interface GateArtifacts {
   png: Map<string, Rgba>
   /** Path -> JSON value (written canonically). */
   json: Map<string, unknown>
+  /** Path -> text the gate generated (transcription.md when it was missing, stale and unrevised, or lacked its merge comment). */
+  text: Map<string, string>
 }
 
 /** What `verifyWritten` needs to judge the decoded files again. */
@@ -149,7 +151,7 @@ interface ReaderSet {
 export function runGate(ctx: GateCtx): GateResult {
   const f = ctx.files
   const inputs: Record<string, string> = { page: sha(ctx.pageBytes), lines: sha(f['lines.json']) }
-  const artifacts: GateArtifacts = { png: new Map(), json: new Map() }
+  const artifacts: GateArtifacts = { png: new Map(), json: new Map(), text: new Map() }
   const errors: string[] = []
   const waiting: string[] = []
 
@@ -252,10 +254,28 @@ export function runGate(ctx: GateCtx): GateResult {
   let eff: EffectiveLine[] = effectiveLines(merged)
   let corrections: Correction[] = []
   let disagreements: Disagreement[] = merged.disagreements
-  if (f['transcription.md'] !== undefined) {
+  {
+    // R16.2, R16.7, R16.8: the gate writes transcription.md when it is missing or stale and unrevised, and never waits for it
+    const expected = { segmentRun: lines.segmentRun.id, readers: readers.headerReaders }
+    const fresh = formatTranscription(expected, merged.lines)
+    let md = f['transcription.md']
+    const cls = classifyTranscription(md, expected, fresh)
+    if (cls.state === 'malformed') {
+      errors.push(cls.error)
+      return base('fail')
+    }
+    if (cls.state === 'stale' && cls.revised) {
+      errors.push('transcription.md was revised against an older reading: re-review')
+      return base('fail')
+    }
+    if (cls.state === 'missing' || cls.state === 'stale' || (cls.state === 'current' && cls.legacy && cls.equalsFresh)) {
+      md = fresh
+      artifacts.text.set('transcription.md', fresh)
+    }
+    inputs.transcription = sha(md!)
     const quoted = new Map<number, number>()
     for (const note of sc.notes) for (const q of note.quote) if (q.line < n) quoted.set(q.line, tokens(sc.lines[q.line]!.text).length)
-    const c = applyCorrections(merged, f['transcription.md'], { segmentRun: lines.segmentRun.id, readers: readers.headerReaders }, quoted)
+    const c = applyCorrections(merged, md!, expected, quoted)
     if (c.state === 'waiting') {
       waiting.push(c.detail)
       return base('waiting')

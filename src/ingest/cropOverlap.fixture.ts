@@ -101,6 +101,7 @@ export interface GateSnapshot {
 export function asFrozen(g: GateResult): GateResult {
   const gate = JSON.parse(canonicalJson(g.gate))
   gate.propsVersion = '1'
+  delete gate.inputs.transcription // since turn 24 the generated transcription.md is an input of every run
   if (gate.readers) gate.readers = gate.readers.map((r: string) => (r === 'second-reader' ? 'second' : r))
   for (const a of gate.alignment ?? []) for (const p of a.parts) delete p.boundary
   const json = new Map(g.artifacts.json)

@@ -1,6 +1,6 @@
 // steam-ingest gate <id> | --all [--verify]: read, run, write, re-read, log (R30 to R33, R38.3).
 
-import { existsSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { Gate } from '../../src/data/schema.ts'
 import { runGate, verifyWritten, type GateCtx, type GateResult } from '../../src/ingest/gate.ts'
@@ -66,8 +66,9 @@ const sameExceptAt = (a: unknown, b: unknown): boolean => {
 }
 
 /** Existing file's pixel hash (PNG) or bytes (JSON) equals the computed one. */
-function sameFile(path: string, png?: Rgba, json?: unknown): boolean {
+function sameFile(path: string, png?: Rgba, json?: unknown, text?: string): boolean {
   if (!existsSync(path)) return false
+  if (text !== undefined) return readFileSync(path, 'utf8') === text
   if (png) {
     try {
       return pixelSha256(decodePng(readFileSync(path))) === pixelSha256(png)
@@ -103,16 +104,18 @@ export function gateCmd(id: string, o: GateOpts): GateRun {
   let gateBody = r.gate
 
   // files the run would write
-  const want: { rel: string; png?: Rgba; json?: unknown }[] = [
+  const want: { rel: string; png?: Rgba; json?: unknown; text?: string }[] = [
     ...[...r.artifacts.png].map(([rel, png]) => ({ rel, png })),
     ...[...r.artifacts.json].map(([rel, json]) => ({ rel, json })),
+    ...[...r.artifacts.text].map(([rel, text]) => ({ rel, text })),
   ]
-  const differing = want.filter((w) => !sameFile(join(dir, w.rel), w.png, w.json))
+  const differing = want.filter((w) => !sameFile(join(dir, w.rel), w.png, w.json, w.text))
   const stale = state === 'waiting' ? [] : staleArtifacts(dir, r)
   if (!o.verify) {
     for (const w of differing) {
       if (existsSync(join(dir, w.rel))) notes.push(`rewrote ${w.rel}: it differed from the computed ${w.png ? 'pixels' : 'bytes'}`)
       if (w.png) writePng(join(dir, w.rel), w.png)
+      else if (w.text !== undefined) writeFileSync(join(dir, w.rel), w.text)
       else writeJson(join(dir, w.rel), w.json)
     }
     for (const s of stale) {
