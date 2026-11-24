@@ -87,7 +87,7 @@ Rules for every task:
 
 ## C. Check times, the plan and the timer
 
-- [ ] 13. Check-time labels, durations, effective check time (K8)
+- [x] 13. Check-time labels, durations, effective check time (K8)
   - Test first: `src/cook/timing.test.ts`: `formatDuration` (30 → "30 s", 60 → "1 min", 90 → "1 min 30 s", 10800 → "180 min"); `checkLabel` of the real hero `checkAt` is "with its step"; a cited `{seconds: 600, basis: "boil ten minutes"}` is "check from 10 min · cited: boil ten minutes"; a cook override of 90 is "check from 1 min 30 s · set by you"; a cook override of 0 is "with its step · set by you"; `effectiveCheckAt` prefers the override and carries `source: "cook"` and the basis "set by you on this device"; the stepper function `stepSeconds(current, dir)` moves 30 s, clamps to 0 and 10 800. `src/cook/timing.prop.test.ts` (K8 block): override precedence, the label names its source, monotone `formatDuration`, stepper range and reset. A test reads the real bundle and expects `step-entry`, 0 s on all three notes.
   - Implement `formatDuration`, `checkLabel`, `effectiveCheckAt`, `stepSeconds`, `TIMING_STEP_S`, `TIMING_MAX_S`.
   - Files: `src/cook/timing.ts`, `src/cook/timing.test.ts`, `src/cook/timing.prop.test.ts`.
