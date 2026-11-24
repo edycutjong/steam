@@ -53,3 +53,89 @@ export const NoteMeta = z
   })
 
 export type NoteMeta = z.infer<typeof NoteMeta>
+
+export class AssetError extends Error {
+  readonly field: string
+  constructor(field: string, message: string, options?: ErrorOptions) {
+    super(`${field}: ${message}`, options)
+    this.name = 'AssetError'
+    this.field = field
+  }
+}
+
+export interface NoteAssets {
+  meta: NoteMeta
+  /** RGBA, decoded without premultiplication or colour conversion. */
+  note: ImageBitmap
+  /** RGB bytes of the time-of-ink PNG (R ink alpha, G reveal time, B pressure). */
+  toi: ImageData
+  /** RGBA bytes of the note, read back for derive.ts. */
+  noteData: ImageData
+}
+
+const DECODE: ImageBitmapOptions = { premultiplyAlpha: 'none', colorSpaceConversion: 'none' }
+
+async function fetchOk(url: string, field: string, signal?: AbortSignal): Promise<Response> {
+  let res: Response
+  try {
+    res = await fetch(url, { signal })
+  } catch (e) {
+    if (signal?.aborted) throw e
+    throw new AssetError(field, `could not fetch ${url}`, { cause: e })
+  }
+  if (!res.ok) throw new AssetError(field, `${url} answered ${res.status}`)
+  return res
+}
+
+function readBytes(bitmap: ImageBitmap): ImageData {
+  const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  if (!ctx) throw new AssetError('canvas', 'a 2D context is not available')
+  ctx.drawImage(bitmap, 0, 0)
+  return ctx.getImageData(0, 0, bitmap.width, bitmap.height)
+}
+
+async function decode(url: string, field: string, signal?: AbortSignal): Promise<ImageBitmap> {
+  const res = await fetchOk(url, field, signal)
+  try {
+    return await createImageBitmap(await res.blob(), DECODE)
+  } catch (e) {
+    throw new AssetError(field, `could not decode ${url}`, { cause: e })
+  }
+}
+
+/**
+ * `stem` is the URL without extension, for example `/hero/note-looks-red-smooth`.
+ * It loads `<stem>.json`, `<stem>.png` and `<stem>.toi.png`.
+ */
+export async function loadNoteAssets(stem: string, signal?: AbortSignal): Promise<NoteAssets> {
+  const jsonRes = await fetchOk(`${stem}.json`, 'meta', signal)
+  let raw: unknown
+  try {
+    raw = await jsonRes.json()
+  } catch (e) {
+    throw new AssetError('meta', 'not valid JSON', { cause: e })
+  }
+  const parsed = NoteMeta.safeParse(raw)
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0]
+    throw new AssetError(`meta.${issue.path.join('.')}`, issue.message)
+  }
+  const meta = parsed.data
+
+  const [note, toiBitmap] = await Promise.all([
+    decode(`${stem}.png`, 'note', signal),
+    decode(`${stem}.toi.png`, 'toi', signal),
+  ])
+  const [w, h] = meta.size
+  if (note.width !== w || note.height !== h) {
+    throw new AssetError('note', `size ${note.width}x${note.height} differs from meta.size ${w}x${h}`)
+  }
+  if (toiBitmap.width !== w || toiBitmap.height !== h) {
+    throw new AssetError('toi', `size ${toiBitmap.width}x${toiBitmap.height} differs from meta.size ${w}x${h}`)
+  }
+  const noteData = readBytes(note)
+  const toi = readBytes(toiBitmap)
+  toiBitmap.close()
+  return { meta, note, toi, noteData }
+}

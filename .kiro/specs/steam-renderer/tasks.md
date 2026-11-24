@@ -69,7 +69,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/assets.test.ts`.
   - Satisfies: R17.2, R17.3, R17.5.
 
-- [ ] 12. Asset loader
+- [x] 12. Asset loader
   - Implement `loadNoteAssets(baseUrl, signal)`: fetch the JSON and validate it; decode the note with `createImageBitmap(blob, { premultiplyAlpha: 'none', colorSpaceConversion: 'none' })`; read the note and toi bytes through an `OffscreenCanvas` (or a canvas) with `willReadFrequently`; check both sizes equal `meta.size`; throw `AssetError` with a field name.
   - Files: `src/steam/assets.ts`.
   - Satisfies: R17.1, R17.4, R17.6, R17.7.
