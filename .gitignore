@@ -1,0 +1,18 @@
+# never list .kiro here: /.kiro is public build direction and must stay tracked
+.env
+.env.*
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.local
+*.log
+__pycache__/
+.next/
+.vercel
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+test-results/
+playwright-report/
