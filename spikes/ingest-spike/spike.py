@@ -58,7 +58,7 @@ if __name__ == '__main__':
     cores, valleys, _ = line_cores(ink)
     owner, lab, splits = own(ink, cores, valleys)
 
-    note = np.zeros(ink.shape, bool); seg_meta = []; t_bounds = []
+    note = np.zeros(ink.shape, bool); seg_meta = []; t_bounds = []; seg_masks = []
     for s in NOTE['segments']:
         li = s['line']; owned = owner == li
         xs, gp = gaps(owned.any(0))
@@ -74,6 +74,7 @@ if __name__ == '__main__':
             if np.nonzero(m)[1].max() >= ink.shape[1] - 20: continue  # page-edge shadow, not ink
             if lo <= np.nonzero(m)[1].mean() < hi: seg |= m
         note |= seg
+        seg_masks.append(seg)
         yy, xx = np.nonzero(seg)
         seg_meta.append({'line': li, 'x': [int(xx.min()), int(xx.max()) + 1], 'y': [int(yy.min()), int(yy.max()) + 1],
                          'core': [cores[li][0], cores[li][1]], 'gapLo': int(lo), 'gapHi': int(hi), 'inkPx': int(seg.sum())})
@@ -108,8 +109,8 @@ if __name__ == '__main__':
     Y, X = np.mgrid[0:H, 0:W]
     toi = np.ones((H, W))
     total_w = sum(m['x'][1] - m['x'][0] for m in seg_meta); t0 = 0.0
-    for m in seg_meta:
-        li = m['line']; segmask = (owner[sub] == li) & allowed[sub]
+    for m, sm in zip(seg_meta, seg_masks):
+        li = m['line']; segmask = ndi.binary_dilation(sm, iterations=1)[sub] & allowed[sub]  # this segment's own ink (+1 px), never another line's
         mid = (m['core'][0] + m['core'][1]) / 2 - by0
         xs_ = X + 0.35 * (mid - Y) - (m['x'][0] - bx0)  # writing slants right as it rises
         span = (m['x'][1] - m['x'][0]) / total_w
