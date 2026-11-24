@@ -249,7 +249,7 @@ Rules for every task:
 
 ## I. Cook Mode
 
-- [ ] 38. The session hook with a fake clock and store
+- [x] 38. The session hook with a fake clock and store
   - Test first: `src/app/useCookSession.test.tsx` (happy-dom, fake timers, fake store, fake `visibilityState`): a plain start dispatches `start`; a `note=` route dispatches `deepLink` at the right step with `leadMs` 10 000 (default) or `lead × 1000`; a valid saved session and no `note` dispatches `restore`; an invalid or stale one starts fresh; an unknown `note` starts at step 0 with the caption of R19.5; the single timer wakes at `min(nextDueWall, now + 250)` and a tick at the due wall time yields the reveal; `visibilitychange` hidden sends `sleep`, visible sends `resume`; after a fake 3-hour freeze and `resume`, exactly one reveal is emitted; every dispatch that changes state writes the snapshot; unmount removes every timer and listener (counters from spies are zero, R26.4).
   - Implement `useCookSession` and `clock.ts`.
   - Files: `src/app/useCookSession.ts`, `src/app/useCookSession.test.tsx`, `src/cook/clock.ts`.

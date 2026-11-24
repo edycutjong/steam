@@ -42,7 +42,7 @@ export const tick = async (ms = 0): Promise<void> => {
 }
 export const flush = async (): Promise<void> => {
   await act(async () => {
-    for (let i = 0; i < 5; i++) await Promise.resolve()
+    for (let i = 0; i < 40; i++) await Promise.resolve()
   })
 }
 export const click = (el: Element | null): void => {
