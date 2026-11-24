@@ -20,6 +20,7 @@ describe('runGate states', () => {
     const g = runGate(ctx(rec.files))
     expect(g.state).toBe('pass')
     expect(g.gate.pass).toBe(true)
+    expect(g.gate.readers).toEqual(['scribe', 'second-reader'])
     expect(g.gate.disagreements).toBe(1)
     const merged = g.artifacts.json.get('merged.json') as { disagreements: unknown[] }
     expect(merged.disagreements).toEqual([{ line: 1, word: 3, a: 'be', b: 'bee' }])

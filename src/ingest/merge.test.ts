@@ -69,7 +69,7 @@ describe('transcription.md (R15.4)', () => {
   const header = { segmentRun: run.id, readers: ['b'.repeat(64), 'c'.repeat(64)] as [string, string] }
   it('has the strict header and one L-line per line', () => {
     const md = formatTranscription(header, m.lines)
-    expect(md).toBe(`<!-- segmentRun: sr-0123456789ab readers: ${'b'.repeat(64)}:${'c'.repeat(64)} -->\nL00: a b\nL01: the †[Pareings|Parcings] & seeds\n`)
+    expect(md).toMatch(new RegExp(`^<!-- segmentRun: sr-0123456789ab readers: ${'b'.repeat(64)}:${'c'.repeat(64)} -->\\n<!-- merge: [0-9a-f]{64} -->\\nL00: a b\\nL01: the †\\[Pareings\\|Parcings\\] & seeds\\n$`))
   })
   it('pads indices to two digits and more past 99 lines', () => {
     const texts = Array.from({ length: 101 }, (_, i) => `w${i}`)
@@ -79,7 +79,7 @@ describe('transcription.md (R15.4)', () => {
   })
   it('parse(format(x)) returns the header and the marked lines', () => {
     const p = parseTranscription(formatTranscription(header, m.lines))
-    expect(p).toEqual({ ok: true, header, lines: [{ i: 0, text: 'a b' }, { i: 1, text: 'the †[Pareings|Parcings] & seeds' }] })
+    expect(p).toMatchObject({ ok: true, header, lines: [{ i: 0, text: 'a b' }, { i: 1, text: 'the †[Pareings|Parcings] & seeds' }] })
   })
   it('parseMarked round-trips atoms', () => {
     for (const l of m.lines) expect(parseMarked(markedText(l.atoms))).toEqual(l.atoms)

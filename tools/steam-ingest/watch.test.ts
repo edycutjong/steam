@@ -44,6 +44,28 @@ describe('--once watch protocol (R32)', () => {
     expect(p.reviewed).toEqual([])
     expect(o.cursor!.polls).toBe(4)
   })
+  it('both readers current and a stale transcription.md: terminal-state on the first poll, the file regenerated (turn 24, R32.8)', () => {
+    const f = mk()
+    const tp = join(f.dir, 'transcription.md')
+    expect(call(f.root).exit).toBe(0)
+    const fresh = readFileSync(tp, 'utf8')
+    writeFileSync(tp, fresh.replace(/readers: [0-9a-f]{64}:/, `readers: ${'e'.repeat(64)}:`))
+    const o = parse(call(f.root).stdout)
+    expect(o.outcome).toBe('terminal-state')
+    if (o.outcome !== 'terminal-state') return
+    expect(JSON.parse(o.payload).pass).toBe(true)
+    expect(readFileSync(tp, 'utf8')).toBe(fresh)
+  })
+  it('both readers current and a revised stale transcription.md: terminal-state, pass false, re-review', () => {
+    const f = mk()
+    call(f.root)
+    const tp = join(f.dir, 'transcription.md')
+    writeFileSync(tp, readFileSync(tp, 'utf8').replace(/readers: [0-9a-f]{64}:/, `readers: ${'e'.repeat(64)}:`).replace('†[be|bee]', 'bee'))
+    const o = parse(call(f.root).stdout)
+    expect(o.outcome).toBe('terminal-state')
+    if (o.outcome !== 'terminal-state') return
+    expect(JSON.parse(o.payload)).toEqual({ pass: false, failing: ['transcription.md was revised against an older reading: re-review'] })
+  })
   it('a failing recipe: terminal-state with {"pass":false,"failing":[...]}', () => {
     const f = mk({ joined: true })
     const o = parse(call(f.root).stdout)

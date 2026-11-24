@@ -1,0 +1,51 @@
+# tests of tasks 52 (stale transcription.md never waits) on the tree before the implementation (turn 24); expected: red
+ ❯ src/ingest/transcription.test.ts (10 tests | 10 failed) 12ms
+ ❯ src/ingest/merge.test.ts (15 tests | 1 failed) 11ms
+ ❯ tools/steam-ingest/merge.test.ts (3 tests | 3 failed) 16ms
+ ❯ tools/steam-ingest/watch.test.ts (10 tests | 2 failed) 2618ms
+ ❯ src/ingest/transcription.gate.test.ts (23 tests | 13 failed) 2598ms
+⎯⎯⎯⎯⎯⎯ Failed Tests 29 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tools/steam-ingest/merge.test.ts > merge (R15.7) > writes transcription.md when absent, with the strict header and the disagreement marker
+ ❯ tools/steam-ingest/merge.test.ts:17:27
+ FAIL  tools/steam-ingest/merge.test.ts > merge (R15.7) > leaves an existing file unchanged and says whether it equals the fresh merge
+ ❯ tools/steam-ingest/merge.test.ts:24:27
+ FAIL  tools/steam-ingest/merge.test.ts > merge (R15.7) > regenerates a stale file that carries no revision, and leaves a stale revised file alone (turn 24)
+ ❯ tools/steam-ingest/merge.test.ts:38:27
+ FAIL  tools/steam-ingest/watch.test.ts > --once watch protocol (R32) > both readers current and a stale transcription.md: terminal-state on the first poll, the file regenerated (turn 24, R32.8)
+ ❯ tools/steam-ingest/watch.test.ts:51:19
+ FAIL  tools/steam-ingest/watch.test.ts > --once watch protocol (R32) > both readers current and a revised stale transcription.md: terminal-state, pass false, re-review
+ ❯ tools/steam-ingest/watch.test.ts:63:23
+ FAIL  src/ingest/merge.test.ts > transcription.md (R15.4) > has the strict header and one L-line per line
+ ❯ src/ingest/merge.test.ts:72:16
+ FAIL  src/ingest/transcription.gate.test.ts > transcription.md: missing > the gate writes it (as an artifact) from the current readers and passes
+ ❯ src/ingest/transcription.gate.test.ts:24:21
+ FAIL  src/ingest/transcription.gate.test.ts > transcription.md: current > a revision of a line is a correction, as before (R16.3)
+ ❯ src/ingest/transcription.gate.test.ts:38:21
+ FAIL  src/ingest/transcription.gate.test.ts > transcription.md: current > a legacy file (no merge comment) equal to the fresh merge gets the comment added; a legacy revision is left alone
+ ❯ src/ingest/transcription.gate.test.ts:46:21
+ FAIL  src/ingest/transcription.gate.test.ts > transcription.md: stale (readers changed underneath it) > unrevised: regenerated from the current readers, the gate goes on and passes, never waiting
+ ❯ src/ingest/transcription.gate.test.ts:56:21
+ FAIL  src/ingest/transcription.gate.test.ts > transcription.md: stale (readers changed underneath it) > stale because of another segment run: the same
+ ❯ src/ingest/transcription.gate.test.ts:63:21
+ FAIL  src/ingest/transcription.gate.test.ts > transcription.md: stale (readers changed underneath it) > revised: a terminal fail "transcription.md was revised against an older reading: re-review", file untouched
+ ❯ src/ingest/transcription.gate.test.ts:68:21
+ FAIL  src/ingest/transcription.gate.test.ts > transcription.md: stale (readers changed underneath it) > legacy and stale: counts as revised, a terminal fail
+ ❯ src/ingest/transcription.gate.test.ts:75:21
+ FAIL  src/ingest/transcription.gate.test.ts > timeout safety (R32.8): both readers current means never waiting, whatever transcription.md holds > stale unrevised
+ FAIL  src/ingest/transcription.gate.test.ts > timeout safety (R32.8): both readers current means never waiting, whatever transcription.md holds > stale revised
+ FAIL  src/ingest/transcription.gate.test.ts > timeout safety (R32.8): both readers current means never waiting, whatever transcription.md holds > stale legacy
+ FAIL  src/ingest/transcription.gate.test.ts > timeout safety (R32.8): both readers current means never waiting, whatever transcription.md holds > other segment run
+ ❯ src/ingest/transcription.gate.test.ts:102:27
+ FAIL  src/ingest/transcription.gate.test.ts > timeout safety (R32.8): both readers current means never waiting, whatever transcription.md holds > for random edits of the file
+ ❯ buildError node_modules/fast-check/lib/fast-check.js:2497:16
+ ❯ throwIfFailed node_modules/fast-check/lib/fast-check.js:2504:8
+ ❯ reportRunDetails node_modules/fast-check/lib/fast-check.js:2520:14
+ ❯ Module.assert node_modules/fast-check/lib/fast-check.js:2711:53
+ ❯ src/ingest/transcription.gate.test.ts:106:8
+ ❯ src/ingest/transcription.gate.test.ts:109:82
+ ❯ Property.predicate node_modules/fast-check/lib/fast-check.js:1379:99
+ ❯ Property.run node_modules/fast-check/lib/fast-check.js:1348:24
+ ❯ propertyExecution node_modules/fast-check/lib/fast-check.js:2589:23
+ ❯ run node_modules/fast-check/lib/fast-check.js:2685:91
+ ❯ runIt node_modules/fast-check/lib/fast-check.js:2582:15
+ ❯ check node_modules/fast-check/lib/fast-check.js:2701:14
