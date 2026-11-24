@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "no-imitation",
+      "trigger": "PreToolUse",
+      "matcher": "write",
+      "action": {
+        "type": "command",
+        "command": "npx tsx tools/hooks/no-imitation.ts"
+      },
+      "timeout": 30,
+      "enabled": true
+    }
+  ]
+}
