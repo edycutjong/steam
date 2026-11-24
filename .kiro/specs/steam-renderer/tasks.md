@@ -117,7 +117,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/shaders.ts`.
   - Satisfies: R1.1, R4.1, R4.2, R4.5, R5.2 to R5.4, R6.1, R7.1 to R7.5, R8.2, R8.3, R9.2 to R9.5, R14.3.
 
-- [ ] 21. Renderer: context, programs, resources
+- [x] 21. Renderer: context, programs, resources
   - Implement `SteamRenderer.create` (returns null without WebGL2 or on compile/link/FBO failure), program build with error logging, the full-screen triangle VAO, `texNote`, `texChan`, `texFog` and `fboFog`, the sampler units, and the uniform locations cached once.
   - Files: `src/steam/renderer.ts`.
   - Satisfies: R14.1, R14.2, R14.7, R19.1.
