@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-24T17:10:45.575Z",
+  "generatedAt": "2026-11-24T17:41:10.760Z",
   "command": "npm run bench",
   "machine": {
     "cpu": "Apple M1 Max",
@@ -26,11 +26,11 @@
       "avgFps": 60,
       "framesUnder55Fps": 0,
       "p50FrameMs": 16.7,
-      "p95FrameMs": 16.8,
+      "p95FrameMs": 16.7,
       "worstFrameMs": 16.8,
       "gpuRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
       "gpuVendor": "Google Inc. (Apple)",
-      "deriveMs": 109.1,
+      "deriveMs": 32.6,
       "pass": true
     },
     {
@@ -46,11 +46,11 @@
       "avgFps": 60,
       "framesUnder55Fps": 0,
       "p50FrameMs": 16.7,
-      "p95FrameMs": 16.8,
+      "p95FrameMs": 16.7,
       "worstFrameMs": 16.8,
       "gpuRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
       "gpuVendor": "Google Inc. (Apple)",
-      "deriveMs": 97.5,
+      "deriveMs": 32.7,
       "pass": true
     },
     {
@@ -70,7 +70,7 @@
       "worstFrameMs": 16.8,
       "gpuRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
       "gpuVendor": "Google Inc. (Apple)",
-      "deriveMs": 345.9,
+      "deriveMs": 103.4,
       "pass": true
     }
   ]

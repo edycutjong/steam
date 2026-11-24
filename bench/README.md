@@ -30,7 +30,7 @@ The committed run used whatever backend Chromium chose on that machine; the `gpu
 
 | File | Backend (`gpuRenderer`) | Command | Result |
 | --- | --- | --- | --- |
-| `steam-renderer.json` | ANGLE SwiftShader (software GL; Chromium's default in this headless run) | `npm run bench` | ~59.5-59.8 fps average, 3-6 frames under 55 per profile → fails the zero-slow-frame criterion |
-| `steam-renderer-metal.json` | ANGLE Metal, Apple M1 Max (hardware GPU, not throttled) | `BENCH_ANGLE=metal npm run bench`, then the file renamed | 901 frames per profile at 60 fps, 0 frames under 55 on all three profiles |
+| `steam-renderer.json` | ANGLE SwiftShader (software GL; Chromium's default in this headless run), shader at commit d829327 (before the renderer-v0-frames D6-D11 fixes) | `npm run bench` | ~59.5-59.8 fps average, 3-6 frames under 55 per profile → fails the zero-slow-frame criterion |
+| `steam-renderer-metal.json` | ANGLE Metal, Apple M1 Max (hardware GPU, not throttled), shader at commit 68a379d (after D6-D11) | `BENCH_ANGLE=metal npm run bench`, then the file renamed | 901 frames per profile at 60 fps, 0 frames under 55 on all three profiles |
 
-Both are the same machine and build. The Pixel 5 profile throttles the CPU only (4×), never the GPU, so it is not a real phone: a physical-device run is still owed. `derive` (one-time, on load) took 345.9 ms under 4× CPU, over the 50 ms budget in R15.5 (task 39 moves it into a Web Worker).
+Both are the same machine and build. The Pixel 5 profile throttles the CPU only (4×), never the GPU, so it is not a real phone: a physical-device run is still owed. `derive` (one-time, on load) took 345.9 ms under 4× CPU before D6 removed the channel dilation, and 103.4 ms after it (metal file), still over the 50 ms budget in R15.5 (task 39 moves it into a Web Worker). The SwiftShader row is not re-run on the D6-D11 shader yet.
