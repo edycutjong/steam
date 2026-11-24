@@ -127,7 +127,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/renderer.ts`.
   - Satisfies: R2.2, R2.4, R9.3, R10.2 to R10.5, R14.5, R14.6, R16.1.
 
-- [ ] 23. Renderer: resize, DPR cap, context loss, dispose
+- [x] 23. Renderer: resize, DPR cap, context loss, dispose
   - Implement `resize` (canvas size = CSS size × `min(dpr, 2)`, fog texture at ¼, layout uniforms), `webglcontextlost`/`restored` handling with the 2 s fallback callback, and an idempotent `dispose`.
   - Files: `src/steam/renderer.ts`.
   - Satisfies: R12.3, R14.2, R14.4, R14.8, R19.1.

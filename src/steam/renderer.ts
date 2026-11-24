@@ -41,6 +41,8 @@ type Locs<K extends string> = Record<K, WebGLUniformLocation | null>
 
 /** A frame interval over this (ms) is a missed 55 fps frame. */
 export const SLOW_FRAME_MS = 18.2
+/** A lost context that is not restored within this many ms triggers the fallback. */
+export const CONTEXT_RESTORE_MS = 2000
 /** State callback period, ms (10 Hz). */
 const STATE_PERIOD_MS = 100
 
@@ -157,6 +159,12 @@ export class SteamRenderer {
   private fogW = 1
   private fogH = 1
   private dpr = 1
+  private disposed = false
+  private resumeOnRestore = false
+  private lostTimer: ReturnType<typeof setTimeout> | null = null
+  private lostCb: (() => void) | null = null
+  private readonly onLost: (e: Event) => void
+  private readonly onRestored: () => void
 
   private constructor(
     canvas: HTMLCanvasElement,
@@ -177,6 +185,11 @@ export class SteamRenderer {
     this.frozenT = opts.frozenT
     this.loop = this.frame.bind(this)
     this.applyLayout(layout, canvas.width, canvas.height, 1)
+    this.onLost = this.handleLost.bind(this)
+    this.onRestored = this.handleRestored.bind(this)
+    canvas.addEventListener('webglcontextlost', this.onLost)
+    canvas.addEventListener('webglcontextrestored', this.onRestored)
+    this.allocFog()
   }
 
   /** Returns null when WebGL2 is unavailable or a shader, program or framebuffer fails. */
@@ -370,6 +383,7 @@ export class SteamRenderer {
   }
 
   private draw(now: number): void {
+    if (this.disposed) return
     if (this.frozenT === null && this.t0 !== this.t0) {
       this.t0 = now
       this.revealStart = now + this.opts.lead
@@ -437,5 +451,80 @@ export class SteamRenderer {
       this.groupT[2 * k] = t[0]
       this.groupT[2 * k + 1] = t[1]
     }
+  }
+
+  /**
+   * Sizes the canvas to `css * min(devicePixelRatio, dprCap)`, the fog texture to a quarter of that,
+   * and recomputes the group rectangles for `layout`.
+   */
+  resize(cssW: number, cssH: number, layout: Layout): void {
+    if (this.disposed) return
+    const dpr = Math.min(globalThis.devicePixelRatio || 1, this.opts.dprCap)
+    const w = Math.max(1, Math.floor(cssW * dpr))
+    const h = Math.max(1, Math.floor(cssH * dpr))
+    this.canvas.width = w
+    this.canvas.height = h
+    this.applyLayout(layout, w, h, w / Math.max(1, cssW))
+    this.allocFog()
+    if (!this.playing && this.frozenT !== null) this.draw(performance.now())
+  }
+
+  /** Registers the callback run when the context is lost and not restored within 2 s. */
+  onContextLost(cb: () => void): void {
+    this.lostCb = cb
+  }
+
+  /** Stops the loop and deletes every GPU resource. Safe to call twice. */
+  dispose(): void {
+    if (this.disposed) return
+    this.disposed = true
+    this.playing = false
+    this.stateCb = null
+    this.lostCb = null
+    if (this.rafId !== 0) cancelAnimationFrame(this.rafId)
+    this.rafId = 0
+    if (this.lostTimer !== null) clearTimeout(this.lostTimer)
+    this.lostTimer = null
+    this.canvas.removeEventListener('webglcontextlost', this.onLost)
+    this.canvas.removeEventListener('webglcontextrestored', this.onRestored)
+    SteamRenderer.release(this.gl, this.res)
+  }
+
+  /** (Re)allocates fog texture storage at the current fog size. Not a per-frame call. */
+  private allocFog(): void {
+    const gl = this.gl
+    gl.activeTexture(gl.TEXTURE0 + UNIT_FOG)
+    gl.bindTexture(gl.TEXTURE_2D, this.res.texFog)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, this.fogW, this.fogH, 0, gl.RED, gl.UNSIGNED_BYTE, null)
+  }
+
+  private handleLost(e: Event): void {
+    e.preventDefault()
+    if (this.disposed) return
+    this.resumeOnRestore = this.playing
+    this.playing = false
+    if (this.rafId !== 0) cancelAnimationFrame(this.rafId)
+    this.rafId = 0
+    if (this.lostTimer !== null) clearTimeout(this.lostTimer)
+    this.lostTimer = setTimeout(() => {
+      this.lostTimer = null
+      this.lostCb?.()
+    }, CONTEXT_RESTORE_MS)
+  }
+
+  private handleRestored(): void {
+    if (this.disposed) return
+    if (this.lostTimer !== null) clearTimeout(this.lostTimer)
+    this.lostTimer = null
+    const res = SteamRenderer.build(this.gl, this.assets, this.tokens)
+    if (!res) {
+      this.lostCb?.()
+      return
+    }
+    this.res = res
+    this.allocFog()
+    this.lastFrame = Number.NaN
+    if (this.resumeOnRestore) this.play()
+    else if (this.frozenT !== null) this.draw(performance.now())
   }
 }
