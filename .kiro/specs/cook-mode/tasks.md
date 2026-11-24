@@ -43,7 +43,7 @@ Rules for every task:
   - Files: `src/data/provenance.ts`, `src/data/provenance.test.ts`.
   - Satisfies: R21.4, R21.5, R21.6, R20.5.
 
-- [ ] 6. Resolve a note to its source
+- [x] 6. Resolve a note to its source
   - Test first: `resolveNote` ok on the three real notes. One failing case per rule of R22.2: manifest not https; empty canvas id; non-integer `canvasIndex`; `provenance` disagreeing with `source` in each of the six fields; licence id `cc-by-nc`; zero-area region; region outside the canvas. Each returns `ok: false` with the reason of that rule and no other. `displayableNotes` returns the ok notes in step order and lists the rest as `withheld`.
   - Implement `resolveNote`, `displayableNotes`, `LICENCES` in `src/data/provenance.ts`.
   - Files: `src/data/provenance.ts`, `src/data/provenance.test.ts`.
