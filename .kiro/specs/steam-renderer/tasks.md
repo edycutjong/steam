@@ -79,7 +79,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/derive.ts`.
   - Satisfies: R7.2, R7.7, R18.1, R18.2.
 
-- [ ] 14. Derive: hull distance and feather
+- [x] 14. Derive: hull distance and feather
   - Implement the two-pass chamfer distance outside the dilated hull (`HULL_DILATE_PX = 6`) and the feather (`HULL_FEATHER_PX = 24`) into the A channel.
   - Files: `src/steam/derive.ts`.
   - Satisfies: R6.3, R18.1.

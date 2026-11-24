@@ -18,6 +18,8 @@ export interface Derived {
 
 export const DILATE_PX = 2
 export const SOFT_PX = 2
+export const HULL_DILATE_PX = 6
+export const HULL_FEATHER_PX = 24
 export const HEAD_BINS = 256
 const PRESSURE_SCAN_BLEND = 0.12
 
@@ -105,11 +107,61 @@ function deriveChannel(toi: PixelSource, note: PixelSource, chan: Uint8Array): v
   }
 }
 
+const INF = 1e9
+
+/** Two-pass 3-4 chamfer distance from ink pixels, in px (never below the Euclidean distance by more than rounding). */
+function chamferFromInk(toi: PixelSource): Float32Array {
+  const { width: w, height: h } = toi
+  const d = new Float32Array(w * h)
+  for (let p = 0; p < w * h; p++) d[p] = toi.data[p * 4] > 0 ? 0 : INF
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const p = y * w + x
+      let v = d[p]
+      if (x > 0) v = Math.min(v, d[p - 1] + 3)
+      if (y > 0) {
+        v = Math.min(v, d[p - w] + 3)
+        if (x > 0) v = Math.min(v, d[p - w - 1] + 4)
+        if (x < w - 1) v = Math.min(v, d[p - w + 1] + 4)
+      }
+      d[p] = v
+    }
+  }
+  for (let y = h - 1; y >= 0; y--) {
+    for (let x = w - 1; x >= 0; x--) {
+      const p = y * w + x
+      let v = d[p]
+      if (x < w - 1) v = Math.min(v, d[p + 1] + 3)
+      if (y < h - 1) {
+        v = Math.min(v, d[p + w] + 3)
+        if (x < w - 1) v = Math.min(v, d[p + w + 1] + 4)
+        if (x > 0) v = Math.min(v, d[p + w - 1] + 4)
+      }
+      d[p] = v
+    }
+  }
+  for (let p = 0; p < w * h; p++) d[p] = d[p] / 3
+  return d
+}
+
+/** Writes the hull feather into the A channel. */
+function deriveHull(toi: PixelSource, chan: Uint8Array): void {
+  const { width: w, height: h } = toi
+  const dist = chamferFromInk(toi)
+  for (let p = 0; p < w * h; p++) {
+    const outside = Math.max(0, dist[p] - HULL_DILATE_PX)
+    const x = Math.min(1, outside / HULL_FEATHER_PX)
+    const smooth = x * x * (3 - 2 * x)
+    chan[p * 4 + 3] = Math.round((1 - smooth) * 255)
+  }
+}
+
 export function derive(toi: PixelSource, note: PixelSource): Derived {
   if (toi.width !== note.width || toi.height !== note.height) {
     throw new Error('derive: toi and note sizes differ')
   }
   const chan = new Uint8Array(toi.width * toi.height * 4)
   deriveChannel(toi, note, chan)
+  deriveHull(toi, chan)
   return { chan, head: new Float32Array(HEAD_BINS * 2), headBins: HEAD_BINS }
 }
