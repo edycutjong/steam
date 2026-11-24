@@ -42,6 +42,10 @@ export const MIN_CORE_CSS_PX = 16
 export const PHONE_MAX_W = 640
 export const GROUP_GAP_CSS = 28
 export const S_MAX = 1.25
+/** Desktop: the core band never exceeds ~1.6x its scan size. */
+export const S_MAX_DESKTOP = 1.6
+/** Desktop: the wider group spans this fraction of the pane width. */
+export const DESKTOP_FILL = 0.675
 
 export function chooseLayout(paneW: number): LayoutKind {
   return paneW <= PHONE_MAX_W ? 'groups' : 'page'
@@ -90,16 +94,26 @@ export function computeLayout(kind: LayoutKind, paneW: number, paneH: number, me
   const order = meta.groups.map((_, i) => i).sort((a, b) => meta.groups[a].t[0] - meta.groups[b].t[0])
 
   if (kind === 'page') {
-    const [nw, nh] = meta.size
-    const s = Math.max(
-      1e-6,
-      Math.min((paneW - 2 * PAD_PX) / nw, (paneH * 0.5) / nh, S_MAX),
+    // Same stacked arrangement as the phone: one scale for both groups (the hand keeps one size),
+    // left edges aligned, the stack centred in the pane.
+    const rectW = order.map((i) => meta.groups[i].rect[2] - meta.groups[i].rect[0])
+    const rectH = order.map((i) => meta.groups[i].rect[3] - meta.groups[i].rect[1])
+    const wide = Math.max(...rectW)
+    const stackH = rectH.reduce((a, b) => a + b, 0)
+    const gaps = GROUP_GAP_CSS * (order.length - 1)
+    let s = Math.min(
+      (paneW * DESKTOP_FILL) / wide,
+      (paneW - 2 * PAD_PX) / wide,
+      (paneH - 2 * PAD_PX - gaps) / stackH,
+      S_MAX_DESKTOP,
     )
-    const ox = (paneW - nw * s) / 2
-    const oy = (paneH - nh * s) / 2
-    const groups = order.map((i) => {
-      const g = meta.groups[i]
-      return placement(i, meta, s, ox + g.rect[0] * s, oy + g.rect[1] * s)
+    s = Math.max(1e-6, s)
+    const x0 = (paneW - wide * s) / 2
+    let y = (paneH - (stackH * s + gaps)) / 2
+    const groups = order.map((i, k) => {
+      const p = placement(i, meta, s, x0, y)
+      y += rectH[k] * s + GROUP_GAP_CSS
+      return p
     })
     return { kind, groups, fits: groups.every((p) => inkedFits(p, paneW, paneH)) }
   }

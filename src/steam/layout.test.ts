@@ -4,6 +4,8 @@ import {
   MIN_CORE_CSS_PX,
   PAD_PX,
   S_MAX,
+  S_MAX_DESKTOP,
+  DESKTOP_FILL,
   chooseLayout,
   computeLayout,
   type LayoutMeta,
@@ -68,26 +70,33 @@ describe('phone layout', () => {
 
 describe('desktop layout', () => {
   for (const [w, h] of [
+    [1280, 345],
     [1440, 900],
     [1024, 768],
     [800, 600],
   ]) {
-    it(`keeps page geometry at ${w}x${h}`, () => {
+    it(`stacks both groups left-aligned at one scale at ${w}x${h}`, () => {
       const l = computeLayout('page', w, h, heroMeta)
       expect(l.kind).toBe('page')
       expect(l.fits).toBe(true)
+      expect(l.groups.map((g) => g.index)).toEqual([0, 1])
       const [a, b] = l.groups
       expect(a.scale).toBe(b.scale)
-      expect(a.scale).toBeLessThanOrEqual(S_MAX)
-      for (const g of l.groups) {
-        expect(g.inked[0]).toBeGreaterThanOrEqual(0)
-        expect(g.inked[2]).toBeLessThanOrEqual(w)
-        expect(g.inked[3]).toBeLessThanOrEqual(h)
-      }
-      // group B is left of and lower than group A, as on the page
-      const s = a.scale
-      expect(a.inked[0] - b.inked[0]).toBeCloseTo((781 - 31) * s, 6)
-      expect(b.inked[1] - a.inked[1]).toBeCloseTo((85 - 32) * s, 6)
+      expect(a.scale).toBeLessThanOrEqual(S_MAX_DESKTOP)
+      expect(a.inked[0]).toBeCloseTo(b.inked[0], 6)
+      expect(b.inked[1] - a.inked[3]).toBeGreaterThanOrEqual(GROUP_GAP_CSS - 1e-9)
+      // the stack is centred
+      const wide = Math.max(a.inked[2], b.inked[2]) - a.inked[0]
+      expect(a.inked[0] + wide / 2).toBeCloseTo(w / 2, 6)
+      const top = a.inked[1]
+      const bottom = b.inked[3]
+      expect(top + (bottom - top) / 2).toBeCloseTo(h / 2, 6)
     })
   }
+  it('makes the wider group ~67.5% of a roomy pane, capped at 1.6x', () => {
+    const [a] = computeLayout('page', 1236, 345, heroMeta).groups
+    expect(a.scale).toBeCloseTo((1236 * DESKTOP_FILL) / 465, 6)
+    const big = computeLayout('page', 3000, 2000, heroMeta).groups
+    expect(big[0].scale).toBe(S_MAX_DESKTOP)
+  })
 })
