@@ -2,5 +2,5 @@
   "reviewedBy": "Claude Code builder agent (autopilot P1b), not a human",
   "reviewedAt": "2026-11-25",
   "gateSha256": "eb3fabc0734badca8e4d48d2df8748f969ff00e2ac0ad546ffc6c59a838df10d",
-  "notes": "Compared every L-line of transcription.md with the scan (p0033.jpg) by eye: the 12 lines match the page; the 6 reader disagreements stay marked, not resolved. The human sign-off is still owed and will replace this line."
+  "notes": "Compared every L-line of transcription.md with the scan (p0033.jpg) by eye: the 12 lines match the page; the 5 reader disagreements stay marked, not resolved. The human sign-off is still owed and will replace this line."
 }
