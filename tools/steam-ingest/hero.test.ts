@@ -57,7 +57,7 @@ describe('the hero note on the committed real folder (R40.4)', { timeout: 60_000
     const r = gateCmd(id, { root, noLog: true })
     expect(r.state).toBe('pass')
     expect(committed.pass).toBe(true)
-    expect(r.gate.readers).toEqual(['scribe', 'second'])
+    expect(r.gate.readers).toEqual(['scribe', 'second-reader'])
     expect(r.gate.splits!.notes.find((n) => n.noteId === 'till-it-looks-red-smooth')!.status).toBe('reviewed')
     expect(stripAt(r.gate)).toBe(stripAt(committed))
     for (const f of ['agent/scribe.json', 'agent/second.json', 'transcription.md', 'ownership-review.json', 'alignment.json']) rmSync(join(dir, f))

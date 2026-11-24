@@ -93,6 +93,22 @@ export interface GateSnapshot {
   json: Record<string, string>
 }
 
+/**
+ * The gate result as the crop-overlap evidence recorded it (turn 24 changed three pieces of metadata and nothing else): propsVersion
+ * "1" (now "2": a part can be cut by components), the second reader named `second` (now `second-reader`, its agent name) and no
+ * `boundary` kind on a part. Mapped back here so the frozen comparison still covers every pixel and every other byte.
+ */
+export function asFrozen(g: GateResult): GateResult {
+  const gate = JSON.parse(canonicalJson(g.gate))
+  gate.propsVersion = '1'
+  if (gate.readers) gate.readers = gate.readers.map((r: string) => (r === 'second-reader' ? 'second' : r))
+  for (const a of gate.alignment ?? []) for (const p of a.parts) delete p.boundary
+  const json = new Map(g.artifacts.json)
+  const merged = json.get('merged.json') as { readers: string[] } | undefined
+  if (merged) json.set('merged.json', { ...merged, readers: merged.readers.map((r) => (r === 'second-reader' ? 'second' : r)) })
+  return { ...g, gate, artifacts: { ...g.artifacts, json } }
+}
+
 export function gateSnapshot(g: GateResult): GateSnapshot {
   const enc = new TextEncoder()
   const png: Record<string, string> = {}

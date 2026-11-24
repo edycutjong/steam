@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { PROPS_VERSION } from './props.ts'
 
-const RECORDED = { version: '1', sha256: 'dd42696f6f63a6f4145cbd2f5fab6a22b210e11e7f05f76fa4dd1822e0017e03' }
+const RECORDED = { version: '2', sha256: 'fac6ade768aa951965d39496794f05b3ff632bf2b7f2b50eddfb1bce6f99da49' }
 
 describe('PROPS_VERSION (R30.8)', () => {
   it('props.ts is the file recorded for this version', () => {

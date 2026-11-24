@@ -39,7 +39,7 @@ describe('gate --all --verify (R38.3)', () => {
   it('exits non-zero for a differing gate.json, a failing recipe and a waiting recipe', async () => {
     const gp = join(f.root, 'content/recipes/aaa/gate.json')
     const good = readFileSync(gp, 'utf8')
-    writeFileSync(gp, good.replace('"propsVersion": "1"', '"propsVersion": "0"'))
+    writeFileSync(gp, good.replace('"propsVersion": "2"', '"propsVersion": "0"'))
     expect(await main(['gate', '--all', '--verify'], f.root)).toBe(1)
     writeFileSync(gp, good)
     expect(await main(['gate', '--all', '--verify'], f.root)).toBe(0)

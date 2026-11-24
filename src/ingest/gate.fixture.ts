@@ -13,11 +13,11 @@ export const SYN_WORDS = [
   ['Looks', 'red', '&', 'smooth,'],
 ]
 
-export function syntheticScan(opts: { joined?: boolean } = {}): Rgba {
+export function syntheticScan(opts: { joined?: boolean; noRuns?: boolean } = {}): Rgba {
   const c = blank(800, 420)
   const rnd = mulberry32(11)
   const rows = [60, 130, 200, 270, 340]
-  rows.forEach((yc, i) => textRow(c, { yc, hh: 12, x0: 90, words: SYN_WORDS[i]!.map(() => 3 + Math.floor(rnd() * 2)), gap: 26, slant: 0.25, letterW: 9 }))
+  rows.forEach((yc, i) => textRow(c, { yc, hh: 12, x0: 90, words: SYN_WORDS[i]!.map(() => 3 + Math.floor(rnd() * 2)), gap: opts.noRuns && i === 3 ? -1 : 26, slant: 0.25, letterW: 9 }))
   if (opts.joined) stroke(c, 150, 262, 150, 345, 3) // a stroke joining line 3 and line 4 inside the quoted words
   const scan: Rgba = { width: c.w, height: c.h, data: new Uint8Array(c.w * c.h * 4) }
   for (let i = 0; i < c.w * c.h; i++) {
@@ -41,7 +41,8 @@ export const SOURCE = {
   retrieved: '2026-11-25',
 }
 
-export function syntheticRecipe(opts: { joined?: boolean } = {}) {
+/** `noRuns`: the words of line 3 ("boil it till it") are separate components with no empty column run of 4 px between them. */
+export function syntheticRecipe(opts: { joined?: boolean; noRuns?: boolean } = {}) {
   const scan = syntheticScan(opts)
   const sf = segmentRecipe(scan)
   const run = sf.lines.segmentRun

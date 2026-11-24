@@ -44,7 +44,7 @@ describe('mergeReadings (R15.2, R15.3)', () => {
     expect(m.disagreements).toEqual([])
     expect(m.readerUncertain).toEqual([
       { line: 0, reader: 'scribe', token: 'y', alt: ['z'] },
-      { line: 0, reader: 'second', token: 'x', alt: ['w'] },
+      { line: 0, reader: 'second-reader', token: 'x', alt: ['w'] },
     ])
   })
   it('refuses readings with different line counts', () => {

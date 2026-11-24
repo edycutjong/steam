@@ -1,0 +1,62 @@
+# tests of tasks 47-50 and 53 run on the tree before the implementation (turn 24); expected: red
+ ❯ src/ingest/partition.prop.test.ts (0 test)
+ ❯ src/ingest/partition.test.ts (0 test)
+ ❯ src/ingest/alignComponent.test.ts (15 tests | 13 failed) 18ms
+ ❯ src/ingest/props-version.test.ts (1 test | 1 failed) 65ms
+ ❯ src/ingest/merge.test.ts (15 tests | 1 failed) 17ms
+ ❯ src/ingest/partition.gate.test.ts (0 test)
+ ❯ tools/steam-ingest/partition.test.ts (0 test)
+ ❯ tools/steam-ingest/hero.test.ts (4 tests | 2 failed) 24356ms
+ FAIL  src/ingest/partition.gate.test.ts [ src/ingest/partition.gate.test.ts ]
+ ❯ src/ingest/partition.gate.test.ts:9:1
+ FAIL  src/ingest/partition.prop.test.ts [ src/ingest/partition.prop.test.ts ]
+ ❯ src/ingest/partition.prop.test.ts:5:1
+ FAIL  src/ingest/partition.test.ts [ src/ingest/partition.test.ts ]
+ ❯ src/ingest/partition.test.ts:5:1
+ FAIL  tools/steam-ingest/partition.test.ts [ tools/steam-ingest/partition.test.ts ]
+ ❯ tools/steam-ingest/partition.test.ts:9:1
+⎯⎯⎯⎯⎯⎯ Failed Tests 17 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/ingest/alignComponent.test.ts > component boundary: a valid partition > is a curator alignment cut by components
+ ❯ src/ingest/alignComponent.test.ts:27:22
+ FAIL  src/ingest/alignComponent.test.ts > component boundary: a valid partition > records the chosen components and the components of the quoted group, nothing else
+ ❯ src/ingest/alignComponent.test.ts:33:25
+ FAIL  src/ingest/alignComponent.test.ts > component boundary: a valid partition > works at the right edge of a quote too, and at both edges
+ ❯ src/ingest/alignComponent.test.ts:38:26
+ FAIL  src/ingest/alignComponent.test.ts > component boundary: rules that send the part to whole lines, with the reason > a component that is not a candidate (unknown id, or the last component of the line)
+ ❯ lines src/ingest/alignComponent.test.ts:49:22
+ ❯ src/ingest/alignComponent.test.ts:53:5
+ FAIL  src/ingest/alignComponent.test.ts > component boundary: rules that send the part to whole lines, with the reason > a boundary inside the quote: the words inside a note stay together
+ ❯ lines src/ingest/alignComponent.test.ts:49:22
+ ❯ src/ingest/alignComponent.test.ts:57:5
+ FAIL  src/ingest/alignComponent.test.ts > component boundary: rules that send the part to whole lines, with the reason > a quote edge without a boundary (the quote would start or end inside a group that joins words)
+ ❯ lines src/ingest/alignComponent.test.ts:49:22
+ ❯ src/ingest/alignComponent.test.ts:61:5
+ FAIL  src/ingest/alignComponent.test.ts > component boundary: rules that send the part to whole lines, with the reason > run entries and component entries are not mixed
+ ❯ lines src/ingest/alignComponent.test.ts:49:22
+ ❯ src/ingest/alignComponent.test.ts:64:5
+ FAIL  src/ingest/alignComponent.test.ts > component boundary: rules that send the part to whole lines, with the reason > boundaries must rise from left to right and not repeat
+ ❯ lines src/ingest/alignComponent.test.ts:49:22
+ ❯ src/ingest/alignComponent.test.ts:67:5
+ FAIL  src/ingest/alignComponent.test.ts > component boundary: rules that send the part to whole lines, with the reason > the line has no components given
+ ❯ lines src/ingest/alignComponent.test.ts:49:22
+ ❯ src/ingest/alignComponent.test.ts:74:5
+ FAIL  src/ingest/alignComponent.test.ts > component boundary: rules that send the part to whole lines, with the reason > a group that holds less than the ink floor, on either side of the cut
+ ❯ lines src/ingest/alignComponent.test.ts:49:22
+ ❯ src/ingest/alignComponent.test.ts:77:5
+ FAIL  src/ingest/alignComponent.test.ts > component boundary: rules that send the part to whole lines, with the reason > ink share against character share: the quoted words hold far too little or far too much of the ink
+ ❯ lines src/ingest/alignComponent.test.ts:49:22
+ ❯ src/ingest/alignComponent.test.ts:83:5
+ FAIL  src/ingest/alignComponent.test.ts > component boundary: rules that send the part to whole lines, with the reason > the ink-share ratio is the frozen factor 2, exactly, either way
+ ❯ src/ingest/alignComponent.test.ts:95:78
+ FAIL  src/ingest/alignComponent.test.ts > Alignment schema: the component boundary (R19.10, R19.15) > accepts {kind: component, after} beside run indices and null, and a per-line by
+ ❯ src/ingest/alignComponent.test.ts:108:45
+ FAIL  src/ingest/merge.test.ts > mergeReadings (R15.2, R15.3) > carries each reader's uncertain entries without using them
+ ❯ src/ingest/merge.test.ts:45:31
+ FAIL  src/ingest/props-version.test.ts > PROPS_VERSION (R30.8) > props.ts is the file recorded for this version
+ ❯ src/ingest/props-version.test.ts:13:27
+ FAIL  tools/steam-ingest/hero.test.ts > the hero note on the committed real folder (R40.4) > agent readings: the committed two-reader files, merge and curator files reproduce the committed gate.json, hero note id included
+ ❯ tools/steam-ingest/hero.test.ts:60:28
+ FAIL  tools/steam-ingest/hero.test.ts > the hero note on the committed real folder (R40.4) > waiting: without any reader file the gate waits for both agent files
+ ❯ tools/steam-ingest/hero.test.ts:68:21
+ Test Files  8 failed (8)
+      Tests  17 failed | 18 passed (35)

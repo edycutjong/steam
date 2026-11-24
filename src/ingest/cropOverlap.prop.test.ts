@@ -15,7 +15,7 @@ import { describe, expect, it } from 'vitest'
 import { loadScan } from '../../tools/steam-ingest/segment.ts'
 import { alignAuto } from './align.ts'
 import { canonicalJson } from './canon.ts'
-import { gateSnapshot } from './cropOverlap.fixture.ts'
+import { asFrozen, gateSnapshot } from './cropOverlap.fixture.ts'
 import { cropSource, defaultCropMode, type CropNote, type CropPage } from './cropSource.ts'
 import { labelComponents } from './components.ts'
 import { runGate, type GateCtx } from './gate.ts'
@@ -237,7 +237,7 @@ describe('S4: the gate result without eye-read boxes is what the unfixed code ga
   for (const [name, joined] of [['synthetic', false], ['synthetic-joined', true]] as const) {
     it(`${name}: gate.json content, every PNG pixel and every JSON byte are identical`, () => {
       const r = syntheticRecipe({ joined })
-      const now = gateSnapshot(runGate(ctxOf(r.files, r.scan)))
+      const now = gateSnapshot(asFrozen(runGate(ctxOf(r.files, r.scan))))
       expect(now).toEqual(frozen[name])
     })
   }
@@ -285,7 +285,10 @@ describe('S4: the gate result without eye-read boxes is what the unfixed code ga
         if (!x) return x
         const { rejectedCandidate: _rc, ...auto } = x.auto ?? {}
         void _rc
-        return { ...x, auto }
+        // turn 24 added the note-level precision (share of the mask inside the fixture boxes) to `shipped`; the rest is compared
+        const { precision: _p, ...shipped } = (x as { shipped: { precision?: number } }).shipped
+        void _p
+        return { ...x, shipped, auto }
       }
       expect(recallOf(real.gate.recall as Frozen['real']['recall'])).toEqual(recallOf(frozen.real.recall))
       // P2 and P5 for this note: the detail text of the unfixed run, note by note
