@@ -104,7 +104,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/align.ts`, `src/ingest/align.test.ts`, `src/ingest/align.prop.test.ts`.
   - Satisfies: R18.1 to R18.6.
 
-- [ ] 18. Alignment fallbacks
+- [x] 18. Alignment fallbacks
   - Test first: curator indices select code-found runs; a wrong count, a duplicate or an out-of-range index is rejected; no `alignment.json` → whole lines with `granularity: "lines"` and `shownText` = whole lines; the note's alignment is the weakest used; the file is hashed.
   - Implement `alignCurator`, `alignLines` in `src/ingest/align.ts`.
   - Files: `src/ingest/align.ts`, `src/ingest/align.fallback.test.ts`.

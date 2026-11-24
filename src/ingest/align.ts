@@ -65,3 +65,75 @@ export function assignWords(p: LinePixels, yMid: number, s: number, boundaries: 
   }
   return out
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Fallbacks (R19) and the per-note result
+
+export type AlignMethod = 'auto' | 'curator' | 'lines'
+const RANK: Record<AlignMethod, number> = { lines: 0, curator: 1, auto: 2 }
+
+export type AlignCurator = { ok: true; chosen: Run[]; boundaries: number[] } | { ok: false; detail: string }
+
+/** R19.3: boundaries are indices into the code-found runs, never coordinates. Exactly k-1 distinct valid indices. */
+export function alignCurator(runs: Run[], k: number, indices: number[]): AlignCurator {
+  if (indices.length !== k - 1) return { ok: false, detail: `alignment.json names ${indices.length} boundary runs, the line has ${k} words and needs ${k - 1}` }
+  if (new Set(indices).size !== indices.length) return { ok: false, detail: 'alignment.json repeats a boundary run index' }
+  for (const i of indices) if (!Number.isInteger(i) || i < 0 || i >= runs.length) return { ok: false, detail: `alignment.json run index ${i} is out of range (the line has ${runs.length} runs)` }
+  const chosen = indices.map((i) => runs[i]!).sort((a, b) => a.x0 - b.x0)
+  return { ok: true, chosen, boundaries: chosen.map((r) => Math.floor((r.x0 + r.x1) / 2)) }
+}
+
+export interface PartAlignment {
+  line: number
+  fromWord: number
+  toWord: number
+  method: AlignMethod
+  /** Sheared boundary columns (empty for whole lines). */
+  boundaries: number[]
+  /** Why whole lines were used, when they were. */
+  reason?: string
+  /** What the automatic attempt said, always recorded (R20.3). */
+  autoDetail: string
+}
+
+export interface PartInput {
+  line: number
+  fromWord: number
+  toWord: number
+  /** Tokens of the scribe's line. */
+  tokenCount: number
+  /** Known word count (both readers agree), else null. */
+  k: number | null
+  runs: Run[]
+  curator?: number[]
+}
+
+/** Method order per part: auto, then curator, then whole lines (R19). */
+export function alignPart(p: PartInput): PartAlignment {
+  const base = { line: p.line, fromWord: p.fromWord, toWord: p.toWord }
+  if (p.fromWord === 0 && p.toWord === p.tokenCount - 1) return { ...base, method: 'lines', boundaries: [], reason: 'the whole line is quoted', autoDetail: 'not attempted: whole line quoted' }
+  if (p.k === null) return { ...base, method: 'lines', boundaries: [], reason: 'word count unknown: the readers disagree on the token count', autoDetail: 'not attempted: word count unknown' }
+  const auto = alignAuto(p.runs, p.k)
+  if (auto.ok) return { ...base, method: 'auto', boundaries: auto.boundaries, autoDetail: `accepted: ${auto.chosen.length} boundaries` }
+  if (p.curator) {
+    const c = alignCurator(p.runs, p.k, p.curator)
+    if (c.ok) return { ...base, method: 'curator', boundaries: c.boundaries, autoDetail: auto.detail }
+    return { ...base, method: 'lines', boundaries: [], reason: c.detail, autoDetail: auto.detail }
+  }
+  return { ...base, method: 'lines', boundaries: [], reason: auto.detail, autoDetail: auto.detail }
+}
+
+export interface NoteAlignment {
+  /** The weakest method used by any part (R19.6). */
+  alignment: AlignMethod
+  /** "words" only when at least one part is cut by words and every part that needs it was. */
+  granularity: 'words' | 'lines'
+}
+
+export function noteAlignment(parts: PartAlignment[]): NoteAlignment {
+  let weakest: AlignMethod = 'auto'
+  for (const p of parts) if (RANK[p.method] < RANK[weakest]) weakest = p.method
+  const partial = parts.filter((p) => p.reason !== 'the whole line is quoted')
+  const granularity = partial.length > 0 && partial.every((p) => p.method !== 'lines') ? 'words' : 'lines'
+  return { alignment: weakest, granularity }
+}
