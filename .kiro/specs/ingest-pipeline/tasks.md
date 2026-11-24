@@ -92,7 +92,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/masks.ts`, `src/ingest/overlay.test.ts`.
   - Satisfies: R11.1 to R11.4.
 
-- [ ] 16. Zero-ink runs
+- [x] 16. Zero-ink runs
   - Test first: runs of ≥ 4 empty columns inside the ink extent only (leading and trailing space excluded); sheared projection finds a gap that a vertical projection loses (synthetic slanted words); widths and left-to-right indices.
   - Implement `src/ingest/runs.ts`.
   - Files: `src/ingest/runs.ts`, `src/ingest/runs.test.ts`.
