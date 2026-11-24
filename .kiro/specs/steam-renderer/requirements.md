@@ -141,7 +141,7 @@ Requirements R1 to R8 are the failure list of the previous prototype. Each is ju
 
 ## R14. Renderer structure
 
-**User story:** As a developer, I want a small, predictable WebGL2 renderer, so that its cost can be measured.
+**User story:** As a developer, I want a small WebGL2 renderer with a fixed per-frame cost, so that its cost can be measured.
 
 1. THE SYSTEM SHALL use raw WebGL2 with GLSL ES 3.00 and no 3D engine or WebGL wrapper library.
 2. THE SYSTEM SHALL render pass 1 (fog field) into an R8 texture at a quarter of the canvas resolution per axis.
