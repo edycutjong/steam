@@ -327,7 +327,7 @@ Rules for every task:
 
 ## L. End to end
 
-- [ ] 50. E2E helpers and the main flow
+- [x] 50. E2E helpers and the main flow
   - Test first: `e2e/helpers/cook.ts` (`openShelf`, `markTime`, `liveText`, `regionUrlFor(noteId)` with its own arithmetic, `axe(page)`), and the main case of `e2e/cook-flow.spec.ts` (R27.1): shelf (slip, both buttons, no upload card) → edition (marker count read from the bundle, each with the description; three "with its step" labels; "Read the provenance" expands to show the review line verbatim) → the deep link → `cook:ready` → with no input, `cook:reveal:till-it-looks-red-smooth` no later than 10 s after `cook:ready` (the measured value is written to the test log with `console.log`) → the live region text → "Wipe the glass" after the write-on → press → "The hand, quoted" → press → quoted screen: three rows, the hero link equals `regionUrlFor`, shape `…/{x},{y},{w},{h}/full/0/default.jpg` with four integers, last line "Wellcome Collection, Public Domain Mark" → "Cook again" opens step 1. Axe rules of R23.7 run on each screen. Every network request of the whole flow is recorded with `page.on('request')` and the test fails on any origin other than the app's.
   - Implement what the run finds missing.
   - Files: `e2e/helpers/cook.ts`, `e2e/cook-flow.spec.ts`.

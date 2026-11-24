@@ -60,6 +60,7 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
   const lastCue = useRef(-Infinity)
   const [phases, setPhases] = useState<Record<string, Phase>>({})
   const [ready, setReady] = useState(false)
+  const [failedNotes, setFailedNotes] = useState<string[]>([])
   const [wake, setWake] = useState<WakeStatus>('idle')
   const pendingArrival = useRef<{ text: string; timer: ReturnType<typeof setTimeout> } | null>(null)
   const finishing = useRef(false)
@@ -168,8 +169,12 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
   const ns = plan && state.status !== 'idle' ? noteState(plan, state) : 'none'
   const curNote = plan?.steps[stepIndex]?.note?.id ?? null
   const curPhase = curNote ? phases[curNote] : undefined
-  const writing = ns === 'revealed' && (curPhase === 'writing' || curPhase === 'thickening')
-  const noteAttr = ns === 'none' ? 'none' : ns === 'pending' ? 'pending' : curPhase === 'writing' || curPhase === 'thickening' ? 'writing' : curPhase === 'holding' ? 'held' : curPhase === 'wiped' ? 'wiping' : 'pending'
+  const failedHere = curNote !== null && failedNotes.includes(curNote)
+  const noteAttr = ns === 'none' ? 'none' : ns === 'pending' ? 'pending' : failedHere ? 'held' : curPhase === 'writing' || curPhase === 'thickening' ? 'writing' : curPhase === 'holding' ? 'held' : curPhase === 'wiped' ? 'wiping' : 'pending'
+  // Revealed by the scheduler but not yet held on the glass (the reveal waits for its pane, or is being written): the control
+  // keeps its label and does nothing, so no press can wipe a note the cook has not seen (R14.2, R14.7). A note whose scan
+  // failed to load counts as shown: its typed transcription is on the glass (R15.12).
+  const writing = ns === 'revealed' && noteAttr !== 'held'
   const pace: Pace = state.paceHistory.at(-1)?.pace ?? route.pace
   const control: Control = plan && state.status !== 'idle' ? controlFor(plan, state) : { label: COOK.loading, action: 'show', leavesCook: false }
   const showSlip = ns === 'revealed' && (noteAttr === 'writing' || noteAttr === 'held')
@@ -261,7 +266,10 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
               if (p === 'writing') performance.mark(`cook:write-on:${n}`)
             }}
             onReady={markReady}
-            onFailed={markReady}
+            onFailed={(n) => {
+              setFailedNotes((f) => (f.includes(n) ? f : [...f, n]))
+              markReady()
+            }}
           />
         ) : (
           <section className="steam-root pane" aria-hidden="true">

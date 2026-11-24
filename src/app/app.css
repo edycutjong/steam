@@ -239,7 +239,7 @@ a:hover {
 }
 
 .slip dt {
-  color: color-mix(in srgb, var(--muted) 70%, var(--bg));
+  color: var(--muted);
 }
 
 .slip dd {
@@ -329,7 +329,7 @@ a:hover {
 
 .mark__dagger,
 .mark__bar {
-  color: color-mix(in srgb, var(--muted) 65%, var(--bg));
+  color: var(--muted);
 }
 
 .mark__bar {
@@ -807,4 +807,12 @@ a:hover {
   margin: 0 0 20px;
   font-size: 16px;
   color: var(--ink);
+}
+
+/* R23.8: under reduced motion, no transition this stylesheet adds. The lamp dip and the static reveal's crossfade are kept (R16.2, R23.1). */
+@media (prefers-reduced-motion: reduce) {
+  *:not(.static-pane img):not(.lamp) {
+    transition: none !important;
+    animation: none !important;
+  }
 }
