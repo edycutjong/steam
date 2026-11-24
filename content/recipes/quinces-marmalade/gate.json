@@ -1,24 +1,24 @@
 {
   "alignment": [
     {
-      "alignment": "auto",
+      "alignment": "curator",
       "granularity": "words",
       "noteId": "full-ripe",
       "parts": [
         {
-          "autoDetail": "accepted: 7 boundaries",
+          "autoDetail": "alignment implausible: word 4 \"full\" spans 33 of 1252 columns but has 4 of the line's 32 characters (ratio 0.21, allowed 0.5 to 2)",
           "boundaries": [
             413,
             569,
             818,
-            865,
-            898,
+            899,
             1035,
-            1282
+            1223,
+            1368
           ],
           "fromWord": 4,
           "line": 1,
-          "method": "auto",
+          "method": "curator",
           "projection": "sheared",
           "s": 0.8,
           "toWord": 5
@@ -26,41 +26,40 @@
       ]
     },
     {
-      "alignment": "auto",
+      "alignment": "curator",
       "granularity": "words",
       "noteId": "when-tender",
       "parts": [
         {
-          "autoDetail": "accepted: 6 boundaries",
+          "autoDetail": "alignment implausible: word 2 \"in\" spans 37 of 1227 columns but has 2 of the line's 26 characters (ratio 0.39, allowed 0.5 to 2); word 5 \"&\" spans 127 of 1227 columns but has 1 of the line's 26 characters (ratio 2.69, allowed 0.5 to 2)",
           "boundaries": [
-            559,
+            431,
+            667,
             806,
-            843,
             948,
-            1282,
-            1409
+            1214,
+            1282
           ],
           "fromWord": 6,
           "line": 7,
-          "method": "auto",
+          "method": "curator",
           "projection": "sheared",
           "s": 0.8,
           "toWord": 6
         },
         {
-          "autoDetail": "accepted: 7 boundaries",
+          "autoDetail": "alignment implausible: word 3 \"&\" spans 305 of 1214 columns but has 1 of the line's 30 characters (ratio 7.54, allowed 0.5 to 2); word 4 \"then\" spans 70 of 1214 columns but has 4 of the line's 30 characters (ratio 0.43, allowed 0.5 to 2); word 7 \"sug.r\" spans 18 of 1214 columns but has 4 of the line's 30 characters (ratio 0.11, allowed 0.5 to 2); boundary 1496 cuts component 2551877 (columns 1463 to 1528)",
           "boundaries": [
-            467,
-            604,
+            533,
             723,
-            1028,
+            970,
             1098,
             1228,
-            1496
+            1423
           ],
           "fromWord": 0,
           "line": 8,
-          "method": "auto",
+          "method": "curator",
           "projection": "sheared",
           "s": 0.8,
           "toWord": 0
@@ -97,7 +96,7 @@
       ]
     }
   ],
-  "at": "2026-11-24T19:43:47.607Z",
+  "at": "2026-11-24T20:25:38.777Z",
   "disagreements": 0,
   "goldCheck": {
     "differing": [],
@@ -106,21 +105,22 @@
     "of": 11
   },
   "inputs": {
+    "alignment": "adbd5bb4d07ab396d65e26db5089eeecb41483f67ddda0ac6710bd4c6ac65fef",
     "fallback": "b5e2d702691e0b8a95946a5b039e198035a323a5a604b259e0f5dca095858cac",
     "lines": "9afea4c817bbfe31ce13e7249de70347e6eb789fac2bdd6e8aa7efc7f0b35b2c",
-    "ownershipReview": "9b237d215419dd7b61a4487b0f18b361386a19371d2bef9f2ed282bab22fc8d9",
+    "ownershipReview": "a823d20d69d5f5c016e80bf9e9d71813beeecc8695d2d7f15c3bb0b395c9ad0e",
     "page": "b3f76797227163567b1edc7b72f410a239287f555234c2e79fc395469c632015"
   },
   "outputs": {
-    "notes/note-full-ripe.json": "67840b7c7e80e7e52cd2b955b26469383dc36ac80b8a1806e500151e4e4f712e",
-    "notes/note-full-ripe.png": "0d12496a3ca7b5509890336a8e2279aa17a63b870ec5382adc06edbe73144d30",
-    "notes/note-full-ripe.toi.png": "8a43e0a02cb78d324d74de457f45ab77ace485d33c71893f5cb8b7e76f831366",
+    "notes/note-full-ripe.json": "f01b98f8de39593a7ae959dfb49bcb4edfc4d58befb6e656e3631bdf8177fb7d",
+    "notes/note-full-ripe.png": "5837558f9c38cd7a71cad5147c13dabdc2e5979d5a6fd78b563962828a738db3",
+    "notes/note-full-ripe.toi.png": "8fde65f8827b81e3ecd1456c652f1475dc9e999e9231f56ac34d77c99980cde8",
     "notes/note-looks-red-smooth.json": "215ec74c9c6be0459a7eb1067326aa1f1beddac5aaf660ae2dcc45cf2196e0ed",
     "notes/note-looks-red-smooth.png": "55856a35cffb33ec5f5e5e791e57ab0002a6ac5c86df3e9874a2977bc4afa792",
     "notes/note-looks-red-smooth.toi.png": "980c316d28434fc3471a37a3b36f919d0112d54be2d8281b82fa1393823a550c",
-    "notes/note-when-tender.json": "c26b1d544992ac08e12d14494abb6f5321ee8d94679c49cacac69e354fd3d573",
-    "notes/note-when-tender.png": "1a94adbfa9a7e0d43c03d6ebc3a3071a630403e0b75bb4915ba436f98ef06507",
-    "notes/note-when-tender.toi.png": "c42b774a8feb289a5391fa542cf5dd8698d1c5cd817b9febdd4733f07d6d9a33"
+    "notes/note-when-tender.json": "8aa61785c299e2dcec9266a41b5a45038d40b4a6bc0aa30e444e4a3520042a3e",
+    "notes/note-when-tender.png": "9c38d89eeb1e7c03f6dbb540c3a3f834b71888b96420d8e292048ca2333b458a",
+    "notes/note-when-tender.toi.png": "720d3948b4dbac6f8ca18f780b3f1a2374de778e2d996e8a078499b8d3ab63be"
   },
   "ownership": {
     "autoPass": 1,
@@ -273,27 +273,27 @@
       "pass": true
     },
     "P3": {
-      "detail": "1 auto, full-ripe reviewed (1 components, by Kiro (agent), turn-18); looks-red-smooth reviewed (3 components, by Kiro (agent), turn-18)",
+      "detail": "1 auto, full-ripe reviewed (2 components, by Kiro (agent), turn-18, Kiro (agent), turn-21); looks-red-smooth reviewed (3 components, by Kiro (agent), turn-18)",
       "pass": true
     },
     "P4": {
-      "detail": "full-ripe: 3594 lit px, all owned by the quoted words or within the shell | when-tender: 6085 lit px, all owned by the quoted words or within the shell | looks-red-smooth: 43546 lit px, all owned by the quoted words or within the shell; recall 0.9802 >= 0.85",
+      "detail": "full-ripe: 6587 lit px, all owned by the quoted words or within the shell | when-tender: 9269 lit px, all owned by the quoted words or within the shell | looks-red-smooth: 43546 lit px, all owned by the quoted words or within the shell; recall 0.9802 >= 0.85",
       "pass": true
     },
     "P5": {
-      "detail": "contrast full-ripe: 82; full-ripe/line 1: 82 | contrast when-tender: 88; when-tender/line 7: 90; when-tender/line 8: 78 | contrast looks-red-smooth: 84; looks-red-smooth/line 9: 84; looks-red-smooth/line 10: 85",
+      "detail": "contrast full-ripe: 86; full-ripe/line 1: 86 | contrast when-tender: 91; when-tender/line 7: 87; when-tender/line 8: 81 | contrast looks-red-smooth: 84; looks-red-smooth/line 9: 84; looks-red-smooth/line 10: 85",
       "pass": true
     },
     "P6": {
-      "detail": "full-ripe: 3594 px timed, path coverage 1.000 | when-tender: 6085 px timed, path coverage 1.000 | looks-red-smooth: 43546 px timed, path coverage 1.000",
+      "detail": "full-ripe: 6587 px timed, path coverage 1.000 | when-tender: 9269 px timed, path coverage 1.000 | looks-red-smooth: 43546 px timed, path coverage 1.000",
       "pass": true
     }
   },
   "reviewed": [
     {
-      "components": 1,
+      "components": 2,
       "note": "full-ripe",
-      "reviewer": "Kiro (agent), turn-18"
+      "reviewer": "Kiro (agent), turn-18, Kiro (agent), turn-21"
     },
     {
       "components": 3,
@@ -309,17 +309,18 @@
     "notes": [
       {
         "flagged": [
+          1661441,
           1794062
         ],
-        "maskPx": 1545,
+        "maskPx": 3227,
         "noteId": "full-ripe",
-        "share": 0.22006472491909385,
-        "splitPx": 340,
+        "share": 0.20359466997211031,
+        "splitPx": 657,
         "status": "reviewed"
       },
       {
         "flagged": [],
-        "maskPx": 3023,
+        "maskPx": 4541,
         "noteId": "when-tender",
         "share": 0,
         "splitPx": 0,

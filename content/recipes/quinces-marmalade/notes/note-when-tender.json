@@ -1,23 +1,24 @@
 {
-  "alignment": "auto",
+  "alignment": "curator",
+  "alignmentBy": "Kiro (agent), turn-21",
   "granularity": "words",
   "groups": [
     {
       "coreBand": [
-        49,
-        71
+        58,
+        80
       ],
-      "inkPx": 1358,
+      "inkPx": 2479,
       "line": 7,
       "rect": [
-        1129,
+        1003,
         32,
         1255,
-        109
+        118
       ],
       "t": [
         0,
-        0.4588318085855029
+        0.5305105853051058
       ],
       "words": {
         "from": 6,
@@ -26,19 +27,19 @@
     },
     {
       "coreBand": [
-        117,
-        137
+        126,
+        146
       ],
-      "inkPx": 1665,
+      "inkPx": 2062,
       "line": 8,
       "rect": [
         32,
-        86,
-        180,
-        145
+        95,
+        238,
+        154
       ],
       "t": [
-        0.4588318085855029,
+        0.5305105853051058,
         1
       ],
       "words": {
@@ -50,7 +51,7 @@
   "noteId": "when-tender",
   "pageBox": [
     282,
-    1482,
+    1473,
     1569,
     1659
   ],
@@ -58,7 +59,7 @@
   "shownText": "when Tender,",
   "size": [
     1287,
-    177
+    186
   ],
   "source": "Wellcome Collection",
   "span": "when Tender",
@@ -67,5 +68,5 @@
   "step": 4,
   "trace": "a path traced from the ink, left to right",
   "verifyApproximate": true,
-  "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:16.5218,71.5087,80.6646,10.3736/full/0/default.jpg"
+  "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:16.5218,71.0703,80.6803,10.8120/full/0/default.jpg"
 }

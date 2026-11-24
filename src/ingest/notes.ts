@@ -45,6 +45,8 @@ export interface QuotePart {
   tokenCount: number
   /** Known word count (both readers agree), else null. */
   k: number | null
+  /** The scribe's tokens of the line, in order (the reading the word cut is judged against). */
+  tokens: string[]
 }
 export interface CheckedNote {
   id: string
@@ -84,7 +86,7 @@ export function checkNotes(lines: EffectiveLine[], steps: StepDef[], notes: Note
       if (j < n.quote.length - 1 && q.toWord !== tc - 1) err(`line ${q.line}: every part except the last must end at the line's last word`)
       if (j > 0 && q.fromWord !== 0) err(`line ${q.line}: every part except the first must start at word 0`)
       if (!tokens[q.fromWord]!.first || !tokens[q.toWord]!.last) err(`line ${q.line}: quote splits a disagreement`)
-      parts.push({ line: q.line, fromWord: q.fromWord, toWord: q.toWord, tokenCount: tc, k: line.wordCount })
+      parts.push({ line: q.line, fromWord: q.fromWord, toWord: q.toWord, tokenCount: tc, k: line.wordCount, tokens: tokenise(line.primary) })
     })
     if (errors.length > before) continue
     const want = parts

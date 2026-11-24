@@ -98,7 +98,7 @@ export const Alignment = z.strictObject({
   method: z.literal('curator'),
   by: nonEmpty,
   rationale: nonEmpty,
-  lines: z.array(z.strictObject({ line: int0, boundaryRuns: z.array(int0) })),
+  lines: z.array(z.strictObject({ line: int0, /** One entry per gap between words: a run index, or null where no run separates the two words (they share one box). */ boundaryRuns: z.array(int0.nullable()) })),
 })
 export type Alignment = z.infer<typeof Alignment>
 

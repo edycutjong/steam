@@ -7,9 +7,16 @@ export type AlignAuto =
   | { ok: true; chosen: Run[]; /** Centre column of each chosen run, left to right. */ boundaries: number[] }
   | { ok: false; reason: 'alignment ambiguous'; detail: string; runsFound: number; kthWidth: number | null; nextWidth: number | null; needWidth: number }
   | { ok: false; reason: 'word without ink'; detail: string; wordInk: number[] }
+  | { ok: false; reason: 'alignment implausible'; detail: string }
 
 /** Ink held by each word box of a candidate cut at `boundaries` (sorted). Given by the caller, who owns the pixels. */
 export type WordInk = (boundaries: number[]) => number[]
+
+/**
+ * Whether a candidate cut is implausible (plausible.ts: word shape, cut-through): the reason, or null. Given by the caller,
+ * who knows the reading and the ink. Judged after the ink floor, on candidates that are otherwise accepted.
+ */
+export type Implausible = (boundaries: number[], boxOfWord?: number[]) => string | null
 
 /** The word boxes of a candidate that hold less than the floor: `word 0 holds 4 ink px`. Null when every box holds enough. */
 function inklessWords(boundaries: number[], wordInk: WordInk | undefined): { wordInk: number[]; detail: string } | null {
@@ -31,7 +38,7 @@ const median = (v: number[]): number => {
  * of the unselected runs (4 when there are none). Then, when `wordInk` is given, every word box of the result must hold
  * at least WORD_INK_MIN_PX ink pixels; otherwise the candidate is rejected whatever its run widths.
  */
-export function alignAuto(runs: Run[], k: number, wordInk?: WordInk): AlignAuto {
+export function alignAuto(runs: Run[], k: number, wordInk?: WordInk, implausible?: Implausible): AlignAuto {
   const need = k - 1
   if (need <= 0) return { ok: true, chosen: [], boundaries: [] }
   const ranked = [...runs].sort((a, b) => b.width - a.width || a.x0 - b.x0)
@@ -67,6 +74,8 @@ export function alignAuto(runs: Run[], k: number, wordInk?: WordInk): AlignAuto 
   const boundaries = chosen.map((r) => Math.floor((r.x0 + r.x1) / 2))
   const empty = inklessWords(boundaries, wordInk)
   if (empty) return { ok: false, reason: 'word without ink', detail: empty.detail, wordInk: empty.wordInk }
+  const why = implausible?.(boundaries) ?? null
+  if (why) return { ok: false, reason: 'alignment implausible', detail: `alignment implausible: ${why}` }
   return { ok: true, chosen, boundaries }
 }
 
@@ -101,18 +110,34 @@ export function assignWords(p: LinePixels, yMid: number, s: number, boundaries: 
 export type AlignMethod = 'auto' | 'curator' | 'lines'
 const RANK: Record<AlignMethod, number> = { lines: 0, curator: 1, auto: 2 }
 
-export type AlignCurator = { ok: true; chosen: Run[]; boundaries: number[] } | { ok: false; detail: string }
+export type AlignCurator =
+  | { ok: true; chosen: Run[]; boundaries: number[]; /** Box of each word, only when `null` entries merged words into one box. */ boxOfWord?: number[] }
+  | { ok: false; detail: string }
 
-/** R19.3: boundaries are indices into the code-found runs, never coordinates. Exactly k-1 distinct valid indices. */
-export function alignCurator(runs: Run[], k: number, indices: number[], wordInk?: WordInk): AlignCurator {
+/**
+ * R19.3: boundaries are indices into the code-found runs, never coordinates. One entry per gap between neighbouring words
+ * (k-1 entries). An entry is a valid run index, or `null` when no code-found run separates those two words (a stroke joins
+ * them): the words then share one box. Indices are distinct; with a `null` they must also rise from left to right.
+ */
+export function alignCurator(runs: Run[], k: number, indices: (number | null)[], wordInk?: WordInk, implausible?: Implausible): AlignCurator {
   if (indices.length !== k - 1) return { ok: false, detail: `alignment.json names ${indices.length} boundary runs, the line has ${k} words and needs ${k - 1}` }
-  if (new Set(indices).size !== indices.length) return { ok: false, detail: 'alignment.json repeats a boundary run index' }
-  for (const i of indices) if (!Number.isInteger(i) || i < 0 || i >= runs.length) return { ok: false, detail: `alignment.json run index ${i} is out of range (the line has ${runs.length} runs)` }
-  const chosen = indices.map((i) => runs[i]!).sort((a, b) => a.x0 - b.x0)
+  const named = indices.filter((i): i is number => i !== null)
+  if (new Set(named).size !== named.length) return { ok: false, detail: 'alignment.json repeats a boundary run index' }
+  for (const i of named) if (!Number.isInteger(i) || i < 0 || i >= runs.length) return { ok: false, detail: `alignment.json run index ${i} is out of range (the line has ${runs.length} runs)` }
+  const merged = named.length !== indices.length
+  if (merged && named.some((v, j) => j > 0 && v < named[j - 1]!)) return { ok: false, detail: 'alignment.json: boundary runs with a null must be listed from left to right' }
+  const chosen = named.map((i) => runs[i]!).sort((a, b) => a.x0 - b.x0)
   const boundaries = chosen.map((r) => Math.floor((r.x0 + r.x1) / 2))
+  let boxOfWord: number[] | undefined
+  if (merged) {
+    boxOfWord = [0]
+    for (const i of indices) boxOfWord.push(boxOfWord[boxOfWord.length - 1]! + (i === null ? 0 : 1))
+  }
   const empty = inklessWords(boundaries, wordInk)
   if (empty) return { ok: false, detail: `alignment.json: ${empty.detail}` }
-  return { ok: true, chosen, boundaries }
+  const why = implausible?.(boundaries, boxOfWord) ?? null
+  if (why) return { ok: false, detail: `alignment.json: alignment implausible: ${why}` }
+  return { ok: true, chosen, boundaries, ...(boxOfWord ? { boxOfWord } : {}) }
 }
 
 export interface PartAlignment {
@@ -122,6 +147,9 @@ export interface PartAlignment {
   method: AlignMethod
   /** Sheared boundary columns (empty for whole lines). */
   boundaries: number[]
+  /** The box (between neighbouring boundaries) that the quote's first and last word lie in, when a curator merged words into shared boxes; else the words themselves are the boxes. */
+  fromBox?: number
+  toBox?: number
   /** The line's text extent [lo, hi] (sheared columns) the word regions are clipped to; absent for whole lines. */
   extent?: [number, number]
   /** Why whole lines were used, when they were. */
@@ -139,11 +167,15 @@ export interface PartInput {
   /** Known word count (both readers agree), else null. */
   k: number | null
   runs: Run[]
-  curator?: number[]
+  curator?: (number | null)[]
+  /** The runs a curator's indices name: the runs of runs.json (segment time). Defaults to `runs`. */
+  curatorRuns?: Run[]
   /** The line's text extent (runs.ts): word regions of an aligned part are clipped to it. */
   extent?: [number, number]
   /** Ink per word box of a candidate (the floor test); without it no floor is applied. */
   wordInk?: WordInk
+  /** Plausibility of a candidate cut against the reading and the ink (the same test for the automatic and the curator candidate). */
+  implausible?: Implausible
 }
 
 /** Method order per part: auto, then curator, then whole lines (R19). */
@@ -151,11 +183,18 @@ export function alignPart(p: PartInput): PartAlignment {
   const base = { line: p.line, fromWord: p.fromWord, toWord: p.toWord }
   if (p.fromWord === 0 && p.toWord === p.tokenCount - 1) return { ...base, method: 'lines', boundaries: [], reason: 'the whole line is quoted', autoDetail: 'not attempted: whole line quoted' }
   if (p.k === null) return { ...base, method: 'lines', boundaries: [], reason: 'word count unknown: the readers disagree on the token count', autoDetail: 'not attempted: word count unknown' }
-  const auto = alignAuto(p.runs, p.k, p.wordInk)
+  const auto = alignAuto(p.runs, p.k, p.wordInk, p.implausible)
   const ext = p.extent ? { extent: p.extent } : {}
   if (auto.ok) return { ...base, method: 'auto', boundaries: auto.boundaries, ...ext, autoDetail: `accepted: ${auto.chosen.length} boundaries` }
   if (p.curator) {
-    const c = alignCurator(p.runs, p.k, p.curator, p.wordInk)
+    const c = alignCurator(p.curatorRuns ?? p.runs, p.k, p.curator, p.wordInk, p.implausible)
+    if (c.ok && c.boxOfWord) {
+      const box = c.boxOfWord
+      // a quote may not cut a shared box: it would show words that are not quoted
+      const splits = box[p.fromWord - 1] === box[p.fromWord] || box[p.toWord] === box[p.toWord + 1]
+      if (splits) return { ...base, method: 'lines', boundaries: [], reason: 'alignment.json: the quote starts or ends inside a box that merges words (no code-found gap separates them)', autoDetail: auto.detail }
+      return { ...base, method: 'curator', boundaries: c.boundaries, fromBox: box[p.fromWord]!, toBox: box[p.toWord]!, ...ext, autoDetail: auto.detail }
+    }
     if (c.ok) return { ...base, method: 'curator', boundaries: c.boundaries, ...ext, autoDetail: auto.detail }
     return { ...base, method: 'lines', boundaries: [], reason: c.detail, autoDetail: auto.detail }
   }

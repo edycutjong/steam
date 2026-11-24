@@ -250,7 +250,7 @@ describe('S4: the gate result without eye-read boxes is what the unfixed code ga
     pageBytes: readFileSync(join(dir, 'page.jpg')),
     scan: loadScan(dir).scan,
     files: {
-      'source.json': txt('source.json'), 'lines.json': txt('lines.json'), 'fallback/reading.json': txt('fallback/reading.json'), 'ownership-review.json': txt('ownership-review.json'),
+      'source.json': txt('source.json'), 'lines.json': txt('lines.json'), 'fallback/reading.json': txt('fallback/reading.json'), 'ownership-review.json': txt('ownership-review.json'), 'alignment.json': txt('alignment.json'),
     },
     heroFixture: readFileSync(join(root, 'fixtures/hero-word-bounds.json'), 'utf8'),
     gold: readFileSync(join(root, 'fixtures/gold-readings.json'), 'utf8'),
@@ -258,7 +258,9 @@ describe('S4: the gate result without eye-read boxes is what the unfixed code ga
   const mergedNow = canonicalJson(real.artifacts.json.get('merged.json'))
   // The notes compared in full. when-tender is the note whose automatic word alignment the later word-align-speck
   // bugfix changes on purpose (its P5 failed before this fix, for a different reason), so its bytes are not frozen here.
-  const FROZEN_NOTES = ['full-ripe', 'looks-red-smooth']
+  // full-ripe is changed on purpose by the later word-cut-inside-word bugfix (its words were cut inside a word), and so is
+  // its alignment; the hero is not.
+  const FROZEN_NOTES = ['looks-red-smooth']
 
   it('real recipe: step grouping and note spans (merged.json) are byte-identical', () => {
     const buf = new TextEncoder().encode(mergedNow)

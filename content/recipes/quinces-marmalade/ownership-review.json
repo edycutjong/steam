@@ -53,6 +53,15 @@
       "overlay": "ownership/flag-2765987.png",
       "rationale": "One pen stroke: the bowl of the g of \"keeping\" (line 10) continues as the long descender that becomes the closing rule under \"The time it Boils\" (line 11); the bowl stays with line 10 and the descender and rule go with line 11 at the automatic valley row 1761.",
       "reviewer": "Kiro (agent), turn-18"
+    },
+    {
+      "componentId": 1661441,
+      "decision": {
+        "assignToLine": 0
+      },
+      "overlay": "ownership/flag-1661441.png",
+      "rationale": "The stroke is the f of \"of\" in the title (line 0) with its long descender; the descender runs down beside the \"i\" of \"ripe,\" on line 1 and ends in a hook short of it, without joining any letter of line 1. Needed once the note \"full ripe,\" quotes the words of line 1 instead of a mis-cut box (word-cut-inside-word).",
+      "reviewer": "Kiro (agent), turn-21"
     }
   ],
   "segmentRun": {

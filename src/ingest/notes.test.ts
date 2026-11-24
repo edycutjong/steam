@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { NoteDef, StepDef } from '../data/schema.ts'
-import { mergeReadings, mergeSingle, type EffectiveLine, type MergeResult } from './merge.ts'
+import { mergeReadings, mergeSingle, tokenise, type EffectiveLine, type MergeResult } from './merge.ts'
 import { checkNotes, checkSteps, effectiveLines } from './notes.ts'
 
 const run = { id: 'sr-0123456789ab', stripsHash: 'a'.repeat(64) }
@@ -40,8 +40,8 @@ describe('checkNotes (R17.3 to R17.6)', () => {
     const r = checkNotes(lines, steps, [hero])
     expect(r.errors).toEqual([])
     expect(r.notes[0]!.parts).toEqual([
-      { line: 1, fromWord: 6, toWord: 8, tokenCount: 9, k: 9 },
-      { line: 2, fromWord: 0, toWord: 2, tokenCount: 7, k: 7 },
+      { line: 1, fromWord: 6, toWord: 8, tokenCount: 9, k: 9, tokens: tokenise(lines[1]!.primary) },
+      { line: 2, fromWord: 0, toWord: 2, tokenCount: 7, k: 7, tokens: tokenise(lines[2]!.primary) },
     ])
   })
   it('accepts the hero span without the trailing comma of its last word, and records the quoted words', () => {

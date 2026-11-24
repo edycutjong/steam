@@ -37,6 +37,7 @@ describe('the hero note on the committed real folder (R40.4)', { timeout: 60_000
   })
   it('reviewed: with the committed ownership-review.json the hero note passes P3 as reviewed, never auto, and the committed gate.json is reproduced', () => {
     copy('ownership-review.json')
+    copy('alignment.json')
     const r = gateCmd(id, { root, noLog: true })
     const reviewer = JSON.parse(readFileSync(join(real, 'ownership-review.json'), 'utf8')).decisions[0].reviewer
     expect(r.gate.results!.P3.pass).toBe(true)
@@ -45,6 +46,7 @@ describe('the hero note on the committed real folder (R40.4)', { timeout: 60_000
     expect(r.gate.ownership!.reviewedPass).toBeGreaterThan(0)
     expect(stripAt(r.gate)).toBe(stripAt(JSON.parse(readFileSync(join(real, 'gate.json'), 'utf8'))))
     rmSync(join(dir, 'ownership-review.json'))
+    rmSync(join(dir, 'alignment.json'))
   })
   it('waiting: without any reader file the gate waits for both agent files', () => {
     rmSync(join(dir, 'fallback'), { recursive: true })

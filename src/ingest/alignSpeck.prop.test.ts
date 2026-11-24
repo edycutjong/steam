@@ -134,7 +134,9 @@ const dir = join(root, 'content/recipes/quinces-marmalade')
 const txt = (f: string) => readFileSync(join(dir, f), 'utf8')
 const scan = loadScan(dir).scan
 const seg = segmentRecipe(scan, { block: 1 }).seg
-const own = applyReview(seg.labels, seg.bands, JSON.parse(txt('ownership-review.json')).decisions).own
+// the baseline ownership is that of the turn-18 review; the turn-21 decision (word-cut-inside-word) is applied only in the gate run below
+const turn18 = (JSON.parse(txt('ownership-review.json')).decisions as Parameters<typeof applyReview>[2]).filter((d) => d.reviewer === 'Kiro (agent), turn-18')
+const own = applyReview(seg.labels, seg.bands, turn18).own
 const runs = runsOf(own.owner, seg.frame.width, seg.frame.height, seg.bands, seg.slant.s, seg.labels)
 const lp = collectLinePixels(own.owner, seg.frame.width, seg.frame.height, seg.bands.cores.length, seg.labels)
 const now = runs.map((r, i) => {
@@ -145,7 +147,7 @@ const now = runs.map((r, i) => {
 })
 const g = runGate({
   recipeId: 'quinces-marmalade', pageBytes: readFileSync(join(dir, 'page.jpg')), scan,
-  files: { 'source.json': txt('source.json'), 'lines.json': txt('lines.json'), 'fallback/reading.json': txt('fallback/reading.json'), 'ownership-review.json': txt('ownership-review.json') },
+  files: { 'source.json': txt('source.json'), 'lines.json': txt('lines.json'), 'fallback/reading.json': txt('fallback/reading.json'), 'ownership-review.json': txt('ownership-review.json'), 'alignment.json': txt('alignment.json') },
   heroFixture: readFileSync(join(root, 'fixtures/hero-word-bounds.json'), 'utf8'), gold: readFileSync(join(root, 'fixtures/gold-readings.json'), 'utf8'),
 })
 const quoted = new Set((JSON.parse(txt('fallback/reading.json')).notes as { quote: { line: number }[] }[]).flatMap((n) => n.quote.map((q) => q.line)))
@@ -174,16 +176,26 @@ describe('U3: the real page, against the unfixed code', () => {
       expect(now[i], `line ${i}`).toEqual(before.lines[i]!.auto)
     }
   })
-  it('the P3 review result is unchanged: result, ownership counts, split shares and reviewed components', () => {
-    // when-tender's mask size is the fix itself (its line 8 part now holds a word, not a speck); its split share,
-    // split pixels, status and flagged components are what they were
-    type Splits = { segmentSplits: number; notes: { noteId: string; maskPx: number }[] }
-    const strip = (p: { splits: Splits }) => ({ ...p, splits: { ...p.splits, notes: p.splits.notes.map((n) => (n.noteId === 'when-tender' ? { ...n, maskPx: 0 } : n)) } })
-    const nowP3 = { result: g.gate.results!.P3, ownership: g.gate.ownership, splits: g.gate.splits as Splits, reviewed: g.gate.reviewed }
-    expect(strip(nowP3)).toEqual(strip(before.p3 as typeof nowP3))
-    const wt = (nowP3.splits.notes.find((n) => n.noteId === 'when-tender')!).maskPx
-    const wt0 = ((before.p3 as typeof nowP3).splits.notes.find((n) => n.noteId === 'when-tender')!).maskPx
-    expect([wt0, wt]).toEqual([1362, 3023])
+  it('the P3 review result is unchanged for every note but full-ripe: result shape, counts, split shares, hero entry', () => {
+    // word-cut-inside-word, on purpose: full-ripe and when-tender now quote the words that were written, not a mis-cut box.
+    // full-ripe's words include a second joined stroke (the title's f, component 1661441) that needed a decision by turn-21,
+    // so its reviewed count goes 1 to 2 and its share and mask size change. when-tender's mask is the fix itself.
+    type Splits = { segmentSplits: number; notes: { noteId: string; maskPx: number; share: number; splitPx: number; flagged: number[] }[] }
+    const nowP3 = { result: g.gate.results!.P3, ownership: g.gate.ownership, splits: g.gate.splits as Splits, reviewed: g.gate.reviewed! }
+    const was = before.p3 as typeof nowP3
+    expect(nowP3.result.pass).toBe(true)
+    expect(nowP3.ownership).toEqual(was.ownership)
+    expect(nowP3.splits.segmentSplits).toBe(was.splits.segmentSplits)
+    for (const id of ['looks-red-smooth']) {
+      expect(nowP3.splits.notes.find((n) => n.noteId === id)).toEqual(was.splits.notes.find((n) => n.noteId === id))
+      expect(nowP3.reviewed.find((r) => r.note === id)).toEqual(was.reviewed.find((r) => r.note === id))
+    }
+    const wt = nowP3.splits.notes.find((n) => n.noteId === 'when-tender')!
+    const wt0 = was.splits.notes.find((n) => n.noteId === 'when-tender')!
+    expect([wt.share, wt.splitPx, wt.flagged]).toEqual([wt0.share, wt0.splitPx, wt0.flagged])
+    const fr = nowP3.splits.notes.find((n) => n.noteId === 'full-ripe')!
+    expect(fr.flagged).toEqual([1661441, 1794062])
+    expect(nowP3.reviewed.find((r) => r.note === 'full-ripe')!.components).toBe(2)
   })
   it('the hero note (looks-red-smooth): whole-line mask, PNG, time-of-ink map, JSON and alignment are byte-identical', () => {
     const png = g.artifacts.png.get('notes/note-looks-red-smooth.png')!

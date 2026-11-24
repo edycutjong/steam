@@ -1,19 +1,20 @@
 {
-  "alignment": "auto",
+  "alignment": "curator",
+  "alignmentBy": "Kiro (agent), turn-21",
   "granularity": "words",
   "groups": [
     {
       "coreBand": [
-        49,
-        70
+        61,
+        82
       ],
-      "inkPx": 1768,
+      "inkPx": 3133,
       "line": 1,
       "rect": [
         32,
         32,
-        204,
-        112
+        369,
+        124
       ],
       "t": [
         0,
@@ -27,23 +28,23 @@
   ],
   "noteId": "full-ripe",
   "pageBox": [
-    837,
-    1088,
-    1073,
+    841,
+    1076,
+    1242,
     1232
   ],
   "resampled": true,
   "shownText": "full ripe,",
   "size": [
-    236,
-    144
+    401,
+    156
   ],
   "source": "Wellcome Collection",
   "span": "full ripe",
-  "splitShare": 0.22006472491909385,
+  "splitShare": 0.20359466997211031,
   "splitStatus": "reviewed",
   "step": 1,
   "trace": "a path traced from the ink, left to right",
   "verifyApproximate": true,
-  "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:51.9188,53.0706,14.9862,7.3359/full/0/default.jpg"
+  "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:52.1685,52.4915,25.3091,8.1450/full/0/default.jpg"
 }

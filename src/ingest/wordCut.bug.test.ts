@@ -70,7 +70,13 @@ function extentOf(line: number): [number, number] {
 }
 
 const parts = g.gate.alignment!.flatMap((n) => n.parts.filter((p) => p.method !== 'lines').map((p) => ({ note: n.noteId, ...p })))
-const tokensOf = (line: number) => tokenise(reading.lines.find((l) => l.i === line)!.text)
+const curatorGaps = existsAlignment() ? (JSON.parse(txt('alignment.json')).lines as { line: number; boundaryRuns: (number | null)[] }[]) : []
+/** The line's words as boxes: where the curator named no run (null) the two words share one box and are judged as one. */
+const tokensOf = (line: number, method?: string) => {
+  const t = tokenise(reading.lines.find((l) => l.i === line)!.text)
+  const gaps = method === 'curator' ? curatorGaps.find((l) => l.line === line)?.boundaryRuns : undefined
+  return gaps ? t.reduce<string[]>((acc, w, j) => (j > 0 && gaps[j - 1] === null ? [...acc.slice(0, -1), `${acc[acc.length - 1]} ${w}`] : [...acc, w]), []) : t
+}
 
 describe('word-cut-inside-word on the real page: quinces-marmalade', () => {
   it('some part of the page is word-aligned (the check has something to judge)', () => {
@@ -80,8 +86,8 @@ describe('word-cut-inside-word on the real page: quinces-marmalade', () => {
   it('test 1, word shape: every word of every word-aligned part is about as wide as its characters predict', () => {
     const bad: string[] = []
     for (const p of parts) {
-      const reason = shapeViolation(p.boundaries, extentOf(p.line), tokensOf(p.line))
-      const table = wordShapes(p.boundaries, extentOf(p.line), tokensOf(p.line)).map((w) => `${w.token}:${w.cols}c/${w.chars}ch=${w.ratio.toFixed(2)}`).join(' ')
+      const reason = shapeViolation(p.boundaries, extentOf(p.line), tokensOf(p.line, p.method))
+      const table = wordShapes(p.boundaries, extentOf(p.line), tokensOf(p.line, p.method)).map((w) => `${w.token}:${w.cols}c/${w.chars}ch=${w.ratio.toFixed(2)}`).join(' ')
       console.log(`${p.note}/line ${p.line} (${p.method}) ratios [limit 1/${WORD_SHAPE_RATIO_MAX}..${WORD_SHAPE_RATIO_MAX}]: ${table}`)
       if (reason) bad.push(`${p.note}/line ${p.line} (${p.method}, ${p.autoDetail}): alignment implausible: ${reason}`)
     }

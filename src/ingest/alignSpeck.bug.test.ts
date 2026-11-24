@@ -28,7 +28,7 @@ const g = runGate({
   recipeId: 'quinces-marmalade',
   pageBytes: readFileSync(join(dir, 'page.jpg')),
   scan,
-  files: { 'source.json': txt('source.json'), 'lines.json': txt('lines.json'), 'fallback/reading.json': txt('fallback/reading.json'), 'ownership-review.json': txt('ownership-review.json') },
+  files: { 'source.json': txt('source.json'), 'lines.json': txt('lines.json'), 'fallback/reading.json': txt('fallback/reading.json'), 'ownership-review.json': txt('ownership-review.json'), 'alignment.json': txt('alignment.json') },
   heroFixture: readFileSync(join(root, 'fixtures/hero-word-bounds.json'), 'utf8'),
   gold: readFileSync(join(root, 'fixtures/gold-readings.json'), 'utf8'),
 })

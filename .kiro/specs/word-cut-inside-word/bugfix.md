@@ -32,10 +32,18 @@ Terms. "Word box": the columns between two neighbouring boundaries of an aligned
 4. The `crop-overlap` and `word-align-speck` tests stay green.
 5. No existing constant is edited; one is added (`WORD_SHAPE_RATIO_MAX`).
 
+## Measured
+
+- Detection rule (design.md 3.5, written in commit `399ac56` before any measurement): word shape with `WORD_SHAPE_RATIO_MAX = 2`, cut-through, fixture recall and precision at the fixture's 0.85.
+- Red (`red.txt`, 2 of 4 fail on the unfixed code): the word shape test rejects all three word-aligned parts: `full-ripe/line 1`: "full" spans 33 of 1252 columns for 4 of 32 characters (ratio 0.21); `when-tender/line 7`: "in" 0.39, "&" 2.69; `when-tender/line 8`: "&" 7.54, "then" 0.43, "sug.r" 0.11. The cut-through test finds one real cut: `when-tender/line 8`, boundary 1496 cuts component 2551877. The fixture test judges no word-aligned note (the only eye-marked note is the hero, shipped as whole lines).
+- Green (`green.txt`, 4 of 4 pass): ratios of every word of lines 1, 7, 8 lie between 0.56 and 1.47; cut-through none.
+- Findings on the way: (a) the gate used the runs of the reviewed ownership for a curator's indices although the design says `runs.json` (line 7 has 26 runs there and 24 in `runs.json`); fixed. (b) a curator could not express a gap without a run: line 8's "them, &" (the comma touches the &) has none; `null` entries were added. (c) full-ripe's correct words contain a second joined stroke (component 1661441, the title's f, whose descender ends beside "ripe,"); the gate asked for a decision and it was made by looking at `ownership/flag-1661441.png` (assign to line 0).
+- The hero stays whole lines: in line 9 no code-found run separates "to", "the" and "Quinces," (the Q's swash runs under "the"), so a word alignment of the hero cannot be exact. Its mask, PNG, time-of-ink map and JSON are byte-identical.
+
 ## Tasks
 
-- [ ] 1. Commit 0, `[kiro] word-cut-inside-word: bugfix spec and the detection rule (before measuring)`: this file and design.md 3.5.
-- [ ] 2. Commit A, `[kiro] word-cut-inside-word: exploration test on the real page (red)`: `src/ingest/plausible.ts` (the pure rule), `src/ingest/wordCut.bug.test.ts`; `red.txt`; hooks.log line.
-- [ ] 3. Commit B, `[kiro] word-cut-inside-word: reject implausible alignment, curator alignment from code-found runs (green)`: wire the rule into `alignAuto`/`alignCurator`/gate; curator `alignment.json`; gate re-run; `green.txt`; look at each note PNG.
+- [x] 1. Commit 0, `[kiro] word-cut-inside-word: bugfix spec and the detection rule (before measuring)`: this file and design.md 3.5.
+- [x] 2. Commit A, `[kiro] word-cut-inside-word: exploration test on the real page (red)`: `src/ingest/plausible.ts` (the pure rule), `src/ingest/wordCut.bug.test.ts`; `red.txt`; hooks.log line.
+- [x] 3. Commit B, `[kiro] word-cut-inside-word: reject implausible alignment, curator alignment from code-found runs (green)`: wire the rule into `alignAuto`/`alignCurator`/gate; curator `alignment.json`; gate re-run; `green.txt`; look at each note PNG.
 - [ ] 4. Commit C, `[kiro] word-cut-inside-word: preservation properties (Unchanged)`.
 - [ ] 5. Final: `npm run ingest:gate`, `npm run props` (exit 0), `npm test`, `npm run typecheck`, `npm run build`; hooks.log lines; `docs/kiro-evidence/ingest/notes-after-word-cut-fix.png`; report.

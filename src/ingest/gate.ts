@@ -13,6 +13,7 @@ import { checkNotes, checkSteps, effectiveLines } from './notes.ts'
 import {
   PROPS_VERSION, checkP1, checkP2, checkP3, checkP4, checkP5, checkP6, maskBox, type ContrastCrop, type P4Part, type PropResult,
 } from './props.ts'
+import { plausibilityViolation, lineComponentSpans, type ComponentSpan } from './plausible.ts'
 import { collectLinePixels, wordInkCounts } from './runs.ts'
 import { runsOf, segmentRecipe, type SegmentFiles } from './segment.ts'
 import { sha256Hex } from './sha256.ts'
@@ -303,7 +304,7 @@ export function runGate(ctx: GateCtx): GateResult {
   const autoOwn: Ownership = decisions.length ? applyReview(seg.labels, seg.bands, []).own : own
 
   // 7. Alignment per note part (R18, R19)
-  let curator: Map<number, number[]> | null = null
+  let curator: Map<number, (number | null)[]> | null = null
   let curatorBy: string | undefined
   if (f['alignment.json'] !== undefined) {
     const pj = parseJson(f['alignment.json'], 'alignment.json')
@@ -323,12 +324,22 @@ export function runGate(ctx: GateCtx): GateResult {
   const H = seg.frame.height
   // what alignment needs to refuse a word box without writing: the line's extent and the ink per candidate word box
   const linePx = collectLinePixels(own.owner, W, H, seg.bands.cores.length, seg.labels)
-  const extentAndInk = (line: number) => {
+  const spansOf = new Map<number, ComponentSpan[]>()
+  const extentAndInk = (line: number, tokens: string[]) => {
     const e = effRuns[line]!
     const yMid = (seg.bands.cores[line]![0] + seg.bands.cores[line]![1]) / 2
-    return e.hi >= e.lo
-      ? { extent: [e.lo, e.hi] as [number, number], wordInk: (b: number[]) => wordInkCounts(linePx[line]!, yMid, s, b, [e.lo, e.hi]) }
-      : {}
+    if (e.hi < e.lo) return {}
+    const extent: [number, number] = [e.lo, e.hi]
+    return {
+      extent,
+      wordInk: (b: number[]) => wordInkCounts(linePx[line]!, yMid, s, b, extent),
+      implausible: (b: number[], boxOfWord?: number[]) => {
+        if (!spansOf.has(line)) spansOf.set(line, lineComponentSpans(seg.labels, own.owner, line, yMid, s))
+        // words that share a box are judged as one word of their joined characters
+        const boxTokens = boxOfWord ? tokens.reduce<string[]>((acc, tk, j) => (boxOfWord[j] === boxOfWord[j - 1] ? [...acc.slice(0, -1), `${acc[acc.length - 1]} ${tk}`] : [...acc, tk]), []) : tokens
+        return plausibilityViolation(b, extent, boxTokens, spansOf.get(line)!)
+      },
+    }
   }
   const gray = toGray(sf.scan)
   const raw = seg.raw
@@ -390,11 +401,13 @@ export function runGate(ctx: GateCtx): GateResult {
         k: p.k,
         runs: curator?.has(p.line) && !effRuns[p.line]!.runs.length ? segRuns[p.line]!.runs : effRuns[p.line]!.runs,
         curator: curator?.get(p.line),
-        ...extentAndInk(p.line),
+        // a curator names the runs of runs.json (design 3.5), not the runs of the reviewed ownership
+        curatorRuns: segRuns[p.line]!.runs,
+        ...extentAndInk(p.line, p.tokens),
       }),
     )
     const na = noteAlignment(parts)
-    const bp: BuiltPart[] = parts.map((p) => ({ ...p, whole: na.granularity === 'lines' || p.method === 'lines' }))
+    const bp: BuiltPart[] = parts.map((p) => ({ ...p, fromWord: p.fromBox ?? p.fromWord, toWord: p.toBox ?? p.toWord, whole: na.granularity === 'lines' || p.method === 'lines' }))
     // the caption equals the ink shown: the quoted words (with their punctuation) or the whole lines (R19.6)
     const shownText = na.granularity === 'words' ? nd.quoted : bp.map((p) => eff[p.line]!.primary).join(' ')
     let note: BuiltNote
@@ -429,7 +442,7 @@ export function runGate(ctx: GateCtx): GateResult {
         let auto: NonNullable<Gate['recall']>[number]['auto']
         if (na.alignment === 'auto') auto = { recall: shipped.recall, words: shipped.words }
         else {
-          const autoParts = nd.parts.map((p) => alignPart({ line: p.line, fromWord: p.fromWord, toWord: p.toWord, tokenCount: p.tokenCount, k: p.k, runs: effRuns[p.line]!.runs, ...extentAndInk(p.line) }))
+          const autoParts = nd.parts.map((p) => alignPart({ line: p.line, fromWord: p.fromWord, toWord: p.toWord, tokenCount: p.tokenCount, k: p.k, runs: effRuns[p.line]!.runs, ...extentAndInk(p.line, p.tokens) }))
           const an = noteAlignment(autoParts)
           if (an.alignment !== 'auto') {
             // score the rejected candidate (widest k-1 runs, no acceptance test) for the record only

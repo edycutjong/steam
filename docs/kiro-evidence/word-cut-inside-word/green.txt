@@ -1,0 +1,34 @@
+# word-cut-inside-word, commit B: the same exploration test on the fixed code (GREEN)
+# command: npx vitest run wordCut --no-color --silent=false
+# recorded: 2026-11-24T20:26:52Z, parent commit 96eecba; curator alignment.json (Kiro (agent), turn-21) for lines 1, 7, 8; one ownership decision added (component 1661441)
+
+
+ RUN  v5.1.1 /Users/edycu/Hackathon/devpost/devpost-kiroween/steam/build
+
+stdout | src/ingest/wordCut.bug.test.ts > word-cut-inside-word on the real page: quinces-marmalade > test 1, word shape: every word of every word-aligned part is about as wide as its characters predict
+full-ripe/line 1 (curator) ratios [limit 1/2..2]: Let:148c/3ch=1.26 your:156c/4ch=1.00 quinces:249c/7ch=0.91 be:81c/2ch=1.04 full:136c/4ch=0.87 ripe,:188c/4ch=1.20 then:145c/4ch=0.93 wipe:149c/4ch=0.95
+when-tender/line 7 (curator) ratios [limit 1/2..2]: the:108c/3ch=0.76 Quince,:236c/6ch=0.83 in:139c/2ch=1.47 that:142c/4ch=0.75 Liquor,:266c/6ch=0.94 &:68c/1ch=1.44 when:268c/4ch=1.42
+when-tender/line 8 (curator) ratios [limit 1/2..2]: Tender,:233c/6ch=0.96 mash:190c/4ch=1.17 them, &:247c/5ch=1.22 then:128c/4ch=0.79 put:130c/3ch=1.07 your:195c/4ch=1.20 sug.r:91c/4ch=0.56
+
+stdout | src/ingest/wordCut.bug.test.ts > word-cut-inside-word on the real page: quinces-marmalade > test 2, cut-through: no boundary of a word-aligned part cuts a component
+full-ripe/line 1: cut-through none
+when-tender/line 7: cut-through none
+when-tender/line 8: cut-through none
+
+stdout | src/ingest/wordCut.bug.test.ts > word-cut-inside-word on the real page: quinces-marmalade > test 3, fixture: every eye-marked word shown by a word-aligned note has recall and precision of at least the fixture threshold
+looks-red-smooth fixture word "till": recall 0.981 precision n/a (whole lines) (note is lines)
+looks-red-smooth fixture word "it": recall 0.605 precision n/a (whole lines) (note is lines)
+looks-red-smooth fixture word "Looks": recall 0.997 precision n/a (whole lines) (note is lines)
+looks-red-smooth fixture word "red": recall 1.000 precision n/a (whole lines) (note is lines)
+looks-red-smooth fixture word "&": recall 0.993 precision n/a (whole lines) (note is lines)
+looks-red-smooth fixture word "smooth": recall 1.000 precision n/a (whole lines) (note is lines)
+fixture words judged for a word-aligned note: 0 (the only eye-marked note is the hero, shipped as whole lines)
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  03:26:47
+   Duration  5.26s (import 98%, tests 1%, transform 1%)
+
+
+# exit code: 0
