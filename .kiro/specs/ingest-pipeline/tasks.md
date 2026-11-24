@@ -98,7 +98,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/runs.ts`, `src/ingest/runs.test.ts`.
   - Satisfies: R18.2, R18.3, R19.2.
 
-- [ ] 17. Automatic alignment
+- [x] 17. Automatic alignment
   - Test first: k words with k−1 clear gaps are accepted; fewer than k−1 runs, a tie at the cut, and a (k−1)-th run under 1.5× the median of the rest are "alignment ambiguous" with the three numbers; empty unselected set uses 4 px. `align.prop.test.ts` (S5): no 8-connected piece spans two words for `|s| ≤ 1`; accepted alignments satisfy the 1.5× rule.
   - Implement `alignAuto`, `assignWords` in `src/ingest/align.ts`.
   - Files: `src/ingest/align.ts`, `src/ingest/align.test.ts`, `src/ingest/align.prop.test.ts`.
