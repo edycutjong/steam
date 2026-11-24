@@ -125,7 +125,7 @@ Rules for every task:
   - Files: `src/cook/scheduler.prop.test.ts`.
   - Satisfies: R13.1 to R13.11, R12.1 to R12.11, R10.3.
 
-- [ ] 19. Timer functions and K3
+- [x] 19. Timer functions and K3
   - Test first: `formatElapsed` (0 → "0:00", 7 999 → "0:07", 125 000 → "2:05", 3 725 000 → "1:02:05", negative → "0:00"); `emberActive` on hand-built states: pending note due in 10 s of wall time at pace 12 → true; due in 10.001 s → false; due now → false; revealed → false; asleep → false; no note → false. `src/cook/timing.prop.test.ts` (K3 block): `elapsedMs` against the independent sum; output sequence from `reduce` under wall times with decreases is non-decreasing; `formatElapsed` monotone and re-parses to `floor(ms/1000)`; the ember rule at paces 1, 4, 12.
   - Implement `formatElapsed`, `emberActive`, `EMBER_WINDOW_S`.
   - Files: `src/cook/timing.ts`, `src/cook/timing.test.ts`, `src/cook/timing.prop.test.ts`.

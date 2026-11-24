@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { RecipeBundle } from '../data/schema.ts'
-import { checkLabel, effectiveCheckAt, formatDuration, OVERRIDE_BASIS, stepSeconds, TIMING_MAX_S, TIMING_STEP_S } from './timing.ts'
+import type { Plan } from './plan.ts'
+import { initialState, reduce, type SchedState } from './scheduler.ts'
+import { checkLabel, effectiveCheckAt, emberActive, EMBER_WINDOW_S, formatDuration, formatElapsed, OVERRIDE_BASIS, stepSeconds, TIMING_MAX_S, TIMING_STEP_S } from './timing.ts'
 
 const real = RecipeBundle.parse(JSON.parse(readFileSync('public/recipes/quinces-marmalade/recipe.json', 'utf8')))
 
@@ -41,5 +43,28 @@ describe('check times (R8)', () => {
   it('the real bundle has step-entry at 0 s on all three notes (R8.7)', () => {
     expect(real.notes.length).toBe(3)
     for (const n of real.notes) expect(n.checkAt).toMatchObject({ source: 'step-entry', seconds: 0 })
+  })
+})
+
+describe('formatElapsed (R10.1)', () => {
+  it.each([[0, '0:00'], [7_999, '0:07'], [125_000, '2:05'], [3_725_000, '1:02:05'], [-5, '0:00'], [59_999, '0:59'], [3_600_000, '1:00:00']])('%d ms is %s', (ms, out) => expect(formatElapsed(ms)).toBe(out))
+})
+
+describe('emberActive (R10.4)', () => {
+  const plan: Plan = { steps: [{ note: { id: 'a', checkAtMs: 600_000 } }, { note: null }] }
+  const running = (pace: 1 | 4 | 12): SchedState => reduce(plan, initialState, { type: 'start', wallMs: 0, pace }).state
+  it('the window is 10 s', () => expect(EMBER_WINDOW_S).toBe(10))
+  it('pending note due in 10 s of wall time at pace 12: true; 10.001 s: false; due now: false', () => {
+    const s = running(12) // due at 600 000 / 12 = 50 000 ms of wall time
+    expect(emberActive(plan, s, 40_000)).toBe(true)
+    expect(emberActive(plan, s, 39_999)).toBe(false)
+    expect(emberActive(plan, s, 49_999)).toBe(true)
+    expect(emberActive(plan, s, 50_000)).toBe(false)
+  })
+  it('false when revealed, asleep or with no note', () => {
+    const s = running(1)
+    expect(emberActive(plan, reduce(plan, s, { type: 'show', wallMs: 1 }).state, 595_000)).toBe(false)
+    expect(emberActive(plan, reduce(plan, s, { type: 'sleep', wallMs: 1 }).state, 595_000)).toBe(false)
+    expect(emberActive(plan, { ...s, stepIndex: 1 }, 595_000)).toBe(false)
   })
 })
