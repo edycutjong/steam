@@ -52,7 +52,7 @@ describe('noteAlignment (R19.6)', () => {
     expect(noteAlignment([mk('auto'), mk('auto')])).toEqual({ alignment: 'auto', granularity: 'words' })
     expect(noteAlignment([mk('auto'), mk('curator')])).toEqual({ alignment: 'curator', granularity: 'words' })
     expect(noteAlignment([mk('auto'), mk('lines', 'ambiguous')])).toEqual({ alignment: 'lines', granularity: 'lines' })
-    expect(noteAlignment([mk('lines', 'the whole line is quoted'), mk('auto')])).toEqual({ alignment: 'lines', granularity: 'words' })
+    expect(noteAlignment([mk('lines', 'the whole line is quoted'), mk('auto')])).toEqual({ alignment: 'auto', granularity: 'words' })
     expect(noteAlignment([mk('lines', 'the whole line is quoted')])).toEqual({ alignment: 'lines', granularity: 'lines' })
   })
 })

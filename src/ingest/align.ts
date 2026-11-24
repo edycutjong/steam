@@ -124,16 +124,17 @@ export function alignPart(p: PartInput): PartAlignment {
 }
 
 export interface NoteAlignment {
-  /** The weakest method used by any part (R19.6). */
+  /** The weakest method used by any part that needed one; `lines` also when every part is a whole line (R19.6). */
   alignment: AlignMethod
   /** "words" only when at least one part is cut by words and every part that needs it was. */
   granularity: 'words' | 'lines'
 }
 
 export function noteAlignment(parts: PartAlignment[]): NoteAlignment {
-  let weakest: AlignMethod = 'auto'
-  for (const p of parts) if (RANK[p.method] < RANK[weakest]) weakest = p.method
+  // Parts that quote a whole line need no alignment and do not weaken the note (design 3.5).
   const partial = parts.filter((p) => p.reason !== 'the whole line is quoted')
-  const granularity = partial.length > 0 && partial.every((p) => p.method !== 'lines') ? 'words' : 'lines'
-  return { alignment: weakest, granularity }
+  if (partial.length === 0) return { alignment: 'lines', granularity: 'lines' }
+  let weakest: AlignMethod = 'auto'
+  for (const p of partial) if (RANK[p.method] < RANK[weakest]) weakest = p.method
+  return { alignment: weakest, granularity: weakest === 'lines' ? 'lines' : 'words' }
 }

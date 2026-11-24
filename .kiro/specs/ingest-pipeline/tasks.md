@@ -146,7 +146,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/timeofink.ts`, `src/ingest/note.test.ts`.
   - Satisfies: R21.1 to R21.6, R23.1, R23.2.
 
-- [ ] 25. Verify link
+- [x] 25. Verify link
   - Test first: `verifyUrl` for the hero `pageBox` in the fixture frame gives `pct:x,y,w,h` with 4 decimals; the same link results from a 1600 px and a 3200 px download of the same page; `approximate: true` when deskew is applied.
   - Implement `verifyUrl` in `src/ingest/bundle.ts`.
   - Files: `src/ingest/bundle.ts`, `src/ingest/verify-url.test.ts`.
