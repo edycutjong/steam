@@ -1,0 +1,575 @@
+{
+ "about": "runGate on the synthetic recipes of gate.fixture.ts, recorded on the tree of commit \"crop-overlap: bug condition exploration test (red)\" (before the fix). The preservation properties compare the fixed code with this. \"real\" is quinces-marmalade as committed before the fix (gate.json, as verified by `npm run props`: \"matches the committed gate.json\"), with the merged.json bytes hashed.",
+ "synthetic": {
+  "state": "pass",
+  "gate": {
+   "alignment": [
+    {
+     "alignment": "auto",
+     "granularity": "words",
+     "noteId": "full-ripe",
+     "parts": [
+      {
+       "autoDetail": "accepted: 3 boundaries",
+       "boundaries": [
+        130,
+        198,
+        266
+       ],
+       "fromWord": 0,
+       "line": 2,
+       "method": "auto",
+       "projection": "sheared",
+       "s": 0.25,
+       "toWord": 1
+      }
+     ]
+    },
+    {
+     "alignment": "auto",
+     "granularity": "words",
+     "noteId": "till-smooth",
+     "parts": [
+      {
+       "autoDetail": "accepted: 3 boundaries",
+       "boundaries": [
+        130,
+        198,
+        257
+       ],
+       "fromWord": 2,
+       "line": 3,
+       "method": "auto",
+       "projection": "sheared",
+       "s": 0.25,
+       "toWord": 3
+      },
+      {
+       "autoDetail": "not attempted: whole line quoted",
+       "boundaries": [],
+       "fromWord": 0,
+       "line": 4,
+       "method": "lines",
+       "projection": "sheared",
+       "reason": "the whole line is quoted",
+       "s": 0.25,
+       "toWord": 3
+      }
+     ]
+    }
+   ],
+   "disagreements": 1,
+   "inputs": {
+    "lines": "55906b40124a2a669cfafad5c7905a51db6b760c44cb3bab9b3c82dda2d0e6f3",
+    "page": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+    "scribe": "a8aeeb33bd0a35225d94cf51b294325c3bf34bc95c8597a6553dd5683e4af342",
+    "second": "104f743367af7801dc39abe6c718e0c940209facdebc0747f1c7c75c543a7528"
+   },
+   "outputs": {
+    "notes/note-full-ripe.json": "31b05627edef930e2eac6148439a81583c4c936c9932e0bee1766c709af83cbc",
+    "notes/note-full-ripe.png": "2434b5e98667c8a101e5bbf8d656d8452e17772f7e0e16affa261cb8f3f12847",
+    "notes/note-full-ripe.toi.png": "fa48508203a7b26a98c60498f832ebe512c215548e1551d93f9c7a128f62e55b",
+    "notes/note-till-smooth.json": "3e4f226cacc2c46fba9479bb6a4f9d43539880f7f099acf5a83a862cdb929e33",
+    "notes/note-till-smooth.png": "e6310180661dfefed23277f045184649062ea7206d88e0e5eb4106c6206fb48a",
+    "notes/note-till-smooth.toi.png": "af692cf326e49119ac580e74578f73258a2c8a1048add91a074c0efd15db14ca"
+   },
+   "ownership": {
+    "autoPass": 2,
+    "reviewedPass": 0
+   },
+   "pass": true,
+   "propsVersion": "1",
+   "readers": [
+    "scribe",
+    "second"
+   ],
+   "recipeId": "syn",
+   "results": {
+    "P1": {
+     "detail": "2 steps cover 4 lines; 2 notes, one mask each",
+     "pass": true
+    },
+    "P2": {
+     "detail": "2 notes inside the 800x420 page",
+     "pass": true
+    },
+    "P3": {
+     "detail": "2 auto",
+     "pass": true
+    },
+    "P4": {
+     "detail": "full-ripe: 512 lit px, all owned by the quoted words or within the shell | till-smooth: 1464 lit px, all owned by the quoted words or within the shell",
+     "pass": true
+    },
+    "P5": {
+     "detail": "contrast full-ripe: 156; full-ripe/line 2: 156 | contrast till-smooth: 156; till-smooth/line 3: 156; till-smooth/line 4: 156",
+     "pass": true
+    },
+    "P6": {
+     "detail": "full-ripe: 512 px timed, path coverage 1.000 | till-smooth: 1464 px timed, path coverage 1.000",
+     "pass": true
+    }
+   },
+   "segmentRun": {
+    "id": "sr-2d4b71cd2551",
+    "stripsHash": "e59d9b476cd21417a2753c3b0ba42328792495ab951d79de667218c817e749ca"
+   },
+   "splits": {
+    "notes": [
+     {
+      "flagged": [],
+      "maskPx": 512,
+      "noteId": "full-ripe",
+      "share": 0,
+      "splitPx": 0,
+      "status": "auto"
+     },
+     {
+      "flagged": [],
+      "maskPx": 1464,
+      "noteId": "till-smooth",
+      "share": 0,
+      "splitPx": 0,
+      "status": "auto"
+     }
+    ],
+    "segmentSplits": 0
+   },
+   "state": "pass"
+  },
+  "png": {
+   "notes/note-full-ripe.png": "2434b5e98667c8a101e5bbf8d656d8452e17772f7e0e16affa261cb8f3f12847",
+   "notes/note-full-ripe.toi.png": "fa48508203a7b26a98c60498f832ebe512c215548e1551d93f9c7a128f62e55b",
+   "notes/note-till-smooth.png": "e6310180661dfefed23277f045184649062ea7206d88e0e5eb4106c6206fb48a",
+   "notes/note-till-smooth.toi.png": "af692cf326e49119ac580e74578f73258a2c8a1048add91a074c0efd15db14ca"
+  },
+  "json": {
+   "merged.json": "aac826565dff33a871dbda361b306134268148aec9c4b8ae7bcf44332efc7c28",
+   "notes/note-full-ripe.json": "31b05627edef930e2eac6148439a81583c4c936c9932e0bee1766c709af83cbc",
+   "notes/note-till-smooth.json": "3e4f226cacc2c46fba9479bb6a4f9d43539880f7f099acf5a83a862cdb929e33"
+  }
+ },
+ "synthetic-joined": {
+  "state": "fail",
+  "gate": {
+   "alignment": [
+    {
+     "alignment": "auto",
+     "granularity": "words",
+     "noteId": "full-ripe",
+     "parts": [
+      {
+       "autoDetail": "accepted: 3 boundaries",
+       "boundaries": [
+        130,
+        198,
+        266
+       ],
+       "fromWord": 0,
+       "line": 2,
+       "method": "auto",
+       "projection": "sheared",
+       "s": 0.25,
+       "toWord": 1
+      }
+     ]
+    },
+    {
+     "alignment": "auto",
+     "granularity": "words",
+     "noteId": "till-smooth",
+     "parts": [
+      {
+       "autoDetail": "accepted: 3 boundaries",
+       "boundaries": [
+        130,
+        198,
+        257
+       ],
+       "fromWord": 2,
+       "line": 3,
+       "method": "auto",
+       "projection": "sheared",
+       "s": 0.25,
+       "toWord": 3
+      },
+      {
+       "autoDetail": "not attempted: whole line quoted",
+       "boundaries": [],
+       "fromWord": 0,
+       "line": 4,
+       "method": "lines",
+       "projection": "sheared",
+       "reason": "the whole line is quoted",
+       "s": 0.25,
+       "toWord": 3
+      }
+     ]
+    }
+   ],
+   "disagreements": 1,
+   "inputs": {
+    "lines": "e074b317d0e633d20bc1b4dc8d70df726a5ae9f78d927ed6ff5bb16bb9222a22",
+    "page": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+    "scribe": "625816afb9176d57753fa1603b40ef1681c71bcb4ca140de91e7bef763b52f13",
+    "second": "8b2a8d9f9797177705fd962d64405b58cf321acfe9589a288c3ce42b54bf5cdf"
+   },
+   "outputs": {
+    "notes/note-full-ripe.json": "31b05627edef930e2eac6148439a81583c4c936c9932e0bee1766c709af83cbc",
+    "notes/note-full-ripe.png": "2434b5e98667c8a101e5bbf8d656d8452e17772f7e0e16affa261cb8f3f12847",
+    "notes/note-full-ripe.toi.png": "fa48508203a7b26a98c60498f832ebe512c215548e1551d93f9c7a128f62e55b",
+    "notes/note-till-smooth.json": "328b0fbead8eba26329c691cd9ea921cc06a2cf153f6dff530bb1beb4e9b0558",
+    "notes/note-till-smooth.png": "20144cfa8346578b5d5aa4abed3245d005f6b0fb8f27267a708375d6a5893d84",
+    "notes/note-till-smooth.toi.png": "b87561dadfb1e6bca8c9fb1d59c9d4a84bf2a5e5e2e46a10c32205c7dcc9e28d"
+   },
+   "ownership": {
+    "autoPass": 1,
+    "reviewedPass": 0
+   },
+   "pass": false,
+   "propsVersion": "1",
+   "readers": [
+    "scribe",
+    "second"
+   ],
+   "recipeId": "syn",
+   "results": {
+    "P1": {
+     "detail": "2 steps cover 4 lines; 2 notes, one mask each",
+     "pass": true
+    },
+    "P2": {
+     "detail": "2 notes inside the 800x420 page",
+     "pass": true
+    },
+    "P3": {
+     "detail": "joined strokes: needs review (till-smooth: split share 0.1013 over 0.02, components 206552)",
+     "pass": false
+    },
+    "P4": {
+     "detail": "full-ripe: 512 lit px, all owned by the quoted words or within the shell | till-smooth: 1629 lit px, all owned by the quoted words or within the shell",
+     "pass": true
+    },
+    "P5": {
+     "detail": "contrast full-ripe: 156; full-ripe/line 2: 156 | contrast till-smooth: 156; till-smooth/line 3: 156; till-smooth/line 4: 157",
+     "pass": true
+    },
+    "P6": {
+     "detail": "full-ripe: 512 px timed, path coverage 1.000 | till-smooth: 1629 px timed, path coverage 1.000",
+     "pass": true
+    }
+   },
+   "segmentRun": {
+    "id": "sr-18ff050a1bd2",
+    "stripsHash": "e3bbb3280ad863fe0436f4e3da6ceb69867c4c1f9944b92a4710fb62dc5a8b03"
+   },
+   "splits": {
+    "notes": [
+     {
+      "flagged": [],
+      "maskPx": 512,
+      "noteId": "full-ripe",
+      "share": 0,
+      "splitPx": 0,
+      "status": "auto"
+     },
+     {
+      "flagged": [
+       206552
+      ],
+      "maskPx": 1629,
+      "noteId": "till-smooth",
+      "share": 0.10128913443830571,
+      "splitPx": 165,
+      "status": "failed"
+     }
+    ],
+    "segmentSplits": 1
+   },
+   "state": "fail"
+  },
+  "png": {
+   "notes/note-full-ripe.png": "2434b5e98667c8a101e5bbf8d656d8452e17772f7e0e16affa261cb8f3f12847",
+   "notes/note-full-ripe.toi.png": "fa48508203a7b26a98c60498f832ebe512c215548e1551d93f9c7a128f62e55b",
+   "notes/note-till-smooth.png": "20144cfa8346578b5d5aa4abed3245d005f6b0fb8f27267a708375d6a5893d84",
+   "notes/note-till-smooth.toi.png": "b87561dadfb1e6bca8c9fb1d59c9d4a84bf2a5e5e2e46a10c32205c7dcc9e28d",
+   "ownership/flag-206552.png": "d005834a536f08dc97ba47384aab5e8789a36b6e284dbc55f6938ff514887384"
+  },
+  "json": {
+   "merged.json": "4845a38f921983367a009f87f7e5a8749bfc4b9dca520c5749246d17a9524c51",
+   "notes/note-full-ripe.json": "31b05627edef930e2eac6148439a81583c4c936c9932e0bee1766c709af83cbc",
+   "notes/note-till-smooth.json": "328b0fbead8eba26329c691cd9ea921cc06a2cf153f6dff530bb1beb4e9b0558"
+  }
+ },
+ "real": {
+  "state": "fail",
+  "pass": false,
+  "results": {
+   "P1": {
+    "detail": "5 steps cover 11 lines; 3 notes, one mask each",
+    "pass": true
+   },
+   "P2": {
+    "detail": "3 notes inside the 1601x2052 page",
+    "pass": true
+   },
+   "P3": {
+    "detail": "1 auto, full-ripe reviewed (1 components, by Kiro (agent), turn-18); looks-red-smooth reviewed (3 components, by Kiro (agent), turn-18)",
+    "pass": true
+   },
+   "P4": {
+    "detail": "full-ripe: 3594 lit px, all owned by the quoted words or within the shell | when-tender: 2630 lit px, all owned by the quoted words or within the shell | looks-red-smooth: 43546 lit px, all owned by the quoted words or within the shell; recall 0.9802 >= 0.85",
+    "pass": true
+   },
+   "P5": {
+    "detail": "contrast full-ripe: 82; full-ripe/line 1: 82 | contrast when-tender: 111; when-tender/line 7: 90; when-tender/line 8: no background | contrast looks-red-smooth: 84; looks-red-smooth/line 9: 84; looks-red-smooth/line 10: 85",
+    "pass": false
+   },
+   "P6": {
+    "detail": "full-ripe: 3594 px timed, path coverage 1.000 | when-tender: 2630 px timed, path coverage 1.000 | looks-red-smooth: 43546 px timed, path coverage 1.000",
+    "pass": true
+   }
+  },
+  "outputs": {
+   "notes/note-full-ripe.json": "67840b7c7e80e7e52cd2b955b26469383dc36ac80b8a1806e500151e4e4f712e",
+   "notes/note-full-ripe.png": "0d12496a3ca7b5509890336a8e2279aa17a63b870ec5382adc06edbe73144d30",
+   "notes/note-full-ripe.toi.png": "8a43e0a02cb78d324d74de457f45ab77ace485d33c71893f5cb8b7e76f831366",
+   "notes/note-looks-red-smooth.json": "215ec74c9c6be0459a7eb1067326aa1f1beddac5aaf660ae2dcc45cf2196e0ed",
+   "notes/note-looks-red-smooth.png": "55856a35cffb33ec5f5e5e791e57ab0002a6ac5c86df3e9874a2977bc4afa792",
+   "notes/note-looks-red-smooth.toi.png": "980c316d28434fc3471a37a3b36f919d0112d54be2d8281b82fa1393823a550c",
+   "notes/note-when-tender.json": "33ff9376c4e142a9b931c41c0af46bc73848d8675a872ca4181ec4e48d5c4402",
+   "notes/note-when-tender.png": "7f0e38665ed3be1572346bdcd10fd99b27f4f8e38e659a4fc2af76df636643dc",
+   "notes/note-when-tender.toi.png": "42bd10f410f60326964b7d7574b4c8452add53a8a8d6aa870922b07a6e39b054"
+  },
+  "alignment": [
+   {
+    "alignment": "auto",
+    "granularity": "words",
+    "noteId": "full-ripe",
+    "parts": [
+     {
+      "autoDetail": "accepted: 7 boundaries",
+      "boundaries": [
+       413,
+       569,
+       818,
+       865,
+       898,
+       1035,
+       1282
+      ],
+      "fromWord": 4,
+      "line": 1,
+      "method": "auto",
+      "projection": "sheared",
+      "s": 0.8,
+      "toWord": 5
+     }
+    ]
+   },
+   {
+    "alignment": "auto",
+    "granularity": "words",
+    "noteId": "when-tender",
+    "parts": [
+     {
+      "autoDetail": "accepted: 6 boundaries",
+      "boundaries": [
+       559,
+       806,
+       843,
+       948,
+       1282,
+       1409
+      ],
+      "fromWord": 6,
+      "line": 7,
+      "method": "auto",
+      "projection": "sheared",
+      "s": 0.8,
+      "toWord": 6
+     },
+     {
+      "autoDetail": "accepted: 7 boundaries",
+      "boundaries": [
+       217,
+       467,
+       604,
+       723,
+       1098,
+       1228,
+       1496
+      ],
+      "fromWord": 0,
+      "line": 8,
+      "method": "auto",
+      "projection": "sheared",
+      "s": 0.8,
+      "toWord": 0
+     }
+    ]
+   },
+   {
+    "alignment": "lines",
+    "granularity": "lines",
+    "noteId": "looks-red-smooth",
+    "parts": [
+     {
+      "autoDetail": "alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 9 = 13.5",
+      "boundaries": [],
+      "fromWord": 6,
+      "line": 9,
+      "method": "lines",
+      "projection": "sheared",
+      "reason": "alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 9 = 13.5",
+      "s": 0.8,
+      "toWord": 8
+     },
+     {
+      "autoDetail": "alignment ambiguous: 6th widest run 15, next 15, 1.5 x median of the rest 11 = 16.5",
+      "boundaries": [],
+      "fromWord": 0,
+      "line": 10,
+      "method": "lines",
+      "projection": "sheared",
+      "reason": "alignment ambiguous: 6th widest run 15, next 15, 1.5 x median of the rest 11 = 16.5",
+      "s": 0.8,
+      "toWord": 2
+     }
+    ]
+   }
+  ],
+  "recall": [
+   {
+    "auto": {
+     "notUsed": "line 9: alignment ambiguous: 8th widest run 12, next 12, 1.5 x median of the rest 9 = 13.5; line 10: alignment ambiguous: 6th widest run 15, next 15, 1.5 x median of the rest 11 = 16.5",
+     "rejectedCandidate": {
+      "boundaries": [
+       {
+        "boundaries": [
+         320,
+         356,
+         649,
+         948,
+         1088,
+         1230,
+         1265,
+         1298
+        ],
+        "line": 9
+       },
+       {
+        "boundaries": [
+         430,
+         634,
+         805,
+         1039,
+         1096,
+         1382
+        ],
+        "line": 10
+       }
+      ],
+      "recall": 0.8177029804727647,
+      "words": [
+       {
+        "maskPx": 138,
+        "precision": 0,
+        "rawPx": 1107,
+        "recall": 0,
+        "word": "till"
+       },
+       {
+        "maskPx": 300,
+        "precision": 0.15,
+        "rawPx": 309,
+        "recall": 0.6051779935275081,
+        "word": "it"
+       },
+       {
+        "maskPx": 2373,
+        "precision": 0.9852507374631269,
+        "rawPx": 2650,
+        "recall": 0.929811320754717,
+        "word": "Looks"
+       },
+       {
+        "maskPx": 1190,
+        "precision": 0.6815126050420168,
+        "rawPx": 828,
+        "recall": 1,
+        "word": "red"
+       },
+       {
+        "maskPx": 1403,
+        "precision": 0.39344262295081966,
+        "rawPx": 566,
+        "recall": 0.9929328621908127,
+        "word": "&"
+       },
+       {
+        "maskPx": 1773,
+        "precision": 0.8584320360970107,
+        "rawPx": 2324,
+        "recall": 1,
+        "word": "smooth"
+       }
+      ]
+     }
+    },
+    "frame": "fixture frame; shipped alpha looked up through the applied deskew rotation (1.6 deg, nearest pixel)",
+    "noteId": "looks-red-smooth",
+    "shipped": {
+     "alignment": "lines",
+     "recall": 0.9802158273381295,
+     "words": [
+      {
+       "maskPx": 0,
+       "precision": null,
+       "rawPx": 1107,
+       "recall": 0.981029810298103,
+       "word": "till"
+      },
+      {
+       "maskPx": 0,
+       "precision": null,
+       "rawPx": 309,
+       "recall": 0.6051779935275081,
+       "word": "it"
+      },
+      {
+       "maskPx": 0,
+       "precision": null,
+       "rawPx": 2650,
+       "recall": 0.9973584905660378,
+       "word": "Looks"
+      },
+      {
+       "maskPx": 0,
+       "precision": null,
+       "rawPx": 828,
+       "recall": 1,
+       "word": "red"
+      },
+      {
+       "maskPx": 0,
+       "precision": null,
+       "rawPx": 566,
+       "recall": 0.9929328621908127,
+       "word": "&"
+      },
+      {
+       "maskPx": 0,
+       "precision": null,
+       "rawPx": 2324,
+       "recall": 1,
+       "word": "smooth"
+      }
+     ]
+    },
+    "threshold": 0.85
+   }
+  ],
+  "mergedJsonSha256": "6e18af117326dd30c6dfacdb513679ef576bb9541bcdcc78dda44a2fba641381"
+ }
+}

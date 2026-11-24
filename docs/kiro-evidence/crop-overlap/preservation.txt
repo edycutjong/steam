@@ -1,0 +1,22 @@
+# crop-overlap, commit C: preservation properties on the fixed code (GREEN)
+# command: npx vitest run src/ingest/cropOverlap.prop.test.ts --no-color; npm run props
+# recorded: 2026-11-24T19:32:45Z
+
+
+ RUN  v5.1.1 /Users/edycu/Hackathon/devpost/devpost-kiroween/steam/build
+
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  02:32:46
+   Duration  10.31s (tests 64%, import 36%)
+
+# exit code: 0
+
+> steam@0.0.0 props
+> tsx tools/steam-ingest/cli.ts gate --all --verify
+
+gate quinces-marmalade: fail: P5: contrast full-ripe: 82; full-ripe/line 1: 82 | contrast when-tender: 111; when-tender/line 7: 90; when-tender/line 8: no background | contrast looks-red-smooth: 84; looks-red-smooth/line 9: 84; looks-red-smooth/line 10: 85
+  P5: contrast full-ripe: 82; full-ripe/line 1: 82 | contrast when-tender: 111; when-tender/line 7: 90; when-tender/line 8: no background | contrast looks-red-smooth: 84; looks-red-smooth/line 9: 84; looks-red-smooth/line 10: 85
+gate quinces-marmalade: fail (matches the committed gate.json)
+# props exit code (1 = the P5 failure of when-tender line 8, same as before the fix; the run matches the committed gate.json): 1

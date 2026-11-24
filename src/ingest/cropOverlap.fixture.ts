@@ -74,3 +74,30 @@ export function overlapMessage(note: CropNote, r: P4Replay): string {
   if (r.unowned) clauses.push(`${r.unowned} px of ink no line owns`)
   return `step ${note.step}'s crop contains ${clauses.join(' and ')} (the step's own lines: ${note.lines.join(', ')}; P4: ${r.p4.detail})`
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Gate snapshots for the preservation properties: what the fix must leave byte-identical.
+
+import { canonicalJson } from './canon.ts'
+import type { GateResult } from './gate.ts'
+import { pixelSha256 } from './image.ts'
+import { sha256Hex } from './sha256.ts'
+
+export interface GateSnapshot {
+  state: string
+  /** gate.json content (the `at` stamp is added by the CLI, it is not in `GateResult.gate`). */
+  gate: unknown
+  /** Path -> pixel hash of each written PNG. */
+  png: Record<string, string>
+  /** Path -> hash of each written JSON, canonical. */
+  json: Record<string, string>
+}
+
+export function gateSnapshot(g: GateResult): GateSnapshot {
+  const enc = new TextEncoder()
+  const png: Record<string, string> = {}
+  const json: Record<string, string> = {}
+  for (const [k, v] of [...g.artifacts.png].sort((a, b) => a[0].localeCompare(b[0]))) png[k] = pixelSha256(v)
+  for (const [k, v] of [...g.artifacts.json].sort((a, b) => a[0].localeCompare(b[0]))) json[k] = sha256Hex(enc.encode(canonicalJson(v)))
+  return { state: g.state, gate: JSON.parse(canonicalJson(g.gate)), png, json }
+}
