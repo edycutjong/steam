@@ -78,6 +78,9 @@
     var(--moon) 55%,
     color-mix(in srgb, var(--moon) 80%, var(--night)) 100%
   );
+  box-shadow:
+    0 0 28px 6px color-mix(in srgb, var(--moon) 28%, transparent),
+    0 0 90px 28px color-mix(in srgb, var(--ghost) 14%, transparent);
 }
 
 /* Rails: the meeting rail between the sashes and the bottom rail under the glass. */
