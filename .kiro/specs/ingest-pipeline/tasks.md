@@ -170,7 +170,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/props.ts`, `src/ingest/align.ts`, `src/ingest/fidelity.prop.test.ts`, `src/ingest/fidelity.test.ts`.
   - Satisfies: R20.1 to R20.5, R27.1 to R27.5, R39.4.
 
-- [ ] 29. P5
+- [x] 29. P5
   - Test first: `contrast.prop.test.ts` (P5), including "no background" and the exclusion ring.
   - Implement `checkP5`.
   - Files: `src/ingest/props.ts`, `src/ingest/contrast.prop.test.ts`.

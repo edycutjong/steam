@@ -377,3 +377,61 @@ export function checkP4(i: P4Input): PropResult {
   if (fails.length) return { pass: false, detail: `${i.noteId}: ${fails.join('; ')}` }
   return { pass: true, detail: `${i.noteId}: ${lit} lit px, all owned by the quoted words or within the shell${i.recall ? `; recall ${i.recall.value.toFixed(4)} >= ${i.recall.threshold}` : ''}` }
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// P5: contrast (R28)
+
+import { CONTRAST_MIN } from './constants.ts'
+import { dilate } from './timeofink.ts'
+
+const median8 = (vals: number[]): number => {
+  const h = new Uint32Array(256)
+  for (const v of vals) h[v]!++
+  let acc = 0
+  for (let v = 0; v < 256; v++) {
+    acc += h[v]!
+    if (acc * 2 >= vals.length) return v
+  }
+  return 255
+}
+
+export interface ContrastCrop {
+  name: string
+  width: number
+  height: number
+  gray: Uint8Array
+  /** gray < T_sauvola in the crop. */
+  raw: Uint8Array
+  /** The note's mask in the crop. */
+  mask: Uint8Array
+}
+
+/** median(gray of non-ink pixels beyond 2 px of rawInk) − median(gray of mask pixels); null when either set is empty. */
+export function contrast(c: ContrastCrop): { value: number | null; reason?: string } {
+  const ring = dilate(c.raw, c.width, c.height, 2)
+  const bg: number[] = []
+  const ink: number[] = []
+  for (let i = 0; i < c.gray.length; i++) {
+    if (!ring[i]) bg.push(c.gray[i]!)
+    if (c.mask[i]) ink.push(c.gray[i]!)
+  }
+  if (bg.length === 0) return { value: null, reason: 'no background' }
+  if (ink.length === 0) return { value: null, reason: 'no mask pixels' }
+  return { value: median8(bg) - median8(ink) }
+}
+
+export function checkP5(crops: ContrastCrop[]): PropResult {
+  const parts: string[] = []
+  let pass = true
+  for (const c of crops) {
+    const r = contrast(c)
+    if (r.value === null) {
+      pass = false
+      parts.push(`${c.name}: ${r.reason}`)
+    } else {
+      if (r.value < CONTRAST_MIN) pass = false
+      parts.push(`${c.name}: ${r.value}${r.value < CONTRAST_MIN ? ` under ${CONTRAST_MIN}` : ''}`)
+    }
+  }
+  return { pass, detail: `contrast ${parts.join('; ')}` }
+}
