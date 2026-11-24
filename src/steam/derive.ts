@@ -19,6 +19,12 @@ export interface Derived {
 /** Channel follows the scan's own alpha: no growth, one texel of softening (D6). */
 export const DILATE_PX = 0
 export const SOFT_PX = 1
+/**
+ * Weight of the blur shoulder in channel alpha (D12). The blur only feeds the faint outer shoulder used by the
+ * rim and bloom taps. Weighted this low, the pixels next to a solid stroke (blur about 0.67) stay at about 0.23,
+ * under the clear band of `clearCurve`, so the revealed channel does not grow past the scan's own ink.
+ */
+export const SHOULDER = 0.35
 export const TOI_REACH_PX = DILATE_PX + SOFT_PX + 1
 export const HULL_DILATE_PX = 6
 export const HULL_FEATHER_PX = 24
@@ -109,7 +115,7 @@ function deriveChannel(toi: PixelSource, note: PixelSource, chan: Uint8Array): v
       const p = y * w + x
       const inkA = t[p * 4]
       const o = p * 4
-      chan[o] = Math.min(255, Math.max(inkA, Math.round(s * inv)))
+      chan[o] = Math.min(255, Math.max(inkA, Math.round(s * inv * SHOULDER)))
       chan[o + 2] = Math.min(255, Math.max(0, Math.round(press[p])))
     }
   }

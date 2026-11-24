@@ -72,6 +72,17 @@ void main() {
 }
 `
 
+/**
+ * Clear curve over the scan's ink alpha (D12). One narrow smoothstep centred on CLEAR_MID, so a stroke is
+ * clear exactly where the scan has ink and no wider. `hero.coverage.test.ts` measures the area it reveals.
+ */
+export const CLEAR_MID = 0.45
+export const CLEAR_HALF = 0.15
+export function clearCurve(alpha: number, half: number = CLEAR_HALF): number {
+  const t = Math.min(1, Math.max(0, (alpha - (CLEAR_MID - half)) / (2 * half)))
+  return t * t * (3 - 2 * t)
+}
+
 export const FOG_MAX = 0.94
 export const CH_GAIN = 1.0
 export const RIM_K = 6.0
@@ -138,7 +149,9 @@ const float STREAK_HALF = ${STREAK_HALF_CSS.toFixed(1)};
 const float SWEEP_SOFT = ${SWEEP_SOFT.toFixed(2)};
 const float TOI_SOFT = ${TOI_SOFT.toFixed(4)};
 const float RESIDUAL_CLEAR = 0.85;
-const float BLOOM_A = 0.5;
+const float BLOOM_A = 0.26;
+const float CLEAR_MID = ${CLEAR_MID.toFixed(2)};
+const float CLEAR_HALF = ${CLEAR_HALF.toFixed(2)};
 const float RIM_A = 0.45;
 const float PLUME_A = ${PLUME_A.toFixed(2)};
 const float BEAD_CELL_CSS = 14.0;
@@ -261,10 +274,10 @@ void main() {
     float ang = 6.2831853 * fract(52.9829189 * fract(dot(fragPx, vec2(0.06711056, 0.00583715))));
     vec2 e1 = vec2(cos(ang), sin(ang));
     vec2 e2 = vec2(-e1.y, e1.x);
-    float rn = 2.5 * px;
+    float rn = 2.0 * px;
     near = (tapC(fragPx + e1 * rn) + tapC(fragPx - e1 * rn) + tapC(fragPx + e2 * rn) + tapC(fragPx - e2 * rn)) * 0.25;
-    float ra = 7.0 * px;
-    float rb = 11.0 * px;
+    float ra = 4.0 * px;
+    float rb = 7.0 * px;
     vec2 d45 = (e1 + e2) * 0.7071;
     vec2 m45 = (e1 - e2) * 0.7071;
     far = (tapC(fragPx + e1 * rb) + tapC(fragPx - e1 * rb) + tapC(fragPx + e2 * rb) + tapC(fragPx - e2 * rb)
@@ -285,8 +298,8 @@ void main() {
     }
   }
   clearM = max(clearM, drip);
-  // Glass is either clear or fogged across a narrow edge. The low threshold keeps hairline upstrokes.
-  float clearS = smoothstep(0.06, 0.55, clearM);
+  // Glass is clear exactly where the scan has ink: one narrow band over the scan's alpha (D12).
+  float clearS = smoothstep(CLEAR_MID - CLEAR_HALF, CLEAR_MID + CLEAR_HALF, clearM);
 
   // 2. Cook's wipe: a soft front sweeps left to right. The hull stays clear, the rest re-fogs.
   float front = uWipe * (1.0 + SWEEP_SOFT) - vUv.x;
@@ -301,7 +314,7 @@ void main() {
   vec3 behind = kitchen(vUv);
   // The ember lights the whole written stroke, faint ink included. Scaling it by clearS let the dark room
   // through partly cleared (faint) ink, which read as dark smudges inside strokes (D9).
-  float emberM = smoothstep(0.02, 0.12, clearM);
+  float emberM = smoothstep(0.0, 0.5, clearS);
   behind += uAfter * CH_GAIN * emberM * anchor;
 
   vec3 fog = uBefore * (0.78 + 0.22 * fogD);
@@ -311,7 +324,7 @@ void main() {
   fog += uMoon * 0.04 * near * outside;
   vec3 col = mix(behind, fog, clamp(fogOpacity + 0.06 * near * outside, 0.0, 1.0));
 
-  // Warm bloom of the ember light, 8 to 12 px into the fog around the channel.
+  // Warm bloom of the ember light, 4 to 7 px into the fog around the channel, never over the stroke.
   col += uAfter * BLOOM_A * far * outside * (0.5 + 0.5 * low);
 
   // 3. Cold wet rim on the channel's outer edge: thin, brighter below, fainter above.
