@@ -29,3 +29,13 @@
 2026-11-24T20:27:23.000Z · word-cut-inside-word · quinces-marmalade · pass wordCut.bug.test 4 of 4: curator alignment (Kiro (agent), turn-21) for lines 1, 7, 8; ratios of every word 0.56 to 1.47; cut-through none; P1-P6 ok
 2026-11-24T20:28:37.000Z · word-cut-inside-word · quinces-marmalade · pass preservation: wordCut.prop 15 of 15, hero note byte-identical, P1-P6 hold
 2026-11-24T20:28:51.154Z · cli · quinces-marmalade · pass P1-P6 ok · recall 0.9802 · full-ripe reviewed (2 components by Kiro (agent), turn-18, Kiro (agent), turn-21) · looks-red-smooth reviewed (3 components by Kiro (agent), turn-18) · no-op (inputs unchanged)
+2026-11-24T20:31:01.415Z · props-on-save · quinces-marmalade ← content/recipes/quinces-marmalade/agent/second.json · waiting missing: agent/scribe.json
+2026-11-24T20:31:03.873Z · props-on-save · quinces-marmalade ← content/recipes/quinces-marmalade/agent/second.json · waiting missing: agent/scribe.json
+2026-11-24T20:31:41.178Z · props-on-save · quinces-marmalade ← content/recipes/quinces-marmalade/agent/scribe.json · fail till-it-looks-red-smooth: line 8: quote splits a disagreement
+2026-11-24T20:31:43.307Z · props-on-save · quinces-marmalade ← content/recipes/quinces-marmalade/agent/scribe.json · fail till-it-looks-red-smooth: line 8: quote splits a disagreement · no-op (inputs unchanged)
+2026-11-24T20:31:54.288Z · props-on-save · quinces-marmalade ← content/recipes/quinces-marmalade/agent/scribe.json · fail till-it-looks-red-smooth: line 8: quote splits a disagreement
+2026-11-24T20:32:18.453Z · watch · quinces-marmalade · fail till-it-looks-red-smooth: line 8: quote splits a disagreement · no-op (inputs unchanged)
+2026-11-24T20:32:58.923Z · cli · quinces-marmalade · fail till-it-looks-red-smooth: line 8: quote splits a disagreement · no-op (inputs unchanged)
+2026-11-24T20:33:17.610Z · catalog-gate · content/catalog.json · blocked: the proposed content/catalog.json is not a catalog, [{id, title, gateSha256}] (value: Invalid input: expected array, received object)
+2026-11-24T20:33:24.984Z · catalog-gate · content/catalog.json · blocked: quinces-marmalade: gate.json pass=false (till-it-looks-red-smooth: line 8: quote splits a disagreement)
+2026-11-24T20:33:25.352Z · no-imitation · src/cook/speak-note.ts · blocked: speechSynthesis (line 2), SpeechSynthesisUtterance (line 2)
