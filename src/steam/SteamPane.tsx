@@ -108,7 +108,11 @@ export default function SteamPane({ stem = NOTE_STEM }: { stem?: string }) {
     loadNoteAssets(stem, ctl.signal)
       .then((assets) => {
         if (ctl.signal.aborted) return
-        setLoaded({ assets, derived: derive(assets.toi, assets.noteData) })
+        const start = performance.now()
+        const derived = derive(assets.toi, assets.noteData)
+        // Read by scripts/measure-steam.ts (R15.5: the one-time derivation against its 50 ms budget).
+        performance.measure('steam:derive', { start, end: performance.now() })
+        setLoaded({ assets, derived })
       })
       .catch((e: unknown) => {
         if (ctl.signal.aborted) return

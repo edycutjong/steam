@@ -193,10 +193,11 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `e2e/steam-phone.spec.ts`.
   - Satisfies: R10.1, R10.6, R11.1 to R11.5, R19.2, R19.4, R20.1 to R20.5.
 
-- [ ] 36. Performance measurement script and report
+- [x] 36. Performance measurement script and report
   - Write a Playwright + CDP script that runs `/?fps=1` for 12 s over the lead-in, write-on, and hold on (a) desktop and (b) Pixel 5 emulation with `Emulation.setCPUThrottlingRate(4)`, records every frame interval from `requestAnimationFrame`, and writes mean fps, minimum fps, worst frame time, and frames over 18.2 ms to `bench/steam-renderer.json`. Fail the script if mean < 55 or any frame is under 55 fps. Also record the `derive` duration; if over 50 ms on the throttled profile, move `derive` into a Web Worker (new task).
   - Files: `scripts/measure-steam.ts`, `bench/steam-renderer.json` (generated), `package.json`.
   - Satisfies: R15.1, R15.2, R15.3, R15.5, R14.5.
+  - Done as `npm run bench` (`scripts/measure-steam.ts`, 15 s per profile, three profiles: desktop 1280×720, desktop 1920×1080, Pixel 5 with 4× CPU). Result committed as measured in `bench/steam-renderer.json`: the script reports `pass: false` on all three profiles (3, 6 and 3 frames over 18.18 ms; average 59.5 to 59.8 fps). `derive` took 95.7 and 97.4 ms unthrottled and 352.7 ms throttled, above the 50 ms budget of R15.5, so task 39 is open.
 
 - [ ] 37. Evidence log line
   - Append one line (ISO time, hook, target, result) to `docs/kiro-evidence/hooks.log` through the existing hook only if a hook runs on these tasks; do not write it by hand.
@@ -207,3 +208,8 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Run `npm test`, `npm run e2e`, `tsc --noEmit`, and the build; confirm `dist/` is static. Search the pane's strings for "she", "her", "verified", and "AI-powered". Confirm no colour literal outside the token definitions in `src/steam/`.
   - Files: none (reads only).
   - Satisfies: R14.9, R21.2, R21.4, R21.5, R22.1, R22.3.
+
+- [ ] 39. Move `derive` into a Web Worker (from task 36)
+  - R15.5 requires it when the one-time derivation exceeds 50 ms on the throttled profile. `bench/steam-renderer.json` measured 352.7 ms (throttled) and about 96 ms (unthrottled). Re-run `npm run bench` afterwards and commit the new numbers.
+  - Files: `src/steam/derive.worker.ts`, `src/steam/SteamPane.tsx`.
+  - Satisfies: R15.5.
