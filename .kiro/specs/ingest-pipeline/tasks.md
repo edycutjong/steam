@@ -116,7 +116,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/merge.ts`, `src/ingest/merge.test.ts`, `src/ingest/merge.prop.test.ts`.
   - Satisfies: R15.1 to R15.6, R15.8.
 
-- [ ] 20. Corrections
+- [x] 20. Corrections
   - Test first: a revised line yields `{line, before, after}`; the corrected text is used from then on; a changed index set, count or a stray non-comment line fails "line structure changed"; a header with another `segmentRun` or reader hash is "stale transcription.md"; a correction that changes the token count of a quoted line fails; the disagreement entry stays with `correctedTo`.
   - Implement `applyCorrections` in `src/ingest/merge.ts`.
   - Files: `src/ingest/merge.ts`, `src/ingest/corrections.test.ts`.

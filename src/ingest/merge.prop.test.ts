@@ -1,7 +1,7 @@
 // S4: for all pairs of readings, the transcription round-trips and no disagreement disappears.
 import fc from 'fast-check'
 import { describe, expect, it } from 'vitest'
-import { formatTranscription, markedText, mergeReadings, parseMarked, parseTranscription, tokenise } from './merge.ts'
+import { applyCorrections, formatTranscription, markedText, mergeReadings, parseMarked, parseTranscription, tokenise } from './merge.ts'
 
 const run = { id: 'sr-0123456789ab', stripsHash: 'a'.repeat(64) }
 const word = fc.constantFrom('the', 'Quince', 'Quince,', 'boil', '&', 'it', 'till', 'Looks', 'red', 'smooth,', 'sug.r', 'L.', 'E.', 'quince')
@@ -35,6 +35,21 @@ describe('S4 merge properties', () => {
         expect(mergeReadings(mk(ta), mk(ta)).disagreements).toEqual([])
       }),
       { numRuns: 300 },
+    )
+  })
+
+  it('a correction that resolves every marker keeps every disagreement entry', () => {
+    fc.assert(
+      fc.property(readings, ([ta, tb]) => {
+        const m = mergeReadings(mk(ta), mk(tb))
+        const header = { segmentRun: run.id, readers: ['d'.repeat(64), 'e'.repeat(64)] as [string, string] }
+        const md = formatTranscription(header, m.lines).replace(/†\[([^|\]]*)\|[^\]]*\]/g, '$1').replace(/ {2,}/g, ' ')
+        const r = applyCorrections(m, md, header, new Map())
+        if (r.state !== 'ok') return // resolving an empty scribe side can leave an empty line: structure changed, which is reported
+        expect(r.disagreements.length).toBe(m.disagreements.length)
+        expect(r.disagreements.map((d) => [d.line, d.word, d.a, d.b])).toEqual(m.disagreements.map((d) => [d.line, d.word, d.a, d.b]))
+      }),
+      { numRuns: 200 },
     )
   })
 })

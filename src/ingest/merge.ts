@@ -184,3 +184,79 @@ export function parseTranscription(md: string): ParsedTranscription {
   }
   return { ok: true, header: { segmentRun: m[1]!, readers: [m[2]!, m[3]!] }, lines }
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Corrections (R16)
+
+export interface Correction {
+  line: number
+  before: string
+  after: string
+}
+
+export interface EffectiveLine {
+  i: number
+  /** The fresh merge, marked. */
+  merged: string
+  /** The revised text from transcription.md when it differs from the merge. */
+  corrected?: string
+  /** What every later stage quotes (R17.4). */
+  primary: string
+  atoms: Atom[]
+  wordCount: number | null
+}
+
+export type CorrectionResult =
+  | { state: 'ok'; detail: string; corrections: Correction[]; lines: EffectiveLine[]; disagreements: Disagreement[] }
+  | { state: 'waiting' | 'fail'; detail: string }
+
+const scribeTokenCount = (atoms: Atom[]): number => atoms.reduce((n, a) => n + (a.kind === 'tok' ? 1 : a.a.length), 0)
+const atomText = (a: Atom): string => markedText([a])
+
+/**
+ * R16.1 to R16.5. `quoted` maps each line a note quotes to its scribe token count; a correction may not change it.
+ */
+export function applyCorrections(
+  fresh: MergeResult,
+  transcription: string,
+  expected: TranscriptionHeader,
+  quoted: Map<number, number>,
+): CorrectionResult {
+  const parsed = parseTranscription(transcription)
+  if (!parsed.ok) return { state: 'fail', detail: parsed.error }
+  if (parsed.header.segmentRun !== expected.segmentRun || parsed.header.readers[0] !== expected.readers[0] || parsed.header.readers[1] !== expected.readers[1])
+    return { state: 'waiting', detail: 'stale transcription.md' }
+  const n = fresh.lines.length
+  if (parsed.lines.length !== n || parsed.lines.some((l, k) => l.i !== fresh.lines[k]!.i)) return { state: 'fail', detail: 'transcription.md: line structure changed' }
+  const corrections: Correction[] = []
+  const lines: EffectiveLine[] = []
+  const disagreements: Disagreement[] = fresh.disagreements.map((d) => ({ ...d }))
+  for (let k = 0; k < n; k++) {
+    const f = fresh.lines[k]!
+    const before = markedText(f.atoms)
+    const after = parsed.lines[k]!.text
+    if (after === before) {
+      lines.push({ i: f.i, merged: before, primary: primaryText(f.atoms), atoms: f.atoms, wordCount: f.wordCount })
+      continue
+    }
+    const atoms = parseMarked(after)
+    const want = quoted.get(f.i)
+    if (want !== undefined && scribeTokenCount(atoms) !== want) return { state: 'fail', detail: 'correction changes the word count of a quoted line' }
+    corrections.push({ line: f.i, before, after })
+    const single = atoms.every((a) => a.kind === 'tok' || (a.a.length === 1 && a.b.length === 1))
+    lines.push({ i: f.i, merged: before, corrected: after, primary: primaryText(atoms), atoms, wordCount: single ? atoms.length : null })
+    // keep every disagreement of this line; record what the correction made of it
+    const origDis = f.atoms.map((a, idx) => [a, idx] as const).filter(([a]) => a.kind === 'dis')
+    let d = 0
+    for (const dg of disagreements) {
+      if (dg.line !== f.i) continue
+      const [oa, idx] = origDis[d++] ?? []
+      if (!oa) continue
+      if (atoms.length === f.atoms.length) {
+        const now = atomText(atoms[idx]!)
+        if (now !== atomText(oa)) dg.correctedTo = now
+      } else dg.correctedTo = after
+    }
+  }
+  return { state: 'ok', detail: `${corrections.length} corrections`, corrections, lines, disagreements }
+}
