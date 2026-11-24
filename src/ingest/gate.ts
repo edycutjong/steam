@@ -13,6 +13,7 @@ import { checkNotes, checkSteps, effectiveLines } from './notes.ts'
 import {
   PROPS_VERSION, checkP1, checkP2, checkP3, checkP4, checkP5, checkP6, maskBox, type ContrastCrop, type P4Part, type PropResult,
 } from './props.ts'
+import { collectLinePixels, wordInkCounts } from './runs.ts'
 import { runsOf, segmentRecipe, type SegmentFiles } from './segment.ts'
 import { sha256Hex } from './sha256.ts'
 import { rawInk } from './threshold.ts'
@@ -317,9 +318,18 @@ export function runGate(ctx: GateCtx): GateResult {
   }
   const s = seg.slant.s
   const segRuns = sf.runs.lines // runs.json: what curator indices name
-  const effRuns = decisions.length ? runsOf(own.owner, seg.frame.width, seg.frame.height, seg.bands, s) : segRuns
+  const effRuns = decisions.length ? runsOf(own.owner, seg.frame.width, seg.frame.height, seg.bands, s, seg.labels) : segRuns
   const W = seg.frame.width
   const H = seg.frame.height
+  // what alignment needs to refuse a word box without writing: the line's extent and the ink per candidate word box
+  const linePx = collectLinePixels(own.owner, W, H, seg.bands.cores.length, seg.labels)
+  const extentAndInk = (line: number) => {
+    const e = effRuns[line]!
+    const yMid = (seg.bands.cores[line]![0] + seg.bands.cores[line]![1]) / 2
+    return e.hi >= e.lo
+      ? { extent: [e.lo, e.hi] as [number, number], wordInk: (b: number[]) => wordInkCounts(linePx[line]!, yMid, s, b, [e.lo, e.hi]) }
+      : {}
+  }
   const gray = toGray(sf.scan)
   const raw = seg.raw
   const tilt = seg.deskewApplied ? seg.deskewDeg : 0
@@ -380,6 +390,7 @@ export function runGate(ctx: GateCtx): GateResult {
         k: p.k,
         runs: curator?.has(p.line) && !effRuns[p.line]!.runs.length ? segRuns[p.line]!.runs : effRuns[p.line]!.runs,
         curator: curator?.get(p.line),
+        ...extentAndInk(p.line),
       }),
     )
     const na = noteAlignment(parts)
@@ -418,7 +429,7 @@ export function runGate(ctx: GateCtx): GateResult {
         let auto: NonNullable<Gate['recall']>[number]['auto']
         if (na.alignment === 'auto') auto = { recall: shipped.recall, words: shipped.words }
         else {
-          const autoParts = nd.parts.map((p) => alignPart({ line: p.line, fromWord: p.fromWord, toWord: p.toWord, tokenCount: p.tokenCount, k: p.k, runs: effRuns[p.line]!.runs }))
+          const autoParts = nd.parts.map((p) => alignPart({ line: p.line, fromWord: p.fromWord, toWord: p.toWord, tokenCount: p.tokenCount, k: p.k, runs: effRuns[p.line]!.runs, ...extentAndInk(p.line) }))
           const an = noteAlignment(autoParts)
           if (an.alignment !== 'auto') {
             // score the rejected candidate (widest k-1 runs, no acceptance test) for the record only

@@ -1,11 +1,23 @@
 // Word alignment from gaps in the owned ink (R18 to R20).
 
-import { RUN_MIN_PX, RUN_RATIO } from './constants.ts'
+import { RUN_MIN_PX, RUN_RATIO, WORD_INK_MIN_PX } from './constants.ts'
 import { shearedColumn, type LinePixels, type Run } from './runs.ts'
 
 export type AlignAuto =
   | { ok: true; chosen: Run[]; /** Centre column of each chosen run, left to right. */ boundaries: number[] }
   | { ok: false; reason: 'alignment ambiguous'; detail: string; runsFound: number; kthWidth: number | null; nextWidth: number | null; needWidth: number }
+  | { ok: false; reason: 'word without ink'; detail: string; wordInk: number[] }
+
+/** Ink held by each word box of a candidate cut at `boundaries` (sorted). Given by the caller, who owns the pixels. */
+export type WordInk = (boundaries: number[]) => number[]
+
+/** The word boxes of a candidate that hold less than the floor: `word 0 holds 4 ink px`. Null when every box holds enough. */
+function inklessWords(boundaries: number[], wordInk: WordInk | undefined): { wordInk: number[]; detail: string } | null {
+  if (!wordInk) return null
+  const counts = wordInk(boundaries)
+  const bad = counts.flatMap((n, j) => (n < WORD_INK_MIN_PX ? [`word ${j} holds ${n} ink px`] : []))
+  return bad.length ? { wordInk: counts, detail: `alignment rejected: ${bad.join(', ')}, under the floor ${WORD_INK_MIN_PX}` } : null
+}
 
 const median = (v: number[]): number => {
   const a = [...v].sort((x, y) => x - y)
@@ -16,9 +28,10 @@ const median = (v: number[]): number => {
 /**
  * R18.3, R18.4. Rank the runs by width (ties: left first), take the widest k-1 as word boundaries. Accept only when
  * at least k-1 runs exist, the (k-1)th is strictly wider than the next, and it is at least 1.5 x the median width
- * of the unselected runs (4 when there are none).
+ * of the unselected runs (4 when there are none). Then, when `wordInk` is given, every word box of the result must hold
+ * at least WORD_INK_MIN_PX ink pixels; otherwise the candidate is rejected whatever its run widths.
  */
-export function alignAuto(runs: Run[], k: number): AlignAuto {
+export function alignAuto(runs: Run[], k: number, wordInk?: WordInk): AlignAuto {
   const need = k - 1
   if (need <= 0) return { ok: true, chosen: [], boundaries: [] }
   const ranked = [...runs].sort((a, b) => b.width - a.width || a.x0 - b.x0)
@@ -51,7 +64,10 @@ export function alignAuto(runs: Run[], k: number): AlignAuto {
     }
   }
   chosen.sort((a, b) => a.x0 - b.x0)
-  return { ok: true, chosen, boundaries: chosen.map((r) => Math.floor((r.x0 + r.x1) / 2)) }
+  const boundaries = chosen.map((r) => Math.floor((r.x0 + r.x1) / 2))
+  const empty = inklessWords(boundaries, wordInk)
+  if (empty) return { ok: false, reason: 'word without ink', detail: empty.detail, wordInk: empty.wordInk }
+  return { ok: true, chosen, boundaries }
 }
 
 /**
@@ -88,12 +104,15 @@ const RANK: Record<AlignMethod, number> = { lines: 0, curator: 1, auto: 2 }
 export type AlignCurator = { ok: true; chosen: Run[]; boundaries: number[] } | { ok: false; detail: string }
 
 /** R19.3: boundaries are indices into the code-found runs, never coordinates. Exactly k-1 distinct valid indices. */
-export function alignCurator(runs: Run[], k: number, indices: number[]): AlignCurator {
+export function alignCurator(runs: Run[], k: number, indices: number[], wordInk?: WordInk): AlignCurator {
   if (indices.length !== k - 1) return { ok: false, detail: `alignment.json names ${indices.length} boundary runs, the line has ${k} words and needs ${k - 1}` }
   if (new Set(indices).size !== indices.length) return { ok: false, detail: 'alignment.json repeats a boundary run index' }
   for (const i of indices) if (!Number.isInteger(i) || i < 0 || i >= runs.length) return { ok: false, detail: `alignment.json run index ${i} is out of range (the line has ${runs.length} runs)` }
   const chosen = indices.map((i) => runs[i]!).sort((a, b) => a.x0 - b.x0)
-  return { ok: true, chosen, boundaries: chosen.map((r) => Math.floor((r.x0 + r.x1) / 2)) }
+  const boundaries = chosen.map((r) => Math.floor((r.x0 + r.x1) / 2))
+  const empty = inklessWords(boundaries, wordInk)
+  if (empty) return { ok: false, detail: `alignment.json: ${empty.detail}` }
+  return { ok: true, chosen, boundaries }
 }
 
 export interface PartAlignment {
@@ -103,6 +122,8 @@ export interface PartAlignment {
   method: AlignMethod
   /** Sheared boundary columns (empty for whole lines). */
   boundaries: number[]
+  /** The line's text extent [lo, hi] (sheared columns) the word regions are clipped to; absent for whole lines. */
+  extent?: [number, number]
   /** Why whole lines were used, when they were. */
   reason?: string
   /** What the automatic attempt said, always recorded (R20.3). */
@@ -119,6 +140,10 @@ export interface PartInput {
   k: number | null
   runs: Run[]
   curator?: number[]
+  /** The line's text extent (runs.ts): word regions of an aligned part are clipped to it. */
+  extent?: [number, number]
+  /** Ink per word box of a candidate (the floor test); without it no floor is applied. */
+  wordInk?: WordInk
 }
 
 /** Method order per part: auto, then curator, then whole lines (R19). */
@@ -126,11 +151,12 @@ export function alignPart(p: PartInput): PartAlignment {
   const base = { line: p.line, fromWord: p.fromWord, toWord: p.toWord }
   if (p.fromWord === 0 && p.toWord === p.tokenCount - 1) return { ...base, method: 'lines', boundaries: [], reason: 'the whole line is quoted', autoDetail: 'not attempted: whole line quoted' }
   if (p.k === null) return { ...base, method: 'lines', boundaries: [], reason: 'word count unknown: the readers disagree on the token count', autoDetail: 'not attempted: word count unknown' }
-  const auto = alignAuto(p.runs, p.k)
-  if (auto.ok) return { ...base, method: 'auto', boundaries: auto.boundaries, autoDetail: `accepted: ${auto.chosen.length} boundaries` }
+  const auto = alignAuto(p.runs, p.k, p.wordInk)
+  const ext = p.extent ? { extent: p.extent } : {}
+  if (auto.ok) return { ...base, method: 'auto', boundaries: auto.boundaries, ...ext, autoDetail: `accepted: ${auto.chosen.length} boundaries` }
   if (p.curator) {
-    const c = alignCurator(p.runs, p.k, p.curator)
-    if (c.ok) return { ...base, method: 'curator', boundaries: c.boundaries, autoDetail: auto.detail }
+    const c = alignCurator(p.runs, p.k, p.curator, p.wordInk)
+    if (c.ok) return { ...base, method: 'curator', boundaries: c.boundaries, ...ext, autoDetail: auto.detail }
     return { ...base, method: 'lines', boundaries: [], reason: c.detail, autoDetail: auto.detail }
   }
   return { ...base, method: 'lines', boundaries: [], reason: auto.detail, autoDetail: auto.detail }

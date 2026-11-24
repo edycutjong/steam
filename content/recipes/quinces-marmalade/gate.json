@@ -50,10 +50,10 @@
         {
           "autoDetail": "accepted: 7 boundaries",
           "boundaries": [
-            217,
             467,
             604,
             723,
+            1028,
             1098,
             1228,
             1496
@@ -97,7 +97,7 @@
       ]
     }
   ],
-  "at": "2026-11-24T19:18:16.752Z",
+  "at": "2026-11-24T19:43:47.607Z",
   "disagreements": 0,
   "goldCheck": {
     "differing": [],
@@ -118,15 +118,15 @@
     "notes/note-looks-red-smooth.json": "215ec74c9c6be0459a7eb1067326aa1f1beddac5aaf660ae2dcc45cf2196e0ed",
     "notes/note-looks-red-smooth.png": "55856a35cffb33ec5f5e5e791e57ab0002a6ac5c86df3e9874a2977bc4afa792",
     "notes/note-looks-red-smooth.toi.png": "980c316d28434fc3471a37a3b36f919d0112d54be2d8281b82fa1393823a550c",
-    "notes/note-when-tender.json": "33ff9376c4e142a9b931c41c0af46bc73848d8675a872ca4181ec4e48d5c4402",
-    "notes/note-when-tender.png": "7f0e38665ed3be1572346bdcd10fd99b27f4f8e38e659a4fc2af76df636643dc",
-    "notes/note-when-tender.toi.png": "42bd10f410f60326964b7d7574b4c8452add53a8a8d6aa870922b07a6e39b054"
+    "notes/note-when-tender.json": "c26b1d544992ac08e12d14494abb6f5321ee8d94679c49cacac69e354fd3d573",
+    "notes/note-when-tender.png": "1a94adbfa9a7e0d43c03d6ebc3a3071a630403e0b75bb4915ba436f98ef06507",
+    "notes/note-when-tender.toi.png": "c42b774a8feb289a5391fa542cf5dd8698d1c5cd817b9febdd4733f07d6d9a33"
   },
   "ownership": {
     "autoPass": 1,
     "reviewedPass": 2
   },
-  "pass": false,
+  "pass": true,
   "propsVersion": "1",
   "readers": [
     "fallback"
@@ -139,9 +139,9 @@
           "boundaries": [
             {
               "boundaries": [
-                320,
                 356,
                 649,
+                858,
                 948,
                 1088,
                 1230,
@@ -277,15 +277,15 @@
       "pass": true
     },
     "P4": {
-      "detail": "full-ripe: 3594 lit px, all owned by the quoted words or within the shell | when-tender: 2630 lit px, all owned by the quoted words or within the shell | looks-red-smooth: 43546 lit px, all owned by the quoted words or within the shell; recall 0.9802 >= 0.85",
+      "detail": "full-ripe: 3594 lit px, all owned by the quoted words or within the shell | when-tender: 6085 lit px, all owned by the quoted words or within the shell | looks-red-smooth: 43546 lit px, all owned by the quoted words or within the shell; recall 0.9802 >= 0.85",
       "pass": true
     },
     "P5": {
-      "detail": "contrast full-ripe: 82; full-ripe/line 1: 82 | contrast when-tender: 111; when-tender/line 7: 90; when-tender/line 8: no background | contrast looks-red-smooth: 84; looks-red-smooth/line 9: 84; looks-red-smooth/line 10: 85",
-      "pass": false
+      "detail": "contrast full-ripe: 82; full-ripe/line 1: 82 | contrast when-tender: 88; when-tender/line 7: 90; when-tender/line 8: 78 | contrast looks-red-smooth: 84; looks-red-smooth/line 9: 84; looks-red-smooth/line 10: 85",
+      "pass": true
     },
     "P6": {
-      "detail": "full-ripe: 3594 px timed, path coverage 1.000 | when-tender: 2630 px timed, path coverage 1.000 | looks-red-smooth: 43546 px timed, path coverage 1.000",
+      "detail": "full-ripe: 3594 px timed, path coverage 1.000 | when-tender: 6085 px timed, path coverage 1.000 | looks-red-smooth: 43546 px timed, path coverage 1.000",
       "pass": true
     }
   },
@@ -319,7 +319,7 @@
       },
       {
         "flagged": [],
-        "maskPx": 1362,
+        "maskPx": 3023,
         "noteId": "when-tender",
         "share": 0,
         "splitPx": 0,
@@ -340,5 +340,5 @@
     ],
     "segmentSplits": 16
   },
-  "state": "fail"
+  "state": "pass"
 }

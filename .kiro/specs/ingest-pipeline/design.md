@@ -173,6 +173,12 @@ Token index mapping: `scribeToSlot(line)` returns for each scribe token index it
 2. Column occupancy over `[min x', max x']`.
 3. Zero runs of width ≥ 4 are runs. Their `{index (left to right), x0, x1, width}` are what `runs.json` stores and what the curator indexes.
 
+Text extent and ink floor (bugfix `word-align-speck`, `.kiro/specs/word-align-speck/bugfix.md`):
+
+- The occupancy range `[lo, hi]` is the line's text extent: the first and last `x'` of its owned pixels that belong to components of at least `MIN_COMPONENT_PX` (30) pixels. A speck (a smaller component) outside that range, such as a stray mark in the margin that ownership gave to the nearest band, stretches nothing and opens no run. Specks inside the range still occupy their columns. Marginalia outside the chosen region are owned by no line, as before. When a line has no pixel of a component of 30 px or more, every owned pixel counts. `runs.json` records `lo` and `hi`.
+- Ink floor `WORD_INK_MIN_PX` = `MIN_COMPONENT_PX` = 30, fixed before the page was re-measured: a word box (the columns between neighbouring boundaries, the first and last running to the extent's edges) holds at least as much ink as the smallest thing the pipeline counts as a piece of writing. Both `alignAuto` and `alignCurator` reject a candidate whose any word box holds fewer owned pixels of components of 30 px or more inside the extent ("alignment rejected: word 0 holds 4 ink px, under the floor 30"); the next method in the chain is used.
+- The word regions of an aligned part are clipped to the extent in `noteMask`: ink outside it is in no word. P4's independent mask is not changed (it stays a superset of the build's mask, so P4 still passes or fails the same notes; P4 does not judge whether a word region holds the right word, see the bugfix spec).
+
 `alignAuto(runs, k)`: sort by `(−width, x0)`; take first `k−1`; accept if `widths[k−2] > widths[k−1]` (strictly wider than the next, unselected) and `widths[k−2] ≥ 1.5·median(unselected)`, with 4 as the median when nothing is unselected. Returns boundaries sorted by `x0`, each at `⌊(x0+x1)/2⌋`.
 
 Why a single piece cannot straddle two words (R18.5): in sheared coordinates two 8-neighbour pixels differ by at most `1 + |s|` columns in `x'` before rounding, so at most `⌈1+|s|⌉ ≤ 2` after it for `|s| ≤ 1`. A run of ≥ 4 empty columns cannot be crossed. The property test builds random owned-pixel sets, shears them, and checks that every 8-connected piece falls in one word.
@@ -263,6 +269,7 @@ A recipe's `watch` node should set `commandTimeoutSec` long enough for one gate 
 | `PROFILE_SIGMA`, `PEAK_MIN_FRACTION`, `PEAK_MIN_DISTANCE` | 6, 0.25, 40 | spike |
 | `SPLIT_SHARE_MAX` | 0.02 | product constitution |
 | `RUN_MIN_PX`, `RUN_RATIO` | 4, 1.5 | request |
+| `WORD_INK_MIN_PX` | 30 (= `MIN_COMPONENT_PX`) | bugfix word-align-speck; not tuned |
 | `CONTRAST_MIN` | 40 | request |
 | `PATH_COVERAGE_MIN` | 0.95 | request |
 | `NOTE_MARGIN_PX` | 32 | spike; renderer needs at least 24 |

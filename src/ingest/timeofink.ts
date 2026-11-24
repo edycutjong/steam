@@ -215,7 +215,7 @@ import type { Gray, Rgba } from './image.ts'
 import type { Bands, NoteOwnership, Ownership } from './masks.ts'
 import type { PartAlignment } from './align.ts'
 import { assignWords } from './align.ts'
-import { collectLinePixels, type LinePixels } from './runs.ts'
+import { collectLinePixels, shearedColumn, type LinePixels } from './runs.ts'
 
 /** Chebyshev dilation by `r` pixels (separable max). */
 export function dilate(m: Uint8Array, w: number, h: number, r: number): Uint8Array {
@@ -377,7 +377,8 @@ const gaussian2d = (src: Float32Array, w: number, h: number, sigma: number): Flo
 }
 
 /**
- * The note mask in the page frame: owned ink of the quoted lines, inside the word regions of aligned parts (R21.1).
+ * The note mask in the page frame: owned ink of the quoted lines, inside the word regions of aligned parts (R21.1),
+ * and inside the line's text extent when the part carries one.
  */
 export function noteMask(own: Ownership, bands: Bands, s: number, parts: BuiltPart[], linePixels?: LinePixels[]): Uint8Array {
   const { width: w, height: h } = own
@@ -389,6 +390,11 @@ export function noteMask(own: Ownership, bands: Bands, s: number, parts: BuiltPa
     const word = p.whole ? null : assignWords(px, yMid, s, p.boundaries)
     for (let i = 0; i < px.xs.length; i++) {
       if (word && (word[i]! < p.fromWord || word[i]! > p.toWord)) continue
+      // ink outside the line's text extent (a speck in the margin) is in no word
+      if (word && p.extent) {
+        const c = shearedColumn(px.xs[i]!, px.ys[i]!, yMid, s)
+        if (c < p.extent[0] || c > p.extent[1]) continue
+      }
       mask[px.ys[i]! * w + px.xs[i]!] = 1
     }
   }

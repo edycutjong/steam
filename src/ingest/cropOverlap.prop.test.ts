@@ -267,15 +267,25 @@ describe('S4: the gate result without eye-read boxes is what the unfixed code ga
       expect(hex).toBe(frozen.real.mergedJsonSha256)
     })
   })
+  // The overall state is not compared: it follows P5, which the word-align-speck fix turns from fail to pass on purpose.
   it('real recipe: P1 to P4 and P6 verdicts are those of the unfixed code (P5 is judged per note below)', () => {
-    expect(real.state).toBe(frozen.real.state)
     for (const k of ['P1', 'P2', 'P3', 'P4', 'P6'] as const) expect(real.gate.results![k].pass, k).toBe(frozen.real.results[k]!.pass)
   })
   for (const id of FROZEN_NOTES) {
     it(`real recipe, note ${id}: PNG, time-of-ink map (the hero's mask is unchanged), JSON, alignment and recall are identical`, () => {
       for (const ext of ['json', 'png', 'toi.png']) expect(real.gate.outputs[`notes/note-${id}.${ext}`], ext).toBe(frozen.real.outputs[`notes/note-${id}.${ext}`])
       expect(real.gate.alignment!.find((a) => a.noteId === id)).toEqual(frozen.real.alignment.find((a) => a.noteId === id))
-      expect(real.gate.recall?.find((a) => a.noteId === id)).toEqual(frozen.real.recall?.find((a) => a.noteId === id))
+      // recall of the shipped note, and why the automatic alignment was not used. The rejected candidate (scored for the
+      // record only, never shipped) is left out: it is cut from the line's runs, which the word-align-speck fix changes on
+      // purpose where a speck sat outside the writing (line 9's left margin).
+      const recallOf = (r: Frozen['real']['recall'] | undefined) => {
+        const x = r?.find((a) => a.noteId === id) as { auto?: { rejectedCandidate?: unknown } } | undefined
+        if (!x) return x
+        const { rejectedCandidate: _rc, ...auto } = x.auto ?? {}
+        void _rc
+        return { ...x, auto }
+      }
+      expect(recallOf(real.gate.recall as Frozen['real']['recall'])).toEqual(recallOf(frozen.real.recall))
       // P2 and P5 for this note: the detail text of the unfixed run, note by note
       const seg = (r: { detail: string }) => r.detail.split(' | ').filter((s) => s.startsWith(`contrast ${id}:`))
       expect(seg(real.gate.results!.P5)).toEqual(seg(frozen.real.results.P5!))

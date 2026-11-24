@@ -1,0 +1,14 @@
+# word-align-speck, commit B: the same exploration test on the fixed code (GREEN)
+# command: npx vitest run src/ingest/alignSpeck.bug.test.ts --no-color
+# recorded: 2026-11-24T19:45:42Z, on the tree whose parent commit is 654ec95; exit code follows the output
+
+
+ RUN  v5.1.1 /Users/edycu/Hackathon/devpost/devpost-kiroween/steam/build
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  02:45:42
+   Duration  5.08s (import 99%)
+
+# exit code: 0

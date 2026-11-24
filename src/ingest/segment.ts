@@ -311,8 +311,9 @@ const medianRgb = (img: Rgba): [number, number, number] => {
 }
 
 /** Runs per line in sheared coordinates, from an owner map (R19.2). */
-export function runsOf(owner: Int16Array, width: number, height: number, bands: Bands, s: number): RunsFile['lines'] {
-  const lp = collectLinePixels(owner, width, height, bands.cores.length)
+/** With `labels`, specks outside the writing do not stretch a line's extent (runs.ts). */
+export function runsOf(owner: Int16Array, width: number, height: number, bands: Bands, s: number, labels?: Labels): RunsFile['lines'] {
+  const lp = collectLinePixels(owner, width, height, bands.cores.length, labels)
   return bands.cores.map((c, line) => {
     const yMid = (c[0] + c[1]) / 2
     const r = zeroRuns(lp[line]!, yMid, s)
@@ -355,7 +356,7 @@ export function segmentRecipe(scanIn: Rgba, opts: SegmentOptions = {}): SegmentF
     segmentRun,
     s: seg.slant.s,
     projection: seg.slant.vertical ? 'vertical' : 'sheared',
-    lines: runsOf(seg.own.owner, seg.frame.width, seg.frame.height, seg.bands, seg.slant.s),
+    lines: runsOf(seg.own.owner, seg.frame.width, seg.frame.height, seg.bands, seg.slant.s, seg.labels),
   }
   const splits = { segmentRun, total: seg.own.splits.length, splits: splitsJson(seg.own) }
   return { seg, scan, lines, region: regionFile, runs, splits, strips, overlay: renderOverlay(scan, seg.own, seg.labels, seg.bands) }

@@ -10,14 +10,14 @@
       "inkPx": 1358,
       "line": 7,
       "rect": [
-        1317,
+        1129,
         32,
-        1443,
+        1255,
         109
       ],
       "t": [
         0,
-        0.9476744186046512
+        0.4588318085855029
       ],
       "words": {
         "from": 6,
@@ -29,16 +29,16 @@
         117,
         137
       ],
-      "inkPx": 4,
+      "inkPx": 1665,
       "line": 8,
       "rect": [
         32,
-        128,
-        33,
-        138
+        86,
+        180,
+        145
       ],
       "t": [
-        0.9476744186046512,
+        0.4588318085855029,
         1
       ],
       "words": {
@@ -49,16 +49,16 @@
   ],
   "noteId": "when-tender",
   "pageBox": [
-    94,
+    282,
     1482,
     1569,
-    1652
+    1659
   ],
   "resampled": true,
   "shownText": "when Tender,",
   "size": [
-    1475,
-    170
+    1287,
+    177
   ],
   "source": "Wellcome Collection",
   "span": "when Tender",
@@ -67,5 +67,5 @@
   "step": 4,
   "trace": "a path traced from the ink, left to right",
   "verifyApproximate": true,
-  "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:4.7959,71.2529,92.3905,10.2884/full/0/default.jpg"
+  "verifyUrl": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/pct:16.5218,71.5087,80.6646,10.3736/full/0/default.jpg"
 }

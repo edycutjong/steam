@@ -7,6 +7,12 @@ export const SAUVOLA_K = 0.2
 export const SAUVOLA_R = 128
 export const INK_MEDIAN_GUARD = 25
 export const MIN_COMPONENT_PX = 30
+/**
+ * Least owned ink (pixels of components that are not specks) a word box must hold for a word alignment to be believed.
+ * Equal to MIN_COMPONENT_PX on purpose: a word holds at least as much ink as the smallest thing the pipeline counts as a
+ * piece of writing. Not tuned: fixed in the first commit of the word-align-speck spec, before the page was re-measured.
+ */
+export const WORD_INK_MIN_PX = MIN_COMPONENT_PX
 export const CORE_FRACTION = 0.6
 export const PROFILE_SIGMA = 6
 export const PEAK_MIN_FRACTION = 0.25
@@ -39,7 +45,7 @@ export interface ConstantRow {
 }
 
 const F = '43aa1f6' // "[kiro] ingest-pipeline: requirements, design, tasks"
-const row = (name: string, value: unknown, reason: string, source: string): ConstantRow => ({ name, value, reason, source, frozenBy: F })
+const row = (name: string, value: unknown, reason: string, source: string, frozenBy: string = F): ConstantRow => ({ name, value, reason, source, frozenBy })
 
 export const CONSTANTS_TABLE: readonly ConstantRow[] = [
   row('SAUVOLA_WINDOW', SAUVOLA_WINDOW, 'one documented threshold for ink', 'request, spike'),
@@ -47,6 +53,7 @@ export const CONSTANTS_TABLE: readonly ConstantRow[] = [
   row('SAUVOLA_R', SAUVOLA_R, 'Sauvola dynamic range', 'request, spike'),
   row('INK_MEDIAN_GUARD', INK_MEDIAN_GUARD, 'keeps paper texture out of the ink map', 'spike'),
   row('MIN_COMPONENT_PX', MIN_COMPONENT_PX, 'specks do not create lines or count as pieces', 'request'),
+  row('WORD_INK_MIN_PX', WORD_INK_MIN_PX, 'a word box holds at least one piece of writing: alignment is rejected when any word box holds less (word-align-speck)', 'this spec (word-align-speck), = MIN_COMPONENT_PX, not tuned', '676fb65'),
   row('CORE_FRACTION', CORE_FRACTION, 'core band = rows at or above 60% of the line peak', 'request'),
   row('PROFILE_SIGMA', PROFILE_SIGMA, 'row projection smoothing', 'spike'),
   row('PEAK_MIN_FRACTION', PEAK_MIN_FRACTION, 'peak height floor against the global maximum', 'spike'),
