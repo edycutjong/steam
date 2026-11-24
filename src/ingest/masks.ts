@@ -279,3 +279,94 @@ export function applyReview(labels: Labels, bands: Bands, decisions: ReviewInput
   }
   return { own, errors }
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Artifacts for a reviewer (R11)
+
+import type { Rgba } from './image.ts'
+
+export const LINE_TINTS: readonly (readonly [number, number, number])[] = [
+  [214, 69, 65],
+  [52, 152, 219],
+  [39, 174, 96],
+  [241, 196, 15],
+  [155, 89, 182],
+  [230, 126, 34],
+]
+export const VALLEY_MARK: readonly [number, number, number] = [255, 255, 255]
+const CORE_MARK: readonly [number, number, number] = [20, 20, 20]
+
+/** ownership/splits.json (R11.1). */
+export function splitsJson(own: Ownership): (Omit<SplitLog, 'review'> & { review?: string })[] {
+  return [...own.splits].sort((a, b) => a.componentId - b.componentId)
+}
+
+function dimmed(scan: Rgba): Rgba {
+  const d = new Uint8Array(scan.data.length)
+  for (let i = 0; i < d.length; i += 4) {
+    d[i] = 127 + (scan.data[i]! >> 1)
+    d[i + 1] = 127 + (scan.data[i + 1]! >> 1)
+    d[i + 2] = 127 + (scan.data[i + 2]! >> 1)
+    d[i + 3] = 255
+  }
+  return { width: scan.width, height: scan.height, data: d }
+}
+
+const put = (img: Rgba, x: number, y: number, c: readonly [number, number, number]): void => {
+  const p = (y * img.width + x) * 4
+  img.data[p] = c[0]
+  img.data[p + 1] = c[1]
+  img.data[p + 2] = c[2]
+  img.data[p + 3] = 255
+}
+
+/** ownership/overlay.png (R11.2): the scan, each line's owned ink in its own tint, split rows marked white. */
+export function renderOverlay(scan: Rgba, own: Ownership, labels: Labels, bands: Bands): Rgba {
+  const out = dimmed(scan)
+  const w = scan.width
+  const valleyOf = new Set(bands.valleys)
+  for (let y = 0; y < scan.height; y++)
+    for (let x = 0; x < w; x++) {
+      const l = own.owner[y * w + x]!
+      if (l < 0) continue
+      const id = labels.label[y * w + x]!
+      const split = own.components.get(id)?.split
+      put(out, x, y, split && valleyOf.has(y) ? VALLEY_MARK : LINE_TINTS[l % LINE_TINTS.length]!)
+    }
+  return out
+}
+
+/**
+ * ownership/flag-<id>.png (R11.3): a crop of the scan around one component with the core band edges (dark) and the
+ * valley rows (white) drawn across it, and every owned pixel of the component in the tint of its owner.
+ * `rect` is [x0, y0, x1, y1] in the page frame.
+ */
+export function renderFlagCrop(scan: Rgba, own: Ownership, labels: Labels, bands: Bands, componentId: number, pad = 40): { image: Rgba; rect: [number, number, number, number] } {
+  const c = own.components.get(componentId)
+  if (!c) throw new Error(`unknown component ${componentId}`)
+  const w = scan.width
+  let x0 = w
+  let x1 = 0
+  for (let y = c.rows[0]; y <= c.rows[1]; y++)
+    for (let x = 0; x < w; x++)
+      if (labels.label[y * w + x] === componentId) {
+        if (x < x0) x0 = x
+        if (x > x1) x1 = x
+      }
+  const rect: [number, number, number, number] = [Math.max(0, x0 - pad), Math.max(0, c.rows[0] - pad), Math.min(w, x1 + 1 + pad), Math.min(scan.height, c.rows[1] + 1 + pad)]
+  const cw = rect[2] - rect[0]
+  const ch = rect[3] - rect[1]
+  const full = dimmed(scan)
+  const image: Rgba = { width: cw, height: ch, data: new Uint8Array(cw * ch * 4) }
+  for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) image.data.set(full.data.subarray(((y + rect[1]) * w + x + rect[0]) * 4, ((y + rect[1]) * w + x + rect[0]) * 4 + 4), (y * cw + x) * 4)
+  const hline = (row: number, col: readonly [number, number, number]): void => {
+    if (row < rect[1] || row >= rect[3]) return
+    for (let x = 0; x < cw; x++) put(image, x, row - rect[1], col)
+  }
+  for (const [a, b] of bands.cores) (hline(a, CORE_MARK), hline(b, CORE_MARK))
+  for (const v of bands.valleys) hline(v, VALLEY_MARK)
+  for (let y = c.rows[0]; y <= c.rows[1]; y++)
+    for (let x = rect[0]; x < rect[2]; x++)
+      if (labels.label[y * w + x] === componentId) put(image, x - rect[0], y - rect[1], LINE_TINTS[own.owner[y * w + x]! % LINE_TINTS.length]!)
+  return { image, rect }
+}

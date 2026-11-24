@@ -86,7 +86,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/masks.ts`, `src/ingest/review.test.ts`.
   - Satisfies: R13.1 to R13.7, R26.2.
 
-- [ ] 15. Ownership artifacts
+- [x] 15. Ownership artifacts
   - Test first: `splits.json` entries hold id, rows, valley rows, lines, pixels; the overlay has the page size; a flag crop is written per flagged component.
   - Implement `renderOverlay`, `renderFlagCrop` (pure RGBA arrays) in `src/ingest/masks.ts`.
   - Files: `src/ingest/masks.ts`, `src/ingest/overlay.test.ts`.
