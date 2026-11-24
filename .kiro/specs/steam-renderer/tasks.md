@@ -44,7 +44,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/layout.ts`.
   - Satisfies: R11.2, R11.3, R11.4, R11.6, R12.1, R12.2.
 
-- [ ] 8. Layout unit tests
+- [x] 8. Layout unit tests
   - Use the real group data (rect 781,32,1219,93 / coreBand 46..81; rect 31,85,496,145 / coreBand 109..143; size 1251×177).
   - Phone at 390 and 360 px wide: both groups `coreBandCssPx >= 16`, `fits === true`, `dst` right edge plus `PAD_PX` ≤ pane width, groups ordered A then B and not overlapping.
   - Desktop at 1440×900, 1024×768, 800×600: inked rect fits within the pane, relative positions equal the page's, scale ≤ 1.25.
