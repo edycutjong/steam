@@ -2,7 +2,7 @@
 
 Order follows dependencies: pure logic with tests first, then GL, then React, then measurement. Requirement numbers refer to `requirements.md` (R7.2 = requirement 7, criterion 2). Tests sit beside code as `*.test.ts`; property tests as `*.prop.test.ts`.
 
-- [ ] 1. Project check and dev dependencies
+- [x] 1. Project check and dev dependencies
   - Check that `package.json` has Vite 8, React 19, TypeScript strict, and a `test` script. Add what is missing: `npm i zod`, `npm i -D vitest fast-check @playwright/test`.
   - Files: `package.json`, `package-lock.json`, `vitest.config.ts` (only if missing).
   - Satisfies: R14.1, R22.3.
