@@ -236,7 +236,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `tools/steam-ingest/watch.ts`, `tools/steam-ingest/watch.test.ts`.
   - Satisfies: R32.1 to R32.7, R14.6.
 
-- [ ] 40. `gate --all --verify` and npm scripts
+- [x] 40. `gate --all --verify` and npm scripts
   - Test first: `--verify` writes nothing, exits non-zero for a recipe whose committed `gate.json` differs, fails or waits, and zero when all match.
   - Implement `--all`/`--verify`, usage messages, and the npm scripts `ingest:gate`, `props`, `catalog`; add `npm run props` after `npm test` in `.github/workflows/ci.yml`.
   - Files: `tools/steam-ingest/cli.ts`, `tools/steam-ingest/gate.ts`, `package.json`, `.github/workflows/ci.yml`.
