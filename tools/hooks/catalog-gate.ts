@@ -7,7 +7,7 @@
 // Not covered: a shell command that writes the file. Kiro matches this hook on write tools, and a matcher on shell tools was not probed.
 
 import { existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { posix, resolve } from 'node:path'
 import { Catalog, Gate, Review } from '../../src/data/schema.ts'
 import { verifyRecipe } from '../steam-ingest/catalog.ts'
 import { recipeDir } from '../steam-ingest/gate.ts'
@@ -93,16 +93,20 @@ function refuseReason(root: string, id: string, entry: { title: string; gateSha2
 
 export function run(raw: string, deps: Deps = {}): HookResult {
   const input = parseHookInput(raw)
-  const path = input?.tool_input?.path
-  if (!input || typeof path !== 'string' || !CATALOG_PATH.test(path.split('\\').join('/'))) return ok()
-  const root = resolve(rootOf(input), path.slice(0, path.length - CATALOG_REL.length) || '/')
+  const raw0 = input?.tool_input?.path
+  // normalised first, so that content/./x/../catalog or a doubled slash cannot step around the match
+  const path = typeof raw0 === 'string' ? posix.normalize(raw0.split('\\').join('/')) : undefined
+  if (!input || path === undefined || !CATALOG_PATH.test(path)) return ok()
+  // the repository the file lives in, from its own path; a relative path (the agent may send one) belongs to the event's cwd
+  const prefix = path.slice(0, path.length - CATALOG_REL.length)
+  const root = prefix ? resolve(rootOf(input), prefix) : path.startsWith('/') ? '/' : rootOf(input)
   const target = toRel(root, resolve(root, CATALOG_REL))
   const finish = (exit: number, result: string, stderr = ''): HookResult => {
     const logFailure = logHook(root, HOOK, target, result, deps.now)
     return { exit, stdout: '', stderr: [stderr, logFailure].filter(Boolean).join('\n') }
   }
   const use = `Use \`npm run catalog\`: it verifies every recipe first and is the only writer of ${CATALOG_REL}. Rule: .kiro/steering/product.md, "Note crops and the gate": a recipe reaches Cook Mode only when P1-P6 pass in its gate.json.`
-  const p = proposed(input, path)
+  const p = proposed(input, resolve(root, path))
   if ('skip' in p) return finish(0, `allowed (${p.skip})`)
   if (!p.ok) return finish(2, `blocked: ${p.why}`, `${HOOK}: refused. ${p.why}, so it cannot be checked. ${use}`)
   let list

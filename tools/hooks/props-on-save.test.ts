@@ -84,6 +84,13 @@ describe('props-on-save: piping recorded PostFileSave and PostFileCreate documen
     expect(l).toHaveLength(2)
     expect(l[1]).toMatch(/^2026-11-25T10:00:05.000Z · props-on-save · syn ← .* · pass P1-P6 ok · no-op \(inputs unchanged\)$/)
   })
+  it('a relative file_path is resolved against the event\'s cwd', () => {
+    const rel = folder({ id: 'relative' })
+    const r = run(postFile('PostFileCreate', rel.root, 'content/recipes/relative/agent/second.json'), t('2026-11-25T10:00:30.000Z'))
+    expect(r.exit).toBe(0)
+    expect(lines(rel.root)).toHaveLength(1)
+    expect(lines(rel.root)[0]).toMatch(/ · relative ← content\/recipes\/relative\/agent\/second\.json · pass P1-P6 ok$/)
+  })
   it('logs "waiting" with the reason when the other reader has not written yet, and still exits 0', () => {
     const w = folder({ id: 'half' })
     rmSync(join(w.dir, 'agent/second.json'))
@@ -105,7 +112,8 @@ describe('props-on-save: piping recorded PostFileSave and PostFileCreate documen
     const r = run(postFile('PostFileSave', e.root, join(e.dir, 'agent/scribe.json')), t('2026-11-25T10:03:00.000Z'))
     expect(r.exit).toBe(0)
     expect(lines(e.root)).toHaveLength(1)
-    expect(lines(e.root)[0]).toMatch(/ · bare ← .* · error /)
+    expect(lines(e.root)[0]).toMatch(/ · bare ← .* · error content\/recipes\/bare: source\.json and lines\.json are needed/)
+    expect(lines(e.root)[0]).not.toContain(e.root) // the log is public: no absolute paths
   })
   it('writes nothing and exits 0 for other files, for non-JSON stdin and for a missing file_path', () => {
     const o = folder({ id: 'other' })

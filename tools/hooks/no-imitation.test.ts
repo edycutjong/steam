@@ -78,6 +78,11 @@ describe('no-imitation: recorded PreToolUse documents', () => {
     expect(r.stderr).toContain('no-imitation: src/steam/say.ts:2: speechSynthesis. Rule (.kiro/steering/product.md, "Quoted, not generated"): "No speech synthesis, synthetic voice, chatbot or persona."')
     expect(lines()).toEqual(['2026-11-25T13:00:00.000Z · no-imitation · src/steam/say.ts · blocked: speechSynthesis (line 2), SpeechSynthesisUtterance (line 2)'])
   })
+  it('BLOCK: a relative path is resolved against the event\'s cwd', () => {
+    const r = run(preFsWrite(root, 'src/steam/rel.ts', 'speechSynthesis.cancel()'))
+    expect(r.exit).toBe(2)
+    expect(r.stderr).toContain('no-imitation: src/steam/rel.ts:1: speechSynthesis')
+  })
   it('BLOCK: a handwriting font in CSS, and a handwriting package, each with their rule', () => {
     const css = run(preFsWrite(root, src('index.css'), ".note-text { font-family: 'Caveat', cursive; }"))
     expect(css.exit).toBe(2)

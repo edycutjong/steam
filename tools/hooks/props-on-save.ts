@@ -47,7 +47,8 @@ export function run(raw: string, deps: Deps = {}): HookResult {
     say = `${HOOK}: gate ${id}: ${result}`
   } catch (e) {
     // a recipe folder that is not ready (no source.json or lines.json yet) is an event worth a line, not a failure of the save
-    result = `error ${(e as Error).message.split('\n')[0]}`
+    // the message names the folder by its absolute path; the log is public, so keep it repository-relative
+    result = `error ${(e as Error).message.split('\n')[0]!.split(`${root}/`).join('')}`
     say = `${HOOK}: gate ${id} did not run: ${result}`
   }
   const logFailure = logHook(root, HOOK, target, result, deps.now)

@@ -51,6 +51,7 @@ describe('catalog-gate: recorded PreToolUse documents', () => {
       preFsWrite(r.root, join(r.root, 'src/App.tsx'), 'x'),
       preFsWrite(r.root, join(r.root, 'content/recipes/good/agent/scribe.json'), '{}'),
       preFsWrite(r.root, join(r.root, 'content/recipes/good/catalog-notes.json'), '[]'),
+      preFsWrite(r.root, join(r.root, 'content/catalog-notes.json'), '[]'),
       preStrReplace(r.root, join(r.root, 'content/recipes/good/review.json'), 'a', 'b'),
       'not json',
       JSON.stringify({ hook_event_name: 'PreToolUse', cwd: r.root, tool_name: 'fs_write', tool_input: {} }),
@@ -70,6 +71,16 @@ describe('catalog-gate: recorded PreToolUse documents', () => {
     expect(out.stderr).toContain('.kiro/steering/product.md')
     expect(lines(r.root)).toHaveLength(1)
     expect(lines(r.root)[0]).toMatch(/^2026-11-25T12:00:00\.000Z · catalog-gate · content\/catalog\.json · blocked: joined: gate\.json pass=false/)
+  })
+
+  it('a relative path (the agent may send one) is resolved against the event\'s cwd: the block is the same and the log line lands in that repository', () => {
+    const body = JSON.stringify([{ id: 'joined', title: 'To make', gateSha256: 'a'.repeat(64) }])
+    const before = lines(r.root).length
+    const out = run(preFsWrite(r.root, CATALOG_REL, body))
+    expect(out.exit).toBe(2)
+    expect(out.stderr).toMatch(/^catalog-gate: joined: gate\.json pass=false/)
+    expect(lines(r.root)).toHaveLength(before + 1)
+    for (const odd of ['content/./catalog.json', 'content//catalog.json', 'src/../content/catalog.json', `${r.root}/content/recipes/../catalog.json`]) expect(run(preFsWrite(r.root, odd, body)).exit, odd).toBe(2)
   })
 
   it('exit 2 for a gate that passes but has no review.json, and for an empty reviewedBy', () => {
