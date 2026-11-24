@@ -6,6 +6,7 @@
 | `wellcome-work-zgtk6n7e.json` | Recorded Wellcome Catalogue API response for work zgtk6n7e (licence lives under `items[].locations[]`) | API, 2026-11-24 |
 | `hero-word-bounds.json` | Loose word boxes for the hero note "till it Looks red & smooth" and the frozen recall threshold (0.85) | marked by eye by the builder's agent (Claude Code) before any alignment code |
 | `gold-readings.json` | A frozen reading of p.23, used only as the labelled fallback if the Kiro reader run fails, and as an independent check | read by eye by the builder's agent (Claude Code) before any Kiro reader ran |
+| `wellcome-manifest-b18419665.trimmed.json` | Recorded IIIF Presentation v2 manifest of MS.1810, trimmed to canvas index 33 (every other canvas is `null`, indices kept), so `steam-ingest fetch --from-fixture` and the fetch tests need no network | API, 2026-11-25, recorded by the ingest-pipeline build (task 35) |
 | `p0c-eyeread-boxes.json` | The kill-test prototype's eye-read crop boxes per step: the `crop-overlap` bug (they overlap neighbouring lines) | P0c kill-test Kiro run, 2026-11-24 |
 
 French Bread (p.17, canvas 27) is held out of development and is not here.

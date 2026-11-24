@@ -206,7 +206,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `tools/steam-ingest/hookslog.ts`, `tools/steam-ingest/hookslog.test.ts`.
   - Satisfies: R33.1 to R33.5.
 
-- [ ] 35. `fetch` subcommand
+- [x] 35. `fetch` subcommand
   - Test first: with an injected `get` serving the recorded catalogue response: licence refusal writes nothing; success writes `page.jpg` and `source.json` with every field from its source; `--from-fixture` uses the fixture and no network; a request to any canvas other than index 33 fails the test; failures leave existing files untouched.
   - Implement `tools/steam-ingest/fetch.ts`.
   - Files: `tools/steam-ingest/fetch.ts`, `tools/steam-ingest/fetch.test.ts`.
