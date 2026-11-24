@@ -129,8 +129,8 @@ export default function StaticPane({ paneDir, noteId, params, controllerRef, onS
   return (
     <div ref={rootRef} className="static-pane">
       <img ref={fogRef} src={paneImage(paneDir, noteId, kind, 'fogged')} alt="" aria-hidden="true" />
-      <img src={paneImage(paneDir, noteId, kind, 'held')} alt="" aria-hidden="true" style={layer(show.held)} />
-      <img src={paneImage(paneDir, noteId, kind, 'wiped')} alt="" aria-hidden="true" style={layer(show.wiped)} />
+      {fogOnly ? null : <img src={paneImage(paneDir, noteId, kind, 'held')} alt="" aria-hidden="true" style={layer(show.held)} />}
+      {fogOnly ? null : <img src={paneImage(paneDir, noteId, kind, 'wiped')} alt="" aria-hidden="true" style={layer(show.wiped)} />}
     </div>
   )
 }

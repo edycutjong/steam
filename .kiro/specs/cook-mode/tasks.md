@@ -189,7 +189,7 @@ Rules for every task:
   - Files: `src/steam/SteamGlass.tsx`, `src/steam/SteamPane.tsx`, `src/steam/useReducedMotion.ts`, `src/steam/steam.css`, `src/steam/SteamGlass.test.tsx`.
   - Satisfies: R15.1, R15.2, R15.4, R23.1.
 
-- [ ] 29. `StaticPane` images per note
+- [x] 29. `StaticPane` images per note
   - Test first: `src/steam/StaticPane.test.tsx`: `paneImage(dir, noteId, kind, state)` returns `/recipes/<id>/panes/<noteId>-<kind>-<state>.webp`; the component renders three stacked images for a note; `fogOnly` renders the fogged image only.
   - Implement: `StaticPane` takes `paneDir` and `noteId`; `scripts/render-static-panes.ts` is changed to loop over the catalog's displayable notes and to write `public/recipes/<id>/panes/` (it opens the harness route of task 30, so it is first run in task 31).
   - Files: `src/steam/StaticPane.tsx`, `src/steam/StaticPane.test.tsx`, `scripts/render-static-panes.ts`.
