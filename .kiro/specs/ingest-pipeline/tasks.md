@@ -32,7 +32,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/components.ts`, `src/ingest/components.test.ts`.
   - Satisfies: R10.1, R6.4.
 
-- [ ] 6. Zod schemas, part 1 (source, lines, readers, review, alignment)
+- [x] 6. Zod schemas, part 1 (source, lines, readers, review, alignment)
   - Test first: `src/data/schema.test.ts` accepts valid examples and rejects: a reader with `box`, `bbox`, `x` or `y`; `uncertain` tokens containing `|` or `]`; a `decision` with neither key or both; `Review` with empty `reviewedBy`; `Alignment` with a coordinate instead of an index.
   - Implement the schemas in `src/data/schema.ts`: `SegmentRun`, `Frame`, `Source`, `Line`, `Lines`, `Reading`, `Scribe`, `Fallback`, `OwnershipReview`, `Alignment`, `Review`, `Timing`, `CheckAt`.
   - Files: `src/data/schema.ts`, `src/data/schema.test.ts`.
