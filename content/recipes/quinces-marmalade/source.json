@@ -1,4 +1,9 @@
 {
+  "canvas": {
+    "height": 4737,
+    "id": "https://iiif.wellcomecollection.org/presentation/b18419665/canvases/b18419665_MS_1810_0033.JP2",
+    "width": 3695
+  },
   "canvasIndex": 32,
   "credit": "Wellcome Collection",
   "date": "c. 1750 (IIIF manifest)",

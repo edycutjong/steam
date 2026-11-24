@@ -29,6 +29,8 @@ export const Source = z.strictObject({
   /** ISO date, or a sentence saying where the page came from when the network was not used. */
   retrieved: nonEmpty,
   frame: Frame.optional(),
+  /** The IIIF canvas of the page, from the manifest (R21.1). Optional in source.json; a recipe bundle requires it. */
+  canvas: z.strictObject({ id: nonEmpty, width: z.number().int().positive(), height: z.number().int().positive() }).optional(),
 })
 export type Source = z.infer<typeof Source>
 

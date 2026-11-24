@@ -23,7 +23,7 @@ Rules for every task:
   - Files: `src/ingest/bundle.ts`, `src/ingest/verify-url.test.ts`.
   - Satisfies: R21.2, R21.3.
 
-- [ ] 3. Record the manifest canvas: `steam-ingest canvas`
+- [x] 3. Record the manifest canvas: `steam-ingest canvas`
   - Test first: `Source` accepts `canvas: {id, width, height}` (positive integers, non-empty id) and still accepts a file without it. `canvasCmd(root, id, {fromFixture: true})` reads `fixtures/wellcome-manifest-b18419665.trimmed.json`, finds the canvas at the recipe's `canvasIndex`, and writes `canvas` into `source.json` (id `https://iiif.wellcomecollection.org/presentation/b18419665/canvases/b18419665_MS_1810_0033.JP2`, width 3695, height 4737) with every other field byte-identical. It refuses a manifest whose canvas has no width or height, and a canvas whose image service differs from `source.imageService`. `gate --all --verify` is unchanged by it (`source.json` is not a gate input). The CLI prints a one-line usage and exits 2 on bad arguments.
   - Implement: `canvas` subcommand in `tools/steam-ingest/cli.ts` and a `canvas.ts` beside `fetch.ts`; `Source.canvas` optional in `src/data/schema.ts`; live mode reads the manifest through the same injected `Get` as `fetch`. Run it for the existing recipe: `npx tsx tools/steam-ingest/cli.ts canvas quinces-marmalade --from-fixture`, and commit the new `source.json`.
   - Files: `src/data/schema.ts`, `tools/steam-ingest/canvas.ts`, `tools/steam-ingest/canvas.test.ts`, `tools/steam-ingest/cli.ts`, `tools/steam-ingest/cli.test.ts`, `content/recipes/quinces-marmalade/source.json`.

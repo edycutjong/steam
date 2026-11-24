@@ -2,6 +2,7 @@
 
 import { existsSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
+import { canvasCmd } from './canvas.ts'
 import { catalogCmd } from './catalog.ts'
 import { fallbackCmd } from './fallback.ts'
 import { fetchRecipe, fixtureGet, KNOWN, writeFetched, type Get } from './fetch.ts'
@@ -18,6 +19,7 @@ const USAGE: Record<string, string> = {
   fallback: 'usage: steam-ingest fallback <recipe-id> --structure <file>',
   partition: 'usage: steam-ingest partition <recipe-id> --line <n> [--png <path>]',
   gate: 'usage: steam-ingest gate <recipe-id> [--who <name>] | gate --all [--verify] | gate --once',
+  canvas: 'usage: steam-ingest canvas <recipe-id> [--from-fixture]',
   catalog: 'usage: steam-ingest catalog',
 }
 
@@ -127,6 +129,12 @@ export async function main(argv: string[], root = process.cwd()): Promise<number
         }
         if (verify && ids.length === 0) console.log('gate --all --verify: no recipes')
         return worst
+      }
+      case 'canvas': {
+        const id = recipeArg(args, 'canvas')
+        const r = await canvasCmd(root, id, { fromFixture: args.includes('--from-fixture'), get: args.includes('--from-fixture') ? undefined : netGet })
+        console.log(`canvas ${id}: ${r.canvas.id} ${r.canvas.width}x${r.canvas.height}`)
+        return 0
       }
       case 'catalog': {
         const r = catalogCmd(root)
