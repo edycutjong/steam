@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Plan } from './plan.ts'
-import { elapsedMs, initialState, noteState, reduce, type SchedEvent, type SchedState } from './scheduler.ts'
+import { elapsedMs, initialState, nextDueWall, noteState, reduce, type SchedEvent, type SchedState } from './scheduler.ts'
 
 // Hand-built plans (test fixtures): 3 steps; notes on steps 0 and 2.
 const note = (id: string, checkAtMs: number) => ({ id, checkAtMs })
@@ -92,3 +92,64 @@ describe('only the first event starts (R12.11)', () => {
     }
   })
 })
+
+describe('sleep, resume, pace, show (R12.7, R12.8, R11.5, R10.4)', () => {
+  const started = () => run(timedPlan, [{ type: 'start', wallMs: 0, pace: 1 }]).s
+  it('sleep before the due time emits nothing; ticks, show and wipe while asleep emit nothing and change only lastWall', () => {
+    let s = reduce(timedPlan, started(), { type: 'sleep', wallMs: 10_000 }).state
+    expect(s.asleep).toBe(true)
+    for (const type of ['tick', 'show', 'wipe'] as const) {
+      const r = reduce(timedPlan, s, { type, wallMs: 90_000 })
+      expect(r.effects).toEqual([])
+      expect(r.state).toEqual({ ...s, lastWall: 90_000 })
+      s = r.state
+    }
+  })
+  it('resume after the due time emits exactly one reveal; before it emits none and the reveal comes later by tick', () => {
+    const asleep = reduce(timedPlan, started(), { type: 'sleep', wallMs: 10_000 }).state
+    const late = reduce(timedPlan, asleep, { type: 'resume', wallMs: 600_000 })
+    expect(reveals(late.effects).length).toBe(1)
+    expect(reduce(timedPlan, late.state, { type: 'tick', wallMs: 700_000 }).effects).toEqual([])
+    const early = reduce(timedPlan, asleep, { type: 'resume', wallMs: 20_000 })
+    expect(early.effects).toEqual([])
+    expect(reveals(reduce(timedPlan, early.state, { type: 'tick', wallMs: 60_000 }).effects).length).toBe(1)
+  })
+  it('setPace 4 at 30 s of a 60 s note: elapsed 30 s, pace 4, the reveal falls at wall 37.5 s', () => {
+    let s = reduce(timedPlan, started(), { type: 'setPace', wallMs: 30_000, pace: 4 }).state
+    expect(elapsedMs(s, 30_000)).toBe(30_000)
+    expect(s.paceHistory.at(-1)!.pace).toBe(4)
+    expect(nextDue(s)).toBe(37_500)
+    expect(reduce(timedPlan, s, { type: 'tick', wallMs: 37_499 }).effects).toEqual([])
+    const r = reduce(timedPlan, s, { type: 'tick', wallMs: 37_500 })
+    expect(reveals(r.effects).length).toBe(1)
+    s = r.state
+  })
+  it('a reveal due before the pace change is emitted before the pace changes', () => {
+    const r = reduce(timedPlan, started(), { type: 'setPace', wallMs: 70_000, pace: 12 })
+    expect(r.effects).toEqual([{ type: 'reveal', noteId: 'a', stepIndex: 0, cause: 'scheduled', wallMs: 70_000 }])
+    expect(r.state.paceHistory.at(-1)).toEqual({ atWall: 70_000, pace: 12 })
+  })
+  it('setting the same pace twice adds no history; two changes at one wall time keep the last', () => {
+    let s = started()
+    s = reduce(timedPlan, s, { type: 'setPace', wallMs: 1_000, pace: 1 }).state
+    expect(s.paceHistory.length).toBe(1)
+    s = reduce(timedPlan, s, { type: 'setPace', wallMs: 2_000, pace: 4 }).state
+    s = reduce(timedPlan, s, { type: 'setPace', wallMs: 2_000, pace: 4 }).state
+    expect(s.paceHistory.length).toBe(2)
+    s = reduce(timedPlan, s, { type: 'setPace', wallMs: 2_000, pace: 12 }).state
+    expect(s.paceHistory).toEqual([{ atWall: 0, pace: 1 }, { atWall: 2_000, pace: 12 }])
+    s = reduce(timedPlan, s, { type: 'setPace', wallMs: 2_000, pace: 1 }).state // back to the previous pace: the segment disappears
+    expect(s.paceHistory).toEqual([{ atWall: 0, pace: 1 }])
+  })
+  it('show on a pending note emits reveal {show}; on a revealed note or no note, nothing; a later scheduled reveal is a no-op', () => {
+    let r = reduce(timedPlan, started(), { type: 'show', wallMs: 5_000 })
+    expect(r.effects).toEqual([{ type: 'reveal', noteId: 'a', stepIndex: 0, cause: 'show', wallMs: 5_000 }])
+    expect(reduce(timedPlan, r.state, { type: 'show', wallMs: 6_000 }).effects).toEqual([])
+    expect(reduce(timedPlan, r.state, { type: 'tick', wallMs: 70_000 }).effects).toEqual([])
+    const noNote = run(timedPlan, [{ type: 'start', wallMs: 0, pace: 1 }, { type: 'show', wallMs: 1 }, { type: 'wipe', wallMs: 2 }]).s // wipe reveals a, then advances to the no-note step 1
+    expect(noNote.stepIndex).toBe(1)
+    r = reduce(timedPlan, noNote, { type: 'show', wallMs: 3 })
+    expect(r.effects).toEqual([])
+  })
+})
+const nextDue = (s: SchedState) => nextDueWall(timedPlan, s)

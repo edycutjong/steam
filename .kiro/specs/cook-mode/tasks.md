@@ -107,7 +107,7 @@ Rules for every task:
   - Files: `src/cook/scheduler.ts`, `src/cook/scheduler.test.ts`.
   - Satisfies: R12.1, R12.2, R12.4, R12.5, R12.6, R12.8, R12.9, R12.10, R12.11.
 
-- [ ] 16. Scheduler: sleep, resume, pace, show
+- [x] 16. Scheduler: sleep, resume, pace, show
   - Test first: `sleep` at a wall time before the due time emits nothing; ticks, `show` and `wipe` while asleep emit nothing and change nothing but `lastWall`; `resume` after the due time emits exactly one reveal; `resume` before it emits none and the reveal comes later by tick. `setPace` 4 at 30 s of a 60 s note: elapsed 30 s, pace 4, the reveal falls at wall 37.5 s (`30 + 30/4`); a reveal due before the change is emitted before the pace changes; setting the same pace twice adds no history; two changes at one wall time keep the last. `show` on a pending note emits `reveal {cause: show}`; on a revealed note or no note, nothing; a scheduled reveal after `show` is a no-op.
   - Implement `sleep`, `resume`, `setPace`, `show`, `setPaceAt`.
   - Files: `src/cook/scheduler.ts`, `src/cook/scheduler.test.ts`.
