@@ -230,7 +230,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `tools/steam-ingest/gate.ts`, `tools/steam-ingest/gate.test.ts`, `tools/steam-ingest/gate.prop.test.ts`.
   - Satisfies: R30.1 to R30.5, R31.3, R33.1, R40.4.
 
-- [ ] 39. `--once` watch protocol
+- [x] 39. `--once` watch protocol
   - Test first: stdin `{cursor:null, config:{recipe}, workspacePath}` with no reader files → exactly one JSON line `{outcome:"idle", cursor:{…}}` with logs only on stderr; with both readers and a passing recipe → `terminal-state`, payload a string, exit 0; with a failing recipe → `terminal-state`, `{"pass":false,"failing":[…]}`, exit 0; invalid reader file → idle first, `fail` on the repeat of the same hash; bad stdin, bad recipe id or missing folder → exit 2; a thrown error → exit 1. Validate every output against a zod schema of the watch result; a stray `console.log` in the module fails the test.
   - Implement `tools/steam-ingest/watch.ts`.
   - Files: `tools/steam-ingest/watch.ts`, `tools/steam-ingest/watch.test.ts`.
