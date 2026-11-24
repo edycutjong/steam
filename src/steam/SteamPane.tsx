@@ -5,6 +5,7 @@ import type { NoteAssets } from './assets.ts'
 import { derive } from './derive.ts'
 import type { Derived } from './derive.ts'
 import { chooseLayout, computeLayout } from './layout.ts'
+import type { Layout } from './layout.ts'
 import { parseParams } from './params.ts'
 import { SteamRenderer } from './renderer.ts'
 import StaticPane from './StaticPane.tsx'
@@ -43,6 +44,21 @@ function isInteractive(el: EventTarget | null): boolean {
 
 export function announcement(text: string): string {
   return `The writer's note, handwritten: ${text}`
+}
+
+/** Test-only: the placement in use, read by the e2e specs from `data-layout` on the canvas. */
+function publishLayout(canvas: HTMLCanvasElement, layout: Layout): void {
+  canvas.dataset.layout = JSON.stringify({
+    kind: layout.kind,
+    fits: layout.fits,
+    groups: layout.groups.map((g) => ({
+      index: g.index,
+      dst: g.dst,
+      inked: g.inked,
+      scale: g.scale,
+      coreBandCssPx: g.coreBandCssPx,
+    })),
+  })
 }
 
 type Status = 'loading' | 'ready' | 'error' | 'fallback'
@@ -125,6 +141,7 @@ export default function SteamPane({ stem = NOTE_STEM }: { stem?: string }) {
       return
     }
     renderer.resize(w, h, layout)
+    publishLayout(canvas, layout)
     ctlRef.current = renderer
     renderer.onState(handleState)
     let fpsTimer = 0
@@ -144,7 +161,9 @@ export default function SteamPane({ stem = NOTE_STEM }: { stem?: string }) {
     const ro = new ResizeObserver((entries) => {
       const box = entries[0]?.contentRect
       if (!box || box.width < 1 || box.height < 1) return
-      renderer.resize(box.width, box.height, computeLayout(chooseLayout(box.width), box.width, box.height, meta))
+      const next = computeLayout(chooseLayout(box.width), box.width, box.height, meta)
+      renderer.resize(box.width, box.height, next)
+      publishLayout(canvas, next)
     })
     ro.observe(canvas)
     return () => {

@@ -140,6 +140,8 @@ export class SteamRenderer {
   readonly stats: FrameStats = { frames: 0, sumMs: 0, worstMs: 0, over: 0 }
 
   private playing = false
+  /** True until the first draw; that draw leaves the `steam:first-frame` performance mark (read by e2e). */
+  private firstFrame = true
   private rafId = 0
   private readonly loop: FrameRequestCallback
   private frozenT: number | null
@@ -387,6 +389,10 @@ export class SteamRenderer {
     if (this.frozenT === null && this.t0 !== this.t0) {
       this.t0 = now
       this.revealStart = now + this.opts.lead
+    }
+    if (this.firstFrame) {
+      this.firstFrame = false
+      performance.mark('steam:first-frame')
     }
     const frozen = this.frozenT
     const t = frozen !== null ? frozen : now - this.revealStart

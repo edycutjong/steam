@@ -173,7 +173,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `e2e/helpers/capture.ts`, `package.json`.
   - Satisfies: supports R1, R4, R6, R9, R11 checks below.
 
-- [ ] 32. E2E: concealment and timing (failures 1 and 8)
+- [x] 32. E2E: concealment and timing (failures 1 and 8)
   - Capture at `t = -3000, -1500, -1`: assert the pixels at the note's destination area are statistically the same as an equal-size area of fog elsewhere (mean and variance within a tolerance), and that no ember-coloured channel exists. Load the page with no `t`, capture at 2000 ms after load, and assert the same. Record `performance.now` marks to assert the first rendered write-on frame is within 150 ms of LEAD_MS after the first presented frame, and the held state is reached WRITE_ON_MS later within 150 ms.
   - Files: `e2e/steam-timing.spec.ts`.
   - Satisfies: R1.1 to R1.4, R2.2, R2.3, R2.4.
