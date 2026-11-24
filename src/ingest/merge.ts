@@ -26,7 +26,7 @@ export interface MergedLineData {
 
 export interface ReaderUncertain {
   line: number
-  reader: 'scribe' | 'second' | 'fallback'
+  reader: 'scribe' | 'second-reader' | 'fallback'
   token: string
   alt: string[]
 }
@@ -101,7 +101,7 @@ export function mergeReadings(scribe: Reading, second: Reading): MergeResult {
     lines.push({ i: la.i, atoms: r.atoms, wordCount: r.wordCount })
     disagreements.push(...r.dis)
     for (const u of la.uncertain ?? []) readerUncertain.push({ line: la.i, reader: 'scribe', token: u.token, alt: u.alt })
-    for (const u of lb.uncertain ?? []) readerUncertain.push({ line: lb.i, reader: 'second', token: u.token, alt: u.alt })
+    for (const u of lb.uncertain ?? []) readerUncertain.push({ line: lb.i, reader: 'second-reader', token: u.token, alt: u.alt })
   })
   return { lines, disagreements, readerUncertain }
 }

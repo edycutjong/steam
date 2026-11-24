@@ -13,6 +13,7 @@ import { checkNotes, checkSteps, effectiveLines } from './notes.ts'
 import {
   PROPS_VERSION, checkP1, checkP2, checkP3, checkP4, checkP5, checkP6, maskBox, type ContrastCrop, type P4Part, type PropResult,
 } from './props.ts'
+import { lineComponents, type CuratorEntry, type PartComponent } from './partition.ts'
 import { plausibilityViolation, lineComponentSpans, type ComponentSpan } from './plausible.ts'
 import { collectLinePixels, wordInkCounts } from './runs.ts'
 import { runsOf, segmentRecipe, type SegmentFiles } from './segment.ts'
@@ -269,7 +270,7 @@ export function runGate(ctx: GateCtx): GateResult {
   }
   artifacts.json.set('merged.json', {
     segmentRun: lines.segmentRun,
-    readers: readers.mode === 'fallback' ? ['fallback'] : ['scribe', 'second'],
+    readers: readers.mode === 'fallback' ? ['fallback'] : ['scribe', 'second-reader'],
     disagreements,
     readerUncertain: merged.readerUncertain,
     lines: eff.map((l) => ({ i: l.i, merged: l.merged, ...(l.corrected !== undefined ? { corrected: l.corrected } : {}), primary: l.primary, wordCount: l.wordCount })),
@@ -304,8 +305,9 @@ export function runGate(ctx: GateCtx): GateResult {
   const autoOwn: Ownership = decisions.length ? applyReview(seg.labels, seg.bands, []).own : own
 
   // 7. Alignment per note part (R18, R19)
-  let curator: Map<number, (number | null)[]> | null = null
+  let curator: Map<number, CuratorEntry[]> | null = null
   let curatorBy: string | undefined
+  const curatorLineBy = new Map<number, string>()
   if (f['alignment.json'] !== undefined) {
     const pj = parseJson(f['alignment.json'], 'alignment.json')
     const pv = pj.ok ? AlignmentZ.safeParse(pj.value) : null
@@ -314,6 +316,7 @@ export function runGate(ctx: GateCtx): GateResult {
     else if (pv!.data.segmentRun.id === lines.segmentRun.id) {
       curator = new Map(pv!.data.lines.map((l) => [l.line, l.boundaryRuns]))
       curatorBy = pv!.data.by
+      for (const l of pv!.data.lines) if (l.by) curatorLineBy.set(l.line, l.by)
     }
     if (errors.length) return base('fail')
   }
@@ -341,12 +344,22 @@ export function runGate(ctx: GateCtx): GateResult {
       },
     }
   }
+  // the line's owned components in order, for a component boundary of alignment.json (R19.8); computed only for lines that name one
+  const partitions = new Map<number, PartComponent[] | undefined>()
+  const partitionOf = (line: number): PartComponent[] | undefined => {
+    if (!partitions.has(line)) {
+      const e = effRuns[line]!
+      const yMid = (seg.bands.cores[line]![0] + seg.bands.cores[line]![1]) / 2
+      partitions.set(line, e.hi < e.lo ? undefined : lineComponents(seg.labels, own.owner, line, yMid, s, [e.lo, e.hi]))
+    }
+    return partitions.get(line)
+  }
   const gray = toGray(sf.scan)
   const raw = seg.raw
   const tilt = seg.deskewApplied ? seg.deskewDeg : 0
   // the bundle's crop source for every note: ownership masks built from the quoted lines, never a box (crop-overlap)
   const cropOf = (o: Ownership, id: string, step: number, parts: BuiltPart[]): Uint8Array =>
-    cropSource({ own: o, bands: seg.bands, s, ink: seg.ink, tilt } satisfies CropPage, { id, step, lines: parts.map((p) => p.line), parts }).mask
+    cropSource({ own: o, bands: seg.bands, s, ink: seg.ink, tilt, label: seg.labels.label } satisfies CropPage, { id, step, lines: parts.map((p) => p.line), parts }).mask
   const hero = ctx.heroFixture ? (JSON.parse(ctx.heroFixture) as { recallThreshold: number; words: FixtureWord[] }) : null
   const raw0 = hero ? rawInk(toGray(ctx.scan)) : null
 
@@ -374,21 +387,27 @@ export function runGate(ctx: GateCtx): GateResult {
       bases.set(p.line, wordBase)
       wordBase += p.toWord - p.fromWord + 1
     }
+    // the share of the note's mask pixels (every pixel, whole lines and components too) that lie inside some fixture box
+    let maskTotal = 0
+    let maskInBoxes = 0
     for (let i = 0; i < note.mask.length; i++) {
       if (!note.mask[i]) continue
       const x = i % W
       const y = (i - x) / W
+      const [qx, qy] = rotatedPoint(x, y, tilt, W, H)
+      maskTotal++
+      if (words.some((w) => Math.round(qx) >= w.box[0] && Math.round(qx) < w.box[2] && Math.round(qy) >= w.box[1] && Math.round(qy) < w.box[3])) maskInBoxes++
       const line = own.owner[i]!
       const part = partsForWords.find((p) => p.line === line)!
       // a whole-line part has no word regions: its pixels carry no word and no precision is computed for them
-      if (part.whole) continue
+      if (part.whole || part.partition) continue
       const c = Math.round(x - s * ((seg.bands.cores[line]![0] + seg.bands.cores[line]![1]) / 2 - y))
       let j = 0
       while (j < part.boundaries.length && c > part.boundaries[j]!) j++
       const [fx, fy] = rotatedPoint(x, y, tilt, W, H)
       maskWords.push({ x: Math.round(fx), y: Math.round(fy), word: bases.get(line)! + j - part.fromWord })
     }
-    return scoreAgainstFixture(raw0!, ctx.scan.width, words, offset, lit, maskWords)
+    return { ...scoreAgainstFixture(raw0!, ctx.scan.width, words, offset, lit, maskWords), precision: maskTotal ? maskInBoxes / maskTotal : 0 }
   }
 
   for (const nd of cn.notes) {
@@ -401,13 +420,16 @@ export function runGate(ctx: GateCtx): GateResult {
         k: p.k,
         runs: curator?.has(p.line) && !effRuns[p.line]!.runs.length ? segRuns[p.line]!.runs : effRuns[p.line]!.runs,
         curator: curator?.get(p.line),
+        ...(curator?.get(p.line)?.some((e) => typeof e === 'object' && e !== null) ? { partition: partitionOf(p.line) } : {}),
+        tokens: p.tokens,
         // a curator names the runs of runs.json (design 3.5), not the runs of the reviewed ownership
         curatorRuns: segRuns[p.line]!.runs,
         ...extentAndInk(p.line, p.tokens),
       }),
     )
     const na = noteAlignment(parts)
-    const bp: BuiltPart[] = parts.map((p) => ({ ...p, fromWord: p.fromBox ?? p.fromWord, toWord: p.toBox ?? p.toWord, whole: na.granularity === 'lines' || p.method === 'lines' }))
+    // a part cut by components keeps its words (its groups are named by component, not by box)
+    const bp: BuiltPart[] = parts.map((p) => ({ ...p, fromWord: p.partition ? p.fromWord : (p.fromBox ?? p.fromWord), toWord: p.partition ? p.toWord : (p.toBox ?? p.toWord), whole: na.granularity === 'lines' || p.method === 'lines' }))
     // the caption equals the ink shown: the quoted words (with their punctuation) or the whole lines (R19.6)
     const shownText = na.granularity === 'words' ? nd.quoted : bp.map((p) => eff[p.line]!.primary).join(' ')
     let note: BuiltNote
@@ -429,6 +451,7 @@ export function runGate(ctx: GateCtx): GateResult {
       granularity: na.granularity,
       parts: parts.map((p) => ({
         line: p.line, fromWord: p.fromWord, toWord: p.toWord, method: p.method, projection: seg.slant.vertical ? 'vertical' : 'sheared', s, boundaries: p.boundaries,
+        ...(p.partition ? { boundary: 'component' as const, components: p.partition.after } : p.method !== 'lines' ? { boundary: 'runs' as const } : {}),
         ...(p.reason ? { reason: p.reason } : {}), autoDetail: p.autoDetail,
       })),
     })
@@ -473,19 +496,19 @@ export function runGate(ctx: GateCtx): GateResult {
         }
         recallOut.push({
           noteId: nd.id,
-          shipped: { alignment: na.alignment, recall: shipped.recall, words: shipped.words },
+          shipped: { alignment: na.alignment, recall: shipped.recall, ...(shipped.precision !== undefined ? { precision: shipped.precision } : {}), words: shipped.words },
           auto,
           threshold: hero.recallThreshold,
           frame: tilt ? `fixture frame; shipped alpha looked up through the applied deskew rotation (${tilt} deg, nearest pixel)` : 'fixture frame',
         })
       }
     }
-    const p4parts: P4Part[] = bp.map((p) => ({ line: p.line, boundaries: p.whole ? null : p.boundaries, fromWord: p.fromWord, toWord: p.toWord, yMid: (seg.bands.cores[p.line]![0] + seg.bands.cores[p.line]![1]) / 2 }))
+    const p4parts: P4Part[] = bp.map((p) => ({ line: p.line, boundaries: p.whole ? null : p.boundaries, fromWord: p.fromWord, toWord: p.toWord, yMid: (seg.bands.cores[p.line]![0] + seg.bands.cores[p.line]![1]) / 2, ...(p.partition && !p.whole ? { allowedComponents: p.partition.allowed } : {}) }))
     checks.push({
       noteId: nd.id,
       pngPath: `notes/note-${nd.id}.png`,
       toiPath: `notes/note-${nd.id}.toi.png`,
-      p4: { noteId: nd.id, width: W, height: H, owner: own.owner, pageInk: seg.pageInkMap, s, parts: p4parts, pageBox: note.pageBox, ...(recall ? { recall } : {}) },
+      p4: { noteId: nd.id, width: W, height: H, owner: own.owner, pageInk: seg.pageInkMap, s, parts: p4parts, label: seg.labels.label, pageBox: note.pageBox, ...(recall ? { recall } : {}) },
       p5: { gray, raw, owner: own.owner, pageBox: note.pageBox, groups: note.core.groups.map((g) => ({ name: `${nd.id}/line ${g.line}`, rect: g.rect, line: g.line })) },
       p6: { trace: note.trace, groups: note.groups, width: note.png.width, height: note.png.height, s },
     })
@@ -498,7 +521,7 @@ export function runGate(ctx: GateCtx): GateResult {
     const v = verifyUrl({ imageService: source.imageService, pageBox: b.note.pageBox, frame: seg.frame, deskewDeg: seg.deskewDeg, deskewApplied: seg.deskewApplied })
     const nj: NoteJson = {
       ...b.note.core,
-      ...(b.alignment === 'curator' && curatorBy ? { alignmentBy: curatorBy } : {}),
+      ...(b.alignment === 'curator' && curatorBy ? { alignmentBy: [...new Set(b.parts.filter((p) => p.method === 'curator').map((p) => curatorLineBy.get(p.line) ?? curatorBy!))].join('; ') } : {}),
       verifyUrl: v.url,
       verifyApproximate: v.approximate,
       trace: TRACE_DESCRIPTION,
@@ -550,7 +573,7 @@ export function runGate(ctx: GateCtx): GateResult {
     propsVersion: PROPS_VERSION,
     state: pass ? 'pass' : 'fail',
     segmentRun: lines.segmentRun,
-    readers: readers.mode === 'fallback' ? ['fallback'] : ['scribe', 'second'],
+    readers: readers.mode === 'fallback' ? ['fallback'] : ['scribe', 'second-reader'],
     inputs,
     outputs,
     pass,

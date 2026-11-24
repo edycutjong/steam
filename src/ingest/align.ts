@@ -1,6 +1,8 @@
 // Word alignment from gaps in the owned ink (R18 to R20).
 
-import { RUN_MIN_PX, RUN_RATIO, WORD_INK_MIN_PX } from './constants.ts'
+import { RUN_MIN_PX, RUN_RATIO, WORD_INK_MIN_PX, WORD_SHAPE_RATIO_MAX } from './constants.ts'
+import { assignGroups, isComponentBoundary, type CuratorEntry, type PartComponent } from './partition.ts'
+import { charCount } from './plausible.ts'
 import { shearedColumn, type LinePixels, type Run } from './runs.ts'
 
 export type AlignAuto =
@@ -140,13 +142,26 @@ export function alignCurator(runs: Run[], k: number, indices: (number | null)[],
   return { ok: true, chosen, boundaries, ...(boxOfWord ? { boxOfWord } : {}) }
 }
 
+/** What a component-partition part carries (R19.8 to R19.15): the chosen boundaries and the components of the quoted group. */
+export interface PartPartition {
+  /** The `after` id of each chosen boundary, left to right. */
+  after: number[]
+  /** Ids of the components of the quoted group, in order: the only components the note may show on this line. */
+  allowed: number[]
+  /** Number of the quoted group (0 for the leftmost). */
+  quotedGroup: number
+}
+
 export interface PartAlignment {
   line: number
   fromWord: number
   toWord: number
   method: AlignMethod
-  /** Sheared boundary columns (empty for whole lines). */
+  /** Sheared boundary columns (empty for whole lines and for a component partition). */
   boundaries: number[]
+  /** `component` when the part is cut by a component partition (R19.8), absent otherwise. */
+  boundary?: 'component'
+  partition?: PartPartition
   /** The box (between neighbouring boundaries) that the quote's first and last word lie in, when a curator merged words into shared boxes; else the words themselves are the boxes. */
   fromBox?: number
   toBox?: number
@@ -158,6 +173,62 @@ export interface PartAlignment {
   autoDetail: string
 }
 
+export type AlignComponents =
+  | { ok: true; after: number[]; allowed: number[]; quotedGroup: number; boxOfWord: number[] }
+  | { ok: false; detail: string }
+
+/**
+ * R19.10 to R19.13. `entries` has one entry per gap between words (k-1): `{kind: "component", after}` where the note has an edge,
+ * `null` elsewhere. Returns the groups of the quote, or why the part cannot be cut by components (it then falls to whole lines).
+ */
+export function alignComponents(order: PartComponent[] | undefined, k: number, entries: CuratorEntry[], quote: { fromWord: number; toWord: number }, tokens: string[] | undefined): AlignComponents {
+  if (entries.length !== k - 1) return { ok: false, detail: `alignment.json names ${entries.length} boundary runs, the line has ${k} words and needs ${k - 1}` }
+  if (entries.some((e) => typeof e === 'number')) return { ok: false, detail: 'alignment.json: a line may not mix run boundaries and component boundaries' }
+  if (!order) return { ok: false, detail: "alignment.json: a component boundary needs the line's components (none were given)" }
+  const { fromWord, toWord } = quote
+  const gaps: number[] = []
+  for (let g = 0; g < entries.length; g++) {
+    if (entries[g] === null) continue
+    gaps.push(g)
+    // R19.11: only at an edge of the note; the words inside a note stay together
+    if (g !== fromWord - 1 && g !== toWord) return { ok: false, detail: `alignment.json: the component boundary at gap ${g} lies inside the quote (words ${fromWord} to ${toWord}); the words inside a note stay together` }
+  }
+  const after = gaps.map((g) => (entries[g] as { after: number }).after)
+  let groups: Map<number, number>
+  try {
+    groups = assignGroups(order, after)
+  } catch (e) {
+    return { ok: false, detail: `alignment.json: ${(e as Error).message}` }
+  }
+  // the box (group) of each word: a null keeps the words around it together
+  const boxOfWord = [0]
+  for (let g = 0; g < entries.length; g++) boxOfWord.push(boxOfWord[boxOfWord.length - 1]! + (entries[g] === null ? 0 : 1))
+  if ((fromWord > 0 && boxOfWord[fromWord - 1] === boxOfWord[fromWord]) || (toWord < k - 1 && boxOfWord[toWord] === boxOfWord[toWord + 1]))
+    return { ok: false, detail: 'alignment.json: the quote starts or ends inside a box that merges words (no component boundary at that edge)' }
+  // ink floor on every group
+  const ink = new Array<number>(after.length + 1).fill(0)
+  for (const c of order) ink[groups.get(c.id)!]! += c.ink
+  const thin = ink.flatMap((n, j) => (n < WORD_INK_MIN_PX ? [`group ${j} holds ${n} ink px`] : []))
+  if (thin.length) return { ok: false, detail: `alignment.json: alignment rejected: ${thin.join(', ')}, under the floor ${WORD_INK_MIN_PX}` }
+  // ink share of the quoted group against the character share of the quoted words (the factor of the word shape test)
+  const quotedGroup = boxOfWord[fromWord]!
+  if (tokens && tokens.length === k) {
+    const total = ink.reduce((a, b) => a + b, 0)
+    const chars = tokens.map(charCount)
+    const C = chars.reduce((a, b) => a + b, 0)
+    const cq = chars.slice(fromWord, toWord + 1).reduce((a, b) => a + b, 0)
+    const iq = ink[quotedGroup]!
+    const ratio = iq / total / (cq / C)
+    if (iq * C > WORD_SHAPE_RATIO_MAX * cq * total || WORD_SHAPE_RATIO_MAX * iq * C < cq * total)
+      return {
+        ok: false,
+        detail: `alignment.json: alignment implausible: ink share of the quoted words ${(iq / total).toFixed(3)} against character share ${(cq / C).toFixed(3)} (ratio ${ratio.toFixed(2)}, allowed ${1 / WORD_SHAPE_RATIO_MAX} to ${WORD_SHAPE_RATIO_MAX})`,
+      }
+  }
+  const allowed = order.filter((c) => groups.get(c.id) === quotedGroup).map((c) => c.id)
+  return { ok: true, after, allowed, quotedGroup, boxOfWord }
+}
+
 export interface PartInput {
   line: number
   fromWord: number
@@ -167,7 +238,11 @@ export interface PartInput {
   /** Known word count (both readers agree), else null. */
   k: number | null
   runs: Run[]
-  curator?: (number | null)[]
+  curator?: CuratorEntry[]
+  /** The line's owned components in order (partition.ts), for component boundaries. */
+  partition?: PartComponent[]
+  /** The scribe's tokens of the line: the characters of the quoted words (ink share against character share). */
+  tokens?: string[]
   /** The runs a curator's indices name: the runs of runs.json (segment time). Defaults to `runs`. */
   curatorRuns?: Run[]
   /** The line's text extent (runs.ts): word regions of an aligned part are clipped to it. */
@@ -186,8 +261,16 @@ export function alignPart(p: PartInput): PartAlignment {
   const auto = alignAuto(p.runs, p.k, p.wordInk, p.implausible)
   const ext = p.extent ? { extent: p.extent } : {}
   if (auto.ok) return { ...base, method: 'auto', boundaries: auto.boundaries, ...ext, autoDetail: `accepted: ${auto.chosen.length} boundaries` }
+  if (p.curator && p.curator.some(isComponentBoundary)) {
+    const c = alignComponents(p.partition, p.k, p.curator, p, p.tokens)
+    if (!c.ok) return { ...base, method: 'lines', boundaries: [], reason: c.detail, autoDetail: auto.detail }
+    return {
+      ...base, method: 'curator', boundaries: [], boundary: 'component', partition: { after: c.after, allowed: c.allowed, quotedGroup: c.quotedGroup },
+      fromBox: c.boxOfWord[p.fromWord]!, toBox: c.boxOfWord[p.toWord]!, ...ext, autoDetail: auto.detail,
+    }
+  }
   if (p.curator) {
-    const c = alignCurator(p.curatorRuns ?? p.runs, p.k, p.curator, p.wordInk, p.implausible)
+    const c = alignCurator(p.curatorRuns ?? p.runs, p.k, p.curator as (number | null)[], p.wordInk, p.implausible)
     if (c.ok && c.boxOfWord) {
       const box = c.boxOfWord
       // a quote may not cut a shared box: it would show words that are not quoted
@@ -245,6 +328,8 @@ export interface WordScore {
 }
 export interface FixtureScore {
   words: WordScore[]
+  /** Share of the note's mask pixels that lie inside some fixture box (set by the gate; scoring only). */
+  precision?: number
   /** |rawInk ∩ ∪boxes ∩ lit| / |rawInk ∩ ∪boxes| (R27.4). */
   recall: number
 }

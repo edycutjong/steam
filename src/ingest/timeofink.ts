@@ -380,13 +380,23 @@ const gaussian2d = (src: Float32Array, w: number, h: number, sigma: number): Flo
  * The note mask in the page frame: owned ink of the quoted lines, inside the word regions of aligned parts (R21.1),
  * and inside the line's text extent when the part carries one.
  */
-export function noteMask(own: Ownership, bands: Bands, s: number, parts: BuiltPart[], linePixels?: LinePixels[]): Uint8Array {
+export function noteMask(own: Ownership, bands: Bands, s: number, parts: BuiltPart[], linePixels?: LinePixels[], label?: Int32Array): Uint8Array {
   const { width: w, height: h } = own
   const lp = linePixels ?? collectLinePixels(own.owner, w, h, bands.cores.length)
   const mask = new Uint8Array(w * h)
   for (const p of parts) {
     const px = lp[p.line]!
     const yMid = (bands.cores[p.line]![0] + bands.cores[p.line]![1]) / 2
+    if (p.partition && !p.whole) {
+      // R19.14: the owned pixels of the components of the quoted group, whole components, nothing else
+      if (!label) throw new Error('noteMask: a component partition needs the pixel labels')
+      const allowed = new Set(p.partition.allowed)
+      for (let i = 0; i < px.xs.length; i++) {
+        const at = px.ys[i]! * w + px.xs[i]!
+        if (allowed.has(label[at]!)) mask[at] = 1
+      }
+      continue
+    }
     const word = p.whole ? null : assignWords(px, yMid, s, p.boundaries)
     for (let i = 0; i < px.xs.length; i++) {
       if (word && (word[i]! < p.fromWord || word[i]! > p.toWord)) continue

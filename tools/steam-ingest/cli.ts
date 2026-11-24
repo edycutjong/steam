@@ -1,12 +1,13 @@
-// steam-ingest: fetch | segment | merge | fallback | gate | catalog (R38). Run with tsx.
+// steam-ingest: fetch | segment | merge | fallback | partition | gate | catalog (R38). Run with tsx.
 
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { catalogCmd } from './catalog.ts'
 import { fallbackCmd } from './fallback.ts'
 import { fetchRecipe, fixtureGet, KNOWN, writeFetched, type Get } from './fetch.ts'
 import { allRecipes, exitCodeOf, gateCmd, recipeDir, UsageError } from './gate.ts'
 import { mergeCmd } from './merge.ts'
+import { partitionCmd } from './partition.ts'
 import { segmentCmd } from './segment.ts'
 import { once } from './watch.ts'
 
@@ -15,6 +16,7 @@ const USAGE: Record<string, string> = {
   segment: 'usage: steam-ingest segment <recipe-id> [--block <n>]',
   merge: 'usage: steam-ingest merge <recipe-id>',
   fallback: 'usage: steam-ingest fallback <recipe-id> --structure <file>',
+  partition: 'usage: steam-ingest partition <recipe-id> --line <n> [--png <path>]',
   gate: 'usage: steam-ingest gate <recipe-id> [--who <name>] | gate --all [--verify] | gate --once',
   catalog: 'usage: steam-ingest catalog',
 }
@@ -91,6 +93,15 @@ export async function main(argv: string[], root = process.cwd()): Promise<number
         if (!s) throw new Bad(USAGE.fallback!)
         const fb = fallbackCmd({ recipeDir: recipeDir(root, id), goldPath: join(root, 'fixtures/gold-readings.json'), goldName: 'fixtures/gold-readings.json', structurePath: resolve(root, s) })
         console.log(`fallback ${id}: wrote fallback/reading.json (${fb.lines.length} lines, ${fb.steps.length} steps, ${fb.notes.length} notes, by ${fb.by})`)
+        return 0
+      }
+      case 'partition': {
+        const id = recipeArg(args, 'partition')
+        const ln = flag(args, '--line')
+        if (ln === undefined || !/^\d+$/.test(ln)) throw new Bad(USAGE.partition!)
+        const png = flag(args, '--png')
+        if (!existsSync(recipeDir(root, id))) throw new Bad(`no recipe folder content/recipes/${id}`)
+        console.log(JSON.stringify(partitionCmd(recipeDir(root, id), { line: Number(ln), ...(png ? { png: resolve(root, png) } : {}) })))
         return 0
       }
       case 'gate': {

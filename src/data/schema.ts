@@ -93,12 +93,26 @@ export const OwnershipReview = z.strictObject({
 })
 export type OwnershipReview = z.infer<typeof OwnershipReview>
 
+const ComponentBoundaryZ = z.strictObject({ kind: z.literal('component'), after: int0 })
+
 export const Alignment = z.strictObject({
   segmentRun: SegmentRun,
   method: z.literal('curator'),
   by: nonEmpty,
   rationale: nonEmpty,
-  lines: z.array(z.strictObject({ line: int0, /** One entry per gap between words: a run index, or null where no run separates the two words (they share one box). */ boundaryRuns: z.array(int0.nullable()) })),
+  lines: z.array(
+    z.strictObject({
+      line: int0,
+      /** Who chose this line's boundaries, when that differs from the file's `by` (a file may hold choices of different turns). */
+      by: nonEmpty.optional(),
+      /**
+       * One entry per gap between words: a run index; null where no boundary is named (no run separates the two words, or the gap is
+       * not an edge of the note: the words share one box); or `{kind: "component", after}`, an index into the line's components
+       * ordered by slant-corrected centroid, chosen from the candidates `steam-ingest partition` lists (R19.8 to R19.12).
+       */
+      boundaryRuns: z.array(z.union([int0, ComponentBoundaryZ]).nullable()),
+    }),
+  ),
 })
 export type Alignment = z.infer<typeof Alignment>
 
@@ -132,11 +146,11 @@ const DisagreementZ = z.strictObject({
   correctedTo: z.string().optional(),
 })
 const CorrectionZ = z.strictObject({ line: int0, before: z.string(), after: z.string() })
-const ReaderUncertainZ = z.strictObject({ line: int0, reader: z.enum(['scribe', 'second', 'fallback']), token: z.string(), alt: z.array(z.string()) })
+const ReaderUncertainZ = z.strictObject({ line: int0, reader: z.enum(['scribe', 'second-reader', 'fallback']), token: z.string(), alt: z.array(z.string()) })
 
 export const Merged = z.strictObject({
   segmentRun: SegmentRun,
-  readers: z.union([z.tuple([z.literal('scribe'), z.literal('second')]), z.tuple([z.literal('fallback')])]),
+  readers: z.union([z.tuple([z.literal('scribe'), z.literal('second-reader')]), z.tuple([z.literal('fallback')])]),
   disagreements: z.array(DisagreementZ),
   readerUncertain: z.array(ReaderUncertainZ),
   lines: z.array(z.strictObject({ i: int0, merged: z.string(), corrected: z.string().optional(), primary: z.string(), wordCount: int0.nullable() })),
@@ -182,7 +196,7 @@ export const Gate = z
     propsVersion: nonEmpty,
     state: z.enum(['pass', 'fail', 'waiting']),
     segmentRun: SegmentRun,
-    readers: z.union([z.tuple([z.literal('scribe'), z.literal('second')]), z.tuple([z.literal('fallback')])]).optional(),
+    readers: z.union([z.tuple([z.literal('scribe'), z.literal('second-reader')]), z.tuple([z.literal('fallback')])]).optional(),
     inputs: z.record(z.string(), hex64),
     outputs: z.record(z.string(), hex64),
     pass: z.boolean(),
@@ -201,7 +215,7 @@ export const Gate = z
       .array(
         z.strictObject({
           noteId: RecipeId,
-          shipped: z.strictObject({ alignment: AlignMethod, recall: z.number(), words: z.array(WordScoreZ) }),
+          shipped: z.strictObject({ alignment: AlignMethod, recall: z.number(), /** Share of the note's mask pixels that lie inside some fixture word box (scoring only). */ precision: z.number().optional(), words: z.array(WordScoreZ) }),
           auto: z.union([
             z.strictObject({ recall: z.number(), words: z.array(WordScoreZ) }),
             z.strictObject({
@@ -221,7 +235,7 @@ export const Gate = z
           noteId: RecipeId,
           alignment: AlignMethod,
           granularity: Granularity,
-          parts: z.array(z.strictObject({ line: int0, fromWord: int0, toWord: int0, method: AlignMethod, projection: z.enum(['sheared', 'vertical']), s: z.number(), boundaries: z.array(z.number().int()), reason: z.string().optional(), autoDetail: z.string() })),
+          parts: z.array(z.strictObject({ line: int0, fromWord: int0, toWord: int0, method: AlignMethod, projection: z.enum(['sheared', 'vertical']), s: z.number(), boundaries: z.array(z.number().int()), boundary: z.enum(['runs', 'component']).optional(), components: z.array(int0).optional(), reason: z.string().optional(), autoDetail: z.string() })),
         }),
       )
       .optional(),
@@ -278,7 +292,7 @@ export const RecipeBundle = z.strictObject({
   title: nonEmpty,
   source: Source,
   transcription: z.strictObject({
-    readers: z.union([z.tuple([z.literal('scribe'), z.literal('second')]), z.tuple([z.literal('fallback')])]),
+    readers: z.union([z.tuple([z.literal('scribe'), z.literal('second-reader')]), z.tuple([z.literal('fallback')])]),
     by: z.string().optional(),
     disagreements: z.array(DisagreementZ),
     corrections: z.array(CorrectionZ),

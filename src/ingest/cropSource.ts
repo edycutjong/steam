@@ -37,6 +37,8 @@ export interface CropPage {
   ink: Uint8Array
   /** Deskew angle applied to the analysis frame, 0 when none. */
   tilt: number
+  /** Component id per page pixel (labels.label), needed by a part cut by a component partition. */
+  label?: Int32Array
 }
 
 export interface Crop {
@@ -79,5 +81,5 @@ export function cropSource(page: CropPage, note: CropNote, opts: { mode?: CropMo
     return { mode, mask: eyeReadMask(page, note.box) }
   }
   const parts = note.parts ?? note.lines.map(wholePart)
-  return { mode, mask: noteMask(page.own, page.bands, page.s, parts) }
+  return { mode, mask: noteMask(page.own, page.bands, page.s, parts, undefined, page.label) }
 }

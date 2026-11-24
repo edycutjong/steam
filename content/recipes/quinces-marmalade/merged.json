@@ -125,7 +125,7 @@
         "Pare"
       ],
       "line": 2,
-      "reader": "second",
+      "reader": "second-reader",
       "token": "pare"
     },
     {
@@ -142,7 +142,7 @@
         "cores"
       ],
       "line": 3,
-      "reader": "second",
+      "reader": "second-reader",
       "token": "Cores"
     },
     {
@@ -158,7 +158,7 @@
         "water,"
       ],
       "line": 4,
-      "reader": "second",
+      "reader": "second-reader",
       "token": "water."
     },
     {
@@ -176,7 +176,7 @@
         "6."
       ],
       "line": 6,
-      "reader": "second",
+      "reader": "second-reader",
       "token": "C."
     },
     {
@@ -202,7 +202,7 @@
         "sugᵗ."
       ],
       "line": 8,
-      "reader": "second",
+      "reader": "second-reader",
       "token": "sugʳ."
     },
     {
@@ -210,7 +210,7 @@
         "Quinces,"
       ],
       "line": 9,
-      "reader": "second",
+      "reader": "second-reader",
       "token": "Quinces."
     },
     {
@@ -236,13 +236,13 @@
         "stirred"
       ],
       "line": 10,
-      "reader": "second",
+      "reader": "second-reader",
       "token": "stir'd"
     }
   ],
   "readers": [
     "scribe",
-    "second"
+    "second-reader"
   ],
   "segmentRun": {
     "id": "sr-07e3ef462278",

@@ -6,7 +6,7 @@ import type { NoteOwnership } from './masks.ts'
 import { revealTimes, zhangSuen, type GroupInput, type Trace } from './timeofink.ts'
 
 /** Bumped whenever the definition of a property changes (R30.8). */
-export const PROPS_VERSION = '1'
+export const PROPS_VERSION = '2'
 
 export interface PropResult {
   pass: boolean
@@ -279,6 +279,11 @@ export interface P4Part {
   toWord: number
   /** Core-band middle of the line (page rows). */
   yMid: number
+  /**
+   * Set for a part cut by a component partition (R19.14): the ids of the components of the quoted group. The word region is then
+   * "the pixels the line owns whose component is one of these", stated from `label`, not from boundary columns.
+   */
+  allowedComponents?: number[]
 }
 
 export interface P4Input {
@@ -291,6 +296,8 @@ export interface P4Input {
   pageInk: Uint8Array
   s: number
   parts: P4Part[]
+  /** Component id per page pixel; needed when a part has `allowedComponents`. */
+  label?: Int32Array
   /** The decoded note-<id>.png and where it sits in the page. */
   png: Rgba
   pageBox: [number, number, number, number]
@@ -299,15 +306,23 @@ export interface P4Input {
 }
 
 /** The note mask stated from the owner map and the word regions alone (no use of the build's own mask). */
-export function independentMask(i: Pick<P4Input, 'width' | 'height' | 'owner' | 's' | 'parts'>): Uint8Array {
+export function independentMask(i: Pick<P4Input, 'width' | 'height' | 'owner' | 's' | 'parts' | 'label'>): Uint8Array {
   const { width: w, height: h } = i
   const m = new Uint8Array(w * h)
+  const allowed = new Map(i.parts.flatMap((p) => (p.allowedComponents ? [[p.line, new Set(p.allowedComponents)] as const] : [])))
+  if (allowed.size && !i.label) throw new Error('P4: a component partition needs the pixel labels')
   for (let y = 0; y < h; y++)
     for (let x = 0; x < w; x++) {
       const o = i.owner[y * w + x]!
       if (o < 0) continue
       const part = i.parts.find((p) => p.line === o)
       if (!part) continue
+      const comps = allowed.get(o)
+      if (comps) {
+        // a part cut by components: the line's pixels of the quoted components, whole components
+        if (comps.has(i.label![y * w + x]!)) m[y * w + x] = 1
+        continue
+      }
       if (part.boundaries) {
         const c = shearedColumn(x, y, part.yMid, i.s)
         let j = 0
