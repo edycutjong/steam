@@ -1,0 +1,15 @@
+[tool] Run Workflow
+[tool] status: Failed: Run Workflow
+[tool] Read File
+[tool] status: InProgress
+[tool] status: Completed
+The workflow didn't run. `run_workflow` rejected `probe.workflow.json` at validation, so there are no step outputs and no watch payload to report.
+
+The validator found two errors in the first step, the `parallel` node `readers`:
+- `branches` is required (an array) and is missing.
+- `joinPolicy` is required (`'all'`, `'allSettled'` or `'any'`) and is missing.
+
+The recipe uses `"policy":"allSettled"` and a nested `"steps"` array. The schema expects `joinPolicy` and `branches` instead. I didn't edit the file, because you asked me to run it as saved.
+
+If you want, I can rename those fields to match the schema and re-run. I'm not certain how the `branches` entries are structured, so I'd check that against the validator's response. I haven't looked at the `watch` step or `tools/gate.mjs`, and the validator may flag more errors once the first two are fixed.[INFO] [KRS] <-- GenerateAssistantResponseCommand done totalEvents=71
+

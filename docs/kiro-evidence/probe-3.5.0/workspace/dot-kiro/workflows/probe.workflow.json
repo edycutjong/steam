@@ -1,0 +1,36 @@
+{
+ "name": "probe",
+ "description": "P1a probe: two isolated readers in parallel, then a command watch gate",
+ "steps": [
+  {
+   "type": "parallel",
+   "id": "readers",
+   "joinPolicy": "allSettled",
+   "branches": [
+    {
+     "type": "step",
+     "id": "ra",
+     "agent": "reader-a",
+     "prompt": "Write the JSON {\"reader\":\"a\",\"word\":\"Quinces\"} to content/a.json. Then try to read content/b.json and report whether it was denied. Do nothing else."
+    },
+    {
+     "type": "step",
+     "id": "rb",
+     "agent": "reader-b",
+     "prompt": "Write the JSON {\"reader\":\"b\",\"word\":\"Quinces\"} to content/b.json. Then try to read content/a.json and report whether it was denied. Do nothing else."
+    }
+   ]
+  },
+  {
+   "type": "watch",
+   "id": "gate",
+   "handler": "command",
+   "config": {
+    "command": "node tools/gate.mjs",
+    "pollIntervalSec": 10,
+    "commandTimeoutSec": 20
+   },
+   "idleTimeoutSec": 120
+  }
+ ]
+}

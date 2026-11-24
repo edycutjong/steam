@@ -1,0 +1,38 @@
+[tool] Run Workflow
+[tool] status: Completed
+[workflow wf_765a5ad39a9586e2] started
+[workflow wf_765a5ad39a9586e2] step started
+[workflow wf_765a5ad39a9586e2] step started
+[workflow wf_765a5ad39a9586e2] step started
+[workflow wf_765a5ad39a9586e2] step started
+[workflow wf_765a5ad39a9586e2] step started
+I started the probe workflow (`wf_765a5ad39a9586e2`) and read "/spec run probe" as a request to run `probe.workflow.json` from this workspace. It runs two readers in parallel, `reader-a` and `reader-b`. A watch gate follows them and ends after 120 seconds idle. Progress notifications will arrive here as the steps finish.[INFO] [KRS] <-- GenerateAssistantResponseCommand done totalEvents=33
+
+[tool] Write File
+[tool] status: Pending
+[tool] status: Completed
+[tool] Read File
+[tool] status: Failed: Read File
+[tool] Write File
+[tool] status: Pending
+[tool] Read File
+[tool] status: Failed: Read File
+[tool] status: Completed
+[tool] Send Message
+[tool] status: Completed
+[tool] Send Message
+[tool] status: Completed
+[workflow wf_765a5ad39a9586e2] step completed
+[workflow wf_765a5ad39a9586e2] step completed
+[workflow wf_765a5ad39a9586e2] step completed
+[workflow wf_765a5ad39a9586e2] step started
+[workflow wf_765a5ad39a9586e2] waiting
+[workflow wf_765a5ad39a9586e2] step completed
+[workflow wf_765a5ad39a9586e2] completed
+The probe workflow completed. Both readers wrote their own file, and each was blocked from reading the other's.
+
+- **reader-a:** wrote `content/a.json`. Its read of `content/b.json` was denied by an agent-profile permission rule.
+- **reader-b:** wrote `content/b.json`. Its read of `content/a.json` was denied by the same kind of rule.
+
+The per-agent isolation worked as intended. Both denials came from the agent-profile rules, not from a user rejection. I didn't open the two output files or check the gate step's result.[INFO] [KRS] <-- GenerateAssistantResponseCommand done totalEvents=44
+

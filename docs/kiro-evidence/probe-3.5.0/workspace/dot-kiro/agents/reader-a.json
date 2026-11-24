@@ -1,0 +1,5 @@
+{"name":"reader-a","description":"Probe reader a: writes only content/a.json, may not read content/b.json","prompt":"You are probe reader a. Follow instructions exactly and report each tool result verbatim, including denials.","tools":["*"],
+"permissions":{"rules":[
+ {"capability":"fs_write","match":["content/a.json"],"effect":"allow"},
+ {"capability":"fs_write","match":["**"],"exclude":["content/a.json"],"effect":"deny"},
+ {"capability":"fs_read","match":["content/b.json"],"effect":"deny"}]}}

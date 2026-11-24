@@ -1,0 +1,2 @@
+{"version":"v1","hooks":[{"name":"probe-pre-write","trigger":"PreToolUse","matcher":"write","action":{"type":"command","command":"bash tools/log.sh PreToolUse:write"},"timeout":30,"enabled":true},
+{"name":"probe-pre-write-block","trigger":"PreToolUse","matcher":"write","action":{"type":"command","command":"bash tools/block.sh"},"timeout":30,"enabled":true}]}

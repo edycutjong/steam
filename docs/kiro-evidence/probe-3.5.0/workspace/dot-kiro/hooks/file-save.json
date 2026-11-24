@@ -1,0 +1,71 @@
+{
+ "version": "v1",
+ "hooks": [
+  {
+   "name": "PostFileSave-r0",
+   "trigger": "PostFileSave",
+   "matcher": "content/.*\\.json$",
+   "action": {
+    "type": "command",
+    "command": "bash tools/log.sh PostFileSave:r0"
+   },
+   "timeout": 30,
+   "enabled": true
+  },
+  {
+   "name": "PostFileSave-r1",
+   "trigger": "PostFileSave",
+   "matcher": "content/[^/]*\\.json$",
+   "action": {
+    "type": "command",
+    "command": "bash tools/log.sh PostFileSave:r1"
+   },
+   "timeout": 30,
+   "enabled": true
+  },
+  {
+   "name": "PostFileSave-r2",
+   "trigger": "PostFileSave",
+   "matcher": "content/**/*.json",
+   "action": {
+    "type": "command",
+    "command": "bash tools/log.sh PostFileSave:r2"
+   },
+   "timeout": 30,
+   "enabled": true
+  },
+  {
+   "name": "PostFileCreate-r0",
+   "trigger": "PostFileCreate",
+   "matcher": "content/.*\\.json$",
+   "action": {
+    "type": "command",
+    "command": "bash tools/log.sh PostFileCreate:r0"
+   },
+   "timeout": 30,
+   "enabled": true
+  },
+  {
+   "name": "PostFileCreate-r1",
+   "trigger": "PostFileCreate",
+   "matcher": "content/[^/]*\\.json$",
+   "action": {
+    "type": "command",
+    "command": "bash tools/log.sh PostFileCreate:r1"
+   },
+   "timeout": 30,
+   "enabled": true
+  },
+  {
+   "name": "PostFileCreate-r2",
+   "trigger": "PostFileCreate",
+   "matcher": "content/**/*.json",
+   "action": {
+    "type": "command",
+    "command": "bash tools/log.sh PostFileCreate:r2"
+   },
+   "timeout": 30,
+   "enabled": true
+  }
+ ]
+}

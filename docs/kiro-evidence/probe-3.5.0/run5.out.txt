@@ -1,0 +1,50 @@
+[tool] Run Workflow
+[tool] status: Completed
+[workflow wf_65cef6b2186dde07] started
+[workflow wf_65cef6b2186dde07] step started
+[workflow wf_65cef6b2186dde07] step started
+[workflow wf_65cef6b2186dde07] step started
+[workflow wf_65cef6b2186dde07] step started
+[workflow wf_65cef6b2186dde07] step started
+The workflow `wf_65cef6b2186dde07` is running. Progress notifications will arrive on their own, so I'll wait for them and report once it settles.[INFO] [KRS] <-- GenerateAssistantResponseCommand done totalEvents=19
+
+[tool] Write File
+[tool] status: Pending
+[tool] Read File
+[tool] status: Failed: Read File
+[tool] status: Completed
+[tool] Write File
+[tool] Read File
+[tool] status: Failed: Read File
+[tool] status: Pending
+[tool] status: Completed
+[tool] Send Message
+[tool] Send Message
+[tool] status: Completed
+[tool] status: Completed
+[workflow wf_65cef6b2186dde07] step completed
+[workflow wf_65cef6b2186dde07] step completed
+[workflow wf_65cef6b2186dde07] step completed
+[workflow wf_65cef6b2186dde07] step started
+[workflow wf_65cef6b2186dde07] waiting
+[workflow wf_65cef6b2186dde07] step completed
+[workflow wf_65cef6b2186dde07] completed
+[tool] Inspect Workflow
+[tool] status: Failed: Inspect Workflow: This tool is deferred and cannot be called directly. Load the schema with load_resource({"id":"tool::inspect_workflow"}), then call tool_call with the same ID.
+[tool] Tool Load
+[tool] status: Completed
+[tool] Inspect Workflow
+[tool] status: Completed
+The `probe` workflow (`wf_65cef6b2186dde07`) finished with status **completed**.
+
+**Step outputs**
+- **ra** (reader-a): It wrote `{"reader":"a","word":"Quinces"}` to `content/a.json`. Its read of `content/b.json` was denied by an agent-profile permission rule (`deny fs_read matching "content/b.json"`).
+- **rb** (reader-b): It wrote `{"reader":"b","word":"Quinces"}` to `content/b.json`. Its read of `content/a.json` was denied by the matching agent-profile rule.
+
+**Watch node (`gate`) payload**
+```json
+{"a":true,"b":true,"verdict":"both-readers-present"}
+```
+
+The two readers stayed isolated, since each was blocked from reading the other's file. The gate then found both files present.[INFO] [KRS] <-- GenerateAssistantResponseCommand done totalEvents=48
+

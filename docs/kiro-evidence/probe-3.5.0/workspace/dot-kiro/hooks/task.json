@@ -1,0 +1,2 @@
+{"version":"v1","hooks":[{"name":"probe-pre-task","trigger":"PreTaskExec","action":{"type":"command","command":"bash tools/log.sh PreTaskExec"},"timeout":30,"enabled":true},
+{"name":"probe-post-task","trigger":"PostTaskExec","action":{"type":"command","command":"bash tools/log.sh PostTaskExec"},"timeout":30,"enabled":true}]}
