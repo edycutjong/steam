@@ -14,7 +14,7 @@ Order follows dependencies: scaffolding, pure stages bottom-up, the gate, the CL
   - Files: `src/ingest/sha256.ts`, `src/ingest/sha256.test.ts`, `src/ingest/sha256.prop.test.ts`.
   - Satisfies: R1.5, R2.6.
 
-- [ ] 3. Image primitives
+- [x] 3. Image primitives
   - Test first: `toGray` formula on known pixels; `crop`; `resampleArea` (downscale 2× of a constant is constant; of a checker is mid-gray); `scaleOf`; `pixelSha256` ignores PNG encoding but changes with any pixel; `rotate` by 0° is identity.
   - Implement `src/ingest/image.ts` (`Gray`, `Rgba`, `toGray`, `crop`, `resampleArea`, `rotate`, `scaleOf`, `pixelSha256`).
   - Files: `src/ingest/image.ts`, `src/ingest/image.test.ts`.
