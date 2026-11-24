@@ -12,7 +12,7 @@ Order follows dependencies: pure logic with tests first, then GL, then React, th
   - Files: `src/steam/timeline.ts`.
   - Satisfies: R2.1, R2.3, R3.1, R3.2, R3.5, R3.6, R3.7, R8.4, R9.3.
 
-- [ ] 3. Timeline unit tests
+- [x] 3. Timeline unit tests
   - Test the state at each boundary: `t = -THICKEN_MS - 1`, `-THICKEN_MS`, `-1`, `0`, `WRITE_ON_MS - 1`, `WRITE_ON_MS`, `wipeAt - 1`, `wipeAt`, `wipeAt + WIPE_MS`, `wipeAt + WIPE_MS + REFOG_MS`.
   - Test: `u === -1` for all `t < 0`; `u === t / WRITE_ON_MS` while writing; `u === 1` at and after `WRITE_ON_MS`.
   - Test monotonic `u`, `thicken`, `wipe` over a sweep of `t`.
