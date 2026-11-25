@@ -66,4 +66,6 @@ export const wipe = (page: Page) => page.locator('button.wipe')
 export async function waitWipe(page: Page, label: string, timeout = 20_000): Promise<void> {
   await expect(wipe(page)).toHaveText(label, { timeout })
   await expect(wipe(page)).not.toHaveAttribute('aria-disabled', 'true', { timeout })
+  // .wipe fades its colours over 200 ms when it turns active: axe run in that window reads a mid-fade contrast (seen once in cook-flow)
+  await page.waitForTimeout(250)
 }
