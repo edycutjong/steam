@@ -20,9 +20,9 @@ for (const [name, viewport] of [
       const layout = await readLayout(page)
       const o = await canvasOrigin(page)
       expect(layout.kind).toBe('groups')
-      // steam-renderer-v1 R8: the second line cannot keep a 16 px core band inside the pane whole, so it is cut at its one wide
-      // gap and its two parts are stacked: three placements, none of them forced past the pane.
-      expect(layout.groups.map((g) => [g.index, g.part])).toEqual([[0, 0], [1, 0], [1, 1]])
+      // steam-renderer-v1 R8, R15: every line is cut at its one wide ink gap and the four parts are stacked in reading order at one
+      // larger scale, which uses the glass (look pass 2; v1 cut only the second line: [[0,0],[1,0],[1,1]]).
+      expect(layout.groups.map((g) => [g.index, g.part])).toEqual([[0, 0], [0, 1], [1, 0], [1, 1]])
       expect(layout.fits).toBe(true)
       for (const g of layout.groups) {
         expect(g.coreBandCssPx).toBeGreaterThanOrEqual(MIN_CORE_CSS_PX)

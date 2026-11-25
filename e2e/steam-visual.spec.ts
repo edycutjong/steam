@@ -68,7 +68,8 @@ for (const [name, viewport] of SIZES) {
       expect(cores.length, 'stroke pixels').toBeGreaterThan(200)
       const ls = cores.map(([x, y]) => lum(x, y)).sort((a, b) => a - b)
       const spread = ls[Math.floor(ls.length * 0.95)] - ls[Math.floor(ls.length * 0.05)]
-      expect(spread, 'luminance spread (p95 - p5) across the stroke').toBeGreaterThanOrEqual(12)
+      expect(spread, 'luminance spread (p95 - p5) across the stroke').toBeGreaterThanOrEqual(30)
+      // R14.3: the fill follows the pen's pressure; measured 64 on the desktop frame and 40 on the 390 px one (the v1 bound was 12).
       // no 24 x 24 window around the strokes is brighter than 92 % on average
       let worst = 0
       for (let i = 0; i < pts.length; i += 97) {
@@ -119,7 +120,7 @@ for (const [name, viewport] of SIZES) {
       }
     })
 
-    test('droplets cover the film and gather toward the bottom rail, and a streak crosses the top third', async ({ page }) => {
+    test('droplets cover the film and gather a little toward the bottom rail, and no streak crosses the top third', async ({ page }) => {
       await openPane(page, '?t=-1000')
       const png = await shot(page)
       const o = await canvasRegion(page)
@@ -144,19 +145,19 @@ for (const [name, viewport] of SIZES) {
         return n
       }
       // steam-renderer-v1 R3.3, R3.4: droplets follow the film everywhere (0.4 % of a 0.8-wide band at least) and are denser in the
-      // last 7 % than in the middle band.
+      // last 7 % than in the middle band. Look pass 2 (R15.3): the sill gathers less (boost 3 -> 1.6, smaller lenses), so the ratio bound is 1.1, down from 1.5.
       const nearRail = beadPixels(o.y + o.h - zoneH)
       const middle = beadPixels(o.y + Math.round(o.h * 0.4))
       const bandPx = zoneH * (w - 40)
       expect(middle, 'droplet pixels in the middle band').toBeGreaterThan(0.004 * bandPx)
-      expect(nearRail, 'droplet pixels near the rail').toBeGreaterThan(1.5 * middle)
+      expect(nearRail, 'droplet pixels near the rail').toBeGreaterThan(1.1 * middle)
 
-      // Streak: s = 0.8 u + 1.2 v = 0.55. Compare the line with parallel lines either side of it.
-      const lum = (s: number): number => {
+      // R17: the diagonal streak is gone. The line where it used to run is no lighter than its neighbours by more than the film's own variation.
+      const lum = (sv: number): number => {
         let sum = 0
         let n = 0
         for (let v = 0.04; v <= 0.18; v += 0.02) {
-          const u = (s - 1.2 * v) / 0.8
+          const u = (sv - 1.2 * v) / 0.8
           const px = Math.round(o.x + u * o.w)
           const py = Math.round(o.y + v * o.h)
           for (let dx = -2; dx <= 2; dx++) {
@@ -168,7 +169,7 @@ for (const [name, viewport] of SIZES) {
         return sum / n
       }
       const side = (lum(0.55 - 0.14) + lum(0.55 + 0.14)) / 2
-      expect(lum(0.55) - side, 'streak lift over its neighbours').toBeGreaterThan(3)
+      expect(lum(0.55) - side, 'no streak lift over its neighbours').toBeLessThan(6)
     })
 
     test('no fog patch around the note: edge steps stay within plain-fog variation', async ({ page }) => {

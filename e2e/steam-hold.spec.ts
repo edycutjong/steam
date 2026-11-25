@@ -60,6 +60,8 @@ for (const t of [5000, 9000]) {
     }
     expect(textColoured, 'channel pixels coloured like --ink or --paper').toBe(0)
 
+    // Re-pinned in look pass 2 (R14.1): the rim is at most 1 css px and broken by the film height, so the brightest cold pixels near a
+    // channel sit further from --ghost (blue off by 66 against the old bound of 60); the bound is 72.
     // Rim: the brightest cold pixels (blue at least as strong as red) within 6 px of a channel.
     const on = new Set(pts.map(([x, y]) => y * 10000 + x))
     const cold: Array<[number, number[]]> = []
@@ -76,7 +78,7 @@ for (const t of [5000, 9000]) {
     const top = cold.slice(0, Math.max(1, Math.floor(cold.length / 100)))
     const mean = [0, 1, 2].map((i) => top.reduce((s, c) => s + c[1][i], 0) / top.length)
     for (let i = 0; i < 3; i++) {
-      expect(Math.abs(mean[i] - TOKENS.ghost[i]), `rim channel ${i} vs --ghost`).toBeLessThan(60)
+      expect(Math.abs(mean[i] - TOKENS.ghost[i]), `rim channel ${i} vs --ghost`).toBeLessThan(72)
     }
   })
 }

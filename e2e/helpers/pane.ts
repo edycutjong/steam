@@ -220,6 +220,16 @@ export function rectEdgeStep(png: PNG, r: Rect4, trim = 8): number {
  * (and of the canvas edge tint), each tested with a vertical and a horizontal edge through its centre.
  */
 export function baselineEdgeStep(png: PNG, bounds: Region, groups: Region[], box = 48): number {
+  // On a phone the stacked groups leave little clear fog (look pass 2, four parts at one larger scale): smaller boxes are tried
+  // when fewer than 3 boxes of the requested size fit. The baseline is still the largest step across plain fog.
+  for (const b of [box, 32, 24]) {
+    const r = baselineEdgeStepAt(png, bounds, groups, b)
+    if (r !== null) return r
+  }
+  throw new Error('fewer than 3 clear fog boxes for the baseline at 48, 32 and 24 px')
+}
+
+function baselineEdgeStepAt(png: PNG, bounds: Region, groups: Region[], box: number): number | null {
   const inset = Math.round(0.1 * Math.min(bounds.w, bounds.h))
   let worst = 0
   let boxes = 0
@@ -233,8 +243,7 @@ export function baselineEdgeStep(png: PNG, bounds: Region, groups: Region[], box
       worst = Math.max(worst, stepAcrossX(png, cx, y + 4, y + box - 4), stepAcrossY(png, cy, x + 4, x + box - 4))
     }
   }
-  if (boxes < 3) throw new Error(`only ${boxes} clear fog boxes for the baseline`)
-  return worst
+  return boxes < 3 ? null : worst
 }
 
 interface HeroMeta {
