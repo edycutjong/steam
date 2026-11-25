@@ -83,7 +83,8 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
   const { t, lead: paramLead, fps, bloom } = params
   // A held pane has its reveal clock started a whole write-on ago, so its first frame is `holding` (R15.4).
   const effective = useMemo<SteamParams>(() => (initial === 'held' ? { t: null, lead: -WRITE_ON_MS, fps, bloom } : { t, lead: paramLead, fps, bloom }), [initial, t, paramLead, fps, bloom])
-  // The last state the pane reported and when, so a static pane that replaces a lost live one carries on from it (Q8).
+  // The last state the pane reported and when, so a static pane that replaces the live one carries on from it, whatever sent it there:
+  // a lost context (Q8), the governor's tier 3, reduced motion switched on mid-reveal (a2a-arch-r05 B4). Null until a live state exists.
   const lastState = useRef<{ state: RevealState; at: number } | null>(null)
   // a frozen clock (?t=) or a held pane starts in its own state, so a frame never shows a transition on its way there
   const [haunt, setHaunt] = useState<Haunt>(() => (initial === 'held' ? 'clear' : t !== null ? hauntOfPhase(revealState(t, null).phase) : 'calm'))
@@ -244,7 +245,7 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
             onState={pushState}
             onReady={markReady}
             fogOnly={status === 'error'}
-            resume={contextLost ? lastState.current : null}
+            resume={lastState.current}
           />
         ) : (
           <canvas ref={canvasRef} className="steam-canvas" aria-hidden="true" />
