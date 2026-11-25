@@ -105,11 +105,11 @@ function makeRenderer() {
   return { r, calls }
 }
 
-function runFrames(n: number): void {
+function runFrames(n: number, dt = 16.6): void {
   for (let i = 0; i < n; i++) {
     const cb = rafQueue.shift()
     if (!cb) throw new Error('frame loop stopped')
-    clock += 16.6
+    clock += dt
     cb(clock)
   }
 }
@@ -175,5 +175,59 @@ describe('SteamRenderer allocation guard', () => {
       expect(src, `${name} has an arrow function`).not.toContain('=>')
       expect(src, `${name} has an array literal`).not.toMatch(/(?:[=(,:?]|\breturn)\s*\[/)
     }
+  })
+})
+
+describe('SteamRenderer quality governor (R9)', () => {
+  it('stays at tier 0 at 60 fps and publishes window.__steamStats', () => {
+    const { r } = makeRenderer()
+    r.play()
+    runFrames(200)
+    expect(r.tier).toBe(0)
+    const stats = (globalThis as { __steamStats?: { tier: number; frames: number } }).__steamStats
+    expect(stats?.tier).toBe(0)
+    expect(stats?.frames).toBeGreaterThan(100)
+    r.dispose()
+  })
+  it('halves the fog pass at tier 1, drops detail at tier 2 and asks for the static pane at tier 3', () => {
+    const { r, calls } = makeRenderer()
+    let degraded = 0
+    r.onDegrade(() => degraded++)
+    r.play()
+    const fogW0 = (r as unknown as { fogW: number }).fogW
+    runFrames(61, 30)
+    expect(r.tier).toBe(1)
+    expect((r as unknown as { fogW: number }).fogW).toBe(Math.ceil(r.canvas.width / 8))
+    expect((r as unknown as { fogW: number }).fogW).toBeLessThan(fogW0)
+    expect((r as unknown as { detail: number }).detail).toBe(1)
+    runFrames(60, 30)
+    expect(r.tier).toBe(2)
+    expect((r as unknown as { detail: number }).detail).toBe(0)
+    expect(degraded).toBe(0)
+    runFrames(60, 30)
+    expect(r.tier).toBe(3)
+    expect(degraded).toBe(1)
+    expect((globalThis as { __steamStats?: { tier: number } }).__steamStats?.tier).toBe(3)
+    expect(calls.texImage2D).toBeGreaterThan(0)
+    r.dispose()
+  })
+  it('never degrades a frozen clock', () => {
+    const { gl } = mockGl()
+    const layout = computeLayout('page', 800, 600, meta)
+    const r = SteamRenderer.create(fakeCanvas(gl), assets(), layout, { dprCap: 2, frozenT: 3000, lead: 0, tokens })!
+    r.resize(800, 600, layout)
+    r.play()
+    runFrames(200, 40)
+    expect(r.tier).toBe(0)
+    r.dispose()
+  })
+  it('one long frame does not change the tier', () => {
+    const { r } = makeRenderer()
+    r.play()
+    runFrames(100)
+    runFrames(1, 400)
+    runFrames(100)
+    expect(r.tier).toBe(0)
+    r.dispose()
   })
 })

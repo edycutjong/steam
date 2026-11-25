@@ -5,6 +5,8 @@ import type { NoteMeta } from './assets.ts'
 import type { Derived } from './derive.ts'
 import type { Layout } from './layout.ts'
 import { bloomAt, candleLevel } from './haunt.ts'
+import { QualityGovernor } from './governor.ts'
+import type { Tier } from './governor.ts'
 import { placeDrips, planDrips, writeRunUniforms } from './drips.ts'
 import type { PlacedRun, PlannedRun } from './drips.ts'
 import { COMPOSITE_FRAG, FOG_FRAG, RUN_MAX, TRAIL_N, TRAIL_STEP, VERT } from './shaders.ts'
@@ -35,8 +37,20 @@ export interface RendererOptions {
 /** Group placements the shader holds. */
 export const MAX_GROUPS = 4
 
-/** Fog texture is this many canvas pixels per texel per axis. */
+/** Fog texture is this many canvas pixels per texel per axis: at tier 0, and from tier 1 (the governor halves its resolution). */
 export const FOG_DIV = 4
+export const FOG_DIV_REDUCED = 8
+
+/** What `window.__steamStats` carries (design §8). Updated in place at 4 Hz. */
+export interface SteamStats {
+  tier: Tier
+  frames: number
+  avgFps: number
+  p95Ms: number
+  framesOver: number
+  renderer: string | null
+}
+const STATS_PERIOD_MS = 250
 
 const FOG_UNIFORMS = ['uSize', 'uTime', 'uThicken'] as const
 const COMP_UNIFORMS = [
@@ -179,6 +193,12 @@ export class SteamRenderer {
   private candleU = 0.93
   private candleV = 0.86
   private disposed = false
+  private readonly gov = new QualityGovernor()
+  private fogDiv = FOG_DIV
+  private detail = 1
+  private degradeCb: (() => void) | null = null
+  private lastStats = -Infinity
+  readonly pub: SteamStats = { tier: 0, frames: 0, avgFps: 0, p95Ms: 0, framesOver: 0, renderer: null }
   private resumeOnRestore = false
   private lostTimer: ReturnType<typeof setTimeout> | null = null
   private lostCb: (() => void) | null = null
@@ -214,6 +234,8 @@ export class SteamRenderer {
     this.applyLayout(layout, canvas.width, canvas.height, 1)
     this.onLost = this.handleLost.bind(this)
     this.onRestored = this.handleRestored.bind(this)
+    const ext = gl.getExtension('WEBGL_debug_renderer_info')
+    this.pub.renderer = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : null
     canvas.addEventListener('webglcontextlost', this.onLost)
     canvas.addEventListener('webglcontextrestored', this.onRestored)
     this.allocFog()
@@ -388,6 +410,45 @@ export class SteamRenderer {
     this.notify(performance.now(), true)
   }
 
+  /** Registers the callback run when the governor reaches tier 3: the pane is to be replaced by the static images. */
+  onDegrade(cb: (() => void) | null): void {
+    this.degradeCb = cb
+  }
+
+  /** The governor's current tier. */
+  get tier(): Tier {
+    return this.gov.tier
+  }
+
+  /** Feeds one frame interval to the governor and applies a tier change. Never called for a frozen clock. */
+  private govern(dt: number): void {
+    const next = this.gov.push(dt)
+    if (next === null) return
+    if (next >= 1 && this.fogDiv !== FOG_DIV_REDUCED) {
+      this.fogDiv = FOG_DIV_REDUCED
+      this.applyLayout(this.layout, this.canvasW, this.canvasH, this.dpr)
+      this.allocFog()
+    }
+    if (next >= 2) this.detail = 0
+    this.publish(performance.now(), true)
+    if (next >= 3) this.degradeCb?.()
+  }
+
+  /** Publishes `window.__steamStats` at 4 Hz (and at once on a tier change). */
+  private publish(now: number, force = false): void {
+    if (!force && now - this.lastStats < STATS_PERIOD_MS) return
+    this.lastStats = now
+    const s = this.stats
+    const p = this.pub
+    p.tier = this.gov.tier
+    p.frames = s.frames
+    p.avgFps = s.sumMs > 0 ? (s.frames * 1000) / s.sumMs : 0
+    const q = this.gov.p95()
+    if (q === q) p.p95Ms = q
+    p.framesOver = s.over
+    ;(globalThis as { __steamStats?: SteamStats }).__steamStats = p
+  }
+
   /** Clears the rolling frame statistics. */
   resetStats(): void {
     this.stats.frames = 0
@@ -416,8 +477,10 @@ export class SteamRenderer {
       s.sumMs += dt
       if (dt > s.worstMs) s.worstMs = dt
       if (dt > SLOW_FRAME_MS) s.over += 1
+      if (this.frozenT === null) this.govern(dt) // a frozen clock is a measurement frame: it is never degraded
     }
     this.draw(now)
+    this.publish(now)
     this.notify(now, false)
     this.rafId = requestAnimationFrame(this.loop)
   }
@@ -473,7 +536,7 @@ export class SteamRenderer {
     gl.uniform1i(r.compLoc.uHeadGroup, headGroup)
     gl.uniform2f(r.compLoc.uFogTexel, 1 / this.fogW, 1 / this.fogH)
     gl.uniform3f(r.compLoc.uCandle, this.candleU, this.candleV, candleLevel(time, t))
-    const nRuns = this.runs.length
+    const nRuns = this.detail > 0 ? this.runs.length : 0
     for (let k = 0; k < nRuns; k++) writeRunUniforms(this.runs[k], t, this.dpr, this.runA, this.runB, k)
     this.writeTrail(bin)
     gl.uniform2fv(r.compLoc.uTrail, this.trail)
@@ -481,7 +544,7 @@ export class SteamRenderer {
     gl.uniform4fv(r.compLoc.uRunB, this.runB)
     gl.uniform1i(r.compLoc.uRunCount, nRuns)
     gl.uniform1f(r.compLoc.uBloom, this.opts.bloom === false ? 0 : bloomAt(t))
-    gl.uniform1f(r.compLoc.uDetail, 1)
+    gl.uniform1f(r.compLoc.uDetail, this.detail)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 
@@ -510,8 +573,8 @@ export class SteamRenderer {
     this.canvasW = Math.max(1, canvasW)
     this.canvasH = Math.max(1, canvasH)
     this.dpr = ratio
-    this.fogW = Math.ceil(this.canvasW / FOG_DIV)
-    this.fogH = Math.ceil(this.canvasH / FOG_DIV)
+    this.fogW = Math.ceil(this.canvasW / this.fogDiv)
+    this.fogH = Math.ceil(this.canvasH / this.fogDiv)
     this.groupCount = Math.min(MAX_GROUPS, layout.groups.length)
     this.runs = placeDrips(this.plan, layout, this.canvasW / ratio, this.canvasH / ratio, this.seed)
     this.groupSrc.fill(0)

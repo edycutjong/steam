@@ -169,10 +169,12 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
         const el = fpsRef.current
         const { frames, sumMs, worstMs, over } = renderer.stats
         if (!el || frames === 0 || sumMs === 0) return
-        el.textContent = `${((frames * 1000) / sumMs).toFixed(1)} fps  worst ${worstMs.toFixed(1)} ms  over 18.2 ms: ${over}`
+        el.textContent = `${((frames * 1000) / sumMs).toFixed(1)} fps  worst ${worstMs.toFixed(1)} ms  over 18.2 ms: ${over}  tier ${renderer.tier}`
       }, 250)
     }
     renderer.onContextLost(() => setContextLost(true))
+    // governor tier 3: the static images, at the current phase, through the lost-context path
+    renderer.onDegrade(() => setContextLost(true))
     if (p.t !== null) renderer.setClock(p.t)
     renderer.play()
     // Ready once the first frame is on screen: two animation frames after play().
