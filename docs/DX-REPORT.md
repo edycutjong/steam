@@ -26,3 +26,10 @@ Dated entries, newest last, plain facts.
 - Playwright runs started in the background (`&`, and again with `nohup … < /dev/null &`) stopped making progress between tool calls: the `playwright test` process sat at 0% CPU for over 8 minutes on one test whose timeout is 60 s. The same run in the foreground with a 30-minute tool timeout finished (45 tests, 10.7 min).
 - Every `npm run e2e -- <spec>` call rebuilds the app first (the `webServer` command is `npm run build && vite preview`), so each invocation pays the build; the layout specs run about 17 s per test, so 33 tests took about 10 minutes.
 - The B3 red tests were first committed with two test mistakes that only showed when they were run against the unfixed code a second time; the commit was amended before the fix. A red test needs a run that shows its failure message, not only a failure count.
+
+## 2026-11-27 (a2a-arch-r06)
+
+- A foreground `npm run e2e` of eight specs (55 tests) took 11.2 min and fit inside the 30-minute tool timeout, so the background-run stall noted for a2a-arch-r05 did not recur. Each `npm run e2e -- <spec>` still rebuilds the app first.
+- Two `sed -i` edits through the shell tool failed to parse (one with `#` as the delimiter in a pattern that held `#`, one with escaped quotes), and a chained `sed … && grep … && check` stopped silently after the failed `sed`. The red C7 commit had already gone in before the failed step. Edits through a Python one-liner worked every time.
+- A red test for a brand new module cannot typecheck without a stub. The C2 and C6 red commits carry an API skeleton (the pre-fix behaviour behind the new signatures) so the tests fail on behaviour and not on a missing import.
+- The first draft of the C1 browser test passed `page.route` rules that the service worker bypassed (the recipe loaded from its cache). `test.use({ serviceWorkers: 'block' })` fixed it; the failure looked like an app bug at first.
