@@ -43,6 +43,10 @@ Cook Mode runs the recipe's steps against a pot on a fogged window. At the step 
 
 ## 🏗️ Architecture & Tech Stack
 
+![Architecture drawn as a sash window, steps 1 to 9. Upper sash: the Wellcome Collection archive (Catalogue API for the licence, IIIF Image API for the page). Left lower pane, build time: steam-ingest fetch checks the licence first, segment finds the lines, two isolated Kiro agents (scribe, second-reader) read the strips inside the Kiro workflow ingest-recipe, the code gate merges the readings with a Kiro agent's word cuts and stroke review and checks P1 to P6, and steam-ingest catalog publishes the bundle. Right lower pane, runtime: static files on Vercel load the Cook Mode app, which reveals the scan's own ink in the WebGL2 steam pane and links back to the archive. Sill: Kiro steering, specs and hooks, how the code was written.](docs/architecture.png)
+
+*Read steps 1 to 9: down the left pane, then up the right. The picture inside the steam pane is the renderer's own held frame. Every box, with the files behind it and the same diagram in Mermaid: [`ARCHITECTURE.md`](ARCHITECTURE.md).*
+
 | Layer | What |
 |---|---|
 | App | React 19 + TypeScript, Vite, hash router (shelf, edition, Cook Mode, "The hand, quoted"); static `dist/` on Vercel, offline-capable shell (service-worker precache of the Cook path) |
@@ -50,8 +54,6 @@ Cook Mode runs the recipe's steps against a pot on a fogged window. At the step 
 | Ingestion | `tools/steam-ingest`: IIIF fetch with a licence allow-list, code-built ink-ownership masks per line (the word boundaries inside a line are chosen by a Kiro agent from code-found runs and checked by the gate), and a gate of properties P1-P6 that a recipe must pass before it reaches Cook Mode |
 | Agents | Two isolated Kiro custom agents read the page (`scribe`, `second-reader`); disagreements are kept and shown as `†`, never resolved by a model |
 | Runtime model | None. The browser runs no model |
-
-An architecture diagram is not in this repository yet.
 
 ## 🏆 Kiro Integration
 
@@ -130,6 +132,7 @@ bench/          frame-rate runs          docs/        KIRO, EXPERIMENTS, DX-REPO
 
 - Live: https://steam.edycu.dev
 - Judge steps: [`DEMO.md`](DEMO.md)
+- Architecture, box by box: [`ARCHITECTURE.md`](ARCHITECTURE.md)
 - Demo video: not published yet.
 
 ## 📄 License
