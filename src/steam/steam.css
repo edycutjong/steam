@@ -162,6 +162,8 @@
 
 .night__cloud-drift {
   animation: cloud-drift 80s ease-in-out infinite alternate;
+  animation-delay: var(--flame-delay, 0s);
+  animation-play-state: var(--flame-play, running);
 }
 
 /* The cue: the cloud slides over the moon and dims it while the hand is written; it slides off when the note holds. */
@@ -222,7 +224,7 @@
   .candle {
     right: calc(var(--bar) + 3%);
     width: 18px;
-    height: clamp(28px, 11%, 44px);
+    height: clamp(26px, 9%, 36px);
   }
 }
 
@@ -365,6 +367,15 @@
   border-radius: 50%;
   background: color-mix(in srgb, var(--ghost) 55%, var(--paper));
   opacity: 0.5;
+}
+
+/* a smaller flame on a narrow pane, so it stands clear below the last stroke of the hand */
+@media (max-width: 640px) {
+  .candle__flame {
+    width: 8px;
+    height: 16px;
+    margin-left: -4px;
+  }
 }
 
 .candle[data-haunt='gather'] .candle__flame {

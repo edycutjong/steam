@@ -158,15 +158,15 @@ export const BOKEH_CELL_CSS = 72.0
  */
 export const WINDOW_REFRACT_CSS = 3.0
 export const WINDOW_REFRACT_K = 26.0
-export const WINDOW_FLOOR = 0.2
-export const WINDOW_GRAD = 0.3
+export const WINDOW_FLOOR = 0.28
+export const WINDOW_GRAD = 0.34
 export const WINDOW_BOKEH_COARSE = 1.3
-export const WINDOW_BOKEH_FINE = 1.5
+export const WINDOW_BOKEH_FINE = 1.8
 export const WINDOW_FINE_CELL_CSS = 22.0
 export const WINDOW_SHOULDER = 1.25
 /** Meniscus: highlight width (css px, at dpr 1), strength, shade on the far side, and the direction of the lamp and candle (y down). */
 export const MENISCUS_PX = 1.0
-export const MENISCUS_A = 0.6
+export const MENISCUS_A = 0.42
 export const FAR_SHADE = 0.12
 export const LAMP_DIR = [0.28, 0.96] as const
 /** Refraction offset of the room lookup, css px at the strongest film gradient (design §4: 1 to 3). */
@@ -477,7 +477,7 @@ float windowLight(vec2 cssPos, vec2 uv) {
   float grad = WINDOW_FLOOR + WINDOW_GRAD * smoothstep(0.1, 1.1, uv.y);
   float L = grad + roomBase(uv);
   L += WINDOW_BOKEH_COARSE * discs(cssPos, BOKEH_CELL, BOKEH_CELL * 0.14, BOKEH_CELL * 0.3, 0.55, 3.7) * (0.35 + 0.65 * smoothstep(0.0, 0.8, uv.y));
-  L += WINDOW_BOKEH_FINE * discs(cssPos, WINDOW_FINE_CELL, WINDOW_FINE_CELL * 0.17, WINDOW_FINE_CELL * 0.4, 0.68, 91.3);
+  L += WINDOW_BOKEH_FINE * discs(cssPos, WINDOW_FINE_CELL, WINDOW_FINE_CELL * 0.17, WINDOW_FINE_CELL * 0.4, 0.78, 91.3);
   return L;
 }
 
@@ -719,9 +719,9 @@ void main() {
   vec2 wOff = inkGrad * (WINDOW_REFRACT_K * min(1.0, WINDOW_REFRACT / max(igl * WINDOW_REFRACT_K, 1e-4)));
   float Lw = windowLight(css + refr / px + wOff, vUv + (refr + wOff * px) / uRes);
   Lw = 1.5 * (1.0 - exp(-WINDOW_SHOULDER * Lw)); // soft shoulder: near the pot the light saturates, it does not wash to white
-  vec3 seenWin = uBg + uNight * 0.35 + uAfter * Lw;
+  vec3 seenWin = uBg + uNight * 0.7 + uAfter * Lw;
   // Dimmer light runs redder.
-  seenWin *= mix(vec3(1.0, 0.8, 0.62), vec3(1.0), smoothstep(0.25, 0.85, dot(seenWin, vec3(0.2126, 0.7152, 0.0722)) / max(dot(uAfter, vec3(0.2126, 0.7152, 0.0722)), 1e-3)));
+  seenWin *= mix(vec3(0.95, 0.82, 0.72), vec3(1.0), smoothstep(0.25, 0.85, dot(seenWin, vec3(0.2126, 0.7152, 0.0722)) / max(dot(uAfter, vec3(0.2126, 0.7152, 0.0722)), 1e-3)));
   float glow = pow(T, 0.7);
   vec3 seen = mix(seenFog, seenWin, glow);
   // Pen pressure: a thick dark stroke is the clearest and warmest, a hairline dimmer and cooler.
@@ -756,7 +756,7 @@ void main() {
   // far side, both broken by the film height. There is no outline that runs all the way round a letter.
   float facing = dot(outN, LAMP_DIR);
   float mBand = smoothstep(0.05, 0.2, T) * (1.0 - smoothstep(0.28, 0.6, T)) * (0.12 + 0.88 * brk) * (1.0 - swept);
-  col += mix(uMoon, uAfter, 0.55) * MENISCUS_A * mBand * smoothstep(0.05, 0.75, facing);
+  col += mix(uMoon, uAfter, 0.8) * MENISCUS_A * mBand * smoothstep(0.05, 0.75, facing);
   col *= 1.0 - FAR_SHADE * mBand * smoothstep(0.05, 0.75, -facing);
 
   // The channel of a run is clear glass: the dark room and the night seen through it, with a little warmth from the pot.
@@ -786,12 +786,13 @@ void main() {
     float dens = smoothstep(0.3, 0.9, fogD) * keep;
     // Gravity: fewer and finer at the top, larger and in clusters lower down.
     float low = vUv.y;
-    float clump = 0.45 + 0.85 * smoothstep(0.35, 0.65, vnoise2(css / 70.0 + 3.1));
-    float rS = mix(DROP_TOP_SCALE, 1.0, low);
+    float g = smoothstep(0.0, 0.6, low);
+    float clump = 0.7 + 0.7 * smoothstep(0.35, 0.65, vnoise2(css / 70.0 + 3.1));
+    float rS = mix(DROP_TOP_SCALE, 1.0, sqrt(g));
     float rail = 1.0 + (RAIL_BOOST - 1.0) * smoothstep(0.88, 0.98, vUv.y);
-    vec4 dTiny = dropLayer(fragPx, ${f(DROP_TINY.cell)}, ${f(DROP_TINY.rLo)} * rS, ${f(DROP_TINY.rHi)} * rS, ${f(DROP_TINY.prob)} * dens * mix(0.45, 1.0, low) * clump, 5.3, Lb, film);
-    vec4 dMid = dropLayer(fragPx, ${f(DROP_MID.cell)}, ${f(DROP_MID.rLo)} * rS, ${f(DROP_MID.rHi)} * rS, ${f(DROP_MID.prob)} * dens * mix(0.3, 1.0, low) * clump, 61.1, Lb, film);
-    vec4 dLarge = dropLayer(fragPx, ${f(DROP_LARGE.cell)}, ${f(DROP_LARGE.rLo)} * rS, ${f(DROP_LARGE.rHi)} * rS * (1.0 - RAIL_SHRINK * smoothstep(0.88, 0.98, vUv.y)), ${f(DROP_LARGE.prob)} * dens * rail * smoothstep(0.22, 0.95, low) * clump, 23.9, Lb, film);
+    vec4 dTiny = dropLayer(fragPx, ${f(DROP_TINY.cell)}, ${f(DROP_TINY.rLo)} * rS, ${f(DROP_TINY.rHi)} * rS, ${f(DROP_TINY.prob)} * dens * mix(0.5, 1.2, g) * clump, 5.3, Lb, film);
+    vec4 dMid = dropLayer(fragPx, ${f(DROP_MID.cell)}, ${f(DROP_MID.rLo)} * rS, ${f(DROP_MID.rHi)} * rS, ${f(DROP_MID.prob)} * dens * mix(0.35, 1.35, g) * clump, 61.1, Lb, film);
+    vec4 dLarge = dropLayer(fragPx, ${f(DROP_LARGE.cell)}, ${f(DROP_LARGE.rLo)} * rS, ${f(DROP_LARGE.rHi)} * rS * (1.0 - RAIL_SHRINK * smoothstep(0.88, 0.98, vUv.y)), ${f(DROP_LARGE.prob)} * dens * rail * smoothstep(0.12, 0.6, low) * 1.5 * clump, 23.9, Lb, film);
     col = mix(col, dTiny.rgb, dTiny.a);
     col = mix(col, dMid.rgb, dMid.a);
     col = mix(col, dLarge.rgb, dLarge.a);

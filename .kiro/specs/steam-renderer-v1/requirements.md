@@ -204,7 +204,7 @@ judged against `before/`; look pass 3 frames are in `after/`, the pass-2 frames 
 
 ## R27. Neutral edge condensation (look pass 3)
 
-1. THE SYSTEM SHALL NOT shift the hue of the film at the pane edges: the mean of `(g - b)` over a 4 % band at the left, right and top edges is within 3 levels of the mean over the pane centre at `t = -1000`. **e2e**
+1. THE SYSTEM SHALL NOT shift the hue of the film at the pane edges: the mean of `(g - b)` over a 4 % band at the left, right and top edges is within 3 levels of the mean over the band just inside it (8 to 12 % in) at `t = -3000` (the pane centre is warmed by the pot by design). **e2e**
 
 ## R28. The window frame (look pass 3)
 

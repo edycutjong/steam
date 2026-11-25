@@ -44,7 +44,8 @@ test('the cloud slides over the moon during the cue and the candle leans (CSS), 
     const flame = getComputedStyle(document.querySelector('.candle__flame')!)
     return { cloud: cloud.transform, cloudT: cloud.transitionDuration, flameAnim: flame.animationName, rotate: flame.rotate }
   })
-  expect(moving.cloudT).toBe('1.2s')
+  // look pass 3: the cloud's position is set at 10 Hz from the reveal clock (--cloud-x), so its transition is short and linear
+  expect(moving.cloudT).toBe('0.12s')
   expect(moving.flameAnim).not.toBe('none')
   expect(moving.rotate).not.toBe('none')
   await page.emulateMedia({ reducedMotion: 'reduce' })

@@ -148,10 +148,12 @@
   min-width: 0;
 }
 
-/* The reviewed reading of the held note: Literata italic in --muted, a whole row above the slip. */
+/* The reviewed reading of the held note: Literata italic in --muted, a row between the pane and the slip. */
 .cook__reading {
-  flex: 1 0 100%;
-  margin: 0 0 4px;
+  width: min(1100px, 100%);
+  margin: 8px auto 0;
+  padding: 0 var(--gutter);
+  box-sizing: border-box;
   color: var(--muted);
   font-family: var(--face-body);
   font-style: italic;
@@ -525,7 +527,7 @@
 
   /* the slip fields and the credit run on as one small paragraph */
   .cook__reading {
-    margin: 0 0 4px;
+    margin: 6px auto 0;
     font-size: 15px;
     line-height: 1.3;
   }

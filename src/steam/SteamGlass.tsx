@@ -232,7 +232,7 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
 
   return (
     <>
-      <NightView haunt={haunt} />
+      <NightView haunt={haunt} frozenMs={effective.t} />
       <div className="rail rail--meeting" />
       <div className="sash sash--lower">
         {status === 'fallback' || status === 'error' ? (

@@ -2,6 +2,7 @@
 // `--night` sky, faint stars, a low full moon with halo and maria, seeded bare branches crossing it, a thin cloud, and a muntin
 // that splits the sash into two panes. `haunt` drives the cue by CSS: the cloud slides over the moon and comes off again.
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { branchPaths, NIGHT_H, NIGHT_W, prng } from './branches.ts'
 import type { Haunt } from './haunt.ts'
 
@@ -42,7 +43,9 @@ export function stars(seed: number): { x: number; y: number; r: number; o: numbe
   return out
 }
 
-export default function NightView({ haunt = 'calm' }: { haunt?: Haunt }) {
+export default function NightView({ haunt = 'calm', frozenMs = null }: { haunt?: Haunt; frozenMs?: number | null }) {
+  // under a frozen clock (`?t=`) the cloud's slow drift is paused at -t, so one t is one frame
+  const frozen = frozenMs !== null && Number.isFinite(frozenMs) ? ({ '--flame-delay': `${-Math.round(frozenMs)}ms`, '--flame-play': 'paused' } as CSSProperties) : undefined
   const layers = useMemo(() => branchPaths(BRANCH_SEED), [])
   const starList = useMemo(() => stars(BRANCH_SEED + 1), [])
   const svgRef = useRef<SVGSVGElement>(null)
@@ -60,7 +63,7 @@ export default function NightView({ haunt = 'calm' }: { haunt?: Haunt }) {
     return () => ro.disconnect()
   }, [])
   return (
-    <div className="sash sash--upper" data-haunt={haunt}>
+    <div className="sash sash--upper" data-haunt={haunt} style={frozen}>
       <svg
         ref={svgRef}
         className="night"

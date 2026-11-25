@@ -52,7 +52,7 @@ describe('Cook screen (R9, R14.7, R14.8, R18.5, R18.6, R19.1, R19.2, R19.8, R15.
     expect(host.querySelector('[data-note-reading]')).toBeNull()
     await tick(WRITE_ON_MS + 100)
     expect(root.dataset.noteState).toBe('held')
-    const reading = host.querySelector('.cook__under [data-note-reading]') as HTMLElement
+    const reading = host.querySelector('.cook > [data-note-reading]') as HTMLElement
     expect(reading).not.toBeNull()
     expect(reading.getAttribute('aria-hidden')).toBe('true')
     expect(text(reading)).toBe('full ripe,')

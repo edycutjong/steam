@@ -10,7 +10,10 @@ test.use({ viewport: VIEWPORTS.desktop })
 // Fog shades vary slowly down and across the pane, so the note's area is compared with fog on the same rows.
 // Variance is taken on the high-pass residual (detailVariance): the stacked desktop layout makes each group rect
 // about 840 px wide, and raw variance over that width picks up the fog's slow shading (3.9x with no note at all).
-const MEAN_TOL = 8
+// Re-pinned in look pass 3 (8 to 16). Two causes, both by design: the desktop hero is 16 % larger, so the lower group's side strip now reaches
+// the candle's bloom (measured 11.9 at t=-3000 and 13.3 at t=-1500); and at t=-1 the cold breath blooms around the point where the hand will begin
+// (R21.3, measured 15.1). The detail-variance and warmth checks below still guard against any hint of the strokes.
+const MEAN_TOL = 16
 const VARIANCE_RATIO = 1.6
 // Ember light is warm (red above blue). Fog is blue-grey, so its warmest pixel stays below this.
 // Was 6. With the stacked desktop layout the lower group sits centred over the pot's glow, which shows through

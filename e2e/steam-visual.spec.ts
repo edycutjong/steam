@@ -68,7 +68,8 @@ for (const [name, viewport] of SIZES) {
       expect(cores.length, 'stroke pixels').toBeGreaterThan(200)
       const ls = cores.map(([x, y]) => lum(x, y)).sort((a, b) => a - b)
       const spread = ls[Math.floor(ls.length * 0.95)] - ls[Math.floor(ls.length * 0.05)]
-      expect(spread, 'luminance spread (p95 - p5) across the stroke').toBeGreaterThanOrEqual(30)
+      // Look pass 3 (R19.2): the stroke is a window onto the room, so it varies more: re-pinned from 30 to 40.
+      expect(spread, 'luminance spread (p95 - p5) across the stroke').toBeGreaterThanOrEqual(40)
       // R14.3: the fill follows the pen's pressure; measured 64 on the desktop frame and 40 on the 390 px one (the v1 bound was 12).
       // no 24 x 24 window around the strokes is brighter than 92 % on average
       let worst = 0
@@ -151,6 +152,14 @@ for (const [name, viewport] of SIZES) {
       const bandPx = zoneH * (w - 40)
       expect(middle, 'droplet pixels in the middle band').toBeGreaterThan(0.004 * bandPx)
       expect(nearRail, 'droplet pixels near the rail').toBeGreaterThan(1.1 * middle)
+      // Look pass 3 (R26.1): gravity. Fewer and finer droplets in the top third than in the bottom third.
+      const third = (f: number): number => {
+        let n = 0
+        const h = Math.round(o.h / 3)
+        for (let y0 = o.y + Math.round(o.h * f); y0 < o.y + Math.round(o.h * f) + h - zoneH; y0 += zoneH) n += beadPixels(y0)
+        return n
+      }
+      expect(third(0), 'droplet pixels in the top third').toBeLessThanOrEqual(0.6 * third(2 / 3))
 
       // R17: the diagonal streak is gone. The line where it used to run is no lighter than its neighbours by more than the film's own variation.
       const lum = (sv: number): number => {

@@ -192,8 +192,8 @@ describe('look pass 3: runs, droplets and the edge (R25 to R27)', () => {
   it('weighs droplets by gravity: fewer and finer at the top, larger and in clusters lower; lenses are dark with a small catch-light (R26)', () => {
     expect(DROP_TOP_SCALE).toBeLessThan(1)
     expect(LENS_BODY).toBeLessThan(0.8)
-    expect(COMPOSITE_FRAG).toContain('mix(0.45, 1.0, low)')
-    expect(COMPOSITE_FRAG).toContain('smoothstep(0.22, 0.95, low)')
+    expect(COMPOSITE_FRAG).toContain('mix(0.5, 1.2, g)')
+    expect(COMPOSITE_FRAG).toContain('smoothstep(0.12, 0.6, low)')
     expect(COMPOSITE_FRAG).toContain('clump')
     expect(COMPOSITE_FRAG).toContain('smoothstep(0.12, 0.7, Lb)') // warm light only where the room light reaches the lens
     expect(COMPOSITE_FRAG).toContain('exp(-dot(a, a) * 60.0)')

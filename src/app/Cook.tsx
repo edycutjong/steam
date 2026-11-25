@@ -289,12 +289,12 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
         )}
         <PaceBadge pace={pace} />
       </DragSurface>
+      {readingNote ? (
+        <p className="cook__reading" aria-hidden="true" data-note-reading>
+          <ReadingText segments={quoteSegments(b, readingNote)} />
+        </p>
+      ) : null}
       <div className="cook__under">
-        {readingNote ? (
-          <p className="cook__reading" aria-hidden="true" data-note-reading>
-            <ReadingText segments={quoteSegments(b, readingNote)} />
-          </p>
-        ) : null}
         {showSlip ? (
           <div className="cook__source">
             <ArchiveSlip bundle={b} compact />
