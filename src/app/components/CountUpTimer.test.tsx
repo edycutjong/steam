@@ -16,16 +16,41 @@ describe('CountUpTimer (R10.1, R10.4 to R10.7)', () => {
   it('shows formatElapsed(elapsedMs(...)) for the clock, updating as it wakes', async () => {
     const s = reduce(plan, initialState, { type: 'start', wallMs: T0, pace: 4 }).state
     const h = mount(<CountUpTimer plan={plan} state={s} clock={systemClock} />)
-    expect(text(h)).toBe('0:00')
+    expect(h.querySelector('.timer__t')!.textContent).toBe('0:00')
     await tick(5_000)
-    expect(text(h)).toBe(formatElapsed(elapsedMs(s, Date.now())))
-    expect(text(h)).toBe('0:20')
+    expect(h.querySelector('.timer__t')!.textContent).toBe(formatElapsed(elapsedMs(s, Date.now())))
+    expect(h.querySelector('.timer__t')!.textContent).toBe('0:20')
   })
   it('after a simulated 3-hour freeze the first render shows the full time', async () => {
     const s = reduce(plan, initialState, { type: 'start', wallMs: T0, pace: 1 }).state
     vi.setSystemTime(T0 + 3 * 3600_000)
     const h = mount(<CountUpTimer plan={plan} state={s} clock={systemClock} />)
     expect(text(h)).toBe('3:00:00')
+  })
+  // cook-mode-qa-r1 Q1: a clock that runs faster than the wall must say so, in its text and in its accessible name
+  it('at ×12 the timer says it is cooking time at ×12, in the visible text and the accessible name', async () => {
+    const s = reduce(plan, initialState, { type: 'start', wallMs: T0, pace: 12 }).state
+    const h = mount(<CountUpTimer plan={plan} state={s} clock={systemClock} />)
+    await tick(15_000) // 3:00 of cooking time
+    const el = h.querySelector('.timer')!
+    expect(el.querySelector('.timer__t')!.textContent).toBe('3:00')
+    expect(text(el)).toBe('3:00 cooking time at ×12')
+    expect(el.getAttribute('aria-label')).toBe('3:00, cooking time at ×12')
+  })
+  it('at ×4 it says ×4; at real time it adds nothing and sets no name of its own', async () => {
+    const four = reduce(plan, initialState, { type: 'start', wallMs: T0, pace: 4 }).state
+    expect(text(mount(<CountUpTimer plan={plan} state={four} clock={systemClock} />))).toBe('0:00 cooking time at ×4')
+    const one = reduce(plan, initialState, { type: 'start', wallMs: T0, pace: 1 }).state
+    const el = mount(<CountUpTimer plan={plan} state={one} clock={systemClock} />).querySelector('.timer')!
+    expect(text(el)).toBe('0:00')
+    expect(el.getAttribute('aria-label')).toBeNull()
+    expect(el.querySelector('.timer__pace')).toBeNull()
+  })
+  it('the pace caption follows a pace change from the state\'s own history', async () => {
+    const a = reduce(plan, initialState, { type: 'start', wallMs: T0, pace: 1 })
+    const b = reduce(plan, a.state, { type: 'setPace', pace: 12, wallMs: T0 + 1000 } as never)
+    const h = mount(<CountUpTimer plan={plan} state={b.state} clock={systemClock} />)
+    expect(h.querySelector('.timer__pace')!.textContent).toBe('cooking time at ×12')
   })
   it('the ember class only in the last 10 s of wall time before a pending reveal, at any pace', async () => {
     const s = reduce(plan, initialState, { type: 'start', wallMs: T0, pace: 12 }).state // due 50 s of wall time later

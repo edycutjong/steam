@@ -13,6 +13,8 @@ export const WIPE = {
   wipe: 'Wipe the glass',
   quoted: 'The hand, quoted',
   writing: 'The note is being written',
+  /** The control's own label while the hand is being written on the glass (cook-mode-qa-r1 Q2). */
+  handWriting: 'The hand is writing…',
 } as const
 
 export const stepOf = (n: number, N: number): string => `Step ${n} of ${N}`
@@ -31,11 +33,15 @@ export const ANNOUNCE = {
   timing: (span: string, label: string): string => `${span}: ${label}`,
 } as const
 
+const PACE_NAMES: Record<4 | 12, string> = { 4: '×4', 12: '×12' }
+
 export const PACE = {
   names: { 1: 'Real time', 4: '×4', 12: '×12' } as Record<1 | 4 | 12, string>,
   valueText: { 1: 'Real time', 4: '×4 pace', 12: '×12 pace' } as Record<1 | 4 | 12, string>,
   badge: { 4: '×4 pace', 12: '×12 pace' } as Record<4 | 12, string>,
   knobLabel: 'Pace of the pot',
+  /** Under the step clock while the pace is not real time: the clock runs on cooking time, not on the wall (cook-mode-qa-r1 Q1). */
+  cooking: (pace: 4 | 12): string => `cooking time at ${PACE_NAMES[pace]}`,
 } as const
 
 export const SHELF = {

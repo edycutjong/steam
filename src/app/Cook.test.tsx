@@ -129,4 +129,16 @@ describe('Cook screen (R9, R14.7, R14.8, R18.5, R18.6, R19.1, R19.2, R19.8, R15.
     await press(host)
     expect(root.dataset.step).toBe('2')
   })
+  // cook-mode-qa-r1 Q1
+  it('at ×12 the clock on the screen says it is paced, in its text and in its accessible name; at real time it does not', async () => {
+    const a = await open('#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12')
+    await tick(5000)
+    const t = a.host.querySelector('.timer')!
+    expect(text(t)).toMatch(/^\d+:\d\d cooking time at ×12$/)
+    expect(t.getAttribute('aria-label')).toMatch(/^\d+:\d\d, cooking time at ×12$/)
+    unmountAll()
+    const b = await open('#/r/quinces-marmalade/cook')
+    expect(text(b.host.querySelector('.timer'))).toMatch(/^\d+:\d\d$/)
+    expect(b.host.querySelector('.timer')!.hasAttribute('aria-label')).toBe(false)
+  })
 })

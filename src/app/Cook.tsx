@@ -294,7 +294,7 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
         <StepPanel bundle={b} stepIndex={stepIndex} />
         <DisagreeDescription />
         <div className="cook__side">
-          <CountUpTimer plan={plan} state={state} clock={session.clock} />
+          <CountUpTimer plan={plan} state={state} clock={session.clock} pace={pace} />
           <FlameKnob pace={pace} onPace={onPace} />
         </div>
         {session.persistent ? null : <p className="cook__keep">{COOK.noKeep}</p>}

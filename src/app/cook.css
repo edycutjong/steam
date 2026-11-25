@@ -285,6 +285,22 @@
   transition: color 400ms ease;
 }
 
+.timer__t {
+  display: block;
+}
+
+/* The caption that ties the clock to the pot's pace: small, body face, right under the digits (cook-mode-qa-r1 Q1). */
+.timer__pace {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--face-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+
 .timer--ember {
   color: var(--after);
 }
