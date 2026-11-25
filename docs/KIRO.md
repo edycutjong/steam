@@ -1,6 +1,6 @@
 # How Kiro built this
 
-**304 of 336 commits** in this repository are marked `[kiro]`: they were made by a Kiro session running a spec task, a bugfix spec or an agent workflow. The other 32 are marked `[claude-direct]` (scaffold, measurement scripts, bench and provenance runs, interaction-QA CSS, evidence write-ups). Every Kiro turn of this build ran headless: `kiro-cli chat --v3 --no-interactive --trust-all-tools`, from this folder.
+**304 commits** in this repository are marked `[kiro]` (`git log --format=%s | grep -c "^\[kiro\]"`): they were made by a Kiro session running a spec task, a bugfix spec or an agent workflow. The rest are marked `[claude-direct]` (scaffold, measurement scripts, bench and provenance runs, interaction-QA CSS, evidence write-ups). Every Kiro turn of this build ran headless: `kiro-cli chat --v3 --no-interactive --trust-all-tools`, from this folder.
 
 This page is the causal chain: for each Kiro feature, the file that drove the work, what it changed, and where to check it. Then the gap we found in our own hook evidence, and a list of what was planned and **not** built.
 
