@@ -112,7 +112,7 @@ export default function SteamPane({ stem, paneDir, noteId, query }: Props) {
         {status === 'error' ? <p className="load-error">{LOAD_FAILED}</p> : null}
         <p className="credit">{CREDIT}</p>
         {phase === 'holding' && reading ? (
-          <p className={frozen ? 'note-reading note-reading--still' : 'note-reading'} aria-hidden="true" data-note-reading>
+          <p className={frozen ? 'note-reading note-reading--still' : 'note-reading'} data-note-reading>
             <ReadingText segments={segments} />
           </p>
         ) : null}
