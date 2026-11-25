@@ -140,6 +140,8 @@ export const FINGER_R_CSS = 11.0
 export const FINGER_CLEAR = 0.45
 export const PULSE_DENSITY = 0.14
 export const PULSE_COOL = 0.25
+/** The cold of the cue is the film's own base colour, a little lighter: it thickens the film without turning its hue. */
+export const COLD_SCALE = 1.28
 export const PRE_R_CSS = 210.0
 export const PRE_DENSITY = 0.18
 export const PRE_COOL = 0.5
@@ -186,7 +188,10 @@ export const DROP_LARGE = { cell: 38.0, rLo: 3.5, rHi: 6.5, prob: 0.07 }
 /** The sill gathers a few more large droplets, not a row of glowing beads; they are smaller and take less of the room's light. */
 export const RAIL_DROP_BOOST = 1.6
 export const RAIL_SHRINK = 0.3
-export const LENS_WARM = 0.6
+/** Droplets at the top of the pane are this fraction of their size at the bottom. */
+export const DROP_TOP_SCALE = 0.6
+export const LENS_WARM = 0.5
+export const LENS_BODY = 0.6
 
 /** Wet edge (design §6.1): blur lod of the ink for the lip and the normal, lip density and brightness, cold rim strength, bead size. */
 export const INK_LOD_BLUR = 1.0
@@ -205,6 +210,10 @@ export const BEAD_R_CSS = { lo: 1.2, hi: 2.4 }
 /** Running water (design §6.2). */
 export const RUN_MAX = 6
 export const RUN_REFOG_S = 45.0
+/** A run's channel is clear glass: lighter than the film beside it (the room seen through it). */
+export const RUN_CHAN_FILM = 0.72
+export const RUN_CHAN_GHOST = 0.2
+export const RUN_CHAN_A = 0.82
 
 const f = (x: number): string => x.toFixed(3)
 
@@ -272,6 +281,7 @@ const float FINGER_CLEAR = ${f(FINGER_CLEAR)};
 const float PULSE_DENSITY = ${f(PULSE_DENSITY)};
 const float PULSE_COOL = ${f(PULSE_COOL)};
 const float PRE_R = ${f(PRE_R_CSS)};
+const float COLD_SCALE = ${f(COLD_SCALE)};
 const float PRE_DENSITY = ${f(PRE_DENSITY)};
 const float PRE_COOL = ${f(PRE_COOL)};
 const float POT_GAIN = ${f(POT_GAIN)};
@@ -310,6 +320,9 @@ const float BEAD_SPACING = ${f(BEAD_SPACING_CSS)};
 const float BEAD_R_LO = ${f(BEAD_R_CSS.lo)};
 const float BEAD_R_HI = ${f(BEAD_R_CSS.hi)};
 const float RUN_REFOG_S = ${f(RUN_REFOG_S)};
+const float RUN_CHAN_FILM = ${f(RUN_CHAN_FILM)};
+const float RUN_CHAN_GHOST = ${f(RUN_CHAN_GHOST)};
+const float RUN_CHAN_A = ${f(RUN_CHAN_A)};
 const float RUN_K1 = ${(2 * Math.PI / RUN_WAVE1_CSS).toFixed(5)};
 const float RUN_K2 = ${(2 * Math.PI / RUN_WAVE2_CSS).toFixed(5)};
 const float RUN_RAMP = ${f(RUN_RAMP_CSS)};
@@ -321,7 +334,9 @@ const float BREATH_DENSITY = ${f(BREATH_DENSITY)};
 const float BREATH_COOL = ${f(BREATH_COOL)};
 const float RAIL_BOOST = ${f(RAIL_DROP_BOOST)};
 const float RAIL_SHRINK = ${f(RAIL_SHRINK)};
+const float DROP_TOP_SCALE = ${f(DROP_TOP_SCALE)};
 const float LENS_WARM = ${f(LENS_WARM)};
+const float LENS_BODY = ${f(LENS_BODY)};
 ${NOISE_GLSL}
 
 // How clear the glass is for a scan alpha: monotone and continuous over the whole range (transmission.ts is the twin).
@@ -479,12 +494,11 @@ float smearAt(vec2 p, float R) {
 // q is the offset from the droplet centre in radius units (y down).
 vec3 lensColour(vec2 q, float Lb, float r2, vec3 filmC) {
   float inv = 0.5 - 0.5 * q.y; // a droplet inverts the scene: the warm light from below shows high in it
-  vec3 c = filmC * 0.82 + uAfter * Lb * LENS_WARM * (0.25 + 0.9 * inv);
+  // a darker lens than the film around it: warm light only where the room light genuinely reaches it, a small catch-light
+  vec3 c = filmC * LENS_BODY + uAfter * Lb * LENS_WARM * (0.2 + 0.8 * inv) * smoothstep(0.12, 0.7, Lb);
   vec2 a = q - vec2(-0.38, -0.42);
-  vec2 b = q - vec2(0.36, 0.4);
-  c += uMoon * 0.5 * exp(-dot(a, a) * 26.0);
-  c += uAfter * 0.1 * exp(-dot(b, b) * 16.0);
-  return mix(c, filmC * 0.45, smoothstep(0.6, 0.97, r2) * 0.75);
+  c += uMoon * 0.55 * exp(-dot(a, a) * 60.0);
+  return mix(c, filmC * 0.22, smoothstep(0.55, 0.96, r2) * 0.88);
 }
 
 // One layer of jittered droplets: each cell holds at most one, radius at most 0.3 cell, so the 2x2 cells nearest the
@@ -539,10 +553,10 @@ float runOff(float dyc, float ampCss, float lean, float seed) {
 // one small catch-light. Water is clear, so its body is the dark room, never a white dot.
 vec3 beadColour(vec2 q, float Lb, float r2, vec3 filmC, vec3 dark) {
   float inv = 0.5 - 0.5 * q.y;
-  vec3 c = filmC * 0.5 + dark * 0.4 + uAfter * (0.1 + 0.9 * Lb) * (0.15 + 0.85 * inv * inv) * 0.7;
+  vec3 c = filmC * 0.62 + dark * 0.45 + uAfter * (0.16 + 0.9 * Lb) * (0.2 + 0.8 * inv * inv) * 0.9;
   vec2 a = q - vec2(-0.36, -0.4);
-  c += uMoon * 0.3 * exp(-dot(a, a) * 70.0);
-  return mix(c, filmC * 0.3, smoothstep(0.55, 0.95, r2) * 0.8);
+  c += uMoon * 0.4 * exp(-dot(a, a) * 70.0);
+  return mix(c, filmC * 0.3, smoothstep(0.62, 0.97, r2) * 0.7);
 }
 
 void main() {
@@ -724,11 +738,12 @@ void main() {
   film *= 1.0 + GRAIN_A * grain;
   // The film piles up at the edge of every stroke and run, brighter on the side the moon lights.
   film *= 1.0 + LIP_BRIGHT * (lip * (0.35 + 0.65 * lit) + 0.3 * ridge);
-  film = mix(film, uGhost * 0.8, bloomM * 0.5);
-  film = mix(film, uGhost * 0.85, BREATH_COOL * breath);
-  film = mix(film, uGhost * 0.85, clamp(PULSE_COOL * pulse + PRE_COOL * pre, 0.0, 1.0));
+  vec3 coldTone = uBefore * COLD_SCALE;
+  film = mix(film, coldTone, bloomM * 0.5);
+  film = mix(film, coldTone, BREATH_COOL * breath);
+  film = mix(film, coldTone, clamp(PULSE_COOL * pulse + PRE_COOL * pre, 0.0, 1.0));
   float edgeShade = 1.0 - smoothstep(0.0, 0.08 * min(uRes.x, uRes.y), min(min(fragPx.x, uRes.x - fragPx.x), fragPx.y));
-  film = mix(film, film * vec3(0.94, 1.06, 1.0), edgeShade);
+  film *= 1.0 + 0.05 * edgeShade; // neutral condensation at the edges: brighter, never a hue shift
 
   // The warm light of a written stroke reaches into the film around it and thins it a little.
   float haloLit = halo * (1.0 - T) * (1.0 - swept) * (0.55 + 0.9 * Lr);
@@ -745,8 +760,8 @@ void main() {
   col *= 1.0 - FAR_SHADE * mBand * smoothstep(0.05, 0.75, -facing);
 
   // The channel of a run is clear glass: the dark room and the night seen through it, with a little warmth from the pot.
-  vec3 chan = uBg + uNight * 1.5 + uAfter * (0.04 + Lr * 0.5);
-  col = mix(col, chan, 0.72 * trail * (1.0 - swept) * (1.0 - T));
+  vec3 chan = film * RUN_CHAN_FILM + uGhost * RUN_CHAN_GHOST + uAfter * (0.05 + 0.45 * Lr);
+  col = mix(col, chan, RUN_CHAN_A * trail * (1.0 - swept) * (1.0 - smoothstep(0.0, 0.15, T)));
 
   // Beads hang under the lower edges of near-horizontal strokes.
   if (uDetail > 0.5 && edgeB > 0.04 && edgeB < 0.45 && outN.y > 0.55 && sd > 0.0) {
@@ -769,10 +784,14 @@ void main() {
     float Lb = roomBase(vUv);
     float keep = (1.0 - smoothstep(0.0, 0.35, T)) * (1.0 - swept) * (1.0 - trail);
     float dens = smoothstep(0.3, 0.9, fogD) * keep;
+    // Gravity: fewer and finer at the top, larger and in clusters lower down.
+    float low = vUv.y;
+    float clump = 0.45 + 0.85 * smoothstep(0.35, 0.65, vnoise2(css / 70.0 + 3.1));
+    float rS = mix(DROP_TOP_SCALE, 1.0, low);
     float rail = 1.0 + (RAIL_BOOST - 1.0) * smoothstep(0.88, 0.98, vUv.y);
-    vec4 dTiny = dropLayer(fragPx, ${f(DROP_TINY.cell)}, ${f(DROP_TINY.rLo)}, ${f(DROP_TINY.rHi)}, ${f(DROP_TINY.prob)} * dens, 5.3, Lb, film);
-    vec4 dMid = dropLayer(fragPx, ${f(DROP_MID.cell)}, ${f(DROP_MID.rLo)}, ${f(DROP_MID.rHi)}, ${f(DROP_MID.prob)} * dens, 61.1, Lb, film);
-    vec4 dLarge = dropLayer(fragPx, ${f(DROP_LARGE.cell)}, ${f(DROP_LARGE.rLo)}, ${f(DROP_LARGE.rHi)} * (1.0 - RAIL_SHRINK * smoothstep(0.88, 0.98, vUv.y)), ${f(DROP_LARGE.prob)} * dens * rail, 23.9, Lb, film);
+    vec4 dTiny = dropLayer(fragPx, ${f(DROP_TINY.cell)}, ${f(DROP_TINY.rLo)} * rS, ${f(DROP_TINY.rHi)} * rS, ${f(DROP_TINY.prob)} * dens * mix(0.45, 1.0, low) * clump, 5.3, Lb, film);
+    vec4 dMid = dropLayer(fragPx, ${f(DROP_MID.cell)}, ${f(DROP_MID.rLo)} * rS, ${f(DROP_MID.rHi)} * rS, ${f(DROP_MID.prob)} * dens * mix(0.3, 1.0, low) * clump, 61.1, Lb, film);
+    vec4 dLarge = dropLayer(fragPx, ${f(DROP_LARGE.cell)}, ${f(DROP_LARGE.rLo)} * rS, ${f(DROP_LARGE.rHi)} * rS * (1.0 - RAIL_SHRINK * smoothstep(0.88, 0.98, vUv.y)), ${f(DROP_LARGE.prob)} * dens * rail * smoothstep(0.22, 0.95, low) * clump, 23.9, Lb, film);
     col = mix(col, dTiny.rgb, dTiny.a);
     col = mix(col, dMid.rgb, dMid.a);
     col = mix(col, dLarge.rgb, dLarge.a);

@@ -18,6 +18,10 @@ import {
   LAMP_DIR,
   WINDOW_REFRACT_CSS,
   FINGER_R_CSS,
+  RUN_CHAN_FILM,
+  RUN_CHAN_GHOST,
+  DROP_TOP_SCALE,
+  LENS_BODY,
   FINGER_CLEAR,
   PULSE_DENSITY,
   HEAD_MAX_LUMA,
@@ -175,5 +179,28 @@ describe('look pass 3: the unseen finger (R21)', () => {
     expect(COMPOSITE_FRAG).toContain('uTrail[0]')
     // a pulse thickens the film where the glass is not already clear
     expect(COMPOSITE_FRAG).toContain('(PULSE_DENSITY * pulse + PRE_DENSITY * pre) * (1.0 - T)')
+  })
+})
+
+describe('look pass 3: runs, droplets and the edge (R25 to R27)', () => {
+  it('draws a run as a channel lighter than the film beside it, hidden over ink, ending in a bright bead (R25.1)', () => {
+    expect(RUN_CHAN_FILM + RUN_CHAN_GHOST).toBeGreaterThan(0.9) // the channel carries at least the film's own light
+    expect(COMPOSITE_FRAG).toContain('vec3 chan = film * RUN_CHAN_FILM')
+    expect(COMPOSITE_FRAG).toContain('(1.0 - smoothstep(0.0, 0.15, T))')
+    expect(COMPOSITE_FRAG).toContain('exp(-dot(a, a) * 70.0)')
+  })
+  it('weighs droplets by gravity: fewer and finer at the top, larger and in clusters lower; lenses are dark with a small catch-light (R26)', () => {
+    expect(DROP_TOP_SCALE).toBeLessThan(1)
+    expect(LENS_BODY).toBeLessThan(0.8)
+    expect(COMPOSITE_FRAG).toContain('mix(0.45, 1.0, low)')
+    expect(COMPOSITE_FRAG).toContain('smoothstep(0.22, 0.95, low)')
+    expect(COMPOSITE_FRAG).toContain('clump')
+    expect(COMPOSITE_FRAG).toContain('smoothstep(0.12, 0.7, Lb)') // warm light only where the room light reaches the lens
+    expect(COMPOSITE_FRAG).toContain('exp(-dot(a, a) * 60.0)')
+  })
+  it('condenses at the pane edges without a hue shift (R27.1)', () => {
+    expect(COMPOSITE_FRAG).not.toContain('vec3(0.94, 1.06, 1.0)')
+    expect(COMPOSITE_FRAG).toContain('film *= 1.0 + 0.05 * edgeShade')
+    expect(COMPOSITE_FRAG).not.toMatch(/mix\(film, uGhost/) // the cue's cold is the film's own base colour, not --ghost's blue-green
   })
 })

@@ -98,11 +98,11 @@ The shader budget does not grow in textures: the window, the finger smear and th
   - Soft limb, procedural mottling in place of ellipses, tapered crooked branches clear of the disc's centre.
   - Satisfies: R23.
 
-- [ ] 25. Candle on a sill ledge (R24)
+- [x] 25. Candle on a sill ledge (R24)
   - Ledge proud of the frame, irregular wax with a drip, flame flicker deterministic under `?t=`, warm bloom on the rail and glass.
   - Satisfies: R24.
 
-- [ ] 26. Runs, droplets, edge tint (R25, R26, R27)
+- [x] 26. Runs, droplets, edge tint (R25, R26, R27)
   - Lighter channel ending in a bright bead, never over ink; gravity-weighted dark lenses; neutral edge condensation.
   - Satisfies: R25, R26, R27.
 
