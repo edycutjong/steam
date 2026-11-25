@@ -78,7 +78,7 @@ function refuseReason(root: string, id: string, entry: { title: string; gateSha2
     reviewedBy = typeof r.reviewedBy === 'string' ? r.reviewedBy.trim() : ''
     Review.parse(r)
   } catch {
-    return `${id}: no valid review.json with a reviewedBy (a person reviews a recipe; an agent does not write it)`
+    return `${id}: no valid review.json with a reviewedBy (a named reviewer signs the transcription and the edition page prints who; an agent may not write the catalog to skip that)`
   }
   if (!reviewedBy) return `${id}: review.json has an empty reviewedBy`
   let v
