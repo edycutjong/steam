@@ -567,6 +567,37 @@ function walk(command: string, st: State, depth: number): void {
   for (const c of L.cmds) handle(c, L.cmds, st, depth)
 }
 
+/** The words of every simple command of `command`, in order, including those inside $( ), backticks and `bash -c '…'`. */
+export function commandWords(command: string, depth = 0): string[][] {
+  const L = new Lexer(command)
+  L.run(false)
+  const out: string[][] = []
+  for (const c of L.cmds) {
+    const words = c.words.slice()
+    while (words.length && (/^[A-Za-z_]\w*=/.test(words[0]!) || WRAPPERS.has(words[0]!))) words.shift()
+    if (!words.length) continue
+    out.push(words)
+    if (SHELLS.has(posix.basename(words[0]!)) && depth < DEPTH_MAX) {
+      const k = words.findIndex((a) => /^-[A-Za-z]*c$/.test(a))
+      if (k >= 0 && words[k + 1] !== undefined) out.push(...commandWords(words[k + 1]!, depth + 1))
+    }
+  }
+  return out
+}
+
+/** True when a simple command of `command` is the one that writes the public catalog: `npm run catalog`, or steam-ingest's `catalog`. */
+export function runsCatalogCommand(command: string): boolean {
+  return commandWords(command).some((w) => {
+    const name = posix.basename(w[0]!)
+    if (/^(?:npm|pnpm|yarn|bun)$/.test(name)) {
+      const rest = w.slice(1).filter((x) => x !== 'run' && x !== '--')
+      return rest[0] === 'catalog' || (rest[0] === 'steam-ingest' && rest[1] === 'catalog')
+    }
+    const cli = w.findIndex((x) => x.endsWith('steam-ingest/cli.ts'))
+    return cli >= 0 && w[cli + 1] === 'catalog'
+  })
+}
+
 export function analyzeShell(command: string, opt: ShellOptions): ShellAnalysis {
   const root = posix.normalize(opt.root).replace(/\/+$/, '') || '/'
   const cwd = opt.cwd ? (opt.cwd.startsWith('/') ? posix.normalize(opt.cwd) : posix.resolve(root, opt.cwd)) : root
