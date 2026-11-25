@@ -90,7 +90,7 @@ The shader budget does not grow in textures: the window, the finger smear and th
   - Desktop scale up and centring, halo and lip reduced so counters stay open, transmission checked against `hero.coverage.test.ts`; the reviewed reading under the pane when the note holds (harness pane and Cook Mode).
   - Satisfies: R20.
 
-- [ ] 23. Something unseen is writing (R21)
+- [x] 23. Something unseen is writing (R21)
   - Finger smear leading the ink, breath pulse at the start of the write-on, the pre-reveal frame (edge thickening, cold breath at the starting point, candle dipping), candle lean toward the head, cloud crossing the moon during the write-on.
   - Satisfies: R21.
 

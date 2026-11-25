@@ -17,6 +17,9 @@ import {
   FAR_SHADE,
   LAMP_DIR,
   WINDOW_REFRACT_CSS,
+  FINGER_R_CSS,
+  FINGER_CLEAR,
+  PULSE_DENSITY,
   HEAD_MAX_LUMA,
   TRAIL_N,
   TRAIL_FALLOFF,
@@ -148,5 +151,29 @@ describe('look pass 3: the stroke is a window (R19)', () => {
   })
   it('does not threshold the ink alpha (R19.5)', () => {
     expect(COMPOSITE_FRAG).not.toMatch(/\bstep\([^)]*aInk|aInk\s*[<>]=?\s*0\.\d/)
+  })
+})
+
+describe('look pass 3: the unseen finger (R21)', () => {
+  it('draws a fingertip-width wet smear that clears the film and carries a cold crescent, capped and never amber (R21.1)', () => {
+    expect(FINGER_R_CSS).toBeGreaterThanOrEqual(6)
+    expect(FINGER_R_CSS).toBeLessThanOrEqual(12)
+    expect(FINGER_CLEAR).toBeGreaterThan(0)
+    expect(COMPOSITE_FRAG).toContain('uniform vec4 uFinger')
+    expect(COMPOSITE_FRAG).toContain('opacity *= 1.0 - FINGER_CLEAR * fing')
+    expect(COMPOSITE_FRAG).toContain('cold * (HEAD_A * 1.3) * cres')
+    expect(COMPOSITE_FRAG).toContain('HEAD_MAX_LUMA')
+    expect(COMPOSITE_FRAG).toContain('mix(uGhost, uMoon, 0.5)')
+  })
+  it('no longer draws the pale smudge at the head (R21.1)', () => {
+    expect(COMPOSITE_FRAG).not.toMatch(/uHeadPos|uHeadGroup|HEAD_R\b/)
+  })
+  it('pulses the film when the write-on starts and blooms a cold breath at the start of the path (R21.2, R21.3)', () => {
+    expect(PULSE_DENSITY).toBeGreaterThan(0)
+    expect(COMPOSITE_FRAG).toContain('uniform float uBreath')
+    expect(COMPOSITE_FRAG).toContain('uniform float uPre')
+    expect(COMPOSITE_FRAG).toContain('uTrail[0]')
+    // a pulse thickens the film where the glass is not already clear
+    expect(COMPOSITE_FRAG).toContain('(PULSE_DENSITY * pulse + PRE_DENSITY * pre) * (1.0 - T)')
   })
 })

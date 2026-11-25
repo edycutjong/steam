@@ -4,7 +4,7 @@
 import type { NoteMeta } from './assets.ts'
 import type { Derived } from './derive.ts'
 import type { Layout } from './layout.ts'
-import { bloomAt, candleLevel } from './haunt.ts'
+import { bloomAt, breathAt, candleLevel, coldBreathAt, fingerU, FINGER_TAIL_U } from './haunt.ts'
 import { QualityGovernor, governorEnabled } from './governor.ts'
 import type { Tier } from './governor.ts'
 import { placeDrips, planDrips, writeRunUniforms } from './drips.ts'
@@ -55,8 +55,8 @@ const STATS_PERIOD_MS = 250
 const FOG_UNIFORMS = ['uSize', 'uTime', 'uThicken'] as const
 const COMP_UNIFORMS = [
   'uRes', 'uDpr', 'uTime', 'uU', 'uThicken', 'uHead', 'uWipe', 'uRefog',
-  'uGroupSrc', 'uGroupDst', 'uGroupCount', 'uNoteSize', 'uHeadPos', 'uHeadGroup',
-  'uTrail', 'uRunA', 'uRunB', 'uRunC', 'uRunCount', 'uFogTexel', 'uCandle', 'uBloom', 'uDetail', 'uBg', 'uInk', 'uBefore', 'uAfter', 'uRule', 'uGhost', 'uMoon', 'uNight', 'uPot',
+  'uGroupSrc', 'uGroupDst', 'uGroupCount', 'uNoteSize',
+  'uTrail', 'uFinger', 'uBreath', 'uPre', 'uRunA', 'uRunB', 'uRunC', 'uRunCount', 'uFogTexel', 'uCandle', 'uBloom', 'uDetail', 'uBg', 'uInk', 'uBefore', 'uAfter', 'uRule', 'uGhost', 'uMoon', 'uNight', 'uPot',
   'uInkTex', 'uChan', 'uFog',
 ] as const
 type Locs<K extends string> = Record<K, WebGLUniformLocation | null>
@@ -184,6 +184,8 @@ export class SteamRenderer {
   private fogH = 1
   private dpr = 1
   private readonly trail = new Float32Array(2 * TRAIL_N)
+  /** The unseen fingertip and the end of its wet streak, device px: (x0, y0, x1, y1). */
+  private readonly finger = new Float32Array(4)
   private readonly runA = new Float32Array(4 * RUN_MAX)
   private readonly runB = new Float32Array(4 * RUN_MAX)
   private readonly runC = new Float32Array(4 * RUN_MAX)
@@ -194,6 +196,8 @@ export class SteamRenderer {
   private candleU = 0.93
   private candleV = 0.86
   private disposed = false
+  private headX = 0
+  private revealT = Number.NEGATIVE_INFINITY
   private readonly gov = new QualityGovernor()
   private readonly govOn =
     typeof location === 'undefined' ? true : governorEnabled(location.search, location.hash, typeof navigator !== 'undefined' && navigator.webdriver === true)
@@ -515,11 +519,6 @@ export class SteamRenderer {
 
     let bin = Math.round((st.u < 0 ? 0 : st.u) * (this.assets.derived.headBins - 1))
     if (bin < 0) bin = 0
-    let headGroup = 0
-    for (let k = 0; k < this.groupCount; k++) {
-      if (st.u >= this.groupT[2 * k]) headGroup = k
-    }
-    const head = this.assets.derived.head
 
     gl.useProgram(r.progComp)
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
@@ -535,14 +534,22 @@ export class SteamRenderer {
     gl.uniform4fv(r.compLoc.uGroupSrc, this.groupSrc)
     gl.uniform4fv(r.compLoc.uGroupDst, this.groupDst)
     gl.uniform1i(r.compLoc.uGroupCount, this.groupCount)
-    gl.uniform2f(r.compLoc.uHeadPos, head[2 * bin], head[2 * bin + 1])
-    gl.uniform1i(r.compLoc.uHeadGroup, headGroup)
     gl.uniform2f(r.compLoc.uFogTexel, 1 / this.fogW, 1 / this.fogH)
     gl.uniform3f(r.compLoc.uCandle, this.candleU, this.candleV, candleLevel(time, t))
     const nRuns = this.detail > 0 ? this.runs.length : 0
     for (let k = 0; k < nRuns; k++) writeRunUniforms(this.runs[k], t, this.dpr, this.runA, this.runB, this.runC, k)
     this.writeTrail(bin)
     gl.uniform2fv(r.compLoc.uTrail, this.trail)
+    const lastBin = this.assets.derived.headBins - 1
+    const fu = fingerU(st.u)
+    this.mapHead(Math.round(fu * lastBin), this.finger, 0)
+    this.mapHead(Math.round(Math.max(0, fu - FINGER_TAIL_U) * lastBin), this.finger, 2)
+    gl.uniform4fv(r.compLoc.uFinger, this.finger)
+    this.headX = this.trail[0]
+    this.revealT = t
+    const cue = this.opts.bloom !== false
+    gl.uniform1f(r.compLoc.uBreath, cue ? breathAt(t) : 0)
+    gl.uniform1f(r.compLoc.uPre, cue ? coldBreathAt(t) : 0)
     gl.uniform4fv(r.compLoc.uRunA, this.runA)
     gl.uniform4fv(r.compLoc.uRunB, this.runB)
     gl.uniform4fv(r.compLoc.uRunC, this.runC)
@@ -554,21 +561,36 @@ export class SteamRenderer {
 
   /** The head's path at the last TRAIL_N samples, device px, for the breath. No allocation. */
   private writeTrail(bin: number): void {
-    const head = this.assets.derived.head
-    const last = this.assets.derived.headBins - 1
     for (let k = 0; k < TRAIL_N; k++) {
       let b = bin - k * TRAIL_STEP
       if (b < 0) b = 0
-      const s = b / last
-      let g = 0
-      for (let i = 0; i < this.groupCount; i++) if (s >= this.groupT[2 * i]) g = i
-      const sx = this.groupSrc[4 * g]
-      const sw = this.groupSrc[4 * g + 2] - sx
-      const dx = this.groupDst[4 * g]
-      const scale = (this.groupDst[4 * g + 2] - dx) / (sw > 0 ? sw : 1)
-      this.trail[2 * k] = dx + (head[2 * b] - sx) * scale
-      this.trail[2 * k + 1] = this.groupDst[4 * g + 1] + (head[2 * b + 1] - this.groupSrc[4 * g + 1]) * scale
+      this.mapHead(b, this.trail, 2 * k)
     }
+  }
+
+  /** Maps head-path bin `b` (note px) to device px through the layout group it lies in, into `out[o], out[o + 1]`. No allocation. */
+  private mapHead(b: number, out: Float32Array, o: number): void {
+    const head = this.assets.derived.head
+    const last = this.assets.derived.headBins - 1
+    const s = b / last
+    let g = 0
+    for (let i = 0; i < this.groupCount; i++) if (s >= this.groupT[2 * i]) g = i
+    const sx = this.groupSrc[4 * g]
+    const sw = this.groupSrc[4 * g + 2] - sx
+    const dx = this.groupDst[4 * g]
+    const scale = (this.groupDst[4 * g + 2] - dx) / (sw > 0 ? sw : 1)
+    out[o] = dx + (head[2 * b] - sx) * scale
+    out[o + 1] = this.groupDst[4 * g + 1] + (head[2 * b + 1] - this.groupSrc[4 * g + 1]) * scale
+  }
+
+  /** The reveal clock of the last frame, ms (negative before the write-on); -Infinity before the first frame. Read at 10 Hz by SteamGlass. */
+  get revealMs(): number {
+    return this.revealT
+  }
+
+  /** Where the writing head is across the pane, 0..1 (the path's start before the write-on). */
+  get headFracX(): number {
+    return this.headX / this.canvasW
   }
 
   /** Fills the preallocated group arrays. `ratio` is canvas px per CSS px. */

@@ -124,7 +124,6 @@ export const FEATHER_K = 0.8
 /** Film grain amplitude as a fraction of the film colour (D16). */
 export const GRAIN_A = 0.07
 export const FOG_MAX = 0.94
-export const HEAD_R = 11.0
 export const HEAD_A = 0.26
 /** The head's added luminance never exceeds this: a cold fingertip glow, never a white hotspot (R5.1). */
 export const HEAD_MAX_LUMA = 0.28
@@ -136,6 +135,14 @@ export const BREATH_R_CSS = 34.0
 export const BREATH_DENSITY = 0.22
 export const BREATH_COOL = 0.3
 export const SWEEP_SOFT = 0.35
+/** The unseen finger (look pass 3): smear radius in css px, how much of the film it clears, the breath pulse and the cold breath at the start. */
+export const FINGER_R_CSS = 11.0
+export const FINGER_CLEAR = 0.45
+export const PULSE_DENSITY = 0.14
+export const PULSE_COOL = 0.25
+export const PRE_R_CSS = 210.0
+export const PRE_DENSITY = 0.18
+export const PRE_COOL = 0.5
 
 /** Room behind the glass (design §4): light of the pot, of the candle, of the floor, and the bokeh. */
 export const POT_GAIN = 0.62
@@ -224,13 +231,14 @@ uniform vec4 uGroupSrc[4];
 uniform vec4 uGroupDst[4];
 uniform int uGroupCount;
 uniform vec2 uNoteSize;
-uniform vec2 uHeadPos;
-uniform int uHeadGroup;
 uniform vec2 uFogTexel;
 uniform vec3 uCandle;
 uniform float uBloom;
 uniform float uDetail;
 uniform vec2 uTrail[6];
+uniform vec4 uFinger;
+uniform float uBreath;
+uniform float uPre;
 uniform vec4 uRunA[6];
 uniform vec4 uRunB[6];
 uniform vec4 uRunC[6];
@@ -257,9 +265,15 @@ const float FOG_MAX = ${FOG_MAX.toFixed(2)};
 const float STROKE_LUMA_MAX = ${STROKE_LUMA_MAX.toFixed(2)};
 const float STROKE_PEAK_MAX = ${STROKE_PEAK_MAX.toFixed(2)};
 const float GRAIN_A = ${GRAIN_A.toFixed(2)};
-const float HEAD_R = ${HEAD_R.toFixed(1)};
 const float HEAD_A = ${HEAD_A.toFixed(2)};
 const float SWEEP_SOFT = ${SWEEP_SOFT.toFixed(2)};
+const float FINGER_R = ${f(FINGER_R_CSS)};
+const float FINGER_CLEAR = ${f(FINGER_CLEAR)};
+const float PULSE_DENSITY = ${f(PULSE_DENSITY)};
+const float PULSE_COOL = ${f(PULSE_COOL)};
+const float PRE_R = ${f(PRE_R_CSS)};
+const float PRE_DENSITY = ${f(PRE_DENSITY)};
+const float PRE_COOL = ${f(PRE_COOL)};
 const float POT_GAIN = ${f(POT_GAIN)};
 const float CANDLE_GAIN = ${f(CANDLE_GAIN)};
 const float FLOOR_GAIN = ${f(FLOOR_GAIN)};
@@ -450,6 +464,15 @@ float windowLight(vec2 cssPos, vec2 uv) {
   L += WINDOW_BOKEH_COARSE * discs(cssPos, BOKEH_CELL, BOKEH_CELL * 0.14, BOKEH_CELL * 0.3, 0.55, 3.7) * (0.35 + 0.65 * smoothstep(0.0, 0.8, uv.y));
   L += WINDOW_BOKEH_FINE * discs(cssPos, WINDOW_FINE_CELL, WINDOW_FINE_CELL * 0.17, WINDOW_FINE_CELL * 0.4, 0.68, 91.3);
   return L;
+}
+
+// The unseen fingertip: a capsule from the finger to the end of its wet trail, soft edged. 1 inside, 0 outside.
+float smearAt(vec2 p, float R) {
+  vec2 pa = uFinger.xy;
+  vec2 ab = uFinger.zw - pa;
+  float h = clamp(dot(p - pa, ab) / max(dot(ab, ab), 1.0), 0.0, 1.0);
+  float d = length(p - pa - ab * h) / R;
+  return 1.0 - smoothstep(0.3, 1.0, d);
 }
 
 // ---- Droplets as lenses ---------------------------------------------------------------------------------------------
@@ -649,13 +672,30 @@ void main() {
 
   // 3. Cold bloom of the haunting cue: the film densifies from the pane edges inward, the front wobbled by the film height.
   float edgeD = min(min(css.x, cssSize.x - css.x), css.y);
-  float reach = 0.3 * min(cssSize.x, cssSize.y) * uBloom;
+  float reach = 0.42 * min(cssSize.x, cssSize.y) * uBloom;
   float bloomM = uBloom * (1.0 - smoothstep(0.0, max(reach, 1.0), edgeD + (fg.y - 0.5) * 80.0));
+
+  // The breath of the writing: a pulse over the whole film when the write-on starts, and before it a cold bloom around the point
+  // where the hand will begin (the first sample of the path).
+  float pulse = uBreath * step(0.5, uDetail);
+  vec2 dvb = fragPx - uTrail[0];
+  float preR = PRE_R * px;
+  float pre = uPre * exp(-dot(dvb, dvb) / (preR * preR)) * step(0.5, uDetail);
+
+  // The unseen finger: a fingertip-width wet smear that leads the ink; it clears the film (the dark room shows) and has a cold crescent.
+  float fing = 0.0;
+  float cres = 0.0;
+  if (uHead > 0.0 && uDetail > 0.5) {
+    float R = FINGER_R * px;
+    fing = smearAt(fragPx, R) * uHead;
+    cres = fing * (1.0 - smearAt(fragPx + MOON_DIR * (0.5 * R), R));
+  }
 
   // 4. What the glass hides and what it shows.
   float opacity = clamp(fogD, 0.0, 1.0) * FOG_MAX;
-  opacity = mix(opacity, 1.0, bloomM * 0.35);
-  opacity += LIP_DENSITY * lip * (1.0 - T) + 0.12 * ridge + BREATH_DENSITY * breath * (1.0 - T);
+  opacity = mix(opacity, 1.0, bloomM * 0.55);
+  opacity += LIP_DENSITY * lip * (1.0 - T) + 0.12 * ridge + BREATH_DENSITY * breath * (1.0 - T) + (PULSE_DENSITY * pulse + PRE_DENSITY * pre) * (1.0 - T);
+  opacity *= 1.0 - FINGER_CLEAR * fing;
   opacity *= (1.0 - 0.96 * T) * (1.0 - swept);
 
   float Lr = roomLight(vUv + refr / uRes, css + refr / px);
@@ -684,8 +724,9 @@ void main() {
   film *= 1.0 + GRAIN_A * grain;
   // The film piles up at the edge of every stroke and run, brighter on the side the moon lights.
   film *= 1.0 + LIP_BRIGHT * (lip * (0.35 + 0.65 * lit) + 0.3 * ridge);
-  film = mix(film, uGhost * 0.8, bloomM * 0.4);
+  film = mix(film, uGhost * 0.8, bloomM * 0.5);
   film = mix(film, uGhost * 0.85, BREATH_COOL * breath);
+  film = mix(film, uGhost * 0.85, clamp(PULSE_COOL * pulse + PRE_COOL * pre, 0.0, 1.0));
   float edgeShade = 1.0 - smoothstep(0.0, 0.08 * min(uRes.x, uRes.y), min(min(fragPx.x, uRes.x - fragPx.x), fragPx.y));
   film = mix(film, film * vec3(0.94, 1.06, 1.0), edgeShade);
 
@@ -744,20 +785,13 @@ void main() {
   // 7. Writing head: a cold fingertip glow at the toi frontier, capped, never amber. Fresh strokes carry a short cold wet sheen.
   float fresh = exp(-max(uU - ch.g, 0.0) / 0.03) * step(uU, 0.9999) * step(0.0, uU);
   col += uGhost * 0.16 * fresh * smoothstep(0.1, 0.6, T);
-  if (uHead > 0.0 && gi >= 0) {
-    vec4 hd = uGroupDst[uHeadGroup];
-    if (fragPx.x >= hd.x && fragPx.y >= hd.y && fragPx.x < hd.z && fragPx.y < hd.w) {
-      vec2 hp = mix(uGroupSrc[uHeadGroup].xy, uGroupSrc[uHeadGroup].zw, (fragPx - hd.xy) / (hd.zw - hd.xy));
-      vec2 dv = hp - uHeadPos;
-      float d2 = dot(dv, dv) / (HEAD_R * HEAD_R);
-      float hg = 0.65 * exp(-d2 * 3.0) + 0.35 * exp(-d2 * 0.5);
-      vec3 cold = mix(uGhost, uMoon, 0.5);
-      float before = dot(col, vec3(0.2126, 0.7152, 0.0722));
-      vec3 lit = mix(col, cold, hg * HEAD_A * uHead);
-      float after = dot(lit, vec3(0.2126, 0.7152, 0.0722));
-      // luminance added by the head never exceeds HEAD_MAX_LUMA
-      col = after - before > HEAD_MAX_LUMA ? mix(col, lit, HEAD_MAX_LUMA / max(after - before, 1e-4)) : lit;
-    }
+  if (uHead > 0.0) {
+    vec3 cold = mix(uGhost, uMoon, 0.5);
+    float before = dot(col, vec3(0.2126, 0.7152, 0.0722));
+    vec3 lit = col + cold * (HEAD_A * 1.3) * cres + cold * 0.07 * fing;
+    float after = dot(lit, vec3(0.2126, 0.7152, 0.0722));
+    // luminance added by the finger never exceeds HEAD_MAX_LUMA
+    col = after - before > HEAD_MAX_LUMA ? mix(col, lit, HEAD_MAX_LUMA / max(after - before, 1e-4)) : lit;
   }
 
   // D14: inside strokes the colour is scaled (not each channel) so luminance stays at or under the cap and the --after hue survives.

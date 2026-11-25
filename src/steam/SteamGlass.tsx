@@ -10,7 +10,7 @@ import { buildSplits } from './gaps.ts'
 import type { Derived } from './derive.ts'
 import Candle from './Candle.tsx'
 import { chooseLayout, computeLayout } from './layout.ts'
-import { hauntOfPhase } from './haunt.ts'
+import { candleLean, cloudShiftAt, hauntOfPhase, moonDimAt } from './haunt.ts'
 import type { Haunt } from './haunt.ts'
 import NightView from './NightView.tsx'
 import type { Layout } from './layout.ts'
@@ -155,15 +155,36 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
     publishLayout(canvas, layout)
     controllerRef.current = renderer
     renderer.onState(pushState)
+    let candleFrac = 0.93
     const measureCandle = (): void => {
       const candle = canvas.parentElement?.querySelector('.candle')
       if (!candle) return
       const c = candle.getBoundingClientRect()
       const g = canvas.getBoundingClientRect()
       if (g.width < 1 || g.height < 1) return
-      renderer.setCandle((c.left + c.width / 2 - g.left) / g.width, (c.top - 6 - g.top) / g.height)
+      candleFrac = (c.left + c.width / 2 - g.left) / g.width
+      renderer.setCandle(candleFrac, (c.top - 6 - g.top) / g.height)
     }
     measureCandle()
+    // The cue's DOM side, driven by the renderer's reveal clock at 10 Hz (a frozen clock sets it once): the cloud crossing the moon,
+    // the moon's dimming, and the flame leaning toward the writing head. Pure functions of the clock (haunt.ts).
+    const root = canvas.closest('.steam-root')
+    const sash = root?.querySelector<HTMLElement>('.sash--upper') ?? null
+    const candleEl = root?.querySelector<HTMLElement>('.candle') ?? null
+    let lastCloud = 0
+    const driveCue = (): void => {
+      const rt = renderer.revealMs
+      const cloud = cloudShiftAt(rt)
+      if (sash) {
+        sash.style.setProperty('--cloud-tr', Math.abs(cloud - lastCloud) > 60 ? '0s' : '0.12s')
+        sash.style.setProperty('--cloud-x', cloud.toFixed(1))
+        sash.style.setProperty('--cue', moonDimAt(rt).toFixed(3))
+      }
+      lastCloud = cloud
+      const ph = revealState(rt, null).phase
+      candleEl?.style.setProperty('--lean', candleLean(renderer.headFracX, candleFrac, 1, ph === 'thickening' || ph === 'writing').toFixed(3))
+    }
+    const cueTimer = window.setInterval(driveCue, 100)
     let fpsTimer = 0
     if (p.fps) {
       renderer.resetStats()
@@ -177,7 +198,10 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
     renderer.onContextLost(() => setContextLost(true))
     // governor tier 3: the static images, at the current phase, through the lost-context path
     renderer.onDegrade(() => setContextLost(true))
-    if (p.t !== null) renderer.setClock(p.t)
+    if (p.t !== null) {
+      renderer.setClock(p.t)
+      driveCue()
+    }
     renderer.play()
     // Ready once the first frame is on screen: two animation frames after play().
     let raf2 = 0
@@ -198,6 +222,7 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
       cancelAnimationFrame(raf1)
       cancelAnimationFrame(raf2)
       window.clearInterval(fpsTimer)
+      window.clearInterval(cueTimer)
       ro.disconnect()
       controllerRef.current = null
       renderer.dispose()

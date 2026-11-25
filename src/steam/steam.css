@@ -130,11 +130,15 @@
 }
 
 .night__moon {
-  transition: opacity 1.2s ease-in-out;
+  opacity: calc(1 - var(--cue, 0));
+  transition: opacity 0.12s linear;
 }
 
+/* The cue's shift and dimming are set at 10 Hz from the reveal clock (SteamGlass `driveCue`, haunt.ts `cloudShiftAt`, `moonDimAt`); the
+   fallbacks below are the same cue as two states when no renderer drives it. */
 .night__cloud-haunt {
-  transition: transform 1.2s cubic-bezier(0.45, 0, 0.2, 1);
+  transform: translateX(calc(var(--cloud-x, 0) * 1px));
+  transition: transform var(--cloud-tr, 0.12s) linear;
 }
 
 .night__cloud-drift {
@@ -143,15 +147,15 @@
 
 /* The cue: the cloud slides over the moon and dims it while the hand is written; it slides off when the note holds. */
 [data-haunt='gather'] .night__cloud-haunt {
-  transform: translateX(250px);
+  transform: translateX(calc(var(--cloud-x, 250) * 1px));
 }
 
 [data-haunt='gather'] .night__moon {
-  opacity: 0.42;
+  opacity: calc(1 - var(--cue, 0.58));
 }
 
 [data-haunt='clear'] .night__cloud-haunt {
-  transform: translateX(560px);
+  transform: translateX(calc(var(--cloud-x, 560) * 1px));
 }
 
 @keyframes cloud-drift {
@@ -259,7 +263,7 @@
   transform-origin: 50% 100%;
   animation: candle-flicker 2.6s ease-in-out infinite;
   transition:
-    rotate 0.6s ease-out,
+    rotate 0.15s linear,
     scale 0.6s ease-out;
 }
 
@@ -276,7 +280,7 @@
 }
 
 .candle[data-haunt='gather'] .candle__flame {
-  rotate: -9deg;
+  rotate: calc(var(--lean, -0.56) * 16deg);
   scale: 0.78 0.7;
   animation: candle-gutter 0.45s ease-in-out infinite;
 }
