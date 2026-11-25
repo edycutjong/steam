@@ -1,6 +1,8 @@
 // @vitest-environment happy-dom
 import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { QUOTED } from '../copy/strings.ts'
+import { regionUrl } from '../data/provenance.ts'
 import { openStore, type Store } from '../data/store.ts'
 import { WIPE_MS, WRITE_ON_MS } from '../steam/timeline.ts'
 import { testApp } from './app.fixture.tsx'
@@ -51,6 +53,33 @@ describe('Cook screen (R9, R14.7, R14.8, R18.5, R18.6, R19.1, R19.2, R19.8, R15.
     expect(root.dataset.step).toBe('2')
     expect(root.dataset.noteState).toBe('none')
     expect(host.querySelector('.cook__under .slip')).toBeNull()
+  })
+  // a2a-arch-r05 B10: every reveal carries a "verify at source" link to the same pixels on the archive's server (product.md, Provenance).
+  it('while a note is revealed the compact slip carries a verify-at-source link for that note, writing and held, and none without a note (a2a-arch-r05 B10)', async () => {
+    const { host, root } = await open('#/r/quinces-marmalade/cook')
+    const link = () => host.querySelector('.cook__under .slip a.slip__verify') as HTMLAnchorElement | null
+    const note = (id: string) => r.notes.find((n) => n.id === id)!
+    expect(root.dataset.noteState).toBe('writing')
+    expect(link()).not.toBeNull()
+    expect(link()!.getAttribute('href')).toBe(regionUrl(r.bundle, note('full-ripe')))
+    expect(link()!.getAttribute('href')).toMatch(/\/full\/0\/default\.jpg$/)
+    expect(link()!.getAttribute('target')).toBe('_blank')
+    expect(link()!.getAttribute('rel')).toBe('noopener noreferrer')
+    expect(text(link())).toBe(QUOTED.verify)
+    expect(link()!.getAttribute('aria-label')).toBe(QUOTED.verifyName)
+    expect(host.querySelectorAll('.cook__under .slip a')).toHaveLength(2) // the licence link and this one
+    await tick(WRITE_ON_MS + 100)
+    expect(root.dataset.noteState).toBe('held')
+    expect(link()!.getAttribute('href')).toBe(regionUrl(r.bundle, note('full-ripe')))
+    await press(host)
+    expect(root.dataset.step).toBe('2')
+    expect(host.querySelector('.cook__under .slip')).toBeNull() // no note on step 2: no slip, no link
+  })
+  it('the link follows the note of the step: step 4 links its own region (a2a-arch-r05 B10)', async () => {
+    const { host } = await open('#/r/quinces-marmalade/cook?note=when-tender&lead=0')
+    const link = host.querySelector('.cook__under .slip a.slip__verify') as HTMLAnchorElement
+    expect(link.getAttribute('href')).toBe(regionUrl(r.bundle, r.notes.find((n) => n.id === 'when-tender')!))
+    expect(link.getAttribute('href')).not.toBe(regionUrl(r.bundle, r.notes.find((n) => n.id === 'full-ripe')!))
   })
   it('shows the reviewed reading under the pane only while the note holds, in the accessibility tree (look pass 3, R20.3, R20.4; a2a-arch-r05 B9)', async () => {
     const { host, root } = await open('#/r/quinces-marmalade/cook')
