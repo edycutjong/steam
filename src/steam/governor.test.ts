@@ -52,6 +52,59 @@ describe('QualityGovernor', () => {
   })
 })
 
+describe('QualityGovernor stall path (a2a-arch-r05 B2)', () => {
+  const LONG = GOV_IGNORE_MS + 1
+  it('three consecutive visible intervals over 500 ms raise the tier straight to 3', () => {
+    const g = new QualityGovernor()
+    expect(g.push(LONG)).toBeNull()
+    expect(g.push(900)).toBeNull()
+    expect(g.push(5000)).toBe(3)
+    expect(g.tier).toBe(3)
+  })
+  it('jumps from a lower tier too, and says nothing once at tier 3', () => {
+    const g = new QualityGovernor()
+    feed(g, GOV_WINDOW, 22)
+    expect(g.tier).toBe(1)
+    g.push(LONG)
+    g.push(LONG)
+    expect(g.push(LONG)).toBe(3)
+    expect(g.push(LONG)).toBeNull()
+    expect(g.tier).toBe(3)
+  })
+  it('one long interval, or long ones broken up by a normal frame, change nothing', () => {
+    const g = new QualityGovernor()
+    for (let i = 0; i < 40; i++) {
+      g.push(LONG)
+      g.push(LONG)
+      g.push(16.7)
+    }
+    expect(g.tier).toBe(0)
+  })
+  it('a long interval is not entered in the 60-frame window', () => {
+    const g = new QualityGovernor()
+    g.push(16.7)
+    g.push(LONG)
+    expect(g.filled).toBe(1)
+  })
+  it('non-finite and non-positive intervals are not stalls and do not break a run', () => {
+    const g = new QualityGovernor()
+    g.push(LONG)
+    for (const dt of [NaN, -1, 0, Infinity]) expect(g.push(dt)).toBeNull()
+    g.push(LONG)
+    expect(g.push(LONG)).toBe(3)
+  })
+  it('P-G1b: three consecutive long intervals always end at tier 3; fewer, never separated-by-normal ones, never do', () => {
+    fc.assert(
+      fc.property(fc.array(fc.double({ min: LONG, max: 1e6, noNaN: true }), { minLength: 3, maxLength: 8 }), fc.integer({ min: 0, max: 100 }), (longs, lead) => {
+        const g = new QualityGovernor()
+        for (let i = 0; i < lead; i++) g.push(16.7)
+        for (const l of longs) g.push(l)
+        return g.tier === 3
+      }),
+    )
+  })
+})
+
 describe('QualityGovernor (P-G1)', () => {
   it('never lowers the tier, whatever the intervals', () => {
     fc.assert(
