@@ -109,3 +109,44 @@ judged against `before/`).
 2. THE SYSTEM SHALL keep the reveal-once (P7) and provenance (P8) tests green and SHALL NOT delete any property.
 3. THE SYSTEM SHALL keep `uInk` clamp (`col = min(col, uInk)`) as the last composite step. **unit**
 4. THE SYSTEM SHALL allocate nothing per frame in `frame` or `draw`. **unit** (existing guard)
+
+## R13. Running water (look pass 2)
+
+**User story:** As a viewer, I want the runs under the hand to look like water on glass, so that they do not read as sticks.
+
+1. THE SYSTEM SHALL place 2 to 4 runs on a pane wider than 640 css px and 1 to 3 on a narrower one, chosen by ink mass, with no more than one run per word-sized stretch (starts at least 90 note px apart). **unit**
+2. THE SYSTEM SHALL give every run a length between 0.5 and 2.0 times the height of its group's core band, except at most one run per pane, which may reach 3.2 times. **unit**
+3. THE SYSTEM SHALL bend every run longer than one core-band height by a seeded path: `runOffset(run, dy)` is 0 at the start, bounded by `amp + lean * dy`, with `amp` between 1.2 and 4 css px and `lean` within +-0.05, and is a pure function of its arguments. **prop**
+4. THE SYSTEM SHALL draw the trail as a thin clear channel through which the room and the night are seen (darker than the film beside it, never a brown solid), wider at its start (the lip), and SHALL re-fog it from its top with the age since the stall. **frame**
+5. THE SYSTEM SHALL draw the head as a lens bead at least 1.6 times the trail's half-width: dark rim, warm inverted light, one small catch-light, and no white dot. **unit** (constants), **frame**
+6. THE SYSTEM SHALL scale run widths, bead radius and wobble with the pane (phone smaller than desktop). **unit**
+
+## R14. Strokes as cleared glass (look pass 2)
+
+1. THE SYSTEM SHALL draw the cold rim on the fog side of the edge only, no wider than 1 css px at dpr 1 (`RIM_PX`), and SHALL break it with the film height so that it is not a continuous outline. **unit** (constant), **frame**
+2. THE SYSTEM SHALL reduce the halo to a faint warm spill: `HALO_GAIN` at most half of v1's 0.4, so that it does not read as an outline. **unit**
+3. THE SYSTEM SHALL let the fill vary with the scan's ink darkness (`PRESSURE_*`): thick dark strokes are the clearest and warmest, hairlines dimmer and cooler. **e2e** (the stroke luminance spread of R2.3 is re-pinned higher), **frame**
+4. THE SYSTEM SHALL keep the luminance cap of R2.4 and R2.5 and the transmission of R1. **e2e**, **prop**
+
+## R15. Phone composition (look pass 2)
+
+1. AT widths 390 and 393 css px, THE SYSTEM SHALL place the groups so that the block of ink fills at least 55 % of the glass height and its centre lies above the pane's middle (between 2 % and 8 % of the height above it). **unit** (on the hero's metadata)
+2. THE SYSTEM SHALL keep R8.1 and R8.2 (core band at least 16 css px, at least 12 css px of glass to both sides). **e2e**
+3. THE SYSTEM SHALL gather droplets toward the sill less than v1: the boost of the large layer is at most 1.6 and the sill droplets are cooler than the middle's. **unit** (constants), **e2e** (R3.4 re-pinned), **frame**
+4. WHERE the pane is narrower than 640 css px, THE SYSTEM SHALL draw the candle at most 70 % of its desktop height, and SHALL keep it clear of the ink block (no overlap of rectangles). **e2e**
+5. THE SYSTEM SHALL keep the phone-fit e2e green at 390 and 393. **e2e**
+
+## R16. A film with a history (look pass 2)
+
+1. THE SYSTEM SHALL add to pass 1 a static, seeded layer of old finger-wipes (a few thin arcs where the film is thinner and has re-fogged) and a density variation at a larger scale than v1's. **unit** (GLSL), **frame**
+2. THE SYSTEM SHALL keep the film a function of position and time only, with no read of the note (v0 R6.2), and SHALL NOT let the old wipes form letter-like shapes (arcs only, density change at most 0.12). **unit**
+3. THE SYSTEM SHALL keep the old wipes subtle: they SHALL NOT change the mean luminance of the pane by more than 4 levels (e2e R3.1 holds). **e2e**
+
+## R17. The streak (look pass 2)
+
+1. THE SYSTEM SHALL NOT draw a diagonal light streak over the upper film (it was not motivated by the moon's position). **unit** (GLSL), **frame**
+
+## R18. The moon stays whole (look pass 2)
+
+1. FOR a desktop pane 600 to 1080 px tall at widths 1024 to 1920, and on the Pixel 5 (393 x 851), THE SYSTEM SHALL keep the whole moon disc inside the upper sash. **e2e** (bounding box of the disc inside the sash's box)
+2. THE SYSTEM SHALL keep the moon on one side of the muntin. **e2e**
