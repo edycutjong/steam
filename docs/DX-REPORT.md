@@ -19,3 +19,9 @@ Dated entries, newest last, plain facts.
 
 - The shell tool's default timeout (120 s) killed a foreground `npx playwright test` run with no output; the suite takes about 6 minutes. Reran it in the background with `nohup` and polled the log.
 - A tool result of 35 KB (a `cat` of a spec plus a config) was cut to its first and last 500 characters; the full text was in a file under the session folder and had to be re-read in smaller commands.
+
+## 2026-11-26 (a2a-arch-r05)
+
+- The shell tool's 120 s default timeout cut off a `sleep 240` poll of a background Playwright run (exit -1, no output). Polls of a background log have to stay under it.
+- Every `npm run e2e -- <spec>` call rebuilds the app first (the `webServer` command is `npm run build && vite preview`), so each invocation pays the build; the layout specs run about 17 s per test, so 33 tests took about 10 minutes.
+- The B3 red tests were first committed with two test mistakes that only showed when they were run against the unfixed code a second time; the commit was amended before the fix. A red test needs a run that shows its failure message, not only a failure count.
