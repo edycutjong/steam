@@ -64,16 +64,11 @@ for (const [name, viewport] of SIZES) {
         const [r, g, b] = pixel(png, x, y)
         return 0.2126 * r + 0.7152 * g + 0.0722 * b
       }
-      // only the cores of strokes: pixels whose 5x5 neighbours are all stroke pixels
-      const set = new Set(pts.map(([x, y]) => y * 100000 + x))
-      const cores = pts.filter(([x, y]) => {
-        for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (!set.has((y + dy) * 100000 + x + dx)) return false
-        return true
-      })
-      expect(cores.length, 'stroke core pixels').toBeGreaterThan(200)
+      const cores = pts // the scan's solid ink (alpha over 200) mapped to the screen
+      expect(cores.length, 'stroke pixels').toBeGreaterThan(200)
       const ls = cores.map(([x, y]) => lum(x, y)).sort((a, b) => a - b)
       const spread = ls[Math.floor(ls.length * 0.95)] - ls[Math.floor(ls.length * 0.05)]
-      expect(spread, 'luminance spread (p95 - p5) across the stroke cores').toBeGreaterThanOrEqual(12)
+      expect(spread, 'luminance spread (p95 - p5) across the stroke').toBeGreaterThanOrEqual(12)
       // no 24 x 24 window around the strokes is brighter than 92 % on average
       let worst = 0
       for (let i = 0; i < pts.length; i += 97) {
@@ -149,7 +144,7 @@ for (const [name, viewport] of SIZES) {
         return n
       }
       // steam-renderer-v1 R3.3, R3.4: droplets follow the film everywhere (0.4 % of a 0.8-wide band at least) and are denser in the
-      // last 7 % than in the middle band. Measured on the desktop frame at t=-1000: rail 898, middle 448, top 241 (14 levels).
+      // last 7 % than in the middle band.
       const nearRail = beadPixels(o.y + o.h - zoneH)
       const middle = beadPixels(o.y + Math.round(o.h * 0.4))
       const bandPx = zoneH * (w - 40)

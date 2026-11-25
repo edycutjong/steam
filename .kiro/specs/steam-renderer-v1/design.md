@@ -103,7 +103,7 @@ T        = trans(a_bicubic) * wiped(toi)
 ```
 
 - Monotone non-decreasing, continuous, `trans(0) = 0`, `trans(1) = 1`, with T between 5 % and 95 % over more than 0.6 of the alpha range.
-- The constants were measured, not guessed: the first guess (0.04, 0.85, 0.8) clears 1.205 times the scan's ink area on the hero note, over the 1.15 bound, because the hero's alpha is mostly mid to dark (the histogram peaks at 0.5 to 0.7). (0.03, 0.97, 0.75) clears 1.043 times and keeps `T(0.15) = 0.08`.
+- The constants were tuned against the test, not guessed: the first guess (0.04, 0.85, 0.8) cleared more than 1.15 times the scan's ink area on the hero note, because the hero's alpha is mostly mid to dark. (0.03, 0.97, 0.75) passes `hero.coverage.test.ts` and keeps hairlines partly clear (`transmission.test.ts`).
   `src/steam/transmission.ts` holds the TS twin (and the Catmull-Rom the test uses); the GLSL is generated from the same constants.
 - Hairlines (`a` about 0.1 to 0.3) become partly clear (`T` about 0.05 to 0.3): the pen's pressure shows.
 - The old `CLEAR_MID`, `CLEAR_HALF*`, `EDGE_FOG_*` and `clearCurve` are removed. The "edge follows the fog density" idea
