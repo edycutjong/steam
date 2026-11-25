@@ -12,7 +12,10 @@ test('the reviewed reading shows under the pane when the note holds, not before 
   await openPane(page, '?t=6500')
   const reading = page.locator('[data-note-reading]')
   await expect(reading).toHaveText('till it Looks red & smooth,')
-  await expect(reading).toHaveAttribute('aria-hidden', 'true')
+  // a2a-arch-r06 C7: the held reading is in the accessibility tree (a2a-arch-r05 B9); the canvas is not
+  await expect(reading).not.toHaveAttribute('aria-hidden', /.*/)
+  expect(await reading.evaluate((e) => e.closest('[aria-hidden="true"]') === null)).toBe(true)
+  await expect(page.locator('.steam-canvas')).toHaveAttribute('aria-hidden', 'true')
   const [r, c] = [await reading.boundingBox(), await page.locator('.steam-canvas').boundingBox()]
   expect(r!.y, 'under the glass, never on it').toBeGreaterThanOrEqual(c!.y + c!.height)
   const style = await reading.evaluate((e) => ({ f: getComputedStyle(e).fontStyle, ff: getComputedStyle(e).fontFamily, c: getComputedStyle(e).color }))

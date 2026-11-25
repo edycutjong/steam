@@ -116,3 +116,38 @@ describe('SteamPane note JSON deadline (a2a-arch-r06 C2)', () => {
     expect(vi.getTimerCount()).toBe(0)
   })
 })
+
+// a2a-arch-r06 C7: the held reading is in the accessibility tree, as in Cook Mode (a2a-arch-r05 B9).
+describe('SteamPane held reading and assistive tech (a2a-arch-r06 C7)', () => {
+  const reading = (h: HTMLElement) => h.querySelector('p[data-note-reading]')
+  it('the held reading has no aria-hidden and no aria-hidden ancestor', async () => {
+    const h = await open({ span: 'till it Looks red', shownText: 'till it Looks red & smooth,' })
+    await phase('holding')
+    const p = reading(h)
+    expect(p).not.toBeNull()
+    expect(p!.textContent).toContain('till it Looks red')
+    expect(p!.hasAttribute('aria-hidden')).toBe(false)
+    expect(p!.closest('[aria-hidden="true"]')).toBeNull()
+  })
+  it('the frozen variant (?t=) is in the tree too', async () => {
+    vi.stubGlobal('fetch', async () => new Response(JSON.stringify({ span: 'a', shownText: 'abc' }), { status: 200 }))
+    const host = document.createElement('div')
+    document.body.append(host)
+    root = createRoot(host)
+    await act(async () => {
+      root!.render(createElement(SteamPane, { stem: '/x/note-a', paneDir: '/x/panes', noteId: 'a', query: 't=6500' }))
+      await vi.advanceTimersByTimeAsync(10)
+    })
+    await phase('holding')
+    expect(reading(host)!.hasAttribute('aria-hidden')).toBe(false)
+  })
+  it('no second announcement: holding leaves the live region as the write-on set it', async () => {
+    const h = await open({ span: 'till it Looks red', shownText: 'till it Looks red & smooth,' })
+    await phase('writing')
+    const said = live(h)
+    expect(said).toBe(announcement('till it Looks red'))
+    await phase('holding')
+    expect(live(h)).toBe(said)
+    expect(h.querySelectorAll('[role="status"], [aria-live]').length).toBe(1)
+  })
+})
