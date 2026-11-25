@@ -94,7 +94,7 @@ The shader budget does not grow in textures: the window, the finger smear and th
   - Finger smear leading the ink, breath pulse at the start of the write-on, the pre-reveal frame (edge thickening, cold breath at the starting point, candle dipping), candle lean toward the head, cloud crossing the moon during the write-on.
   - Satisfies: R21.
 
-- [ ] 24. Moon and branches (R23)
+- [x] 24. Moon and branches (R23)
   - Soft limb, procedural mottling in place of ellipses, tapered crooked branches clear of the disc's centre.
   - Satisfies: R23.
 

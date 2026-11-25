@@ -25,6 +25,18 @@ describe('NightView (R6.1, R6.2, R6.6)', () => {
     expect(out).toContain('feGaussianBlur')
     expect(out).toContain('radialGradient')
   })
+  it('draws the moon with a soft limb, a halo and procedural mottling, not ellipses (R23.1, R23.2)', () => {
+    expect(out).toContain('night-limb')
+    expect(out).toContain('feTurbulence')
+    expect(out).toContain('night__disc-limb')
+    const moon = out.slice(out.indexOf('class="night__moon"'), out.indexOf('night__cloud-haunt'))
+    expect(moon).not.toContain('<ellipse')
+  })
+  it('draws the branches as filled shapes, not strokes (R23.3)', () => {
+    const b = out.slice(out.indexOf('night__branches'), out.indexOf('class="muntin"'))
+    expect(b).not.toContain('stroke-width')
+    expect(b).toContain('Z')
+  })
   it('carries the haunt state on the sash', () => {
     for (const h of ['calm', 'gather', 'clear'] as const) expect(html(createElement(NightView, { haunt: h }))).toContain(`data-haunt="${h}"`)
   })

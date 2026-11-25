@@ -79,11 +79,21 @@ export default function NightView({ haunt = 'calm' }: { haunt?: Haunt }) {
             <stop offset="0.35" className="night__halo-mid" />
             <stop offset="1" className="night__halo-out" />
           </radialGradient>
-          <radialGradient id="night-disc" cx="0.4" cy="0.38" r="0.7">
+          <radialGradient id="night-disc" cx="0.46" cy="0.44" r="0.58">
             <stop offset="0" className="night__disc-in" />
-            <stop offset="0.7" className="night__disc-mid" />
-            <stop offset="1" className="night__disc-out" />
+            <stop offset="0.62" className="night__disc-mid" />
+            <stop offset="0.9" className="night__disc-out" />
+            <stop offset="1" className="night__disc-limb" />
           </radialGradient>
+          <filter id="night-limb" x="-10%" y="-10%" width="120%" height="120%">
+            <feGaussianBlur stdDeviation="0.9" />
+          </filter>
+          <filter id="night-mottle" x="0" y="0" width="1" height="1">
+            <feTurbulence type="fractalNoise" baseFrequency="0.034 0.04" numOctaves="3" seed="23" result="n" />
+            <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.5 0 0 0 -0.6" result="m" />
+            <feFlood className="night__mottle-flood" result="c" />
+            <feComposite in="c" in2="m" operator="in" />
+          </filter>
           <clipPath id="night-clip">
             <circle cx={MOON.x} cy={MOON.y} r={MOON.r} />
           </clipPath>
@@ -101,14 +111,10 @@ export default function NightView({ haunt = 'calm' }: { haunt?: Haunt }) {
           ))}
         </g>
         <g className="night__moon">
-          <circle cx={MOON.x} cy={MOON.y} r={MOON.r * 3.1} fill="url(#night-halo)" />
-          <circle className="moon" cx={MOON.x} cy={MOON.y} r={MOON.r} fill="url(#night-disc)" />
-          <g clipPath="url(#night-clip)" filter="url(#night-soft)" className="night__maria">
-            <ellipse cx={MOON.x - 20} cy={MOON.y - 14} rx="19" ry="14" />
-            <ellipse cx={MOON.x + 14} cy={MOON.y - 24} rx="13" ry="9" />
-            <ellipse cx={MOON.x + 10} cy={MOON.y + 12} rx="22" ry="12" transform={`rotate(-18 ${MOON.x + 10} ${MOON.y + 12})`} />
-            <ellipse cx={MOON.x - 12} cy={MOON.y + 30} rx="10" ry="6" />
-            <ellipse cx={MOON.x + 34} cy={MOON.y + 2} rx="7" ry="10" />
+          <circle cx={MOON.x} cy={MOON.y} r={MOON.r * 3.6} fill="url(#night-halo)" />
+          <circle className="moon" cx={MOON.x} cy={MOON.y} r={MOON.r} fill="url(#night-disc)" filter="url(#night-limb)" />
+          <g clipPath="url(#night-clip)" className="night__maria">
+            <rect x={MOON.x - MOON.r} y={MOON.y - MOON.r} width={MOON.r * 2} height={MOON.r * 2} filter="url(#night-mottle)" />
           </g>
         </g>
         <g className="night__cloud-haunt">
@@ -121,7 +127,7 @@ export default function NightView({ haunt = 'calm' }: { haunt?: Haunt }) {
         </g>
         <g className="night__branches">
           {layers.map((l, i) => (
-            <path key={i} d={l.d} strokeWidth={l.w} />
+            <path key={i} d={l.d} />
           ))}
         </g>
       </svg>

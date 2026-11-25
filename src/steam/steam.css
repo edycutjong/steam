@@ -101,20 +101,28 @@
 }
 
 .night__disc-mid {
-  stop-color: color-mix(in srgb, var(--moon) 90%, var(--night));
+  stop-color: color-mix(in srgb, var(--moon) 92%, var(--night));
 }
 
 .night__disc-out {
-  stop-color: color-mix(in srgb, var(--moon) 68%, var(--night));
+  stop-color: color-mix(in srgb, var(--moon) 76%, var(--night));
+}
+
+/* limb darkening: the edge of the disc falls toward the sky */
+.night__disc-limb {
+  stop-color: color-mix(in srgb, var(--moon) 48%, var(--night));
 }
 
 .night__stars circle {
   fill: var(--moon);
 }
 
-.night__maria ellipse {
-  fill: color-mix(in srgb, var(--night) 55%, var(--moon));
-  opacity: 0.34;
+.night__maria {
+  opacity: 0.3;
+}
+
+.night__mottle-flood {
+  flood-color: color-mix(in srgb, var(--night) 60%, var(--moon));
 }
 
 .night__cloud-drift ellipse {
@@ -123,10 +131,8 @@
 }
 
 .night__branches path {
-  fill: none;
-  stroke: color-mix(in srgb, var(--bg) 80%, var(--night));
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  fill: color-mix(in srgb, var(--bg) 80%, var(--night));
+  stroke: none;
 }
 
 .night__moon {
