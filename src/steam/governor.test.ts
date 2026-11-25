@@ -39,10 +39,19 @@ describe('QualityGovernor', () => {
     for (let i = 0; i < GOV_WINDOW; i++) h.push(i < 4 ? 60 : 16.7)
     expect(h.tier).toBe(1)
   })
-  it('ignores intervals over 500 ms and non-positive or non-finite ones', () => {
+  // a2a-arch-r05 B2 changed this test on purpose. It pushed 501 and 5000 back to back and expected silence for ever; two long
+  // intervals in a row are still silent, but three would now raise the tier (see the stall tests), so a normal frame now
+  // separates each long one, and the test says what it still means: a lone long interval is not entered in the window.
+  it('does not enter a lone interval over 500 ms in the window, and ignores non-positive or non-finite ones', () => {
     const g = new QualityGovernor()
-    for (const dt of [GOV_IGNORE_MS + 1, 5000, 0, -3, NaN, Infinity]) expect(g.push(dt)).toBeNull()
-    expect(g.filled).toBe(0)
+    for (const dt of [GOV_IGNORE_MS + 1, 5000]) {
+      expect(g.push(dt)).toBeNull()
+      expect(g.push(16.7)).toBeNull()
+    }
+    expect(g.filled).toBe(2)
+    for (const dt of [0, -3, NaN, Infinity]) expect(g.push(dt)).toBeNull()
+    expect(g.filled).toBe(2)
+    expect(g.tier).toBe(0)
   })
   it('uses 18 ms as the budget', () => {
     expect(GOV_P95_MS).toBe(18)
@@ -93,7 +102,7 @@ describe('QualityGovernor stall path (a2a-arch-r05 B2)', () => {
     g.push(LONG)
     expect(g.push(LONG)).toBe(3)
   })
-  it('P-G1b: three consecutive long intervals always end at tier 3; fewer, never separated-by-normal ones, never do', () => {
+  it('P-G1b: three consecutive long intervals always end at tier 3', () => {
     fc.assert(
       fc.property(fc.array(fc.double({ min: LONG, max: 1e6, noNaN: true }), { minLength: 3, maxLength: 8 }), fc.integer({ min: 0, max: 100 }), (longs, lead) => {
         const g = new QualityGovernor()

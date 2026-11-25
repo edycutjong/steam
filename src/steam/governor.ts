@@ -3,8 +3,13 @@
 
 export const GOV_WINDOW = 60
 export const GOV_P95_MS = 18
-/** Intervals longer than this are a hidden tab or a debugger, not rendering cost: they are ignored. */
+/**
+ * An interval longer than this is not entered in the window (one GC pause or decode is not a trend). A hidden tab's gap never
+ * gets here: the renderer's clock stands still while the page is hidden (a2a-arch-r05 B1).
+ */
 export const GOV_IGNORE_MS = 500
+/** This many consecutive visible intervals over `GOV_IGNORE_MS` mean the device renders slower than 2 fps: straight to the last tier. */
+export const GOV_STALL_RUN = 3
 export const MAX_TIER = 3
 
 export type Tier = 0 | 1 | 2 | 3
@@ -15,6 +20,7 @@ export class QualityGovernor {
   private readonly sorted = new Float64Array(GOV_WINDOW)
   private n = 0
   private head = 0
+  private stalls = 0
 
   /** Frames in the current window. */
   get filled(): number {
@@ -31,7 +37,17 @@ export class QualityGovernor {
 
   /** Adds one frame interval (ms). Returns the new tier when it rose, else null. */
   push(dtMs: number): Tier | null {
-    if (!(dtMs > 0) || dtMs > GOV_IGNORE_MS) return null
+    if (!(dtMs > 0) || !Number.isFinite(dtMs)) return null
+    if (dtMs > GOV_IGNORE_MS) {
+      // the stall path: a run of long visible intervals is real cost, and the p95 window would take minutes to fill at that rate
+      this.stalls++
+      if (this.stalls < GOV_STALL_RUN || this.tier >= MAX_TIER) return null
+      this.tier = MAX_TIER
+      this.n = 0
+      this.head = 0
+      return this.tier
+    }
+    this.stalls = 0
     this.ring[this.head] = dtMs
     this.head = (this.head + 1) % GOV_WINDOW
     if (this.n < GOV_WINDOW) this.n++
