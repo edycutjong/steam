@@ -215,30 +215,91 @@
 }
 
 .candle__wax-a {
-  stop-color: color-mix(in srgb, var(--paper) 58%, var(--bg));
+  stop-color: color-mix(in srgb, var(--paper) 52%, var(--bg));
 }
 
 .candle__wax-b {
-  stop-color: color-mix(in srgb, var(--paper) 84%, var(--bg));
+  stop-color: color-mix(in srgb, var(--paper) 86%, var(--bg));
 }
 
 .candle__wax-c {
-  stop-color: color-mix(in srgb, var(--paper) 36%, var(--bg));
+  stop-color: color-mix(in srgb, var(--paper) 62%, var(--bg));
+}
+
+.candle__wax-d {
+  stop-color: color-mix(in srgb, var(--paper) 30%, var(--bg));
+}
+
+/* the wax near the flame takes its warm light */
+.candle__lit-a {
+  stop-color: color-mix(in srgb, var(--after) 70%, var(--paper));
+  stop-opacity: 0.55;
+}
+
+.candle__lit-b {
+  stop-color: var(--after);
+  stop-opacity: 0;
 }
 
 .candle__run {
-  fill: color-mix(in srgb, var(--paper) 90%, var(--bg));
-  opacity: 0.85;
+  fill: color-mix(in srgb, var(--paper) 94%, var(--bg));
+  opacity: 0.9;
+}
+
+.candle__run--short {
+  opacity: 0.7;
 }
 
 .candle__pool {
-  fill: color-mix(in srgb, var(--paper) 72%, var(--after));
+  fill: color-mix(in srgb, var(--paper) 62%, var(--after));
 }
 
 .candle__wick {
   fill: none;
   stroke: var(--bg);
-  stroke-width: 1.5;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+/* The ledge the candle stands on: a plank that projects over the bottom rail, with a lit top face, a front face and a bevel. */
+.candle__ledge {
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  width: 250%;
+  height: 12px;
+  transform: translateX(-50%);
+  border-radius: 1px 1px 2px 2px;
+  background:
+    radial-gradient(ellipse 60% 60% at 50% 0%, color-mix(in srgb, var(--after) 55%, transparent), transparent),
+    linear-gradient(180deg, color-mix(in srgb, var(--wood-lip) 100%, var(--paper)) 0 3px, var(--wood-lip) 3px 5px, var(--wood) 5px 10px, var(--bg) 10px 100%);
+  filter: drop-shadow(0 3px 3px color-mix(in srgb, var(--bg) 80%, transparent));
+}
+
+/* the warm light of the flame lies along the rail under the ledge */
+.candle__ledge::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  width: 190%;
+  height: 14px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at 50% 20%, color-mix(in srgb, var(--after) 30%, transparent), transparent 70%);
+}
+
+/* A glow that spills onto the glass and over the rail from the flame (the shader adds the light inside the glass). */
+.candle__bloom {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 14px);
+  width: 260px;
+  height: 150px;
+  transform: translate(-50%, 50%);
+  background: radial-gradient(ellipse, color-mix(in srgb, var(--after) 24%, transparent) 0%, color-mix(in srgb, var(--after) 8%, transparent) 40%, transparent 70%);
+  animation: candle-bloom 2.6s ease-in-out infinite;
+  animation-delay: var(--flame-delay, 0s);
+  animation-play-state: var(--flame-play, running);
 }
 
 .candle__glow {
@@ -248,26 +309,28 @@
   width: 90px;
   height: 90px;
   transform: translate(-50%, 50%);
-  background: radial-gradient(circle, color-mix(in srgb, var(--after) 20%, transparent) 0%, transparent 68%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--after) 26%, transparent) 0%, transparent 68%);
 }
 
 .candle__flame {
   position: absolute;
   left: 50%;
-  bottom: calc(100% - 3px);
-  width: 9px;
-  height: 20px;
-  margin-left: -4.5px;
-  border-radius: 50% 50% 50% 50% / 64% 64% 36% 36%;
+  bottom: calc(100% - 2px);
+  width: 11px;
+  height: 25px;
+  margin-left: -5.5px;
+  border-radius: 50% 50% 50% 50% / 68% 68% 32% 32%;
   background: radial-gradient(
-    ellipse at 50% 78%,
+    ellipse at 50% 80%,
     var(--paper) 0%,
-    color-mix(in srgb, var(--paper) 50%, var(--after)) 38%,
-    color-mix(in srgb, var(--after) 55%, transparent) 72%,
+    color-mix(in srgb, var(--paper) 55%, var(--after)) 34%,
+    color-mix(in srgb, var(--after) 62%, transparent) 68%,
     transparent 100%
   );
   transform-origin: 50% 100%;
   animation: candle-flicker 2.6s ease-in-out infinite;
+  animation-delay: var(--flame-delay, 0s);
+  animation-play-state: var(--flame-play, running);
   transition:
     rotate 0.15s linear,
     scale 0.6s ease-out;
@@ -277,18 +340,36 @@
   position: absolute;
   left: 50%;
   bottom: 2px;
-  width: 3px;
-  height: 7px;
-  margin-left: -1.5px;
+  width: 4px;
+  height: 9px;
+  margin-left: -2px;
   border-radius: 50%;
   background: color-mix(in srgb, var(--ghost) 55%, var(--paper));
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
 .candle[data-haunt='gather'] .candle__flame {
   rotate: calc(var(--lean, -0.56) * 16deg);
   scale: 0.78 0.7;
   animation: candle-gutter 0.45s ease-in-out infinite;
+  animation-delay: var(--flame-delay, 0s);
+  animation-play-state: var(--flame-play, running);
+}
+
+@keyframes candle-bloom {
+  0%,
+  100% {
+    opacity: 0.9;
+  }
+  30% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.95;
+  }
 }
 
 @keyframes candle-flicker {
@@ -335,6 +416,7 @@
 
   .night__cloud-drift,
   .candle__flame,
+  .candle__bloom,
   .candle[data-haunt='gather'] .candle__flame {
     animation: none;
     transition: none;
@@ -426,6 +508,11 @@
   line-height: 1.4;
   text-align: center;
   animation: reading-in 900ms ease both;
+}
+
+/* a frozen clock (?t=) is one still frame: no fade */
+.note-reading--still {
+  animation: none;
 }
 
 @keyframes reading-in {

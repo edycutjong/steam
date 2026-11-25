@@ -54,6 +54,23 @@ describe('Candle (R6.4)', () => {
     expect(out.match(/candle__run/g)!.length).toBeGreaterThanOrEqual(2)
     expect(out).toContain('candle__wick')
   })
+  it('stands on a ledge at least 1.8 candle widths wide that projects over the rail, with a drip in the wax (R24.1, R24.2)', () => {
+    const css = readFileSync('src/steam/steam.css', 'utf8')
+    const ledge = /\.candle__ledge\s*\{([^}]*)\}/.exec(css)![1]
+    expect(Number(/width:\s*(\d+)%/.exec(ledge)![1])).toBeGreaterThanOrEqual(180)
+    expect(Number(/bottom:\s*-(\d+)px/.exec(ledge)![1])).toBeGreaterThan(0) // proud of the pane line, over the rail
+    expect(out).toContain('candle__ledge')
+    expect(out.match(/candle__run/g)!.length).toBeGreaterThanOrEqual(3)
+  })
+  it('flickers by a function of the clock only: a frozen clock pauses the flame at -t (R24.2)', () => {
+    expect(html(createElement(Candle, { haunt: 'calm', frozenMs: 2000 }))).toContain('--flame-delay:-2000ms')
+    expect(html(createElement(Candle, { haunt: 'calm', frozenMs: 2000 }))).toContain('--flame-play:paused')
+    expect(html(createElement(Candle, { haunt: 'calm' }))).not.toContain('--flame-play')
+    expect(readFileSync('src/steam/steam.css', 'utf8')).toContain('animation-play-state: var(--flame-play, running)')
+  })
+  it('spills a warm bloom from the flame (R24.3)', () => {
+    expect(out).toContain('candle__bloom')
+  })
   it('is still under prefers-reduced-motion: the CSS turns off every flame animation', () => {
     const css = readFileSync('src/steam/steam.css', 'utf8')
     const block = /@media \(prefers-reduced-motion: reduce\)\s*\{([\s\S]*?)\n\}\n/.exec(css)![1]

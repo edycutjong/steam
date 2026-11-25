@@ -86,7 +86,7 @@ export default function NightView({ haunt = 'calm' }: { haunt?: Haunt }) {
             <stop offset="1" className="night__disc-limb" />
           </radialGradient>
           <filter id="night-limb" x="-10%" y="-10%" width="120%" height="120%">
-            <feGaussianBlur stdDeviation="0.9" />
+            <feGaussianBlur stdDeviation="0.55" />
           </filter>
           <filter id="night-mottle" x="0" y="0" width="1" height="1">
             <feTurbulence type="fractalNoise" baseFrequency="0.034 0.04" numOctaves="3" seed="23" result="n" />

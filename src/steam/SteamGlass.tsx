@@ -249,7 +249,7 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
         ) : (
           <canvas ref={canvasRef} className="steam-canvas" aria-hidden="true" />
         )}
-        <Candle haunt={haunt} />
+        <Candle haunt={haunt} frozenMs={effective.t} />
         {fps ? <div ref={fpsRef} className="fps" /> : null}
         {status === 'error' && showError ? <p className="load-error load-error--glass">{LOAD_FAILED}</p> : null}
       </div>
