@@ -99,7 +99,7 @@ export const FLOOR_GAIN = 0.1
 export const BOKEH_GAIN = 0.16
 export const BOKEH_CELL_CSS = 72.0
 /** Light the hand carries at no room light, and how much of the room light it adds on top (the ember inside a stroke). */
-export const EMBER_BASE = 0.8
+export const EMBER_BASE = 1.0
 export const EMBER_GAIN = 0.9
 /** Darkening of the meniscus band, where the clearing is half done. */
 export const EDGE_SHADE = 0.3
@@ -120,6 +120,18 @@ export const DROP_TINY = { cell: 7.0, rLo: 0.8, rHi: 1.3, prob: 0.16 }
 export const DROP_MID = { cell: 15.0, rLo: 1.8, rHi: 3.4, prob: 0.13 }
 export const DROP_LARGE = { cell: 38.0, rLo: 3.5, rHi: 6.5, prob: 0.07 }
 export const RAIL_DROP_BOOST = 3.0
+
+/** Wet edge (design §6.1): blur lod of the ink for the lip and the normal, lip density and brightness, cold rim strength, bead size. */
+export const INK_LOD_BLUR = 1.0
+export const LIP_DENSITY = 0.2
+export const LIP_BRIGHT = 0.42
+export const RIM_A = 0.42
+export const BEAD_SPACING_CSS = 9.0
+export const BEAD_R_CSS = { lo: 1.2, hi: 2.4 }
+
+/** Running water (design §6.2). */
+export const RUN_MAX = 6
+export const RUN_REFOG_S = 45.0
 
 const f = (x: number): string => x.toFixed(3)
 
@@ -152,6 +164,9 @@ uniform vec2 uFogTexel;
 uniform vec3 uCandle;
 uniform float uBloom;
 uniform float uDetail;
+uniform vec4 uRunA[6];
+uniform vec4 uRunB[6];
+uniform int uRunCount;
 uniform vec3 uBg;
 uniform vec3 uInk;
 uniform vec3 uBefore;
@@ -193,6 +208,15 @@ const float COOL_A = ${f(COOL_A)};
 const float COOL_P = ${f(COOL_P)};
 const float WARM_POT = ${f(WARM_POT)};
 const float WARM_CANDLE = ${f(WARM_CANDLE)};
+const float INK_LOD = ${f(INK_LOD_BLUR)};
+const float LIP_DENSITY = ${f(LIP_DENSITY)};
+const float LIP_BRIGHT = ${f(LIP_BRIGHT)};
+const float RIM_A = ${f(RIM_A)};
+const float BEAD_SPACING = ${f(BEAD_SPACING_CSS)};
+const float BEAD_R_LO = ${f(BEAD_R_CSS.lo)};
+const float BEAD_R_HI = ${f(BEAD_R_CSS.hi)};
+const float RUN_REFOG_S = ${f(RUN_REFOG_S)};
+const vec2 MOON_DIR = vec2(-0.35, -0.94);
 const float RAIL_BOOST = ${f(RAIL_DROP_BOOST)};
 ${NOISE_GLSL}
 
@@ -250,6 +274,10 @@ vec4 sampleChan(vec2 fp, out int grp, out vec2 npos) {
     }
   }
   return best;
+}
+
+float inkBlur(vec2 npos) {
+  return textureLod(uInkTex, npos / uNoteSize, INK_LOD).r;
 }
 
 // ---- The room behind the glass -------------------------------------------------------------------------------------
@@ -379,6 +407,61 @@ void main() {
   // The glass is as clear as the scan is dark: a smooth monotone map, never a band (design §3).
   float T = trans(aInk) * wf;
 
+  // Wet edge: the blurred ink and its gradient give the lip and the outward normal (3 taps). Only near ink.
+  float lip = 0.0;
+  float lit = 0.5;
+  vec2 outN = vec2(0.0, -1.0);
+  float edgeB = 0.0;
+  float sd = 0.0;
+  float scaleDev = 1.0;
+  if (gi >= 0) {
+    edgeB = inkBlur(npos);
+    if (edgeB > 0.02) {
+      float bx = inkBlur(npos + vec2(1.0, 0.0)) - edgeB;
+      float by = inkBlur(npos + vec2(0.0, 1.0)) - edgeB;
+      float gl = length(vec2(bx, by));
+      if (gl > 1e-4) outN = -vec2(bx, by) / gl;
+      lit = 0.5 + 0.5 * dot(outN, normalize(MOON_DIR));
+      scaleDev = (uGroupDst[gi].z - uGroupDst[gi].x) / (uGroupSrc[gi].z - uGroupSrc[gi].x);
+      sd = (0.22 - edgeB) / max(gl, 1e-3) * scaleDev; // device px outside the edge, first order
+      float near = smoothstep(0.0, 0.05, ch.r);
+      lip = smoothstep(0.03, 0.3, edgeB) * (1.0 - smoothstep(0.08, 0.5, T)) * near * smoothstep(0.0, 0.06, wf);
+    }
+  }
+
+  // Running water: clear trails behind a bead head, from the planned runs (design §6.2).
+  float trail = 0.0;
+  float trailLip = 0.0;
+  float trailGlint = 0.0;
+  vec4 head = vec4(0.0);
+  vec2 headQ = vec2(0.0);
+  float headHit = 0.0;
+  for (int i = 0; i < 6; i++) {
+    if (i >= uRunCount) break;
+    vec4 rA = uRunA[i];
+    vec4 rB = uRunB[i];
+    float dy = fragPx.y - rA.y;
+    float wob = (sin(dy / px * 0.07 + rB.z) * 0.6 + sin(dy / px * 0.17 + rB.z * 2.3) * 0.4) * 0.7 * px * smoothstep(0.0, 30.0 * px, dy);
+    float dx = fragPx.x - rA.x - wob;
+    if (abs(dx) > 12.0 * px) continue;
+    if (dy > -2.0 * px && fragPx.y <= rA.z + rB.x) {
+      float behind = max(rA.z - fragPx.y, 0.0) / px;
+      float agedOut = 1.0 - 0.8 * smoothstep(0.0, RUN_REFOG_S, rB.y);
+      float fresh = (0.4 + 0.6 * exp(-behind / 70.0)) * agedOut;
+      float w = rA.w * mix(0.5, 1.0, smoothstep(0.0, 26.0 * px, dy));
+      float tt = 1.0 - smoothstep(w * 0.45, w * 1.0, abs(dx));
+      trailGlint = max(trailGlint, exp(-pow((dx / max(w, 1e-3) + 0.55) / 0.28, 2.0)) * fresh * smoothstep(0.0, 12.0 * px, dy));
+      trail = max(trail, tt * fresh * smoothstep(-2.0 * px, 2.0 * px, dy));
+      trailLip = max(trailLip, (1.0 - smoothstep(w * 1.0, w * 2.8, abs(dx))) * (1.0 - tt) * fresh);
+    }
+    vec2 hq = vec2(dx, fragPx.y - rA.z) / vec2(rB.x * 0.9, rB.x * 1.3);
+    float hn = length(hq);
+    if (hn < 1.0 && headHit < 1.0) {
+      headQ = hq;
+      headHit = 1.0 - smoothstep(0.82, 1.0, hn);
+    }
+  }
+
   // 2. Cook's wipe: a soft front sweeps left to right. The hull stays clear, the rest re-fogs.
   float front = uWipe * (1.0 + SWEEP_SOFT) - vUv.x;
   float sweepC = clamp(front / SWEEP_SOFT, 0.0, 1.0) * step(0.0001, uWipe);
@@ -393,14 +476,15 @@ void main() {
   // 4. What the glass hides and what it shows.
   float opacity = clamp(fogD, 0.0, 1.0) * FOG_MAX;
   opacity = mix(opacity, 1.0, bloomM * 0.35);
-  opacity *= (1.0 - 0.96 * T) * (1.0 - swept);
+  opacity += LIP_DENSITY * lip * (1.0 - T) + 0.16 * trailLip;
+  opacity *= (1.0 - 0.96 * T) * (1.0 - 0.62 * trail) * (1.0 - swept);
 
   float Lr = roomLight(vUv + refr / uRes, css + refr / px);
   vec3 seen = uBg + uAfter * Lr;
   // The hand: a clear stroke glows with the ember of the room behind it. Thin film (partly clear) glows less.
   float glow = pow(T, 0.7);
   float emberX = EMBER_BASE + EMBER_GAIN * Lr;
-  float ember = 1.15 * (1.0 - exp(-1.3 * emberX)); // soft shoulder: near the pot the light saturates, it does not wash to white
+  float ember = 1.3 * (1.0 - exp(-1.3 * emberX)); // soft shoulder: near the pot the light saturates, it does not wash to white
   seen = mix(seen, uBg + uAfter * ember, glow);
   // The meniscus band, where the clearing is half done, is a little darker.
   seen *= 1.0 - EDGE_SHADE * 4.0 * T * (1.0 - T);
@@ -413,11 +497,36 @@ void main() {
   film += uAfter * (WARM_POT * potF * flicker() + WARM_CANDLE * candF) * (0.4 + 0.6 * fogD);
   float grain = hash(floor(fragPx / max(1.0, 0.8 * px)) + 91.7) - 0.5;
   film *= 1.0 + GRAIN_A * grain;
+  // The film piles up at the edge of every stroke and run, brighter on the side the moon lights.
+  film *= 1.0 + LIP_BRIGHT * (lip * (0.35 + 0.65 * lit) + 0.5 * trailLip);
   film = mix(film, uGhost * 0.8, bloomM * 0.4);
   float edgeShade = 1.0 - smoothstep(0.0, 0.08 * min(uRes.x, uRes.y), min(min(fragPx.x, uRes.x - fragPx.x), fragPx.y));
   film = mix(film, film * vec3(0.94, 1.06, 1.0), edgeShade);
 
   vec3 col = mix(seen, film, clamp(opacity, 0.0, 1.0));
+
+  // Cold rim on the fog side of the edge only (T below one half), brighter where the moon lights it.
+  float rim = smoothstep(0.008, 0.05, T) * (1.0 - smoothstep(0.07, 0.26, T));
+  float trailRim = smoothstep(0.03, 0.2, trail) * (1.0 - smoothstep(0.2, 0.6, trail));
+  col = mix(col, uGhost, RIM_A * clamp(rim * (0.1 + 0.9 * lit * lit) + 0.7 * trailRim, 0.0, 1.0) * (1.0 - swept));
+
+  col += uMoon * 0.2 * trailGlint * (1.0 - swept);
+
+  // Beads hang under the lower edges of near-horizontal strokes.
+  if (uDetail > 0.5 && edgeB > 0.04 && edgeB < 0.45 && outN.y > 0.55 && sd > 0.0) {
+    float S = BEAD_SPACING * px;
+    float id = floor(fragPx.x / S);
+    if (hash(vec2(id, 9.1)) < 0.6) {
+      float rb = mix(BEAD_R_LO, BEAD_R_HI, hash(vec2(id, 2.3))) * px;
+      float cx = (id + 0.25 + 0.5 * hash(vec2(id, 5.7))) * S;
+      vec2 q = vec2((fragPx.x - cx) / rb, (sd - rb * 0.95) / rb);
+      float qn = length(q);
+      if (qn < 1.0) {
+        float bm = (1.0 - smoothstep(0.8, 1.0, qn)) * smoothstep(0.55, 0.85, outN.y) * smoothstep(0.0, 0.5, wf);
+        col = mix(col, lensColour(q, roomBase(vUv), qn * qn, film), 0.9 * bm * (1.0 - smoothstep(0.1, 0.4, T)));
+      }
+    }
+  }
 
   // 6. Droplets on the glass, three scales, density following the film, none in cleared glass.
   if (uDetail > 0.5) {
@@ -431,6 +540,10 @@ void main() {
     col = mix(col, dTiny.rgb, dTiny.a);
     col = mix(col, dMid.rgb, dMid.a);
     col = mix(col, dLarge.rgb, dLarge.a);
+  }
+
+  if (headHit > 0.0 && uDetail > 0.5) {
+    col = mix(col, lensColour(headQ, roomBase(vUv), dot(headQ, headQ), film), 0.95 * headHit);
   }
 
   // 7. Writing head: cold white at the toi frontier, capped. Never amber.

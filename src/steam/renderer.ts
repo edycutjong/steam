@@ -4,7 +4,9 @@
 import type { NoteMeta } from './assets.ts'
 import type { Derived } from './derive.ts'
 import type { Layout } from './layout.ts'
-import { COMPOSITE_FRAG, FOG_FRAG, VERT } from './shaders.ts'
+import { placeDrips, planDrips, writeRunUniforms } from './drips.ts'
+import type { PlacedRun, PlannedRun } from './drips.ts'
+import { COMPOSITE_FRAG, FOG_FRAG, RUN_MAX, VERT } from './shaders.ts'
 import type { Tokens } from './tokens.ts'
 import { readTokens } from './tokens.ts'
 import type { RevealState } from './timeline.ts'
@@ -37,7 +39,7 @@ const FOG_UNIFORMS = ['uSize', 'uTime', 'uThicken'] as const
 const COMP_UNIFORMS = [
   'uRes', 'uDpr', 'uTime', 'uU', 'uThicken', 'uHead', 'uWipe', 'uRefog',
   'uGroupSrc', 'uGroupDst', 'uGroupCount', 'uNoteSize', 'uHeadPos', 'uHeadGroup',
-  'uFogTexel', 'uCandle', 'uBloom', 'uDetail', 'uBg', 'uInk', 'uBefore', 'uAfter', 'uRule', 'uGhost', 'uMoon', 'uNight', 'uPot',
+  'uRunA', 'uRunB', 'uRunCount', 'uFogTexel', 'uCandle', 'uBloom', 'uDetail', 'uBg', 'uInk', 'uBefore', 'uAfter', 'uRule', 'uGhost', 'uMoon', 'uNight', 'uPot',
   'uInkTex', 'uChan', 'uFog',
 ] as const
 type Locs<K extends string> = Record<K, WebGLUniformLocation | null>
@@ -164,6 +166,11 @@ export class SteamRenderer {
   private fogW = 1
   private fogH = 1
   private dpr = 1
+  private readonly runA = new Float32Array(4 * RUN_MAX)
+  private readonly runB = new Float32Array(4 * RUN_MAX)
+  private readonly plan: PlannedRun[]
+  private runs: PlacedRun[] = []
+  private readonly seed: number
   /** Candle flame in pane uv (y down); set from the DOM flame by `setCandle`. */
   private candleU = 0.93
   private candleV = 0.86
@@ -191,6 +198,14 @@ export class SteamRenderer {
     this.opts = opts
     this.tokens = tokens
     this.frozenT = opts.frozenT
+    const meta = assets.meta
+    let seed = 2166136261
+    for (let i = 0; i < meta.noteId.length; i++) seed = Math.imul(seed ^ meta.noteId.charCodeAt(i), 16777619) >>> 0
+    this.seed = seed
+    this.plan = planDrips(
+      { ink: assets.derived.ink, toi: assets.derived.chan, width: meta.size[0], height: meta.size[1], groups: meta.groups },
+      seed,
+    )
     this.loop = this.frame.bind(this)
     this.applyLayout(layout, canvas.width, canvas.height, 1)
     this.onLost = this.handleLost.bind(this)
@@ -451,6 +466,11 @@ export class SteamRenderer {
     gl.uniform1i(r.compLoc.uHeadGroup, headGroup)
     gl.uniform2f(r.compLoc.uFogTexel, 1 / this.fogW, 1 / this.fogH)
     gl.uniform3f(r.compLoc.uCandle, this.candleU, this.candleV, 0.9 + 0.1 * Math.sin(time * 7.3) * Math.sin(time * 4.1 + 0.6))
+    const nRuns = this.runs.length
+    for (let k = 0; k < nRuns; k++) writeRunUniforms(this.runs[k], t, this.dpr, this.runA, this.runB, k)
+    gl.uniform4fv(r.compLoc.uRunA, this.runA)
+    gl.uniform4fv(r.compLoc.uRunB, this.runB)
+    gl.uniform1i(r.compLoc.uRunCount, nRuns)
     gl.uniform1f(r.compLoc.uBloom, 0)
     gl.uniform1f(r.compLoc.uDetail, 1)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
@@ -465,6 +485,7 @@ export class SteamRenderer {
     this.fogW = Math.ceil(this.canvasW / FOG_DIV)
     this.fogH = Math.ceil(this.canvasH / FOG_DIV)
     this.groupCount = Math.min(MAX_GROUPS, layout.groups.length)
+    this.runs = placeDrips(this.plan, layout, this.canvasW / ratio, this.canvasH / ratio, this.seed)
     this.groupSrc.fill(0)
     this.groupDst.fill(0)
     for (let k = 0; k < this.groupCount; k++) {
