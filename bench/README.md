@@ -34,3 +34,15 @@ The committed run used whatever backend Chromium chose on that machine; the `gpu
 | `steam-renderer-metal.json` | ANGLE Metal, Apple M1 Max (hardware GPU, not throttled), shader at commit 68a379d (after D6-D11) | `BENCH_ANGLE=metal npm run bench`, then the file renamed | 901 frames per profile at 60 fps, 0 frames under 55 on all three profiles |
 
 Both are the same machine and build. The Pixel 5 profile throttles the CPU only (4×), never the GPU, so it is not a real phone: a physical-device run is still owed. `derive` (one-time, on load) took 345.9 ms under 4× CPU before D6 removed the channel dilation, and 103.4 ms after it (metal file), still over the 50 ms budget in R15.5 (task 39 moves it into a Web Worker). The SwiftShader row is not re-run on the D6-D11 shader yet.
+
+
+## Cook Mode: `cook.json`
+
+Written by `scripts/measure-cook.ts` (`npm run bench:cook`): the deep link `/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=3&fps=1` in the production build, every `requestAnimationFrame` interval for 15 s from `cook:ready` (lead-in, write-on, hold), and the times from navigation to `cook:ready` and to `cook:reveal:till-it-looks-red-smooth`. Run 2026-11-25T00:15:58.762Z on Apple M1 Max, Chromium 159.0.8154.6, SwiftShader.
+
+| Profile | Mean fps | Min fps | Worst frame ms | Frames over 18.2 ms | Nav to ready ms | Nav to reveal ms | Budget |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `desktop-1280x720` | 59.54 | 29.94 | 33.4 | 7 | 1553 | 3108 | fail |
+| `pixel5-4x-cpu` | 28.01 | 14.99 | 66.7 | 388 | 1814 | 3276 | fail |
+
+Both profiles miss the budget in this run. The machine was loaded (load averages 16.96 25.49 22.56 by `uptime`), and the renderer-only benchmark re-run under the same load measured 34.3 fps desktop and 21.78 fps on the Pixel 5 profile (`docs/kiro-evidence/cook-mode/renderer-same-load.txt`), below Cook Mode's own figures, so this run does not separate Cook Mode's cost from the load. A run on an idle machine is still owed.

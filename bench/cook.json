@@ -1,0 +1,54 @@
+{
+  "generatedAt": "2026-11-25T00:15:58.762Z",
+  "command": "npm run bench:cook",
+  "machine": {
+    "cpu": "Apple M1 Max",
+    "cores": 10,
+    "os": "darwin 27.2.0 arm64"
+  },
+  "browser": "Chromium 159.0.8154.6",
+  "thresholds": {
+    "minMeanFps": 55,
+    "slowFrameMs": 18.2
+  },
+  "profiles": [
+    {
+      "name": "desktop-1280x720",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "deviceScaleFactor": 1,
+      "cpuThrottle": 1,
+      "url": "/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=3&fps=1",
+      "frames": 894,
+      "meanFps": 59.54,
+      "minFps": 29.94,
+      "worstFrameMs": 33.4,
+      "over18_2ms": 7,
+      "navToReadyMs": 1553,
+      "navToRevealMs": 3108,
+      "gpuRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+      "pass": false
+    },
+    {
+      "name": "pixel5-4x-cpu",
+      "viewport": {
+        "width": 393,
+        "height": 851
+      },
+      "deviceScaleFactor": 2.75,
+      "cpuThrottle": 4,
+      "url": "/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=3&fps=1",
+      "frames": 421,
+      "meanFps": 28.01,
+      "minFps": 14.99,
+      "worstFrameMs": 66.7,
+      "over18_2ms": 388,
+      "navToReadyMs": 1814,
+      "navToRevealMs": 3276,
+      "gpuRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+      "pass": false
+    }
+  ]
+}

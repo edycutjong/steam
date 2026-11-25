@@ -359,7 +359,7 @@ Rules for every task:
 
 ## M. Measurement and close
 
-- [ ] 55. Cook Mode performance script
+- [x] 55. Cook Mode performance script
   - Test first: `scripts/measure-cook.test.ts` checks the script's pure part: the frame-interval statistics (mean fps, minimum fps, worst frame, count over 18.2 ms) on fixed arrays, and the shape of `bench/cook.json` with zod.
   - Implement `scripts/measure-cook.ts` (Playwright and CDP): for desktop 1280×720 and a Pixel 5 profile with `Emulation.setCPUThrottlingRate(4)`, load `#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=3&fps=1`, record every `requestAnimationFrame` interval over the lead-in, the write-on and the hold (15 s), and the times from navigation to `cook:ready` and to `cook:reveal:till-it-looks-red-smooth`; write `bench/cook.json`. The script exits non-zero when the budget fails but writes the file first. Run it, commit the file as measured, and add a row to `bench/README.md`. Whatever the numbers are is what is reported; a failing profile is not hidden or retuned here.
   - Files: `scripts/measure-cook.ts`, `scripts/measure-cook.test.ts`, `bench/cook.json`, `bench/README.md`, `package.json` (`"bench:cook"`).
