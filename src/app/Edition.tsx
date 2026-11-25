@@ -7,7 +7,7 @@ import { useApp } from './AppContext.tsx'
 import ArchiveSlip, { creditLine, readersLine } from './components/ArchiveSlip.tsx'
 import Facsimile from './components/Facsimile.tsx'
 import TimingStepper from './components/TimingStepper.tsx'
-import ReadingText, { DisagreeDescription } from './components/ReadingText.tsx'
+import ReadingText, { DisagreeDescription, hasMarks } from './components/ReadingText.tsx'
 import { startFresh } from './Shelf.tsx'
 import { formatRoute } from './router.ts'
 import { useScreen } from './useScreen.ts'
@@ -61,7 +61,7 @@ export default function Edition({ recipe }: { recipe: LoadedRecipe }) {
           <p className="legend">{SLIP.disagreements(b.transcription.disagreements.length)}</p>
           <p className="legend">{EDITION.legend}</p>
           {recipe.withheld.length > 0 ? <p className="notice">{EDITION.withheld(recipe.withheld.length)}</p> : null}
-          <DisagreeDescription />
+          <DisagreeDescription show={b.lines.some((l) => hasMarks(parseReading(l.corrected ?? l.merged)) || (l.corrected !== undefined && hasMarks(parseReading(l.merged))))} />
           <div className="transcription" role="list">
             {b.lines.map((l) => {
               const note = byLine.get(l.i)

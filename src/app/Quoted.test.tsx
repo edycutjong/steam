@@ -73,4 +73,19 @@ describe('"The hand, quoted" (R20, R22.3, R3.3, R25.5)', () => {
     const h = await open(loaded((b) => { b.notes.find((n) => n.id === 'when-tender')!.verifyBox = [1, 1, 0, 0] }))
     expect(h.querySelectorAll('.quote').length).toBe(2)
   })
+  // cook-mode-qa-r1 Q3
+  it('the "readers disagree" description is on the † spans only: absent when no row has a mark, one hidden element when one does', async () => {
+    const none = await open()
+    expect(none.querySelector('#disagree-desc')).toBeNull()
+    expect(text(none)).not.toContain('Two independent readers')
+    unmountAll()
+    const marked = await open(loaded((b) => { const l = b.lines.find((x) => x.i === 9)!; l.merged = l.merged.replace('Looks', '†[Looks|looks]') }))
+    const d = marked.querySelectorAll('#disagree-desc')
+    expect(d.length).toBe(1)
+    expect(d[0]!.hasAttribute('hidden')).toBe(true)
+    const marks = [...marked.querySelectorAll('.quote .mark')]
+    expect(marks.length).toBe(1)
+    expect(marks[0]!.getAttribute('aria-describedby')).toBe('disagree-desc')
+    expect([...marked.querySelectorAll('[aria-describedby]')].every((e) => e.classList.contains('mark'))).toBe(true)
+  })
 })

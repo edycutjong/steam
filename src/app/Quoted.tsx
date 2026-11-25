@@ -4,7 +4,7 @@ import { regionUrl } from '../data/provenance.ts'
 import { quoteSegments } from '../data/reading.ts'
 import { useApp } from './AppContext.tsx'
 import ArchiveSlip, { creditLine } from './components/ArchiveSlip.tsx'
-import ReadingText, { DisagreeDescription } from './components/ReadingText.tsx'
+import ReadingText, { DisagreeDescription, hasMarks } from './components/ReadingText.tsx'
 import { startFresh } from './Shelf.tsx'
 import { formatRoute } from './router.ts'
 import { useScreen } from './useScreen.ts'
@@ -20,7 +20,7 @@ export default function Quoted({ recipe }: { recipe: LoadedRecipe }) {
       <h1 ref={h1} tabIndex={-1} className="screen-title">
         {QUOTED.title}
       </h1>
-      <DisagreeDescription />
+      <DisagreeDescription show={recipe.notes.some((n) => hasMarks(quoteSegments(b, n)))} />
       <ol className="quoted__list">
         {recipe.notes.map((n) => {
           const href = regionUrl(b, n)!

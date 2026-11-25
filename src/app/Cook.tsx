@@ -9,6 +9,7 @@ import { controlFor, noteState, type Control, type Pace, type SchedEffect } from
 import { createWakeLock, type WakeLockNav, type WakeStatus } from '../cook/wakelock.ts'
 import type { Clock } from '../cook/clock.ts'
 import type { LoadedRecipe } from '../data/catalog.ts'
+import { parseReading, quoteSegments } from '../data/reading.ts'
 import type { SteamGlassProps } from '../steam/SteamGlass.tsx'
 import { WIPE_MS, type Phase } from '../steam/timeline.ts'
 import { useApp } from './AppContext.tsx'
@@ -20,7 +21,7 @@ import LampDip, { type LampHandle } from './components/LampDip.tsx'
 import MuteButton from './components/MuteButton.tsx'
 import PaceBadge from './components/PaceBadge.tsx'
 import PaneStage, { type StageApi } from './components/PaneStage.tsx'
-import { DisagreeDescription } from './components/ReadingText.tsx'
+import { DisagreeDescription, hasMarks } from './components/ReadingText.tsx'
 import StepPanel, { stepReading } from './components/StepPanel.tsx'
 import WipeControl from './components/WipeControl.tsx'
 import { formatRoute } from './router.ts'
@@ -177,6 +178,8 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
   const writing = ns === 'revealed' && noteAttr !== 'held'
   const pace: Pace = state.paceHistory.at(-1)?.pace ?? route.pace
   const control: Control = plan && state.status !== 'idle' ? controlFor(plan, state) : { label: COOK.loading, action: 'show', leavesCook: false }
+  // The description of the † marks exists only where a mark is shown: in the step text, or in the typed note of a failed scan.
+  const showsMarks = hasMarks(parseReading(stepReading(b, stepIndex))) || (paneNote !== null && failedNotes.includes(paneNote) && hasMarks(quoteSegments(b, recipe.notes.find((n) => n.id === paneNote)!)))
   const showSlip = ns === 'revealed' && (noteAttr === 'writing' || noteAttr === 'held')
 
   const lastAct = useRef(-Infinity)
@@ -292,7 +295,7 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
       </div>
       <div className="cook__panel">
         <StepPanel bundle={b} stepIndex={stepIndex} />
-        <DisagreeDescription />
+        <DisagreeDescription show={showsMarks} />
         <div className="cook__side">
           <CountUpTimer plan={plan} state={state} clock={session.clock} pace={pace} />
           <FlameKnob pace={pace} onPace={onPace} />

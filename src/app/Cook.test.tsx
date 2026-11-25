@@ -178,4 +178,26 @@ describe('Cook screen (R9, R14.7, R14.8, R18.5, R18.6, R19.1, R19.2, R19.8, R15.
     expect(wipeBtn(b.host).textContent).toBe('The hand is writing…')
     expect(wipeBtn(b.host).getAttribute('aria-disabled')).toBe('true')
   })
+  // cook-mode-qa-r1 Q3
+  it('the "readers disagree" description exists only on a step that has a † mark, hidden, and only the † spans point at it', async () => {
+    const PHRASE = 'Two independent readers disagree'
+    const free = (host: HTMLElement) => [...host.querySelectorAll('*')].filter((e) => e.children.length === 0 && (e.textContent ?? '').includes(PHRASE) && !e.closest('[hidden]'))
+    const { host, root } = await open('#/r/quinces-marmalade/cook')
+    const seen: string[] = []
+    for (let i = 0; i < 5; i++) {
+      while (root.dataset.noteState === 'writing') await tick(500)
+      const marks = [...host.querySelectorAll('.step .mark')]
+      const desc = host.querySelector('#disagree-desc')
+      seen.push(`${root.dataset.step}:${marks.length > 0}:${desc !== null}`)
+      expect(free(host)).toEqual([])
+      if (marks.length > 0) {
+        expect(desc!.hasAttribute('hidden')).toBe(true)
+        for (const m of marks) expect(m.getAttribute('aria-describedby')).toBe('disagree-desc')
+      }
+      expect([...host.querySelectorAll('[aria-describedby="disagree-desc"]')].every((e) => e.classList.contains('mark'))).toBe(true)
+      await press(host)
+      await tick(WIPE_MS + 700)
+    }
+    expect(seen).toEqual(['1:false:false', '2:true:true', '3:false:false', '4:true:true', '5:true:true'])
+  })
 })

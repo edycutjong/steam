@@ -28,10 +28,17 @@ export default function ReadingText({ segments, className }: { segments: readonl
   )
 }
 
-/** The one shared description of the marks; render it once on a screen that shows marks. */
-export function DisagreeDescription() {
+/** True when a reading has at least one † mark. */
+export const hasMarks = (segments: readonly Segment[]): boolean => segments.some((s) => s.kind !== 'text')
+
+/**
+ * The one shared description of the marks. It is `hidden`, so a screen reader reaches it only through the † spans'
+ * `aria-describedby`, never as free text; render it only where a screen shows a mark (`show`).
+ */
+export function DisagreeDescription({ show = true }: { show?: boolean }) {
+  if (!show) return null
   return (
-    <p id={DISAGREE_DESC_ID} className="sr-only">
+    <p id={DISAGREE_DESC_ID} hidden>
       {EDITION.marksDescription}
     </p>
   )
