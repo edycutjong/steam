@@ -213,6 +213,8 @@ export class SteamRenderer {
   private fogDiv = FOG_DIV
   private detail = 1
   private degradeCb: (() => void) | null = null
+  /** Tier 3 was asked for while a stroke or a wipe sweep was moving: applied on the first calm frame (a2a-arch-r05 B3). */
+  private degradePending = false
   private lastStats = -Infinity
   readonly pub: SteamStats = { tier: 0, frames: 0, avgFps: 0, p95Ms: 0, framesOver: 0, renderer: null }
   private resumeOnRestore = false
@@ -437,7 +439,7 @@ export class SteamRenderer {
     this.notify(now, true)
   }
 
-  /** Registers the callback run when the governor reaches tier 3: the pane is to be replaced by the static images. */
+  /** Registers the callback run when the governor reaches tier 3 and the glass is calm (not mid-stroke, not mid-sweep): the pane is to be replaced by the static images. */
   onDegrade(cb: (() => void) | null): void {
     this.degradeCb = cb
   }
@@ -458,7 +460,19 @@ export class SteamRenderer {
     }
     if (next >= 2) this.detail = 0
     this.publish(performance.now(), true)
-    if (next >= 3) this.degradeCb?.()
+    if (next >= 3) this.degradePending = true // applied by `flushDegrade`, after the frame, once no stroke or sweep is moving
+  }
+
+  /** True in `fogged`, `holding` and once a wipe sweep has finished: the glass can change hands without a visible jump. */
+  private calm(): boolean {
+    const st = revealState(this.revealT, this.wipeAt)
+    return st.phase === 'fogged' || st.phase === 'holding' || (st.phase === 'wiped' && st.wipe >= 1)
+  }
+
+  private flushDegrade(): void {
+    if (!this.calm()) return
+    this.degradePending = false
+    this.degradeCb?.()
   }
 
   /** Publishes `window.__steamStats` at 4 Hz (and at once on a tier change). */
@@ -535,6 +549,7 @@ export class SteamRenderer {
       if (this.frozenT === null && this.govOn) this.govern(dt) // a frozen clock is a measurement frame: it is never degraded
     }
     this.draw(now)
+    if (this.degradePending) this.flushDegrade()
     this.publish(now)
     this.notify(now, false)
     this.rafId = requestAnimationFrame(this.loop)
