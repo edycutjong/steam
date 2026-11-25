@@ -14,7 +14,7 @@ describe('Shelf (R4, R2.8)', () => {
     const host = mount(wrap(<Shelf />))
     await flush()
     expect(text(host.querySelector('h1'))).toBe('Recipes in a hand')
-    expect(text(host.querySelector('.lede'))).toBe("Every note you'll see is the writer's own hand, photographed. Nothing is generated.")
+    expect(text(host.querySelector('.lede'))).toBe("Every note you'll see is the writer's own hand, photographed. The handwriting is never generated.")
     expect(host.querySelectorAll('.shelf__item').length).toBe(1)
     const img = host.querySelector('.shelf__item img')!
     expect(img.getAttribute('loading')).toBe('lazy')

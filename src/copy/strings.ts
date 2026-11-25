@@ -49,7 +49,7 @@ export const PACE = {
 
 export const SHELF = {
   title: 'Recipes in a hand',
-  intro: "Every note you'll see is the writer's own hand, photographed. Nothing is generated.",
+  intro: "Every note you'll see is the writer's own hand, photographed. The handwriting is never generated.",
   cook: 'Cook it',
   watch: 'Watch it at ×12',
   empty: 'No recipe could be loaded.',
