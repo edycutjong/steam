@@ -89,7 +89,16 @@ export const FEATHER_K = 0.8
 export const GRAIN_A = 0.07
 export const FOG_MAX = 0.94
 export const HEAD_R = 11.0
-export const HEAD_A = 0.3
+export const HEAD_A = 0.26
+/** The head's added luminance never exceeds this: a cold fingertip glow, never a white hotspot (R5.1). */
+export const HEAD_MAX_LUMA = 0.28
+/** Breath: samples along the head's path, bins between them, falloff per sample, radius css px, density and cooling. */
+export const TRAIL_N = 6
+export const TRAIL_STEP = 12
+export const TRAIL_FALLOFF = 0.78
+export const BREATH_R_CSS = 34.0
+export const BREATH_DENSITY = 0.22
+export const BREATH_COOL = 0.3
 export const SWEEP_SOFT = 0.35
 
 /** Room behind the glass (design §4): light of the pot, of the candle, of the floor, and the bokeh. */
@@ -164,6 +173,7 @@ uniform vec2 uFogTexel;
 uniform vec3 uCandle;
 uniform float uBloom;
 uniform float uDetail;
+uniform vec2 uTrail[6];
 uniform vec4 uRunA[6];
 uniform vec4 uRunB[6];
 uniform int uRunCount;
@@ -217,6 +227,11 @@ const float BEAD_R_LO = ${f(BEAD_R_CSS.lo)};
 const float BEAD_R_HI = ${f(BEAD_R_CSS.hi)};
 const float RUN_REFOG_S = ${f(RUN_REFOG_S)};
 const vec2 MOON_DIR = vec2(-0.35, -0.94);
+const float HEAD_MAX_LUMA = ${f(HEAD_MAX_LUMA)};
+const float TRAIL_FALLOFF = ${f(TRAIL_FALLOFF)};
+const float BREATH_R = ${f(BREATH_R_CSS)};
+const float BREATH_DENSITY = ${f(BREATH_DENSITY)};
+const float BREATH_COOL = ${f(BREATH_COOL)};
 const float RAIL_BOOST = ${f(RAIL_DROP_BOOST)};
 ${NOISE_GLSL}
 
@@ -468,6 +483,19 @@ void main() {
   float stay = max(1.0 - uRefog, hullF);
   float swept = sweepC * stay;
 
+  // Breath: a soft puff around the head and along the last samples of its path. It thickens and cools the film.
+  float breath = 0.0;
+  if (uHead > 0.0 && uDetail > 0.5) {
+    float wk = 1.0;
+    float br = BREATH_R * px;
+    for (int k = 0; k < 6; k++) {
+      vec2 dv = fragPx - uTrail[k];
+      breath += wk * exp(-dot(dv, dv) / (br * br));
+      wk *= TRAIL_FALLOFF;
+    }
+    breath = min(breath, 1.0) * uHead;
+  }
+
   // 3. Cold bloom of the haunting cue: the film densifies from the pane edges inward, the front wobbled by the film height.
   float edgeD = min(min(css.x, cssSize.x - css.x), css.y);
   float reach = 0.3 * min(cssSize.x, cssSize.y) * uBloom;
@@ -476,7 +504,7 @@ void main() {
   // 4. What the glass hides and what it shows.
   float opacity = clamp(fogD, 0.0, 1.0) * FOG_MAX;
   opacity = mix(opacity, 1.0, bloomM * 0.35);
-  opacity += LIP_DENSITY * lip * (1.0 - T) + 0.16 * trailLip;
+  opacity += LIP_DENSITY * lip * (1.0 - T) + 0.16 * trailLip + BREATH_DENSITY * breath * (1.0 - T);
   opacity *= (1.0 - 0.96 * T) * (1.0 - 0.62 * trail) * (1.0 - swept);
 
   float Lr = roomLight(vUv + refr / uRes, css + refr / px);
@@ -500,6 +528,7 @@ void main() {
   // The film piles up at the edge of every stroke and run, brighter on the side the moon lights.
   film *= 1.0 + LIP_BRIGHT * (lip * (0.35 + 0.65 * lit) + 0.5 * trailLip);
   film = mix(film, uGhost * 0.8, bloomM * 0.4);
+  film = mix(film, uGhost * 0.85, BREATH_COOL * breath);
   float edgeShade = 1.0 - smoothstep(0.0, 0.08 * min(uRes.x, uRes.y), min(min(fragPx.x, uRes.x - fragPx.x), fragPx.y));
   film = mix(film, film * vec3(0.94, 1.06, 1.0), edgeShade);
 
@@ -546,14 +575,22 @@ void main() {
     col = mix(col, lensColour(headQ, roomBase(vUv), dot(headQ, headQ), film), 0.95 * headHit);
   }
 
-  // 7. Writing head: cold white at the toi frontier, capped. Never amber.
+  // 7. Writing head: a cold fingertip glow at the toi frontier, capped, never amber. Fresh strokes carry a short cold wet sheen.
+  float fresh = exp(-max(uU - ch.g, 0.0) / 0.03) * step(uU, 0.9999) * step(0.0, uU);
+  col += uGhost * 0.16 * fresh * smoothstep(0.1, 0.6, T);
   if (uHead > 0.0 && gi >= 0) {
     vec4 hd = uGroupDst[uHeadGroup];
     if (fragPx.x >= hd.x && fragPx.y >= hd.y && fragPx.x < hd.z && fragPx.y < hd.w) {
       vec2 hp = mix(uGroupSrc[uHeadGroup].xy, uGroupSrc[uHeadGroup].zw, (fragPx - hd.xy) / (hd.zw - hd.xy));
       vec2 dv = hp - uHeadPos;
-      float hg = exp(-dot(dv, dv) / (HEAD_R * HEAD_R));
-      col = mix(col, mix(uGhost, uMoon, 0.5), hg * HEAD_A * uHead);
+      float d2 = dot(dv, dv) / (HEAD_R * HEAD_R);
+      float hg = 0.65 * exp(-d2 * 3.0) + 0.35 * exp(-d2 * 0.5);
+      vec3 cold = mix(uGhost, uMoon, 0.5);
+      float before = dot(col, vec3(0.2126, 0.7152, 0.0722));
+      vec3 lit = mix(col, cold, hg * HEAD_A * uHead);
+      float after = dot(lit, vec3(0.2126, 0.7152, 0.0722));
+      // luminance added by the head never exceeds HEAD_MAX_LUMA
+      col = after - before > HEAD_MAX_LUMA ? mix(col, lit, HEAD_MAX_LUMA / max(after - before, 1e-4)) : lit;
     }
   }
 

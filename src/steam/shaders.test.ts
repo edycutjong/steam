@@ -5,6 +5,9 @@ import {
   DROP_MID,
   DROP_TINY,
   FOG_FRAG,
+  HEAD_MAX_LUMA,
+  TRAIL_N,
+  TRAIL_FALLOFF,
   REFRACT_MAX_CSS,
   STROKE_LUMA_MAX,
   STROKE_PEAK_MAX,
@@ -62,5 +65,15 @@ describe('composite constants (steam-renderer-v1 design §4, §5)', () => {
   })
   it('does not contain the v0 hash-grid drip (R4.8)', () => {
     expect(COMPOSITE_FRAG).not.toContain('h > 0.9 && c < 0.2')
+  })
+  it('keeps the writing head a capped cold glow and gives it a breath along its path (R5.1, R5.2)', () => {
+    expect(HEAD_MAX_LUMA).toBeLessThanOrEqual(0.28)
+    expect(COMPOSITE_FRAG).toContain('HEAD_MAX_LUMA')
+    expect(COMPOSITE_FRAG).toContain('mix(uGhost, uMoon, 0.5)')
+    expect(COMPOSITE_FRAG).toMatch(/uniform vec2 uTrail\[6\]/)
+    expect(TRAIL_N).toBe(6)
+    expect(TRAIL_FALLOFF).toBeLessThan(1)
+    // the breath thickens the film and never lowers T: it multiplies (1 - T), it is not subtracted from T
+    expect(COMPOSITE_FRAG).toContain('BREATH_DENSITY * breath * (1.0 - T)')
   })
 })

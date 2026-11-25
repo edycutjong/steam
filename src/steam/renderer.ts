@@ -6,7 +6,7 @@ import type { Derived } from './derive.ts'
 import type { Layout } from './layout.ts'
 import { placeDrips, planDrips, writeRunUniforms } from './drips.ts'
 import type { PlacedRun, PlannedRun } from './drips.ts'
-import { COMPOSITE_FRAG, FOG_FRAG, RUN_MAX, VERT } from './shaders.ts'
+import { COMPOSITE_FRAG, FOG_FRAG, RUN_MAX, TRAIL_N, TRAIL_STEP, VERT } from './shaders.ts'
 import type { Tokens } from './tokens.ts'
 import { readTokens } from './tokens.ts'
 import type { RevealState } from './timeline.ts'
@@ -39,7 +39,7 @@ const FOG_UNIFORMS = ['uSize', 'uTime', 'uThicken'] as const
 const COMP_UNIFORMS = [
   'uRes', 'uDpr', 'uTime', 'uU', 'uThicken', 'uHead', 'uWipe', 'uRefog',
   'uGroupSrc', 'uGroupDst', 'uGroupCount', 'uNoteSize', 'uHeadPos', 'uHeadGroup',
-  'uRunA', 'uRunB', 'uRunCount', 'uFogTexel', 'uCandle', 'uBloom', 'uDetail', 'uBg', 'uInk', 'uBefore', 'uAfter', 'uRule', 'uGhost', 'uMoon', 'uNight', 'uPot',
+  'uTrail', 'uRunA', 'uRunB', 'uRunCount', 'uFogTexel', 'uCandle', 'uBloom', 'uDetail', 'uBg', 'uInk', 'uBefore', 'uAfter', 'uRule', 'uGhost', 'uMoon', 'uNight', 'uPot',
   'uInkTex', 'uChan', 'uFog',
 ] as const
 type Locs<K extends string> = Record<K, WebGLUniformLocation | null>
@@ -166,6 +166,7 @@ export class SteamRenderer {
   private fogW = 1
   private fogH = 1
   private dpr = 1
+  private readonly trail = new Float32Array(2 * TRAIL_N)
   private readonly runA = new Float32Array(4 * RUN_MAX)
   private readonly runB = new Float32Array(4 * RUN_MAX)
   private readonly plan: PlannedRun[]
@@ -468,12 +469,33 @@ export class SteamRenderer {
     gl.uniform3f(r.compLoc.uCandle, this.candleU, this.candleV, 0.9 + 0.1 * Math.sin(time * 7.3) * Math.sin(time * 4.1 + 0.6))
     const nRuns = this.runs.length
     for (let k = 0; k < nRuns; k++) writeRunUniforms(this.runs[k], t, this.dpr, this.runA, this.runB, k)
+    this.writeTrail(bin)
+    gl.uniform2fv(r.compLoc.uTrail, this.trail)
     gl.uniform4fv(r.compLoc.uRunA, this.runA)
     gl.uniform4fv(r.compLoc.uRunB, this.runB)
     gl.uniform1i(r.compLoc.uRunCount, nRuns)
     gl.uniform1f(r.compLoc.uBloom, 0)
     gl.uniform1f(r.compLoc.uDetail, 1)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
+  }
+
+  /** The head's path at the last TRAIL_N samples, device px, for the breath. No allocation. */
+  private writeTrail(bin: number): void {
+    const head = this.assets.derived.head
+    const last = this.assets.derived.headBins - 1
+    for (let k = 0; k < TRAIL_N; k++) {
+      let b = bin - k * TRAIL_STEP
+      if (b < 0) b = 0
+      const s = b / last
+      let g = 0
+      for (let i = 0; i < this.groupCount; i++) if (s >= this.groupT[2 * i]) g = i
+      const sx = this.groupSrc[4 * g]
+      const sw = this.groupSrc[4 * g + 2] - sx
+      const dx = this.groupDst[4 * g]
+      const scale = (this.groupDst[4 * g + 2] - dx) / (sw > 0 ? sw : 1)
+      this.trail[2 * k] = dx + (head[2 * b] - sx) * scale
+      this.trail[2 * k + 1] = this.groupDst[4 * g + 1] + (head[2 * b + 1] - this.groupSrc[4 * g + 1]) * scale
+    }
   }
 
   /** Fills the preallocated group arrays. `ratio` is canvas px per CSS px. */
