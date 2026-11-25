@@ -286,3 +286,64 @@ describe('Cook screen (R9, R14.7, R14.8, R18.5, R18.6, R19.1, R19.2, R19.8, R15.
     expect(seen).toEqual(['1:false:false', '2:true:true', '3:false:false', '4:true:true', '5:true:true'])
   })
 })
+
+// a2a-arch-r06 C6: the sweep stands still while the tab is hidden (a2a-arch-r05 B1), so the hand-over to "The hand, quoted" waits for it.
+describe('the hand-over after the last wipe waits for visible time (a2a-arch-r06 C6)', () => {
+  const setVis = (v: DocumentVisibilityState) => {
+    Object.defineProperty(document, 'visibilityState', { value: v, configurable: true })
+    act(() => void document.dispatchEvent(new Event('visibilitychange')))
+  }
+  afterEach(() => setVis('visible'))
+  const QUOTED_HASH = '#/r/quinces-marmalade/quoted'
+  /** Deep link to the last step, shown and held; returns after the click on the last wipe. */
+  async function lastWipe() {
+    const o = await open('#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth')
+    click(wipeBtn(o.host)) // Show the note
+    await tick(WRITE_ON_MS + 200)
+    expect(o.root.dataset.noteState).toBe('held')
+    expect(wipeBtn(o.host).textContent).toBe('The hand, quoted')
+    click(wipeBtn(o.host))
+    return o
+  }
+
+  it('visible behaviour is unchanged: not before 1400 ms, there by 1500 ms', async () => {
+    await lastWipe()
+    await tick(1300)
+    expect(location.hash).not.toBe(QUOTED_HASH)
+    await tick(200)
+    expect(location.hash).toBe(QUOTED_HASH)
+  })
+  it('hiding the phone within the sweep keeps the sweep: the hand-over waits for the rest of its visible time', async () => {
+    await lastWipe()
+    await tick(300)
+    setVis('hidden')
+    await tick(30_000)
+    expect(location.hash).not.toBe(QUOTED_HASH)
+    setVis('visible')
+    await tick(900)
+    expect(location.hash).not.toBe(QUOTED_HASH) // 300 + 900 ms of visible time
+    await tick(300)
+    expect(location.hash).toBe(QUOTED_HASH)
+  })
+  it('a pageshow with no visibilitychange resumes the countdown when the page is visible', async () => {
+    await lastWipe()
+    await tick(300)
+    setVis('hidden')
+    await tick(5000)
+    expect(location.hash).not.toBe(QUOTED_HASH)
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true })
+    act(() => void window.dispatchEvent(new Event('pageshow')))
+    await tick(900)
+    expect(location.hash).not.toBe(QUOTED_HASH) // 300 + 900 ms of visible time
+    await tick(300)
+    expect(location.hash).toBe(QUOTED_HASH)
+  })
+  it('closing Cook Mode during the sweep cancels the hand-over', async () => {
+    await lastWipe()
+    await tick(300)
+    const before = location.hash
+    unmountAll()
+    await tick(5000)
+    expect(location.hash).toBe(before)
+  })
+})
