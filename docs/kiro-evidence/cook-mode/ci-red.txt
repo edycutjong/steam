@@ -1,0 +1,6 @@
+Task 54 red run, 2026-11-25T00:09:57Z: npx playwright test e2e/zz-red.spec.ts (a deliberately wrong expectation, file removed after the run)
+  ✘  1 e2e/zz-red.spec.ts:2:1 › deliberately wrong (task 54 red run, removed afterwards) (2.2s)
+    Error: expect(locator).toHaveText(expected) failed
+    Expected: "Not the shelf title"
+    Received: "Recipes in a hand"
+  1 failed

@@ -351,7 +351,7 @@ Rules for every task:
   - Files: `e2e/cook-session.spec.ts`.
   - Satisfies: R27.5 to R27.8, R12.7, R18.3 to R18.7, R24.3, R2.3, R2.4, R22.4.
 
-- [ ] 54. E2E in CI and the renderer specs
+- [x] 54. E2E in CI and the renderer specs
   - Test first: `.github/workflows/ci.yml` runs `npx playwright install --with-deps chromium` and `npm run e2e` after `npm run build`, and `npm run check:dist`; first run it red to see that the job fails when a spec fails (a deliberately wrong expectation, then removed).
   - Implement: the CI steps. The five renderer specs and the cook specs all pass in one `npm run e2e` run.
   - Files: `.github/workflows/ci.yml`.
