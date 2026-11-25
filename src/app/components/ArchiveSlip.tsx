@@ -1,4 +1,5 @@
-import { SLIP } from '../../copy/strings.ts'
+import { QUOTED, SLIP } from '../../copy/strings.ts'
+import { regionUrl } from '../../data/provenance.ts'
 import type { BundleNote, RecipeBundle } from '../../data/schema.ts'
 
 /** `<credit>, <licence label>`, from the bundle (R3.3). */
@@ -18,15 +19,18 @@ interface Props {
   notes?: readonly BundleNote[]
   /** One line, for under the glass in Cook Mode. */
   compact?: boolean
+  /** With `compact`: the revealed note, whose region on the archive's server gets a "verify at source" link (a2a-arch-r05 B10). */
+  verifyNote?: BundleNote
   id?: string
   className?: string
 }
 
 /** The archive slip: where the scan comes from, in the archive's words (R3.1, R3.2). Every value is read from the bundle. */
-export default function ArchiveSlip({ bundle, expanded = false, notes, compact = false, id, className = '' }: Props) {
+export default function ArchiveSlip({ bundle, expanded = false, notes, compact = false, verifyNote, id, className = '' }: Props) {
   const s = bundle.source
   const list = notes ?? bundle.notes
   if (compact) {
+    const verifyHref = verifyNote ? regionUrl(bundle, verifyNote) : null
     // One line under the glass: the same fields, run together (Cook Mode, R3.1).
     return (
       <section id={id} className={`slip slip--compact ${className}`} aria-label={SLIP.label}>
@@ -37,6 +41,11 @@ export default function ArchiveSlip({ bundle, expanded = false, notes, compact =
         <a href={s.licence.url} target="_blank" rel="noopener noreferrer">
           {s.licence.label}
         </a>
+        {verifyHref ? (
+          <a className="slip__verify" href={verifyHref} target="_blank" rel="noopener noreferrer" aria-label={QUOTED.verifyName}>
+            {QUOTED.verify}
+          </a>
+        ) : null}
       </section>
     )
   }

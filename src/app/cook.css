@@ -176,6 +176,18 @@
   animation: slip-in 900ms ease both;
 }
 
+/* The verify-at-source link on the slip (a2a-arch-r05 B10). Where the row has room it is a 44 px target inside the caption row's
+   own 52 px, so nothing moves; on a phone it runs on in the slip's one small paragraph, as the licence link does. */
+.cook__source .slip--compact {
+  align-items: center;
+}
+
+.cook__source .slip__verify {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
 @keyframes slip-in {
   from {
     opacity: 0;

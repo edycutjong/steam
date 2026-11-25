@@ -314,7 +314,7 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
       <div className="cook__under">
         {/* the slot is always in the layout, so the attribution arriving moves nothing (interaction QA P1d) */}
         <div className="cook__source" data-slip={showSlip ? 'shown' : 'reserved'}>
-          {showSlip ? <ArchiveSlip bundle={b} compact /> : null}
+          {showSlip ? <ArchiveSlip bundle={b} compact verifyNote={recipe.notes.find((n) => n.id === curNote)} /> : null}
         </div>
         <p className="cook__caption">{caption}</p>
       </div>
