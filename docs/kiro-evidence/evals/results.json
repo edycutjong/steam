@@ -1,0 +1,58 @@
+{
+ "rows": [
+  {
+   "id": "E1",
+   "what": "Quinces p.23: step with '& boil it' holds the verbatim note span 'till it Looks red & smooth'",
+   "status": "PASS",
+   "detail": "step 5 text contains span; note step 5; recorded run wf_d9d9bb0e966e6461"
+  },
+  {
+   "id": "E2",
+   "what": "Quinces p.23: note 'when Tender' sits on the step that contains 'mash them'",
+   "status": "PASS",
+   "detail": "note step 4, 'mash them' step 4"
+  },
+  {
+   "id": "E3",
+   "what": "French Bread p.17: note spans 'just warm' and 'fire to rise'",
+   "status": "NOT RUN",
+   "detail": "page held out of ingestion (progress.md P1b); no agent reading exists, so nothing is claimed"
+  },
+  {
+   "id": "E4",
+   "what": "Quinces p.23, both readers: every disagreement token is flagged uncertain",
+   "status": "PASS",
+   "detail": "5 disagreements, 0 not flagged"
+  },
+  {
+   "id": "E5",
+   "what": "licence outside the allow-list, and a failed lookup: refused, fail closed, nothing written (by `steam-ingest fetch` code; no rights-firewall hook built)",
+   "status": "PASS",
+   "detail": "ok: fetch refuses a licence outside the allow-list before any image or manifest request and writes nothing; ok: fetch fails closed on a catalogue error or a non-JSON body"
+  },
+  {
+   "id": "E6",
+   "what": "index beyond the page range is rejected",
+   "status": "PASS",
+   "detail": "ok: agent-output evals (deterministic) E6 a line index beyond the page and a word index beyond the line are rejected"
+  },
+  {
+   "id": "E7",
+   "what": "one line in two steps fails P1",
+   "status": "PASS",
+   "detail": "ok: agent-output evals (deterministic) E7 one line assigned to two steps fails P1"
+  },
+  {
+   "id": "E8",
+   "what": "paraphrased note rejected",
+   "status": "PASS",
+   "detail": "ok: agent-output evals (deterministic) E8 a paraphrased note is rejected, the verbatim span is accepted"
+  },
+  {
+   "id": "E9",
+   "what": "P0c eye-read boxes fail P4 (steps 1-5); code-built ownership masks pass",
+   "status": "PASS",
+   "detail": "14/14 tests ok"
+  }
+ ]
+}
