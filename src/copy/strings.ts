@@ -32,6 +32,7 @@ export const ANNOUNCE = {
   pace: { 1: 'Pace real time', 4: 'Pace ×4', 12: 'Pace ×12' } as Record<1 | 4 | 12, string>,
   opening: 'Opening the glass…',
   openingShelf: 'Opening the shelf…',
+  retrying: 'Trying again…',
   timing: (span: string, label: string): string => `${span}: ${label}`,
 } as const
 
@@ -57,7 +58,13 @@ export const SHELF = {
     `${steps} ${steps === 1 ? 'step' : 'steps'}. ${notes === 0 ? 'No note' : notes === 1 ? 'One note' : `${notes} notes`} in the writer's own words, shown in the writer's hand at ${notes === 1 ? 'its' : 'their'} step.`,
 } as const
 
-export const NOT_FOUND = { title: 'This recipe is not on the shelf', back: 'Back to the shelf' } as const
+export const NOT_FOUND = {
+  title: 'This recipe is not on the shelf',
+  back: 'Back to the shelf',
+  /** Shown only when the load failed on the network: the recipe may be on the shelf (a2a-arch-r06 C1). */
+  transient: 'The recipe did not load. Check the connection.',
+  retry: 'Try again',
+} as const
 
 export const SLIP = {
   label: 'Archive slip',

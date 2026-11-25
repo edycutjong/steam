@@ -15,6 +15,8 @@ export interface LoadedRecipe {
 export interface Rejection {
   id: string
   reason: string
+  /** The load ended on a transport failure after every retry (a2a-arch-r06 C1): asking again may work. Absent for a 404 or a content failure. */
+  transient?: true
 }
 export interface ShelfResult {
   recipes: LoadedRecipe[]
@@ -98,7 +100,7 @@ export function createShelfLoader(fetchFn: typeof fetch = (...a) => fetch(...a),
       }
       if (n >= RETRY_DELAYS_MS.length) {
         console.warn(`shelf: ${entry.id} is not shown: ${a.reason}`)
-        return { result: { id: entry.id, reason: a.reason }, transient: true }
+        return { result: { id: entry.id, reason: a.reason, transient: true }, transient: true }
       }
       await sleep(RETRY_DELAYS_MS[n]!)
     }
