@@ -15,42 +15,37 @@ for (const [name, viewport] of [
   test.describe(name, () => {
     test.use({ viewport })
 
-    test('two stacked groups, legible core bands, no ink in the right padding', async ({ page }) => {
+    test('gap groups stacked in reading order, legible core bands, no ink in the side padding', async ({ page }) => {
       await openPane(page, '?t=5000')
       const layout = await readLayout(page)
       const o = await canvasOrigin(page)
       expect(layout.kind).toBe('groups')
-      // Re-pinned in cook-mode task 31 (bundle hero note, measured through the harness route):
-      //   390x844: pane 370 px; group 1 needs scale 0.8 for its 20 px core band, its ink spans -1 to 371 -> fits false
-      //   360x800: pane 340 px; group 1 ink spans -16 to 356 -> fits false
-      // The renderer keeps the 16 px core band over the fit (its own 200 px case), and cook-mode R24.4 forbids overriding it,
-      // so the overflow is reported as an open item, not hidden. The spike's note (35 px core bands) fitted both widths.
-      const overflowing = layout.groups.filter((g) => g.inked[0] < PAD_PX - 1 || g.inked[2] + PAD_PX > o.w)
-      expect(layout.groups).toHaveLength(2)
-      const [a, b] = layout.groups
-      expect(a.index, 'group A is first').toBeLessThan(b.index)
-      // The transparent margins may overlap; the inked rectangles may not.
-      expect(a.inked[3], 'groups stacked, not overlapping').toBeLessThanOrEqual(b.inked[1])
-      expect(layout.fits).toBe(overflowing.length === 0)
-      expect(overflowing.map((g) => g.index), 'only the group forced to the minimum core band overflows').toEqual(layout.groups.filter((g) => Math.abs(g.coreBandCssPx - MIN_CORE_CSS_PX) < 0.01).map((g) => g.index).filter((i) => overflowing.some((g) => g.index === i)))
-      for (const g of layout.groups) expect(g.coreBandCssPx).toBeGreaterThanOrEqual(MIN_CORE_CSS_PX)
-      for (const g of layout.groups.filter((x) => !overflowing.includes(x))) {
+      // steam-renderer-v1 R8: the second line cannot keep a 16 px core band inside the pane whole, so it is cut at its one wide
+      // gap and its two parts are stacked: three placements, none of them forced past the pane.
+      expect(layout.groups.map((g) => [g.index, g.part])).toEqual([[0, 0], [1, 0], [1, 1]])
+      expect(layout.fits).toBe(true)
+      for (const g of layout.groups) {
+        expect(g.coreBandCssPx).toBeGreaterThanOrEqual(MIN_CORE_CSS_PX)
         expect(g.inked[2] + PAD_PX, 'inked right edge plus padding').toBeLessThanOrEqual(o.w)
         expect(g.inked[0], 'inked left edge').toBeGreaterThanOrEqual(PAD_PX - 1)
       }
-      if (overflowing.length) return // the right-padding strip check below assumes every group fits
+      // The transparent margins may overlap; the inked rectangles may not.
+      for (let i = 1; i < layout.groups.length; i++) expect(layout.groups[i - 1].inked[3], 'groups stacked, not overlapping').toBeLessThanOrEqual(layout.groups[i].inked[1])
 
       // Ink pixels from the scan, mapped through the layout, stay out of the right-most PAD_PX px.
       const pts = await channelPixels(page)
       expect(Math.max(...pts.map(([x]) => x))).toBeLessThanOrEqual(o.x + o.w - PAD_PX)
-      // And the glass there is untouched: the right strip looks the same at t=5000 and t=-1.
+      // And the glass there is untouched: the right strip looks the same at t=5000 and t=-1 (without the cue's bloom, which lives at the edges).
+      await openPane(page, '?t=5000&bloom=0')
       const held = await shot(page)
-      await openPane(page, '?t=-1')
+      await openPane(page, '?t=-1&bloom=0')
       const fogged = await shot(page)
       const c = await canvasRegion(page)
       const strip: Array<[number, number]> = []
       for (let y = c.y; y < c.y + c.h; y += 2) for (let x = c.x + c.w - PAD_PX; x < c.x + c.w; x++) strip.push([x, y])
-      expect(Math.abs(meanLumAt(held, strip) - meanLumAt(fogged, strip))).toBeLessThan(6)
+      // the candle stands at the lower right and the bloom is off at 5000: compare above the candle only
+      const stripAbove = strip.filter(([, y]) => y < c.y + c.h * 0.6)
+      expect(Math.abs(meanLumAt(held, stripAbove) - meanLumAt(fogged, stripAbove))).toBeLessThan(10)
     })
 
     test('the button is at least 48x48 and Space starts the reveal', async ({ page }) => {

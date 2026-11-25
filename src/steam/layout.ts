@@ -1,4 +1,5 @@
 // Pure layout: pane size + note metadata -> where each group is drawn.
+import type { SubGroup } from './gaps.ts'
 
 export type Rect = [number, number, number, number]
 
@@ -15,7 +16,14 @@ export interface LayoutMeta {
 export type LayoutKind = 'page' | 'groups'
 
 export interface GroupPlacement {
+  /** Index of the note's group this placement draws (a cut group has two placements with the same index). */
   index: number
+  /** Which part of a cut group this is, or 0. */
+  part: number
+  /** Time-of-ink range of the placed ink. */
+  t: [number, number]
+  /** The placed ink's rectangle in note px (a part of a cut group is narrower than the group). */
+  rect: Rect
   /** Source rect in note px: group rect inflated by MARGIN_PX, clamped to the note size. */
   src: Rect
   /** Destination rect in CSS px inside the lower pane (matches `src`, scaled). */
@@ -65,32 +73,53 @@ function mapRect(r: Rect, ox: number, oy: number, dx: number, dy: number, s: num
   return [dx + (r[0] - ox) * s, dy + (r[1] - oy) * s, dx + (r[2] - ox) * s, dy + (r[3] - oy) * s]
 }
 
+interface Placeable {
+  index: number
+  part: number
+  rect: Rect
+  coreBand: [number, number]
+  t: [number, number]
+  clip?: [number, number]
+}
+
 function placement(
-  index: number,
+  g: Placeable,
   meta: LayoutMeta,
   s: number,
   /** CSS position of the inked rect's top-left corner. */
   inkX: number,
   inkY: number,
 ): GroupPlacement {
-  const g = meta.groups[index]
   const src = inflate(g.rect, meta.size)
+  // the source of a part never reaches past its cut, so it carries none of the other part's ink
+  if (g.clip) {
+    src[0] = Math.max(src[0], g.clip[0])
+    src[2] = Math.min(src[2], g.clip[1])
+  }
   const dst = mapRect(src, g.rect[0], g.rect[1], inkX, inkY, s)
   const inked = mapRect(g.rect, g.rect[0], g.rect[1], inkX, inkY, s)
-  return { index, src, dst, inked, scale: s, coreBandCssPx: (g.coreBand[1] - g.coreBand[0]) * s }
+  return { index: g.index, part: g.part, t: g.t, rect: g.rect, src, dst, inked, scale: s, coreBandCssPx: (g.coreBand[1] - g.coreBand[0]) * s }
 }
 
-function inkedFits(p: GroupPlacement, paneW: number, paneH: number): boolean {
+function inkedFits(p: GroupPlacement, paneW: number, paneH: number, padV: number = PAD_PX): boolean {
   const e = 1e-9
   return (
     p.inked[0] >= PAD_PX - e &&
-    p.inked[1] >= PAD_PX - e &&
+    p.inked[1] >= padV - e &&
     p.inked[2] <= paneW - PAD_PX + e &&
-    p.inked[3] <= paneH - PAD_PX + e
+    p.inked[3] <= paneH - padV + e
   )
 }
 
-export function computeLayout(kind: LayoutKind, paneW: number, paneH: number, meta: LayoutMeta): Layout {
+export function computeLayout(
+  kind: LayoutKind,
+  paneW: number,
+  paneH: number,
+  meta: LayoutMeta,
+  /** Per group, the two parts it may be cut into on a phone (`buildSplits`), or null. */
+  splits?: ReadonlyArray<readonly [SubGroup, SubGroup] | null>,
+): Layout {
+  const whole = (i: number): Placeable => ({ index: i, part: 0, rect: meta.groups[i].rect, coreBand: meta.groups[i].coreBand, t: meta.groups[i].t })
   const order = meta.groups.map((_, i) => i).sort((a, b) => meta.groups[a].t[0] - meta.groups[b].t[0])
 
   if (kind === 'page') {
@@ -111,35 +140,48 @@ export function computeLayout(kind: LayoutKind, paneW: number, paneH: number, me
     const x0 = (paneW - wide * s) / 2
     let y = (paneH - (stackH * s + gaps)) / 2
     const groups = order.map((i, k) => {
-      const p = placement(i, meta, s, x0, y)
+      const p = placement(whole(i), meta, s, x0, y)
       y += rectH[k] * s + GROUP_GAP_CSS
       return p
     })
     return { kind, groups, fits: groups.every((p) => inkedFits(p, paneW, paneH)) }
   }
 
-  const scales = order.map((i) => {
+  // Phone: every group on its own line at the largest scale that fits. A line that cannot keep the minimum core band
+  // inside the pane is cut at its widest-reaching gap and its two parts are stacked at one shared scale.
+  const items: Array<{ parts: Placeable[]; s: number; forced: boolean }> = order.map((i) => {
     const g = meta.groups[i]
-    const rectW = g.rect[2] - g.rect[0]
-    let s = Math.min((paneW - 2 * PAD_PX) / rectW, S_MAX)
-    let forced = false
     const band = g.coreBand[1] - g.coreBand[0]
+    const fitW = (w: number): number => Math.min((paneW - 2 * PAD_PX) / w, S_MAX)
+    const rectW = g.rect[2] - g.rect[0]
+    let s = fitW(rectW)
+    let parts: Placeable[] = [whole(i)]
+    const cut = splits?.[i]
+    if (band * s < MIN_CORE_CSS_PX && cut) {
+      parts = cut.map((p, k) => ({ index: i, part: k, rect: p.rect, coreBand: p.coreBand, t: p.t, clip: p.clip }))
+      // one scale for both parts, no larger than the whole line would have had: the hand keeps one size down the pane
+      s = Math.min(fitW(Math.max(...parts.map((p) => p.rect[2] - p.rect[0]))), Math.max(s, MIN_CORE_CSS_PX / band))
+    }
+    let forced = false
     if (band * s < MIN_CORE_CSS_PX) {
       s = MIN_CORE_CSS_PX / band
       forced = true
     }
-    return { i, s, forced }
+    return { parts, s, forced }
   })
-  const heights = scales.map(({ i, s }) => (meta.groups[i].rect[3] - meta.groups[i].rect[1]) * s)
-  const block = heights.reduce((a, b) => a + b, 0) + GROUP_GAP_CSS * (scales.length - 1)
+  const flat = items.flatMap((it) => it.parts.map((p) => ({ p, s: it.s })))
+  const heights = flat.map(({ p, s }) => (p.rect[3] - p.rect[1]) * s)
+  const padV = flat.length > 2 ? 8 : PAD_PX
+  const total = heights.reduce((a, b) => a + b, 0)
+  const gap = flat.length > 1 ? Math.max(6, Math.min(GROUP_GAP_CSS, (paneH - 2 * padV - total) / (flat.length - 1))) : 0
+  const block = total + gap * (flat.length - 1)
   let y = (paneH - block) / 2
-  const groups = scales.map(({ i, s }, k) => {
-    const g = meta.groups[i]
-    const inkW = (g.rect[2] - g.rect[0]) * s
-    const p = placement(i, meta, s, (paneW - inkW) / 2, y)
-    y += heights[k] + GROUP_GAP_CSS
-    return p
+  const groups = flat.map(({ p, s }, k) => {
+    const inkW = (p.rect[2] - p.rect[0]) * s
+    const pl = placement(p, meta, s, (paneW - inkW) / 2, y)
+    y += heights[k] + gap
+    return pl
   })
-  const fits = scales.every((x) => !x.forced) && groups.every((p) => inkedFits(p, paneW, paneH))
+  const fits = items.every((x) => !x.forced) && groups.every((p) => inkedFits(p, paneW, paneH, padV))
   return { kind, groups, fits }
 }

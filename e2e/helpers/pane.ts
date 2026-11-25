@@ -27,6 +27,8 @@ export interface PaneLayout {
   fits: boolean
   groups: Array<{
     index: number
+    part?: number
+    rect?: [number, number, number, number]
     dst: [number, number, number, number]
     inked: [number, number, number, number]
     scale: number
@@ -250,7 +252,7 @@ export async function channelPixels(page: Page): Promise<Array<[number, number]>
   const seen = new Set<number>()
   const out: Array<[number, number]> = []
   for (const g of layout.groups) {
-    const [rx0, ry0, rx1, ry1] = meta.groups[g.index].rect
+    const [rx0, ry0, rx1, ry1] = g.rect ?? meta.groups[g.index].rect
     for (let ny = ry0; ny < ry1; ny++) {
       for (let nx = rx0; nx < rx1; nx++) {
         if (note.data[(ny * note.width + nx) * 4 + 3] <= 200) continue

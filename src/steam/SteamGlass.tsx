@@ -6,6 +6,7 @@ import type { RefObject } from 'react'
 import { loadNoteAssets } from './assets.ts'
 import type { NoteAssets, NoteCheck } from './assets.ts'
 import { derive } from './derive.ts'
+import { buildSplits } from './gaps.ts'
 import type { Derived } from './derive.ts'
 import Candle from './Candle.tsx'
 import { chooseLayout, computeLayout } from './layout.ts'
@@ -64,7 +65,7 @@ function publishLayout(canvas: HTMLCanvasElement, layout: Layout): void {
   canvas.dataset.layout = JSON.stringify({
     kind: layout.kind,
     fits: layout.fits,
-    groups: layout.groups.map((g) => ({ index: g.index, dst: g.dst, inked: g.inked, scale: g.scale, coreBandCssPx: g.coreBandCssPx })),
+    groups: layout.groups.map((g) => ({ index: g.index, part: g.part, rect: g.rect, dst: g.dst, inked: g.inked, scale: g.scale, coreBandCssPx: g.coreBandCssPx })),
   })
 }
 
@@ -141,7 +142,8 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
     const p = effective
     const w = canvas.clientWidth
     const h = canvas.clientHeight
-    const layout = computeLayout(chooseLayout(w), w, h, meta)
+    const splits = buildSplits({ ink: derived.ink, toi: assets.toi.data, width: meta.size[0], height: meta.size[1], groups: meta.groups })
+    const layout = computeLayout(chooseLayout(w), w, h, meta, splits)
     const renderer = SteamRenderer.create(canvas, { meta, note: assets.note, derived }, layout, { dprCap: 2, frozenT: p.t, lead: p.lead, bloom: p.bloom })
     if (!renderer) {
       setNoWebGl(true)
@@ -182,7 +184,7 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
     const ro = new ResizeObserver((entries) => {
       const box = entries[0]?.contentRect
       if (!box || box.width < 1 || box.height < 1) return
-      const next = computeLayout(chooseLayout(box.width), box.width, box.height, meta)
+      const next = computeLayout(chooseLayout(box.width), box.width, box.height, meta, splits)
       renderer.resize(box.width, box.height, next)
       publishLayout(canvas, next)
       measureCandle()

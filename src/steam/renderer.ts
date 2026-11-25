@@ -522,7 +522,7 @@ export class SteamRenderer {
         this.groupSrc[4 * k + j] = g.src[j]
         this.groupDst[4 * k + j] = g.dst[j] * ratio
       }
-      const t = this.assets.meta.groups[g.index].t
+      const t = g.t
       this.groupT[2 * k] = t[0]
       this.groupT[2 * k + 1] = t[1]
     }
