@@ -28,7 +28,8 @@ Some folders do not exist yet. Create files in these places when tasks need them
 
 ## Tools
 - `tools/steam-ingest/`: build-time CLI.
-- `tools/iiif-mcp/`: stdio MCP server for the Wellcome Catalogue + IIIF Image API.
+- `tools/hooks/`: the shell hooks the `.kiro/hooks/*.json` files run.
+- No MCP server is built. Pages and their licence are fetched by `steam-ingest fetch` from the Wellcome Catalogue API (fail closed).
 
 ## Measurement and evidence
 - `scripts/`: reproducible measurement scripts.

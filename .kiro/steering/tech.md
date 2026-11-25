@@ -17,7 +17,7 @@ inclusion: always
 
 ## Ingestion
 - Pure TypeScript in `src/ingest/`.
-- The same functions run in a browser Web Worker, in Node (`tools/steam-ingest`, run by Kiro hooks and the workflow) and in vitest.
+- The same functions run in Node (`tools/steam-ingest`, run by Kiro hooks and the workflow) and in vitest. They never run in the browser: the web app ships no Web Worker and no ingestion code (upload in the browser was cut).
 
 ## Tests
 - vitest + fast-check property tests: `npm test`.
