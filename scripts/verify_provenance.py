@@ -38,8 +38,11 @@ ALIGN_SLACK_PX = 2      # +-2 bundled-page px search for resampling phase only (
 # --- b1/b2 REDEFINED after run 1 (docs/kiro-evidence/provenance/run-1.txt, kept): run 1 used pageBox containment and an
 # "opaque pixel is on ink" share >= 0.97 (0.51-0.75 measured). Both were wrong definitions, not product defects: pageBox
 # includes transparent padding (spec says "displayed mask pixel"), and the soft alpha shell is by design wider than the ink.
-# The new thresholds below were fixed BEFORE run 2 (commit precedes run-2.txt).
+# The new thresholds below were fixed BEFORE run 2 (commit precedes run-2.txt). Run 2 (kept) passed (a) and b1 but b2 read 0.04-0.22:
+# the mask covers only the QUOTED words, so correlating it with the darkness of the whole crop (which has other words) was the
+# wrong domain. Run 3 evaluates b2 only over the mask's own support (alpha > 0 dilated by SUPPORT_DILATE_PX). Thresholds unchanged.
 ALPHA_INK_MIN = 0.80    # b2: Pearson corr(alpha, paper - gray) over the pageBox; real masks must reach this
+SUPPORT_DILATE_PX = 6   # b2 domain: pixels within this many px of any alpha > 0 pixel (the quoted words only)
 ALPHA_SHIFT_PX = 40     # b2 control: the page crop shifted by this many px horizontally must score below ALPHA_INK_MIN
 UA = "steam-provenance-check/1.0 (hackathon verification script)"
 
@@ -139,9 +142,12 @@ def main() -> int:
             gp = gray(page)
             paper_all = local_paper(gp)
             dark = (paper_all - gp)
-            agree = ncc(m.astype(np.float64), dark[y0:y1, x0:x1]) if m.shape == (y1 - y0, x1 - x0) else -1.0
+            from PIL import ImageFilter
+            support = np.asarray(Image.fromarray(((m > 0) * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(2 * SUPPORT_DILATE_PX + 1))) > 0
+            mf = m.astype(np.float64)[support]
+            agree = ncc(mf, dark[y0:y1, x0:x1][support]) if m.shape == (y1 - y0, x1 - x0) and support.any() else -1.0
             sx0 = min(max(0, x0 + ALPHA_SHIFT_PX), gp.shape[1] - (x1 - x0))
-            ctrl = ncc(m.astype(np.float64), dark[y0:y1, sx0:sx0 + (x1 - x0)])
+            ctrl = ncc(mf, dark[y0:y1, sx0:sx0 + (x1 - x0)][support])
             b2 = agree >= ALPHA_INK_MIN and ctrl < ALPHA_INK_MIN
 
             # b3 ownership checks recorded by the gate (P3/P4), per this note
@@ -161,7 +167,7 @@ def main() -> int:
             ok &= row["pass"]
             results.append(row)
             print(json.dumps(row))
-    print(json.dumps({"thresholds": {"NCC_MIN": NCC_MIN, "SHIFT_CANVAS_PX": SHIFT_CANVAS_PX, "ALPHA_INK_MIN": ALPHA_INK_MIN, "ALPHA_SHIFT_PX": ALPHA_SHIFT_PX},
+    print(json.dumps({"thresholds": {"NCC_MIN": NCC_MIN, "SHIFT_CANVAS_PX": SHIFT_CANVAS_PX, "ALPHA_INK_MIN": ALPHA_INK_MIN, "ALPHA_SHIFT_PX": ALPHA_SHIFT_PX, "SUPPORT_DILATE_PX": SUPPORT_DILATE_PX},
                       "notes": len(results), "all_pass": ok}))
     return 0 if ok else 1
 
