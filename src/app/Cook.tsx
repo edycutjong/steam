@@ -56,6 +56,9 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
   const b = recipe.bundle
   const N = b.steps.length
   const { announce, store, audio } = useApp()
+  // The reveal gate below is built once; it must still see the audio that arrives later (a return visit opens IndexedDB after the recipe is ready).
+  const audioRef = useRef(audio)
+  audioRef.current = audio
   const h1 = useScreen(b.title, false)
   const reduced = usePrefersReducedMotion()
   const stage = useRef<StageApi | null>(null)
@@ -93,7 +96,7 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
         if (now - lastCue.current >= CUE_COOLDOWN_MS) {
           lastCue.current = now
           lamp.current?.dip()
-          audio?.duck()
+          audioRef.current?.duck()
         }
         if (!flushArrival(spanOf(e.noteId))) announce(ANNOUNCE.noteHandwritten(spanOf(e.noteId)))
       }),
