@@ -1,0 +1,14 @@
+online: http://localhost:4181/
+service worker active: True
+page controlled by the service worker: True
+offline: network off
+A deep link offline: cook:ready + hero reveal reached
+A reached 'The hand, quoted' in 8.6s
+A bundled images all decoded: True
+B shelf -> Watch it at x12 -> 'The hand, quoted' in 24.6s (cooked to the end offline)
+failed requests while offline: 0 total, unexpected: none
+RESULT: PASS
+
+NEGATIVE CONTROL (2026-11-25 23:3x WIB): the same dist with sw.js deleted, served by `python3 -m http.server`:
+  online: http://localhost:4182/
+  service worker active: False        -> verify_offline.py exits 2 before going offline (it cannot pass without the worker)

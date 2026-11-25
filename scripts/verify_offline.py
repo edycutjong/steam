@@ -54,7 +54,7 @@ def main() -> int:
         say(f"online: {BASE}/")
         page.goto(f"{BASE}/", wait_until="networkidle")
         page.wait_for_selector(".shelf__item", timeout=30_000)
-        ready = page.evaluate("navigator.serviceWorker ? navigator.serviceWorker.ready.then(r => !!r.active) : false")
+        ready = page.evaluate("navigator.serviceWorker ? Promise.race([navigator.serviceWorker.ready.then(r => !!r.active), new Promise(r => setTimeout(() => r(false), 15000))]) : false")
         say(f"service worker active: {ready}")
         if not ready:
             return 2
