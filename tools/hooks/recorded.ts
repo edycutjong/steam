@@ -3,6 +3,7 @@
 // Test helper only.
 
 import { spawnSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const session = 'sess_8dd0f083-ec5b-4e58-ab03-ef4f50d89af3'
@@ -24,5 +25,22 @@ export const postTask = (cwd: string): string => JSON.stringify({ session_id: se
 /** Pipes `stdin` into a hook script exactly as Kiro does (`npx tsx <script>` from the repository root). */
 export function pipeToScript(script: string, stdin: string, extraEnv: Record<string, string> = {}) {
   const r = spawnSync('npx', ['tsx', script], { cwd: resolve(import.meta.dirname, '../..'), input: stdin, encoding: 'utf8', env: { ...process.env, ...extraEnv } })
+  return { exit: r.status, stdout: r.stdout, stderr: r.stderr }
+}
+
+/** The shell hook stdin recorded in the session that wrote the hook-coverage spec (kiro-cli IDE, PreToolUse, tool execute_bash). */
+export const recordedShellEvent = (): Record<string, unknown> =>
+  JSON.parse(readFileSync(resolve(import.meta.dirname, '../../docs/kiro-evidence/hook-coverage/shell-event.json'), 'utf8')) as Record<string, unknown>
+
+/** PreToolUse on a shell tool: the recorded event with `cwd` and `tool_input.command` replaced (and `tool_input.cwd` when given). */
+export function preShell(cwd: string, command: string, toolCwd?: string, event: 'PreToolUse' | 'PostToolUse' = 'PreToolUse'): string {
+  const e = recordedShellEvent()
+  const input = { ...(e.tool_input as Record<string, unknown>), command, ...(toolCwd === undefined ? {} : { cwd: toolCwd }) }
+  return JSON.stringify({ ...e, hook_event_name: event, cwd, tool_input: input })
+}
+
+/** Pipes `stdin` into a hook script the way the shell hooks are started: `node <script>` from the repository root. */
+export function pipeToNode(script: string, stdin: string, extraEnv: Record<string, string> = {}) {
+  const r = spawnSync('node', [script], { cwd: resolve(import.meta.dirname, '../..'), input: stdin, encoding: 'utf8', env: { ...process.env, ...extraEnv } })
   return { exit: r.status, stdout: r.stdout, stderr: r.stderr }
 }

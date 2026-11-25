@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "shell-gate",
+      "trigger": "PreToolUse",
+      "matcher": "shell",
+      "action": {
+        "type": "command",
+        "command": "node tools/hooks/shell-gate.ts"
+      },
+      "timeout": 10,
+      "enabled": true
+    }
+  ]
+}
