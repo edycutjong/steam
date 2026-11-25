@@ -5,7 +5,8 @@ import type { NoteMeta } from './assets.ts'
 import type { Derived } from './derive.ts'
 import { computeLayout } from './layout.ts'
 import { SteamRenderer } from './renderer.ts'
-import type { RendererAssets } from './renderer.ts'
+import type { RendererAssets, RendererOptions } from './renderer.ts'
+import { revealState, WIPE_MS } from './timeline.ts'
 import type { Tokens } from './tokens.ts'
 
 type Calls = Record<string, number>
@@ -230,5 +231,137 @@ describe('SteamRenderer quality governor (R9)', () => {
     runFrames(100)
     expect(r.tier).toBe(0)
     r.dispose()
+  })
+})
+
+// a2a-arch-r05 B1: a hidden tab gets no frames; the first frame after it must not carry the hidden gap into the reveal, the stats or the governor.
+interface FakeVisibility {
+  visibilityState: 'visible' | 'hidden'
+  addEventListener(type: string, cb: () => void): void
+  removeEventListener(type: string, cb: () => void): void
+  set(s: 'visible' | 'hidden'): void
+  listeners(): number
+}
+function fakeVisibility(initial: 'visible' | 'hidden' = 'visible'): FakeVisibility {
+  const ls = new Set<() => void>()
+  const v: FakeVisibility = {
+    visibilityState: initial,
+    addEventListener: (_t, cb) => void ls.add(cb),
+    removeEventListener: (_t, cb) => void ls.delete(cb),
+    set(s) {
+      v.visibilityState = s
+      for (const f of [...ls]) f()
+    },
+    listeners: () => ls.size,
+  }
+  return v
+}
+
+describe('SteamRenderer reveal clock and a hidden tab (a2a-arch-r05 B1)', () => {
+  beforeEach(() => {
+    vi.spyOn(performance, 'now').mockImplementation(() => clock)
+  })
+  afterEach(() => vi.restoreAllMocks())
+
+  function make(vis: FakeVisibility, lead = 0) {
+    const { gl } = mockGl()
+    const layout = computeLayout('page', 800, 600, meta)
+    const opts: RendererOptions & { visibility?: unknown } = { dprCap: 2, frozenT: null, lead, tokens, visibility: vis }
+    const r = SteamRenderer.create(fakeCanvas(gl), assets(), layout, opts)!
+    r.resize(800, 600, layout)
+    return r
+  }
+  const priv = (r: SteamRenderer) => r as unknown as { wipeAt: number | null }
+  const hideFor = (vis: FakeVisibility, ms: number) => {
+    vis.set('hidden')
+    clock += ms
+    vis.set('visible')
+  }
+
+  it('a write-on in flight when the tab was hidden is still in flight when it comes back, and the gap is not a frame', () => {
+    const vis = fakeVisibility()
+    const r = make(vis)
+    r.play()
+    runFrames(120)
+    const before = r.revealMs
+    expect(before).toBeGreaterThan(1500)
+    expect(before).toBeLessThan(2500)
+    const frames = r.stats.frames
+    hideFor(vis, 120_000)
+    runFrames(1)
+    expect(r.revealMs - before).toBeLessThan(100)
+    expect(revealState(r.revealMs, null).phase).toBe('writing')
+    expect(r.stats.worstMs).toBeLessThan(50)
+    expect(r.stats.over).toBe(0)
+    expect(r.stats.frames).toBe(frames) // the first frame back has no interval: lastFrame was reset
+    r.dispose()
+  })
+
+  it('a wipe sweep in flight is not finished by the gap', () => {
+    const vis = fakeVisibility()
+    const r = make(vis)
+    r.play()
+    runFrames(320) // past WRITE_ON_MS: holding
+    expect(revealState(r.revealMs, null).phase).toBe('holding')
+    r.wipe()
+    runFrames(30)
+    hideFor(vis, 60_000)
+    runFrames(1)
+    const into = r.revealMs - (priv(r).wipeAt as number)
+    expect(into).toBeGreaterThan(0)
+    expect(into).toBeLessThan(WIPE_MS)
+    r.dispose()
+  })
+
+  it('does not advance the reveal clock for a frame that runs while hidden', () => {
+    const vis = fakeVisibility()
+    const r = make(vis)
+    r.play()
+    runFrames(60)
+    const at = r.revealMs
+    vis.set('hidden')
+    runFrames(60)
+    expect(r.revealMs).toBe(at)
+    clock += 5000
+    vis.set('visible')
+    runFrames(1)
+    expect(r.revealMs - at).toBeLessThan(100)
+    r.dispose()
+  })
+
+  it('repeated hidden gaps never reach the governor', () => {
+    const vis = fakeVisibility()
+    const r = make(vis)
+    r.play()
+    for (let i = 0; i < 6; i++) {
+      runFrames(5)
+      hideFor(vis, 20_000)
+    }
+    runFrames(5)
+    expect(r.tier).toBe(0)
+    expect(r.stats.worstMs).toBeLessThan(50)
+    r.dispose()
+  })
+
+  it('a pane with lead Infinity stays fogged through a hidden gap until startReveal', () => {
+    const vis = fakeVisibility()
+    const r = make(vis, Infinity)
+    r.play()
+    runFrames(10)
+    hideFor(vis, 30_000)
+    runFrames(5)
+    expect(revealState(r.revealMs, null).phase).toBe('fogged')
+    r.startReveal()
+    runFrames(1)
+    expect(['thickening', 'writing']).toContain(revealState(r.revealMs, null).phase)
+    r.dispose()
+  })
+
+  it('listens for visibility changes while alive and removes the listener in dispose', () => {
+    const vis = fakeVisibility()
+    const r = make(vis)
+    expect(vis.listeners()).toBe(1)
+    r.dispose()
+    expect(vis.listeners()).toBe(0)
   })
 })
