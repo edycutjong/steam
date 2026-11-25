@@ -3,7 +3,7 @@
 Derived from `design.md`. "The system" is the steam pane (`SteamGlass`, `SteamRenderer`, `NightView`, `Candle`, `StaticPane`).
 Section references (§) point to `design.md`. Each acceptance criterion names the check: **unit** (vitest), **prop** (fast-check),
 **e2e** (Playwright on the production build, software GL), **frame** (a captured PNG in `docs/kiro-evidence/renderer-v1/after/`
-judged against `before/`).
+judged against `before/`; look pass 3 frames are in `after/`, the pass-2 frames in `v1b/`).
 
 ## R1. Ink-darkness transmission
 
@@ -150,3 +150,63 @@ judged against `before/`).
 
 1. FOR a desktop pane 600 to 1080 px tall at widths 1024 to 1920, and on the Pixel 5 (393 x 851), THE SYSTEM SHALL keep the whole moon disc inside the upper sash. **e2e** (bounding box of the disc inside the sash's box)
 2. THE SYSTEM SHALL keep the moon on one side of the muntin. **e2e**
+
+## R19. The stroke is a window (look pass 3)
+
+**User story:** As a viewer, I want a stroke to look like glass cleared by a finger, so that I see the room through it and not an orange paint.
+
+1. THE SYSTEM SHALL show inside a cleared stroke the room behind the glass: a darker room gradient, the pot's glow, the candle's glow and out-of-focus discs at two scales (cell 72 and cell 22 css px), looked up at a position refracted by up to `WINDOW_REFRACT_CSS` (3) css px along the edge normal. **unit** (GLSL names and constants), **frame**
+2. THE SYSTEM SHALL let brightness and hue vary inside every thick stroke: the 5th to 95th percentile luminance spread over the hero's stroke pixels at `t = 6500` is at least 40 levels (re-pinned from 30), the ember hue survives (red above green above blue in at least 300 stroke pixels) and the luminance cap of R2.4 holds. **e2e**
+3. THE SYSTEM SHALL NOT darken the inside of a stroke at its edge: `EDGE_SHADE` and the inner-edge shade are removed from the GLSL. **unit**
+4. THE SYSTEM SHALL draw the edge as a thin meniscus: a fine highlight (`MENISCUS_PX` at most 1.2 css px) on the side facing the lamp (`LAMP_DIR`), a slight shade on the far side, both broken by the film height, and beads under at most 40 % of lower edge stretches. THE SYSTEM SHALL NOT draw a continuous outline. **unit**, **frame**
+5. THE SYSTEM SHALL NOT threshold the ink alpha anywhere (R1.4 holds). **unit**
+
+## R20. Legible cold, and the reading under the pane (look pass 3)
+
+1. ON a desktop pane of 1236 x 345 css px THE SYSTEM SHALL place the hero note at least 15 % larger than look pass 2 (scale at least 1.84), centred within 1 css px, with at least 24 css px of clear glass above the bottom rail. **unit** (layout)
+2. THE SYSTEM SHALL keep `sum(T) / sum(a)` between 0.85 and 1.15 (R1.5) and SHALL NOT let the halo or the lip fill a counter: `HALO_GAIN` at most 0.06 and `LIP_DENSITY` at most 0.05. **unit**
+3. WHEN a note's phase becomes `holding` THE SYSTEM SHALL show the reviewed reading of the note under the pane (Literata italic, `--muted`; a disagreement as the existing † marks), and SHALL NOT show it before the write-on ends or after the wipe starts. The text is announced once, by the existing live region; the visible copy is `aria-hidden`. **unit**, **e2e** (shown at `t = 6500`, absent at `t = 2000`)
+4. THE SYSTEM SHALL NOT typeset the reading on the glass: the glass shows only the scan's pixels. **unit** (the reading is DOM text outside the canvas)
+5. THE SYSTEM SHALL keep the phone-fit e2e (R8) green. **e2e**
+
+## R21. Something unseen is writing (look pass 3)
+
+1. WHILE the phase is `writing` THE SYSTEM SHALL draw a fingertip-width wet smear at the position of the path `FINGER_LEAD_MS` (250 to 350 ms) ahead of the time-of-ink frontier: clearer glass, a soft cold highlight on its moon side, added luminance at most `HEAD_MAX_LUMA`, never amber, never a white hotspot. **unit** (`fingerU`, constants), **frame**
+2. WHEN the write-on starts THE SYSTEM SHALL pulse the film: `breathAt(t)` is in [0, 1], 0 for `t <= 0` and for `t >= 1500`, reaches its peak between 100 and 600 ms, and thickens and cools the film. **prop**, **unit**
+3. WHILE the phase is `thickening` THE SYSTEM SHALL thicken the film from the pane edges, bloom a faint cold breath around the point where the writing will start, and dip the candle: at `t = -600` the edge band is at least 3 levels different in mean luminance from `t = -1500`, and `candleDipAt(-600)` is at least 0.5. **e2e**, **unit**
+4. WHILE the phase is `writing` THE SYSTEM SHALL lean the candle's flame toward the writing head: `candleLean(headX, candleX, paneW)` is in [-1, 1], has the sign of `headX - candleX` and is 0 outside `writing`; the flame's rotation follows it. **prop**, **e2e** (`--lean` is non-zero at `t = 2000`, 0 at `t = 6500`)
+5. WHILE the phase is `thickening` or `writing` THE SYSTEM SHALL slide the cloud across the moon: `cloudShiftAt(t)` is non-decreasing in `t`, is over the moon's centre between `t = 1000` and `t = 5000`, and is clear of the moon by the hold plus 3 s. THE SYSTEM SHALL NOT slide it under `prefers-reduced-motion`. **prop**, **e2e**
+
+## R22. The frame set (look pass 3)
+
+1. THE SYSTEM SHALL capture desktop and phone at the same four moments (`t = -600, 2000, 4000, 6500`): eight frames, named `desktop-t<ms>.png` and `mobile-t<ms>.png`. **unit** (the list), **frame**
+
+## R23. The moon is a moon (look pass 3)
+
+1. THE SYSTEM SHALL draw the disc with a soft limb (limb darkening, a blurred edge and a halo), and its maria as procedural low-contrast mottling (`feTurbulence`), not ellipses. **unit** (DOM), **frame**
+2. THE SYSTEM SHALL NOT let two symmetric dark blobs sit above a third inside the disc: the DOM has no `<ellipse>` in the moon group. **unit**
+3. THE SYSTEM SHALL draw branches tapered and crooked, none crossing the disc's centre (no sample of any branch within 0.45 of the moon's radius from its centre; a thin twig across an edge is allowed). **prop**
+
+## R24. The candle stands on the sill (look pass 3)
+
+1. THE SYSTEM SHALL stand the candle on a ledge at least 1.8 times its width, that projects over the bottom rail (proud of the frame). **unit**, **e2e**
+2. THE SYSTEM SHALL draw irregular wax with at least one drip, and a flame that flickers by a function of the render clock only: under `?t=` two captures at the same `t` are identical. **unit**, **e2e**
+3. THE SYSTEM SHALL spill a warm bloom from the flame onto the rail and the glass beside it. **frame**
+
+## R25. Runs are lighter channels (look pass 3)
+
+1. THE SYSTEM SHALL draw a run's channel lighter than the film beside it (the room seen through clear glass), ending in a bright lens bead, with lengths that vary. THE SYSTEM SHALL start a run under its stroke and SHALL NOT draw it over ink (`T` above 0.15 hides it). **unit** (GLSL and constants), **frame**
+
+## R26. Droplets obey gravity (look pass 3)
+
+1. THE SYSTEM SHALL make droplets fewer and finer at the top and larger and clustered lower: droplet pixels in the top third of the pane are at most 0.6 times those in the bottom third at `t = -1000` and dpr 1. **e2e**
+2. THE SYSTEM SHALL draw lenses with a dark rim and a small catch-light, and give a lens warm light only in proportion to the room light at its place. **unit**
+
+## R27. Neutral edge condensation (look pass 3)
+
+1. THE SYSTEM SHALL NOT shift the hue of the film at the pane edges: the mean of `(g - b)` over a 4 % band at the left, right and top edges is within 3 levels of the mean over the pane centre at `t = -1000`. **e2e**
+
+## R28. The window frame (look pass 3)
+
+1. THE SYSTEM SHALL draw rails and muntins with a bevel, a putty line against the glass and a soft inner shadow, in gradients only (no 1 px border, R5.5). **unit** (CSS), **frame**
+2. THE SYSTEM SHALL show the button label at a contrast of at least 4.5:1 against the button in every state. **unit**

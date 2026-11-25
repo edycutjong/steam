@@ -59,3 +59,57 @@ Ordered by dependency. Each task is one commit `[kiro] steam-renderer-v1: <task 
 - [x] 12. Whole suite green
   - Update e2e expectations v1 legitimately changes; `npm test`, `typecheck`, `lint`, `build`, `npx playwright test`.
   - Satisfies: R7.5, R10.2, R12.2 to R12.4.
+
+## Look pass 2 (R13 to R18)
+
+Recorded after the fact: the commit messages of 8034395 and 57ab916 say "tasks 13-19" but the task list never landed (ca30636 rewrote this file).
+Each line names the commit that did the work.
+
+- [x] 13. Running water (R13) — `57ab916` (`drips.ts` plan, bent seeded path, clear channel with lip, lens bead, re-fog from the top).
+- [x] 14. Strokes as cleared glass (R14) — `57ab916` (thin broken rim, faint halo, pressure fill); `5597d4c` re-pinned the e2e (stroke spread 12 to 30, rim 60 to 72, variance 1.6 to 1.3).
+- [x] 15. Phone composition (R15) — `57ab916` (all-parts layout, lift, sill droplets, small candle); `5597d4c` phone parts and the composition, candle and moon e2e.
+- [x] 16. A film with a history (R16) — `57ab916` (`oldWipes`, broad density noise in pass 1).
+- [x] 17. The streak goes (R17) — `57ab916`; `5597d4c` inverted the streak check.
+- [x] 18. The whole moon (R18) — `57ab916` (`nightViewBox`, `NightView` measures its svg).
+- [x] 19. Frames, static panes, NOTES, suite green (R10, R13 to R18) — `61028bb` (static panes re-rendered, design section 14), `f6d2ef8` (frames after look pass 2, NOTES, suite).
+
+## Look pass 3 (R19 to R28): the go/no-go retry
+
+The judge scored look pass 2 at 6.5/10 on desktop and phone (gate 7). Frames of that pass are kept in `docs/kiro-evidence/renderer-v1/v1b/`.
+The shader budget does not grow in textures: the window, the finger smear and the breath are ALU only (design section 15).
+
+- [ ] 20. Spec look pass 3 and the frame set (R22)
+  - This section, `requirements.md` R19 to R28, `design.md` section 15; `docs/kiro-evidence/renderer-v1/after` moves to `v1b`; `scripts/capture-renderer-frames.ts` takes its list from `e2e/helpers/frames.ts` (eight frames: both viewports at t = -600, 2000, 4000, 6500).
+  - Satisfies: R22.
+
+- [ ] 21. The stroke is a window (R19)
+  - Shader: `windowLight` (room gradient, pot, fine and coarse bokeh, candle discs) seen through the stroke, refracted by the edge normal; `EDGE_SHADE` and the inner shade removed; the meniscus (lamp-side highlight, far-side shade, broken, a few beads).
+  - Satisfies: R19.
+
+- [ ] 22. Legible cold, and the reading under the pane (R20)
+  - Desktop scale up and centring, halo and lip reduced so counters stay open, transmission checked against `hero.coverage.test.ts`; the reviewed reading under the pane when the note holds (harness pane and Cook Mode).
+  - Satisfies: R20.
+
+- [ ] 23. Something unseen is writing (R21)
+  - Finger smear leading the ink, breath pulse at the start of the write-on, the pre-reveal frame (edge thickening, cold breath at the starting point, candle dipping), candle lean toward the head, cloud crossing the moon during the write-on.
+  - Satisfies: R21.
+
+- [ ] 24. Moon and branches (R23)
+  - Soft limb, procedural mottling in place of ellipses, tapered crooked branches clear of the disc's centre.
+  - Satisfies: R23.
+
+- [ ] 25. Candle on a sill ledge (R24)
+  - Ledge proud of the frame, irregular wax with a drip, flame flicker deterministic under `?t=`, warm bloom on the rail and glass.
+  - Satisfies: R24.
+
+- [ ] 26. Runs, droplets, edge tint (R25, R26, R27)
+  - Lighter channel ending in a bright bead, never over ink; gravity-weighted dark lenses; neutral edge condensation.
+  - Satisfies: R25, R26, R27.
+
+- [ ] 27. Window frame and label contrast (R28)
+  - Bevel, putty line and soft inner shadow in gradients; the button label at 4.5:1 or more.
+  - Satisfies: R28.
+
+- [ ] 28. Look rounds, static panes, NOTES, suite green
+  - At least three capture rounds against items 1 to 11; `npm run static-panes`; NOTES "Look pass 3 (go/no-go retry)"; `npm test`, `typecheck`, `lint`, `build`, `npx playwright test`.
+  - Satisfies: R10, R19 to R28.

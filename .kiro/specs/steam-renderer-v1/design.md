@@ -348,3 +348,49 @@ grey pane (phone), a single-noise film, a smudge (the streak) and a moon that cr
 - **Streak (R17).** Removed: it was not lined up with the moon, and the film already carries the moon's cool light from above.
 - **Moon (R18).** `nightViewBox(w, h)` fills the pane as before (slice, anchored low) but never lets the visible top fall below the
   moon's top (nor the visible bottom above its bottom); `NightView` measures its svg with a ResizeObserver and sets the viewBox.
+
+## 15. Look pass 3 (R19 to R28)
+
+The judge's retry verdict on look pass 2 was 6.5/10 on both profiles. Frames of pass 2 are `docs/kiro-evidence/renderer-v1/v1b/`.
+The stranger's reading of them: orange enamel with a brown inner outline, "lilC it Loofhs", a pretty static window, clip-art moon and
+candle, hairs for runs, sequins for droplets, teal edges, a flat frame. Changes, per item:
+
+- **Stroke is a window (R19).** Inside a cleared stroke the colour is `windowLight(css, uv)`: a room gradient (dark at the top, warmer
+  toward the pot), the pot's and the candle's gaussians, the existing coarse bokeh (cell 72) and a new fine bokeh (cell 22, discs of
+  5 to 9 css px, so one stroke crosses several bright and dark discs). The lookup is refracted by `-grad(blurred ink) * k`, at most
+  `WINDOW_REFRACT_CSS` (3) css px: the edge bends the room like a water-filled groove. The old flat `ember` shoulder is gone: the
+  warm `--after` is the light that arrives, so it varies with the room. `EDGE_SHADE`, the `inner` shade and the 0.5 outN.y term are
+  deleted. The edge is a meniscus: a highlight `MENISCUS_PX` wide on the side where `dot(outN, LAMP_DIR) > 0` (the lamp and candle
+  are below and to the right), a shade of 0.12 on the far side, both multiplied by the broken-edge noise `brk`, so no letter has a
+  closed outline. Beads under lower edges: spacing 9 css px, probability 0.6 to 0.4.
+- **Legible cold (R20).** `S_MAX_DESKTOP` 1.6 to 1.85 (the hero is 464 note px wide, so 858 css px of 1236; the stack is 261 css px
+  plus the 28 px gap in 345, centred with 28 px above and below). `HALO_GAIN` 0.16 to 0.05, `LIP_DENSITY` 0.07 to 0.04: both filled counters with
+  light or density. The transmission is kept (`hero.coverage.test.ts` pins sum(T)/sum(a)); the measured ratio is in NOTES. The
+  reading under the pane is DOM text (`ReadingText`, the † marks) in the harness pane (`SteamPane`, from the note's `shownText`)
+  and in Cook Mode (`cook__reading`, from `quoteSegments`); it is rendered when the phase is `holding`, `aria-hidden`.
+- **The finger (R21).** `fingerU(u) = min(1, u + FINGER_LEAD_MS / WRITE_ON_MS)` (300 ms, 0.06 of the clock). The renderer maps the
+  head path at `fingerU(u)` and at `fingerU(u) - 0.02` to device px (`uFinger`) and the shader draws a capsule smear of radius
+  `FINGER_R_CSS` (8 css px): the film opacity falls by up to 0.5 (clear, the dark room seen), a soft cold crescent on its moon side
+  (`--ghost`, at most `HEAD_MAX_LUMA`). The pale smudge at the old head is removed. `breathAt(t)` (haunt.ts) is a bump on the first
+  1.2 s of the write-on (`uBreath`): film density +0.14 and a pull toward `--ghost`. In `thickening` the bloom reaches 0.42 of the
+  short side, the film at the pane edges densifies by up to 0.55 and a cold breath blooms around `uTrail[0]`, the path's start
+  (the point where the hand will begin). Candle: `candleLean` (haunt.ts) sets `--lean` on `.candle` and the flame rotates by
+  `--lean * 14deg`; `cloudShiftAt(t)` sets `--cloud-x` and `--cue` on the upper sash (the cloud's `translateX`, the moon's dimming)
+  at 10 Hz from the renderer's reveal clock (a frozen clock sets them once). No new texture tap.
+- **Moon (R23).** The disc: a radial limb-darkening gradient, a 0.8 unit blur on its edge, a wider halo; the maria are a clipped rect
+  filled by `feTurbulence` (3 octaves) through a `feColorMatrix` at 0.2 opacity. `branchPaths` is drawn as tapered filled shapes
+  (segments of falling width), seeded, with a keep-out disc of 0.45 R around the moon's centre.
+- **Candle (R24).** A `candle__ledge` (a wood gradient 2.4 candle widths wide, 8 css px below the pane line, over the rail), wax with
+  a wobbling top, a thick drip and a pooled top, a flame drawn as two SVG shapes whose flicker is a CSS keyframe animation paused at
+  `-t` under a frozen clock (so the same `?t=` is the same frame), a radial bloom spilling over the rail.
+- **Runs (R25).** The channel colour is `film * 0.5 + --ghost * 0.3 + --after * (0.05 + 0.4 * Lr)`: lighter than the film. It is
+  hidden where `T > 0.15`. The bead body is lighter, with the warm light shown high in it and a small catch-light.
+- **Droplets (R26).** Probability times `mix(0.35, 1, y)` (tiny, mid) and `smoothstep(0.3, 1, y)` (large); radius times
+  `mix(0.6, 1, y)`; a cluster factor from a coarse value noise. A lens is `film * 0.55`, with a strong dark rim, a catch-light of
+  exponent 60 and warm light only as `Lb * LENS_WARM`.
+- **Edge tint (R27).** The edge multiplier `(0.94, 1.06, 1.0)` pushed green; it becomes a desaturating pull toward the film's own luma.
+- **Frame (R28).** Gradient bevel lines at the top and bottom of rails, a putty strip on the glass side of the bars, a soft inner shadow
+  on the canvas by a blurred gradient overlay. The button label is `--ink` in every state.
+- **Tap budget (R19 to R21).** Unchanged from section 2.2: 13 typical, 14 worst case. The new work is ALU: the fine bokeh is a
+  2 x 2 loop like the coarse one, the finger smear is two segment distances, the breath is one gaussian. Governor tier 2 turns the
+  fine bokeh, the smear and the breath off with the other detail loops.
