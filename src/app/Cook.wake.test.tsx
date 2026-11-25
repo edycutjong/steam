@@ -86,6 +86,23 @@ describe('wake lock and persistence notices (R17, R18.8)', () => {
     expect(request).toHaveBeenCalledTimes(2)
     expect(root.dataset.wake).toBe('held')
   })
+  // a2a-arch-r06 C4
+  it('after the browser has released the lock twice, the next pointerdown in Cook Mode asks again and data-wake is held', async () => {
+    const added: (() => void)[] = []
+    const mk = () => ({ release: vi.fn(async () => {}), addEventListener: (_t: string, cb: () => void) => void added.push(cb) })
+    const request = vi.fn().mockResolvedValueOnce(mk()).mockResolvedValueOnce(mk()).mockResolvedValueOnce(mk())
+    const { root } = await open({ wakeLock: { request } })
+    act(() => added[0]!())
+    await flush()
+    act(() => added[1]!())
+    await flush()
+    expect(request).toHaveBeenCalledTimes(2)
+    expect(root.dataset.wake).toBe('idle')
+    act(() => void document.dispatchEvent(new Event('pointerdown', { bubbles: true })))
+    await flush()
+    expect(request).toHaveBeenCalledTimes(3)
+    expect(root.dataset.wake).toBe('held')
+  })
   it('a lock that arrives after Cook has closed is released at once', async () => {
     let resolve!: (s: { release(): Promise<void> }) => void
     const request = vi.fn(() => new Promise<{ release(): Promise<void> }>((r) => { resolve = r }))

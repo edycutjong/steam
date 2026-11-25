@@ -189,3 +189,78 @@ describe('wake lock lifecycle (a2a-arch-r05 B7)', () => {
     expect(w.status).toBe('unsupported')
   })
 })
+
+// a2a-arch-r06 C4: after the one automatic re-acquire has been used, a gesture is how a lock the browser took away comes back.
+describe('a gesture asks again for a lock that is idle (a2a-arch-r06 C4)', () => {
+  const flush = async () => { for (let i = 0; i < 10; i++) await Promise.resolve() }
+  const fire = (s: SentinelLike) => ((s.addEventListener as ReturnType<typeof vi.fn>).mock.calls[0]![1] as () => void)()
+  /** A lock the browser has released twice: the automatic re-acquire is spent and the status is idle. */
+  async function spent() {
+    const sentinels = Array.from({ length: 5 }, sentinel)
+    let i = 0
+    const request = vi.fn(async () => sentinels[i++]!)
+    const w = createWakeLock({ wakeLock: { request } }, { visible: () => true })
+    await w.acquire()
+    fire(sentinels[0]!)
+    await flush()
+    fire(sentinels[1]!)
+    await flush()
+    expect(request).toHaveBeenCalledTimes(2)
+    expect(w.status).toBe('idle')
+    return { w, request, sentinels }
+  }
+
+  it('the next gesture asks again, and the lock is held', async () => {
+    const { w, request } = await spent()
+    await w.onGesture()
+    expect(request).toHaveBeenCalledTimes(3)
+    expect(w.status).toBe('held')
+  })
+  it('the automatic re-acquire is spent again by that gesture: one more release is answered once, then a gesture is needed', async () => {
+    const { w, request, sentinels } = await spent()
+    await w.onGesture()
+    fire(sentinels[2]!)
+    await flush()
+    expect(request).toHaveBeenCalledTimes(4) // once, by itself
+    fire(sentinels[3]!)
+    await flush()
+    expect(request).toHaveBeenCalledTimes(4) // no loop
+    expect(w.status).toBe('idle')
+    await w.onGesture()
+    expect(request).toHaveBeenCalledTimes(5)
+    expect(w.status).toBe('held')
+  })
+  it('a gesture refused again leaves it refused and asks nothing by itself', async () => {
+    const { w, request } = await spent()
+    request.mockRejectedValueOnce(new Error('denied'))
+    await w.onGesture()
+    await flush()
+    expect(request).toHaveBeenCalledTimes(3)
+    expect(w.status).toBe('refused')
+  })
+  it('a gesture while the lock is held asks nothing', async () => {
+    const { w, request } = await spent()
+    await w.onGesture()
+    await w.onGesture()
+    expect(request).toHaveBeenCalledTimes(3)
+  })
+  it('a gesture while a request is in flight does not start a second one', async () => {
+    const { w, request } = await spent()
+    const a = w.onGesture()
+    const b = w.onGesture()
+    await Promise.all([a, b])
+    expect(request).toHaveBeenCalledTimes(3)
+  })
+  it('a gesture after release() (Cook Mode closed) asks nothing', async () => {
+    const { w, request } = await spent()
+    w.release()
+    await w.onGesture()
+    expect(request).toHaveBeenCalledTimes(2)
+    expect(w.status).toBe('idle')
+  })
+  it('a gesture asks nothing without the API', async () => {
+    const w = createWakeLock({})
+    await w.onGesture()
+    expect(w.status).toBe('unsupported')
+  })
+})
