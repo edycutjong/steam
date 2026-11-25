@@ -478,3 +478,83 @@
   white-space: nowrap;
   color: var(--muted);
 }
+
+/* ---- phone (cook-mode-qa-r1 Q5) ------------------------------------------------------------------------------------
+   The glass is shorter so the step has room above the fixed control bar; the pace badge sits at the top left, off the moon
+   (the moon is on the right of the upper sash); the slip, the credit and "Started at" collapse to a small block and one row;
+   the step text has no scroll box of its own: the page scrolls, with room under the last line for the bar. */
+@media (max-width: 640px) {
+  .cook {
+    --glass-h: 42dvh;
+    padding-bottom: calc(60px + 2 * 12px + 28px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .badge {
+    right: auto;
+    left: calc(var(--bar, 16px) + 10px);
+    top: 10px;
+  }
+
+  .cook__under {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 0;
+    min-height: 0;
+    padding-top: 8px;
+  }
+
+  /* the slip fields and the credit run on as one small paragraph */
+  .cook__source {
+    display: block;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .cook__source .slip--compact {
+    display: inline;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    line-height: 1.45;
+  }
+
+  .cook__source .slip--compact > * {
+    display: inline;
+    margin-right: 1em;
+  }
+
+  .cook__source .credit-line {
+    display: inline;
+    margin: 0;
+    font-size: 12px;
+  }
+
+  .cook__caption {
+    flex-wrap: nowrap;
+    gap: 0 12px;
+    margin-top: 2px;
+    font-size: 14px;
+  }
+
+  .cook__caption .btn {
+    min-height: 44px;
+    padding: 0 10px;
+    font-size: 14px;
+  }
+
+  .cook__panel {
+    margin-top: 2px;
+    gap: 10px;
+  }
+
+  .step__of {
+    margin-bottom: 2px;
+    font-size: 16px;
+  }
+
+  .step__scroll {
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+  }
+}
