@@ -1,7 +1,6 @@
 // R1 and R2: nothing of the note before the reveal, and the reveal happens on time.
 import { expect, test } from '@playwright/test'
 import { LEAD_MS, WRITE_ON_MS } from '../src/steam/timeline.ts'
-import { BEAD_ZONE, PLUME_REACH } from '../src/steam/shaders.ts'
 import type { Region } from './helpers/capture.ts'
 import { heroUrl } from './helpers/hero.ts'
 import { VIEWPORTS, canvasRegion, detailVariance, groupRegions, openPane, poolStats, shot, sideStrips } from './helpers/pane.ts'
@@ -20,6 +19,10 @@ const VARIANCE_RATIO = 1.6
 // Re-pinned in cook-mode task 31 for the bundle's hero note, whose lower group sits nearer the glow: the warmest fog pixel in the
 // group regions measured 19 at t=-3000, t=-1500, t=-1 and 2000 ms after load (the screenshot at t=-3000 shows no ink).
 const WARMTH_MAX = 24
+
+// The bottom 7 % holds the rail beads and the lowest 20 % holds the pot's and the candle's warm scatter (v1 design §5).
+const BEAD_ZONE = 0.07
+const PLUME_REACH = 0.2
 
 // Beads on the bottom rail and the pot's plume are warm by design (D4, D11). In the stacked desktop layout
 // the lower group's margin reaches them, so the comparison uses only rows above both.

@@ -27,6 +27,9 @@ export interface RendererOptions {
   tokens?: Tokens
 }
 
+/** Group placements the shader holds. */
+export const MAX_GROUPS = 4
+
 /** Fog texture is this many canvas pixels per texel per axis. */
 export const FOG_DIV = 4
 
@@ -34,7 +37,7 @@ const FOG_UNIFORMS = ['uSize', 'uTime', 'uThicken'] as const
 const COMP_UNIFORMS = [
   'uRes', 'uDpr', 'uTime', 'uU', 'uThicken', 'uHead', 'uWipe', 'uRefog',
   'uGroupSrc', 'uGroupDst', 'uGroupCount', 'uNoteSize', 'uHeadPos', 'uHeadGroup',
-  'uBg', 'uInk', 'uBefore', 'uAfter', 'uRule', 'uGhost', 'uMoon', 'uNight', 'uPot',
+  'uFogTexel', 'uCandle', 'uBloom', 'uDetail', 'uBg', 'uInk', 'uBefore', 'uAfter', 'uRule', 'uGhost', 'uMoon', 'uNight', 'uPot',
   'uInkTex', 'uChan', 'uFog',
 ] as const
 type Locs<K extends string> = Record<K, WebGLUniformLocation | null>
@@ -151,16 +154,19 @@ export class SteamRenderer {
   private lastFrame = Number.NaN
   private lastNotify = -Infinity
   private stateCb: ((s: RevealState) => void) | null = null
-  private readonly groupSrc = new Float32Array(8)
-  private readonly groupDst = new Float32Array(8)
+  private readonly groupSrc = new Float32Array(16)
+  private readonly groupDst = new Float32Array(16)
   /** t[0], t[1] per layout group. */
-  private readonly groupT = new Float32Array(4)
+  private readonly groupT = new Float32Array(8)
   private groupCount = 0
   private canvasW = 1
   private canvasH = 1
   private fogW = 1
   private fogH = 1
   private dpr = 1
+  /** Candle flame in pane uv (y down); set from the DOM flame by `setCandle`. */
+  private candleU = 0.93
+  private candleV = 0.86
   private disposed = false
   private resumeOnRestore = false
   private lostTimer: ReturnType<typeof setTimeout> | null = null
@@ -246,7 +252,7 @@ export class SteamRenderer {
     // Fog storage is sized by `resize`; a 1x1 placeholder keeps the framebuffer complete until then.
     gl.activeTexture(gl.TEXTURE0 + UNIT_FOG)
     gl.bindTexture(gl.TEXTURE_2D, texFog)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, 1, 1, 0, gl.RED, gl.UNSIGNED_BYTE, null)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG8, 1, 1, 0, gl.RG, gl.UNSIGNED_BYTE, null)
     gl.bindFramebuffer(gl.FRAMEBUFFER, fboFog)
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texFog, 0)
     const complete = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE
@@ -300,6 +306,12 @@ export class SteamRenderer {
     if (r.texChan) gl.deleteTexture(r.texChan)
     if (r.texFog) gl.deleteTexture(r.texFog)
     if (r.fboFog) gl.deleteFramebuffer(r.fboFog)
+  }
+
+  /** Where the candle flame is, in pane uv (0..1, y down). */
+  setCandle(u: number, v: number): void {
+    this.candleU = u
+    this.candleV = v
   }
 
   /** Registers the 10 Hz state callback for React. Pass null to remove it. */
@@ -437,6 +449,10 @@ export class SteamRenderer {
     gl.uniform1i(r.compLoc.uGroupCount, this.groupCount)
     gl.uniform2f(r.compLoc.uHeadPos, head[2 * bin], head[2 * bin + 1])
     gl.uniform1i(r.compLoc.uHeadGroup, headGroup)
+    gl.uniform2f(r.compLoc.uFogTexel, 1 / this.fogW, 1 / this.fogH)
+    gl.uniform3f(r.compLoc.uCandle, this.candleU, this.candleV, 0.9 + 0.1 * Math.sin(time * 7.3) * Math.sin(time * 4.1 + 0.6))
+    gl.uniform1f(r.compLoc.uBloom, 0)
+    gl.uniform1f(r.compLoc.uDetail, 1)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 
@@ -448,7 +464,7 @@ export class SteamRenderer {
     this.dpr = ratio
     this.fogW = Math.ceil(this.canvasW / FOG_DIV)
     this.fogH = Math.ceil(this.canvasH / FOG_DIV)
-    this.groupCount = Math.min(2, layout.groups.length)
+    this.groupCount = Math.min(MAX_GROUPS, layout.groups.length)
     this.groupSrc.fill(0)
     this.groupDst.fill(0)
     for (let k = 0; k < this.groupCount; k++) {
@@ -505,7 +521,7 @@ export class SteamRenderer {
     const gl = this.gl
     gl.activeTexture(gl.TEXTURE0 + UNIT_FOG)
     gl.bindTexture(gl.TEXTURE_2D, this.res.texFog)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, this.fogW, this.fogH, 0, gl.RED, gl.UNSIGNED_BYTE, null)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG8, this.fogW, this.fogH, 0, gl.RG, gl.UNSIGNED_BYTE, null)
   }
 
   private handleLost(e: Event): void {
