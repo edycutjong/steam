@@ -413,15 +413,15 @@
 }
 
 .knob__stop[aria-current='true'] {
-  border-color: var(--rule);
+  border-color: var(--muted);
+  background: color-mix(in srgb, var(--rule) 60%, var(--bg));
   color: var(--ink);
 }
 
 /* Hover and press feedback (interaction QA, P1d): the pace stops were the one control class that gave none. */
-.knob__stop:hover {
+.knob__stop:hover:not([aria-current='true']) {
   color: var(--ink);
-  border-color: var(--muted);
-  background: color-mix(in srgb, var(--rule) 40%, var(--bg));
+  border-color: var(--rule);
 }
 
 .knob__stop:active {
