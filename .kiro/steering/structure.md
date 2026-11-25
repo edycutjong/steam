@@ -40,3 +40,7 @@ Some folders do not exist yet. Create files in these places when tasks need them
 ## Kiro folder
 - `.kiro/` is public build direction: steering, specs, hooks, agents, workflows.
 - Never put secrets, personal data or anything about other entries in it.
+
+## Editing files
+- Write and edit files with the write tools (`fs_write`, `str_replace`): `no-imitation` and `catalog-gate` judge them before they land.
+- A shell write under `src/` or to the catalog is gated by `shell-gate` (before) and `src-scan-after-shell` (after) and logged in `hooks.log`. Heredocs, `sed -i` and scripts are not a way around the rules; the catalog is written only by `npm run catalog`.
