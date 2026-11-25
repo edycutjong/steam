@@ -32,7 +32,8 @@ describe('loadShelf (R2.1 to R2.5, R2.7)', () => {
   ]
   it.each(bad)('%s leaves the recipe out, with one warning naming the id and the reason', async (_n, mk, why) => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const r = await createShelfLoader(mk(), catalog).load()
+    // a2a-arch-r05 B5: 'a network error' is now retried twice before it is reported, so the test passes an instant sleep (it used to fetch once)
+    const r = await createShelfLoader(mk(), catalog, async () => {}).load()
     expect(r.recipes).toEqual([])
     expect(r.rejected).toEqual([{ id: 'quinces-marmalade', reason: expect.stringMatching(why) }])
     expect(warn).toHaveBeenCalledTimes(1)
@@ -81,7 +82,7 @@ describe('no recipe data in src (honesty: the app shows what the bundle says)', 
 // a2a-arch-r05 B5: a transient fetch failure must not hide the recipe for the whole visit.
 describe('loadShelf retries transport failures (a2a-arch-r05 B5)', () => {
   type Sleep = (ms: number) => Promise<void>
-  const withSleep = createShelfLoader as unknown as (f: typeof fetch, c: unknown, sleep: Sleep) => ReturnType<typeof createShelfLoader>
+  const withSleep = createShelfLoader
   const ok = () => new Response(bundleText, { status: 200 })
   /** A fetch that answers from a script, one entry per call; the last entry repeats. */
   const script = (...steps: (Response | Error | (() => Response))[]) => {

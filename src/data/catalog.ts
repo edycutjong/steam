@@ -40,26 +40,67 @@ export function checkCookable(bundle: RecipeBundle, entry: CatalogEntry): string
   return null
 }
 
-/** A loader with its own cache: one fetch per id (R2.7). */
-export function createShelfLoader(fetchFn: typeof fetch = (...a) => fetch(...a), catalog: unknown = catalogJson) {
-  const cache = new Map<string, Promise<LoadedRecipe | Rejection>>()
-  const loadOne = async (entry: CatalogEntry): Promise<LoadedRecipe | Rejection> => {
-    const reject = (reason: string): Rejection => {
-      console.warn(`shelf: ${entry.id} is not shown: ${reason}`)
-      return { id: entry.id, reason }
+/** Waits before the second and third attempt of a recipe fetch that failed on transport (a2a-arch-r05 B5). */
+export const RETRY_DELAYS_MS = [300, 1000] as const
+const wait = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
+/** Statuses that say "try again": request timeout, rate limit, server trouble. Every other status, 404 included, is final. */
+const retryableStatus = (status: number): boolean => status === 408 || status === 429 || status >= 500
+
+/** What one pass over the network says: a final answer, or a transport failure worth another try. */
+type Attempt = { transient: false; result: LoadedRecipe | Rejection } | { transient: true; reason: string }
+interface Outcome {
+  result: LoadedRecipe | Rejection
+  /** The load ended on a transport failure after every retry: the answer is not kept. */
+  transient: boolean
+}
+
+/**
+ * A loader with its own cache: one fetch per id (R2.7). A network rejection or a retryable status is tried up to
+ * `RETRY_DELAYS_MS.length` more times (`sleep` is injectable) and, if it still fails, is not cached, so a later `load()` asks again.
+ * A 404 or a content failure (JSON, schema, `checkCookable`, withholding) is final, cached and never retried.
+ */
+export function createShelfLoader(fetchFn: typeof fetch = (...a) => fetch(...a), catalog: unknown = catalogJson, sleep: (ms: number) => Promise<void> = wait) {
+  const cache = new Map<string, Promise<Outcome>>()
+  const attemptOne = async (entry: CatalogEntry): Promise<Attempt> => {
+    const final = (reason: string): Attempt => ({ transient: false, result: { id: entry.id, reason } })
+    let res: Response
+    try {
+      res = await fetchFn(`/recipes/${entry.id}/recipe.json`)
+    } catch (e) {
+      return { transient: true, reason: `recipe.json could not be loaded: ${(e as Error).message}` }
+    }
+    if (!res.ok) return retryableStatus(res.status) ? { transient: true, reason: `recipe.json: HTTP ${res.status}` } : final(`recipe.json: HTTP ${res.status}`)
+    let json: unknown
+    try {
+      json = await res.json()
+    } catch (e) {
+      // a body that is not JSON is the content's fault; a body that did not arrive is the network's
+      return e instanceof SyntaxError ? final(`recipe.json could not be loaded: ${e.message}`) : { transient: true, reason: `recipe.json could not be loaded: ${(e as Error).message}` }
     }
     try {
-      const res = await fetchFn(`/recipes/${entry.id}/recipe.json`)
-      if (!res.ok) return reject(`recipe.json: HTTP ${res.status}`)
-      const parsed = RecipeBundle.safeParse(await res.json())
-      if (!parsed.success) return reject(`recipe.json is invalid: ${parsed.error.issues[0]?.path.join('.')}: ${parsed.error.issues[0]?.message}`)
+      const parsed = RecipeBundle.safeParse(json)
+      if (!parsed.success) return final(`recipe.json is invalid: ${parsed.error.issues[0]?.path.join('.')}: ${parsed.error.issues[0]?.message}`)
       const why = checkCookable(parsed.data, entry)
-      if (why) return reject(why)
+      if (why) return final(why)
       const d = displayableNotes(parsed.data)
       for (const w of d.withheld) console.warn(`shelf: ${entry.id}: note ${w.noteId} is withheld: ${w.reason}`)
-      return { bundle: parsed.data, notes: d.notes, withheld: d.withheld }
+      return { transient: false, result: { bundle: parsed.data, notes: d.notes, withheld: d.withheld } }
     } catch (e) {
-      return reject(`recipe.json could not be loaded: ${(e as Error).message}`)
+      return final(`recipe.json could not be loaded: ${(e as Error).message}`)
+    }
+  }
+  const loadOne = async (entry: CatalogEntry): Promise<Outcome> => {
+    for (let n = 0; ; n++) {
+      const a = await attemptOne(entry)
+      if (!a.transient) {
+        if ('reason' in a.result) console.warn(`shelf: ${entry.id} is not shown: ${a.result.reason}`)
+        return { result: a.result, transient: false }
+      }
+      if (n >= RETRY_DELAYS_MS.length) {
+        console.warn(`shelf: ${entry.id} is not shown: ${a.reason}`)
+        return { result: { id: entry.id, reason: a.reason }, transient: true }
+      }
+      await sleep(RETRY_DELAYS_MS[n]!)
     }
   }
   return {
@@ -67,10 +108,12 @@ export function createShelfLoader(fetchFn: typeof fetch = (...a) => fetch(...a),
       const c = Catalog.safeParse(catalog)
       if (!c.success) return { recipes: [], rejected: [{ id: '*', reason: 'the catalog is invalid' }], error: 'the catalog is invalid' }
       const out = await Promise.all(
-        c.data.map((e) => {
+        c.data.map(async (e) => {
           let p = cache.get(e.id)
           if (!p) cache.set(e.id, (p = loadOne(e)))
-          return p
+          const o = await p
+          if (o.transient && cache.get(e.id) === p) cache.delete(e.id)
+          return o.result
         }),
       )
       return { recipes: out.filter((o): o is LoadedRecipe => 'bundle' in o), rejected: out.filter((o): o is Rejection => !('bundle' in o)) }
