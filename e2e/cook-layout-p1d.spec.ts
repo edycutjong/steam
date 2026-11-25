@@ -293,3 +293,27 @@ test.describe('6. reduced motion', () => {
     expect(await page.locator('main.cook .sr-only').allInnerTexts()).not.toContain('The note is being written')
   })
 })
+
+// Interaction QA (P1d): the attribution line arriving at the reveal moves nothing below it (it was +33 px on a phone, and the
+// caption jumped sideways on desktop). Same boxes before the slip is shown and after the note is held.
+for (const vp of [{ width: 390, height: 844 }, { width: 1280, height: 720 }]) {
+  test(`attribution slot is reserved: no control moves when the slip arrives (${vp.width}x${vp.height})`, async ({ page }) => {
+    test.setTimeout(90_000)
+    await page.setViewportSize(vp)
+    await page.goto(link('till-it-looks-red-smooth'))
+    await page.reload()
+    await page.waitForSelector('button.wipe')
+    await expect(page.locator('.cook__source')).toHaveAttribute('data-slip', 'reserved')
+    const sel = ['.timer', '.knob', 'button.wipe', '.cook__caption', '.step']
+    const before: Box[] = []
+    for (const s of sel) before.push(await box(page, s))
+    await page.waitForFunction(() => document.querySelector('main.cook')?.getAttribute('data-note-state') === 'held', undefined, { timeout: 40_000 })
+    await expect(page.locator('.cook__source')).toHaveAttribute('data-slip', 'shown')
+    await page.waitForTimeout(900)
+    for (let i = 0; i < sel.length; i++) {
+      const a = await box(page, sel[i]!)
+      expect(Math.abs(a.x - before[i]!.x), `${sel[i]} x ${rd(before[i]!)} -> ${rd(a)}`).toBeLessThanOrEqual(0.5)
+      expect(Math.abs(a.y - before[i]!.y), `${sel[i]} y ${rd(before[i]!)} -> ${rd(a)}`).toBeLessThanOrEqual(0.5)
+    }
+  })
+}

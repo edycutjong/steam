@@ -118,6 +118,8 @@ export const COOK = {
   back: 'Back',
   mute: 'Mute',
   unmute: 'Unmute',
+  /** Beside "Step n of N" when the step shows a † (QA P1d): the key at the stove. The long form lives in EDITION.legend. */
+  legend: '† the two readers differ',
   noSound: 'This browser has no sound',
   startAgain: 'Start again',
   unknownNote: (N: number): string => `That note is not on this page. Started at step ${FIRST_STEP} of ${N}.`,

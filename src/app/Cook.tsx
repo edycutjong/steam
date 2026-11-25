@@ -298,11 +298,10 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
         <div className="cook__reading" aria-hidden="true" />
       )}
       <div className="cook__under">
-        {showSlip ? (
-          <div className="cook__source">
-            <ArchiveSlip bundle={b} compact />
-          </div>
-        ) : null}
+        {/* the slot is always in the layout, so the attribution arriving moves nothing (interaction QA P1d) */}
+        <div className="cook__source" data-slip={showSlip ? 'shown' : 'reserved'}>
+          {showSlip ? <ArchiveSlip bundle={b} compact /> : null}
+        </div>
         <p className="cook__caption">{caption}</p>
       </div>
       <div className="cook__panel">
