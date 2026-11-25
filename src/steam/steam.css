@@ -7,6 +7,10 @@
   --rail: clamp(10px, 2.2dvh, 20px);
   --wood: color-mix(in srgb, var(--rule) 82%, var(--bg));
   --wood-lip: color-mix(in srgb, var(--rule) 78%, var(--muted));
+  /* the putty that seals the glass into the wood, and the bevel's light and shade: derived from the wood tokens */
+  --putty: color-mix(in srgb, var(--paper) 34%, var(--wood));
+  --bevel-hi: color-mix(in srgb, var(--wood-lip) 70%, var(--paper));
+  --bevel-lo: color-mix(in srgb, var(--wood) 60%, var(--bg));
   --grain: repeating-linear-gradient(
     90deg,
     transparent 0 5px,
@@ -45,7 +49,16 @@
   width: var(--bar);
   background:
     var(--grain),
-    linear-gradient(90deg, var(--wood-lip) 0%, var(--wood) 22%, var(--wood) 78%, var(--bg) 100%);
+    linear-gradient(
+      90deg,
+      var(--bevel-hi) 0 2px,
+      var(--wood-lip) 2px 4px,
+      var(--wood) 4px 62%,
+      var(--bevel-lo) 62% 74%,
+      var(--putty) 74% 84%,
+      color-mix(in srgb, var(--putty) 50%, var(--bg)) 84% 92%,
+      var(--bg) 100%
+    );
   pointer-events: none;
 }
 
@@ -183,7 +196,13 @@
   transform: translateX(-50%);
   background:
     var(--grain),
-    linear-gradient(90deg, var(--wood-lip) 0%, var(--wood) 28%, var(--wood) 72%, var(--bg) 100%);
+    linear-gradient(
+      90deg,
+      var(--bevel-hi) 0 2px,
+      var(--wood-lip) 2px 4px,
+      var(--wood) 4px 46%,
+      var(--bevel-lo) 54% 100%
+    );
   pointer-events: none;
 }
 
@@ -438,16 +457,56 @@
 
 /* Rails: the meeting rail between the sashes and the bottom rail under the glass. */
 .rail {
+  position: relative;
   height: var(--rail);
   background:
     var(--grain),
-    linear-gradient(180deg, var(--wood-lip) 0%, var(--wood) 30%, var(--wood) 100%);
+    linear-gradient(
+      180deg,
+      var(--bevel-lo) 0 2px,
+      var(--bevel-hi) 2px 4px,
+      var(--wood-lip) 4px 8px,
+      var(--wood) 8px calc(100% - 7px),
+      var(--bevel-lo) calc(100% - 7px) calc(100% - 4px),
+      var(--putty) calc(100% - 4px) calc(100% - 1px),
+      var(--bg) 100%
+    );
 }
 
 .rail--bottom {
   background:
     var(--grain),
-    linear-gradient(180deg, var(--wood) 0%, var(--wood) 70%, var(--bg) 100%);
+    linear-gradient(
+      180deg,
+      var(--putty) 0 3px,
+      var(--bevel-lo) 3px 6px,
+      var(--bevel-hi) 6px 8px,
+      var(--wood-lip) 8px 12px,
+      var(--wood) 12px 72%,
+      var(--bg) 100%
+    );
+}
+
+/* A soft inner shadow where the glass meets the rails: a gradient laid over the first and last rows of the glass. */
+.rail--meeting::after,
+.rail--bottom::before {
+  content: '';
+  position: absolute;
+  left: var(--bar);
+  right: var(--bar);
+  height: 16px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.rail--meeting::after {
+  top: 100%;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bg) 62%, transparent), transparent);
+}
+
+.rail--bottom::before {
+  bottom: 100%;
+  background: linear-gradient(0deg, color-mix(in srgb, var(--bg) 62%, transparent), transparent);
 }
 
 /* Lower sash: the glass. The canvas fills it. */
@@ -556,7 +615,7 @@
 }
 
 .wipe-btn[aria-disabled='true'] {
-  color: var(--muted);
+  /* the label keeps --ink in every state: 12:1 on the button (look pass 3, R28.2) */
   cursor: default;
 }
 

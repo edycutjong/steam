@@ -106,7 +106,7 @@ The shader budget does not grow in textures: the window, the finger smear and th
   - Lighter channel ending in a bright bead, never over ink; gravity-weighted dark lenses; neutral edge condensation.
   - Satisfies: R25, R26, R27.
 
-- [ ] 27. Window frame and label contrast (R28)
+- [x] 27. Window frame and label contrast (R28)
   - Bevel, putty line and soft inner shadow in gradients; the button label at 4.5:1 or more.
   - Satisfies: R28.
 
