@@ -115,7 +115,7 @@ judged against `before/`).
 **User story:** As a viewer, I want the runs under the hand to look like water on glass, so that they do not read as sticks.
 
 1. THE SYSTEM SHALL place 2 to 4 runs on a pane wider than 640 css px and 1 to 3 on a narrower one, chosen by ink mass, with no more than one run per word-sized stretch (starts at least 90 note px apart). **unit**
-2. THE SYSTEM SHALL give every run a length between 0.5 and 2.0 times the height of its group's core band, except at most one run per pane, which may reach 3.2 times. **unit**
+2. THE SYSTEM SHALL give every run a length between 0.7 and 2.0 times the height of its group's core band (or the room it has, if less), except at most one run per pane, which may reach 3.4 times. **unit**
 3. THE SYSTEM SHALL bend every run longer than one core-band height by a seeded path: `runOffset(run, dy)` is 0 at the start, bounded by `amp + lean * dy`, with `amp` between 1.2 and 4 css px and `lean` within +-0.05, and is a pure function of its arguments. **prop**
 4. THE SYSTEM SHALL draw the trail as a thin clear channel through which the room and the night are seen (darker than the film beside it, never a brown solid), wider at its start (the lip), and SHALL re-fog it from its top with the age since the stall. **frame**
 5. THE SYSTEM SHALL draw the head as a lens bead at least 1.6 times the trail's half-width: dark rim, warm inverted light, one small catch-light, and no white dot. **unit** (constants), **frame**
@@ -130,10 +130,10 @@ judged against `before/`).
 
 ## R15. Phone composition (look pass 2)
 
-1. AT widths 390 and 393 css px, THE SYSTEM SHALL place the groups so that the block of ink fills at least 55 % of the glass height and its centre lies above the pane's middle (between 2 % and 8 % of the height above it). **unit** (on the hero's metadata)
+1. AT widths 390 and 393 css px, THE SYSTEM SHALL place the groups so that the block of ink fills at least 55 % of the glass height and its centre lies above the pane's middle (between 2 % and 8 % of the height above it; the e2e accepts 1 % to 8 % because it measures ink pixels). **unit** (on the hero's metadata), **e2e**
 2. THE SYSTEM SHALL keep R8.1 and R8.2 (core band at least 16 css px, at least 12 css px of glass to both sides). **e2e**
-3. THE SYSTEM SHALL gather droplets toward the sill less than v1: the boost of the large layer is at most 1.6 and the sill droplets are cooler than the middle's. **unit** (constants), **e2e** (R3.4 re-pinned), **frame**
-4. WHERE the pane is narrower than 640 css px, THE SYSTEM SHALL draw the candle at most 70 % of its desktop height (the CSS gives about half), and SHALL keep it clear of the ink block (no overlap of rectangles). **e2e**
+3. THE SYSTEM SHALL gather droplets toward the sill less than v1: the boost of the large layer is at most 1.6, the large lens shrinks toward the sill and every lens takes 0.6 of the room's warm light. **unit** (constants), **e2e** (R3.4 re-pinned from 1.5 to 1.1), **frame**
+4. WHERE the pane is narrower than 640 css px, THE SYSTEM SHALL draw the candle at most 70 % of its desktop height (the CSS gives under half), and SHALL keep it clear of the ink block (no overlap of rectangles). **e2e**
 5. THE SYSTEM SHALL keep the phone-fit e2e green at 390 and 393. **e2e**
 
 ## R16. A film with a history (look pass 2)

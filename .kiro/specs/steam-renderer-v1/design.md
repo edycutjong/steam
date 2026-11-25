@@ -194,7 +194,7 @@ coordinate, drawn with `lens(q)`. Heavier strokes (larger `a` mass in the blur) 
 
 ### 6.2 Runs (`src/steam/drips.ts`, pure, seeded)
 
-`planDrips(ink, toi, meta, seed)` chooses 3 to 6 candidates: for each group, each maximal vertical run of dark ink
+`planDrips(ink, toi, meta, seed)` chooses 3 to 6 candidates (look pass 2: `placeDrips` shows 2 to 4 of them on a wide pane and 1 to 3 on a phone, see §14): for each group, each maximal vertical run of dark ink
 (`a >= 0.6`) whose bottom has clear glass below (`a < 0.2` for the next 3 px) is a candidate, weighted by the ink mass of
 the run (so the heaviest stroke bottoms win), jittered by a seeded hash, with at least 90 note px between picks.
 `mass`, the group, the note position, `u0` (the toi at the candidate) and a seeded `delay` are stored.
@@ -276,7 +276,7 @@ at least 4 slow frames).
 ## 9. Phone gap groups (R8)
 
 `src/steam/gaps.ts` finds, per group, interior column gaps of the ink (note px) at least `GAP_MIN_PX` (18) wide, and the
-time-of-ink range of the two parts. `computeLayout('groups', ...)` splits a group only when its whole line cannot meet
+time-of-ink range of the two parts. `computeLayout("groups", ...)` first splits a group only when its whole line cannot meet
 `MIN_CORE_CSS_PX` (16) inside `paneW - 2 * PAD_PX`. Both parts get the same scale (at least the minimum core band, at most
 what fits the wider part) and are stacked in reading order. `src` of each part stops at the cut so it never carries the
 neighbour's ink. At 390 to 393 css px each core band is at least 16 css px and the ink keeps at least 12 css px of clear
@@ -318,3 +318,33 @@ Each is a test (vitest or fast-check) unless marked "frame".
 
 Sound, true fluid simulation, per-device tuning, a Web Worker for `derive` (still owed from v0 task 39), refraction of
 the scan itself (the hand is quoted, never distorted).
+
+## 14. Look pass 2 (R13 to R18)
+
+The v1 frames (`docs/kiro-evidence/renderer-v1/v1a/`) read as matchsticks (runs), a neon sign (strokes), a small note on a tall
+grey pane (phone), a single-noise film, a smudge (the streak) and a moon that cropped on short panes. Changes, per item:
+
+- **Runs (R13).** `placeDrips` picks the shown runs with a seeded key (so not every word sheds one; a candidate with room is
+  preferred): 2 to 4 on a pane wider than 640 css px, 1 to 3 below. Lengths are in core-band heights `H` of the stroke's group:
+  `0.7 + 1.3 u^1.3` H for most, and one run (if any chosen start has room for 2.2 H) up to 3.4 H. The path is
+  `runOffset(dy) = smooth(dy / 18) * amp * (0.62 sin(2 pi dy / 64 + s) + 0.38 sin(2 pi dy / 27 + 2.3 s)) + lean * dy`, `amp` 1.2 to
+  4 css px, `lean` within +-0.05; GLSL twin `runOff`, constants shared from `drips.ts`. Half-width 0.9 to 1.7 css px (from `H`),
+  bead radius at least 1.6 half-widths. Shader: the channel is clear glass seen as the dark room (`uBg + uNight + a little warm`),
+  mixed at 0.72, wider over the first `lip` css px and narrowing, with a faint ridge beside it (brighter on the moon side); it
+  re-fogs from its top (`front = age / RUN_REFOG_S * length`). The head is `beadColour`: film-lit body, warm light shown high in the
+  lens, a dark rim and one small catch-light. New uniform `uRunC = (amp, lean, lip, length)`.
+- **Strokes (R14).** The rim is the band `T in (0.02, 0.14)` (about 1 css px, `RIM_PX`), multiplied by `0.12 + 0.88 * brk` where
+  `brk` is a fine value noise mixed with the film height: broken, not an outline. `HALO_GAIN` 0.4 to 0.16, `LIP_BRIGHT` 0.26 to
+  0.13, `LIP_DENSITY` 0.12 to 0.07, the lip also broken by `brk`. Pen pressure is the scan's own alpha (`press = smoothstep(0.3, 0.95, a)`):
+  the fill is scaled by `mix(0.72, 1, press)` and tinted cool for hairlines, warm for full strokes; the luminance cap stays.
+- **Phone (R15).** `computeLayout` also builds the all-parts layout (every line cut at its ink gap, one shared scale limited by
+  the widest part and the glass height). It is used when the hand grows by at least `GROW_MIN` (1.15) and the stack fits: on a
+  Pixel 5 pane this is four parts at 1.04 instead of three at 0.80, filling about three quarters of the glass. The block is
+  lifted `LIFT_FRAC` (0.035) of the pane height above the middle. Sill droplets: boost 3 to 1.6, the large lens 30 % smaller at the
+  rail, lens warmth 0.6. Candle: at most 44 css px tall under 640 px (92 on desktop).
+- **Film (R16).** `oldWipes` in pass 1: three seeded swipes of three fingers each, arcs of radius 0.7 to 1.6 pane heights, broken
+  along their length, removing `OLD_WIPE_DENSITY` (0.10) of the density and adding 0.10 to the height (so they refract a little);
+  plus a `BROAD_AMP` (0.16) broad density noise. Static, independent of the note and of time.
+- **Streak (R17).** Removed: it was not lined up with the moon, and the film already carries the moon's cool light from above.
+- **Moon (R18).** `nightViewBox(w, h)` fills the pane as before (slice, anchored low) but never lets the visible top fall below the
+  moon's top (nor the visible bottom above its bottom); `NightView` measures its svg with a ResizeObserver and sets the viewBox.
