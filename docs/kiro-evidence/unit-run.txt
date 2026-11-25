@@ -1,0 +1,4 @@
+# npm test at 8045c5e, 2026-11-26 (summary lines)
+ Test Files  169 passed (169)
+      Tests  1544 passed | 5 expected fail (1549)
+   Duration  24.39s (tests 62%, import 33%, environment 4%, transform 1%)
