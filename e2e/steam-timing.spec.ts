@@ -18,7 +18,9 @@ const VARIANCE_RATIO = 1.6
 // about 100 (asserted below), so 16 still separates fog from ember.
 // Re-pinned in cook-mode task 31 for the bundle's hero note, whose lower group sits nearer the glow: the warmest fog pixel in the
 // group regions measured 19 at t=-3000, t=-1500, t=-1 and 2000 ms after load (the screenshot at t=-3000 shows no ink).
-const WARMTH_MAX = 24
+// Re-pinned in steam-renderer-v1: droplets are lenses that carry the room's warm light, and the candle warms the film at the lower right.
+// The warmest fog pixel in the group regions measured 52 to 54 at t=-3000, t=-1500, t=-1 and 2000 ms after load. A written stroke is far warmer.
+const WARMTH_MAX = 64
 
 // The bottom 7 % holds the rail beads and the lowest 20 % holds the pot's and the candle's warm scatter (v1 design §5).
 const BEAD_ZONE = 0.07
@@ -59,7 +61,7 @@ test('t=5000: the detail variance check sees a written note', async ({ page }) =
   // so the written strokes add less stroke-scale detail: measured 1.74 at t=5000. Fog alone stays below VARIANCE_RATIO (asserted
   // above), and the warmth check that follows separates fog from ember by more than three times.
   expect(ratio).toBeGreaterThan(VARIANCE_RATIO)
-  expect(poolStats(png, [groups[0]]).warmth).toBeGreaterThan(WARMTH_MAX * 3)
+  expect(poolStats(png, [groups[0]]).warmth).toBeGreaterThan(WARMTH_MAX * 1.5)
 })
 
 test('no t: nothing of the note 2000 ms after load', async ({ page }) => {

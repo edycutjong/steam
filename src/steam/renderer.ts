@@ -5,7 +5,7 @@ import type { NoteMeta } from './assets.ts'
 import type { Derived } from './derive.ts'
 import type { Layout } from './layout.ts'
 import { bloomAt, candleLevel } from './haunt.ts'
-import { QualityGovernor } from './governor.ts'
+import { QualityGovernor, governorEnabled } from './governor.ts'
 import type { Tier } from './governor.ts'
 import { placeDrips, planDrips, writeRunUniforms } from './drips.ts'
 import type { PlacedRun, PlannedRun } from './drips.ts'
@@ -194,6 +194,8 @@ export class SteamRenderer {
   private candleV = 0.86
   private disposed = false
   private readonly gov = new QualityGovernor()
+  private readonly govOn =
+    typeof location === 'undefined' ? true : governorEnabled(location.search, location.hash, typeof navigator !== 'undefined' && navigator.webdriver === true)
   private fogDiv = FOG_DIV
   private detail = 1
   private degradeCb: (() => void) | null = null
@@ -477,7 +479,7 @@ export class SteamRenderer {
       s.sumMs += dt
       if (dt > s.worstMs) s.worstMs = dt
       if (dt > SLOW_FRAME_MS) s.over += 1
-      if (this.frozenT === null) this.govern(dt) // a frozen clock is a measurement frame: it is never degraded
+      if (this.frozenT === null && this.govOn) this.govern(dt) // a frozen clock is a measurement frame: it is never degraded
     }
     this.draw(now)
     this.publish(now)

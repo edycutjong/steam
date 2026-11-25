@@ -66,7 +66,7 @@ Textures:
 
 | Unit | Name | Format | Filter | Content |
 |---|---|---|---|---|
-| 0 | `uInk` | `R8`, mipmapped | `LINEAR_MIPMAP_LINEAR` / `LINEAR`, clamp | the scan's continuous ink alpha (`toi.png` R, 133 levels), the "derived channel": sampled bicubic at lod 0 and as a blur at lod `INK_LOD_BLUR` |
+| 0 | `uInkTex` | `RG8`, mipmapped | `LINEAR_MIPMAP_LINEAR` / `LINEAR`, clamp | R: the scan's continuous ink alpha (`toi.png` R, 133 levels), the "derived channel": sampled bicubic at lod 0 and as a blur at lod `INK_LOD_BLUR`. G: alpha times time-of-ink, so the blurred G/R is the neighbourhood's own time-of-ink (the warm halo's wipe gate) |
 | 1 | `uChan` | `RGBA8`, no mips | `LINEAR`, clamp | v0 channel: R alpha plus shoulder, G time-of-ink, B pressure, A hull feather (unchanged) |
 | 2 | `uFog` | `RG8` | `LINEAR`, repeat | pass 1 |
 
@@ -86,28 +86,29 @@ stroke, lod `INK_LOD_BLUR` (a ~2 css px blur) for the wet-edge lip and the edge 
 |---|---|
 | `uChan` (1 per group rect the fragment lies in; 2 where margins overlap) | 1 to 2 |
 | `uInk` Catmull-Rom, winning group only | 5 |
-| `uInk` blur for lip and normal | 3 |
+| `uInkTex` blur for lip and normal (lod 1: centre, +x, +y) | 3 |
+| `uInkTex` wide blur for the warm halo (lod 3) | 1 |
 | `uFog` centre, +x, +y (density, height, refraction gradient) | 3 |
-| **Total** | **12 typical, 13 worst case** |
+| **Total** | **13 typical, 14 worst case** |
 
-Outside every group rect: 3 taps (`uFog`). There is no per-fragment loop that samples a texture. ALU-only loops:
+Outside every group rect: 3 taps (`uFog`). The beads and the lip take no further taps. There is no per-fragment loop that samples a texture. ALU-only loops:
 droplets (3 scales x 4 cells), runs (at most 6, rejected by one x test), breath (6 gaussians). Governor tier 2 turns the
 droplet, run and breath loops off.
 
 ## 3. Transmission (R1)
 
 ```
-trans(a) = smoothstep(TRANS_LO, TRANS_HI, a) ^ TRANS_GAMMA      TRANS_LO = 0.04, TRANS_HI = 0.85, TRANS_GAMMA = 0.8
+trans(a) = smoothstep(TRANS_LO, TRANS_HI, a) ^ TRANS_GAMMA      TRANS_LO = 0.03, TRANS_HI = 0.97, TRANS_GAMMA = 0.75
 T        = trans(a_bicubic) * wiped(toi)
 ```
 
-- Monotone non-decreasing, continuous, `trans(0) = 0`, `trans(1) = 1`, no band narrower than 0.8 of the alpha range.
-  `src/steam/transmission.ts` holds the TS twin; the GLSL is generated from the same constants.
+- Monotone non-decreasing, continuous, `trans(0) = 0`, `trans(1) = 1`, with T between 5 % and 95 % over more than 0.6 of the alpha range.
+- The constants were measured, not guessed: the first guess (0.04, 0.85, 0.8) clears 1.205 times the scan's ink area on the hero note, over the 1.15 bound, because the hero's alpha is mostly mid to dark (the histogram peaks at 0.5 to 0.7). (0.03, 0.97, 0.75) clears 1.043 times and keeps `T(0.15) = 0.08`.
+  `src/steam/transmission.ts` holds the TS twin (and the Catmull-Rom the test uses); the GLSL is generated from the same constants.
 - Hairlines (`a` about 0.1 to 0.3) become partly clear (`T` about 0.05 to 0.3): the pen's pressure shows.
 - The old `CLEAR_MID`, `CLEAR_HALF*`, `EDGE_FOG_*` and `clearCurve` are removed. The "edge follows the fog density" idea
   (v0 D13) becomes the lip, which is physical.
-- Coverage property: at the displayed scale (2x, which covers desktop 1.6x and phone 0.84 x 2 dpr), `sum(T) / sum(a)` over
-  the hero note is at most 1.15, so counters stay open. Tuned by looking at frames and checked by `hero.coverage.test.ts`.
+- Coverage property: at 1x and 2x magnification (desktop 1.6x, phone 0.84 x 2 dpr), `sum(T) / sum(a)` over the hero note is between 0.85 and 1.15, so counters stay open. Checked by `hero.coverage.test.ts`.
 
 The write-on front is v0's: `wiped = smoothstep((uU - toi) / (TOI_SOFT * FEATHER_K))` on `uChan.g`. Because the
 transmission is continuous, a stroke clears in the shape of its own pen pressure as the front passes.
@@ -164,6 +165,10 @@ fragment contain every droplet that can cover it: 4 hash evaluations per layer, 
 Lens shading `lens(q)` with `q` the offset in radius units: mask `1 - smoothstep(0.88, 1, |q|)`; dark rim
 `smoothstep(0.55, 0.95, |q|)`; interior `room` light inverted vertically (brighter at the top of the drop, because a drop
 inverts the scene); a `--moon` catch-light at `(-0.38, -0.42)`; a faint `--after` caustic at the lower right.
+
+Warm halo: the hand's light reaches into the film around each written stroke (`HALO_GAIN`), thinning it a little. One tap of
+`uInkTex` at lod 3 gives the blurred alpha (R) and the blurred alpha times time-of-ink (G); G/R gates the halo by the
+neighbourhood's own time, so a halo never shows before its stroke is written.
 
 Cold bloom (R7): `uBloom` in 0..1, ~1.2 s, `--ghost` tinted; the film densifies from the pane edges inward, the front
 wobbled by `h`. Zero in `?bloom=0` and under reduced motion (the static pane has none).

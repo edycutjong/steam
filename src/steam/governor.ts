@@ -45,3 +45,15 @@ export class QualityGovernor {
     return null
   }
 }
+
+/**
+ * Whether the governor may degrade this page. On by default. An automated browser (`navigator.webdriver`) is left at full
+ * quality unless the URL says `gov=1`, because a tier change swaps the canvas for the static images in the middle of a
+ * scripted run; the bench asks for `gov=1` so its rows show what the governor really does. `gov=0` turns it off anywhere.
+ */
+export function governorEnabled(search: string, hash: string, webdriver: boolean): boolean {
+  const q = `${search}&${hash.slice(hash.indexOf('?') >= 0 ? hash.indexOf('?') : hash.length)}`
+  if (/[?&]gov=1(&|$)/.test(q)) return true
+  if (/[?&]gov=0(&|$)/.test(q)) return false
+  return !webdriver
+}

@@ -1,6 +1,6 @@
 import fc from 'fast-check'
 import { describe, expect, it } from 'vitest'
-import { GOV_IGNORE_MS, GOV_P95_MS, GOV_WINDOW, MAX_TIER, QualityGovernor } from './governor.ts'
+import { GOV_IGNORE_MS, GOV_P95_MS, GOV_WINDOW, MAX_TIER, QualityGovernor, governorEnabled } from './governor.ts'
 
 function feed(g: QualityGovernor, n: number, dt: number): Array<number | null> {
   const out: Array<number | null> = []
@@ -85,5 +85,16 @@ describe('QualityGovernor (P-G1)', () => {
         return g.tier === 0 || slow.size > 3
       }),
     )
+  })
+})
+
+describe('governorEnabled', () => {
+  it('is on for people and off for automation unless gov=1 asks for it', () => {
+    expect(governorEnabled('', '#/', false)).toBe(true)
+    expect(governorEnabled('', '#/', true)).toBe(false)
+    expect(governorEnabled('', '#/pane/a/b?t=1&gov=1', true)).toBe(true)
+    expect(governorEnabled('?gov=1', '', true)).toBe(true)
+    expect(governorEnabled('', '#/pane/a/b?gov=0', false)).toBe(false)
+    expect(governorEnabled('?gov=10', '', true)).toBe(false)
   })
 })

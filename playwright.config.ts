@@ -1,6 +1,7 @@
 import { defineConfig } from '@playwright/test'
 
-const PORT = 4173
+// 4173 unless PW_PORT says otherwise: another project's preview server may already hold it on a shared machine.
+const PORT = Number(process.env.PW_PORT ?? 4173)
 
 // Production build served by `vite preview`. Software GL keeps frames reproducible without a GPU.
 export default defineConfig({

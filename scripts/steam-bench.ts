@@ -12,19 +12,19 @@ export interface Profile {
   cpuThrottle: number
   /** Chromium software GL (ANGLE SwiftShader), whatever the machine's GPU is. */
   software: boolean
-  /** Query appended to the hero route. The overlay (`fps=1`) is left out where the pane is being captured. */
+  /** Query appended to the hero route. `gov=1` lets the quality governor act under automation. The overlay (`fps=1`) is left out where the pane is being captured. */
   query: string
   /** A row that sets the budget. Software GL is recorded for the record and does not fail the run. */
   budget: boolean
 }
 
 export const PROFILES: Profile[] = [
-  { name: 'desktop-1280x720', viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1, mobile: false, cpuThrottle: 1, software: false, query: '?fps=1', budget: true },
-  { name: 'desktop-1920x1080', viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, mobile: false, cpuThrottle: 1, software: false, query: '?fps=1', budget: true },
-  { name: 'pixel5-4x-cpu', viewport: { width: 393, height: 851 }, deviceScaleFactor: 2.75, mobile: true, cpuThrottle: 4, software: false, query: '?fps=1', budget: true },
-  { name: 'swiftshader-1280x720', viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1, mobile: false, cpuThrottle: 1, software: true, query: '?fps=1', budget: false },
+  { name: 'desktop-1280x720', viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1, mobile: false, cpuThrottle: 1, software: false, query: '?fps=1&gov=1', budget: true },
+  { name: 'desktop-1920x1080', viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, mobile: false, cpuThrottle: 1, software: false, query: '?fps=1&gov=1', budget: true },
+  { name: 'pixel5-4x-cpu', viewport: { width: 393, height: 851 }, deviceScaleFactor: 2.75, mobile: true, cpuThrottle: 4, software: false, query: '?fps=1&gov=1', budget: true },
+  { name: 'swiftshader-1280x720', viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1, mobile: false, cpuThrottle: 1, software: true, query: '?fps=1&gov=1', budget: false },
   // The video-capture setup: the same pane at 1920x1080, dpr 1, with no overlay on screen.
-  { name: 'capture-1920x1080', viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, mobile: false, cpuThrottle: 1, software: false, query: '', budget: true },
+  { name: 'capture-1920x1080', viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, mobile: false, cpuThrottle: 1, software: false, query: '?gov=1', budget: true },
 ]
 
 export function percentile(sorted: number[], p: number): number {

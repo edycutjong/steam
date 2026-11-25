@@ -124,6 +124,8 @@ test('the button and Space: disabled while writing, wipe sweeps, fog returns off
   await expect(btn).toHaveText(WIPE, { timeout: WRITE_ON_MS + 10_000 })
   await expect(btn).not.toHaveAttribute('aria-disabled', 'true')
   const pts = await channelPixels(page)
+  // the cue's cold bloom at the pane edges is gone 1.5 s after the hold begins (haunt.ts BLOOM_FADE_MS); the reference is taken after it
+  await page.waitForTimeout(1700)
   const held = await shot(page)
   const heldChannel = meanLumAt(held, pts)
 

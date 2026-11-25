@@ -80,7 +80,7 @@ void main() {
 /** Luminance cap inside strokes, 0..1 (D14). Applied by scaling the colour, so the ember hue survives. */
 export const STROKE_LUMA_MAX = 0.92
 /** Largest channel inside a stroke, so a clipped red can never turn the ember yellow-white. */
-export const STROKE_PEAK_MAX = 0.94
+export const STROKE_PEAK_MAX = 0.93
 
 /** Write-on leading edge: feather = TOI_SOFT * FEATHER_K in toi units, about 9 texels along the hero's path (D15). */
 export const FEATHER_K = 0.8
@@ -100,6 +100,9 @@ export const BREATH_R_CSS = 34.0
 export const BREATH_DENSITY = 0.22
 export const BREATH_COOL = 0.3
 export const SWEEP_SOFT = 0.35
+/** The reflection of the moonlit sash across the top third of the glass: faint, about 10 css px wide. */
+export const STREAK_A = 0.12
+export const STREAK_HALF_CSS = 5.0
 
 /** Room behind the glass (design §4): light of the pot, of the candle, of the floor, and the bokeh. */
 export const POT_GAIN = 0.62
@@ -204,6 +207,8 @@ const float STROKE_PEAK_MAX = ${STROKE_PEAK_MAX.toFixed(2)};
 const float GRAIN_A = ${GRAIN_A.toFixed(2)};
 const float HEAD_R = ${HEAD_R.toFixed(1)};
 const float HEAD_A = ${HEAD_A.toFixed(2)};
+const float STREAK_A = ${STREAK_A.toFixed(2)};
+const float STREAK_HALF = ${STREAK_HALF_CSS.toFixed(1)};
 const float SWEEP_SOFT = ${SWEEP_SOFT.toFixed(2)};
 const float POT_GAIN = ${f(POT_GAIN)};
 const float CANDLE_GAIN = ${f(CANDLE_GAIN)};
@@ -579,6 +584,17 @@ void main() {
         col = mix(col, lensColour(q, roomBase(vUv), qn * qn, film), 0.9 * bm * (1.0 - smoothstep(0.1, 0.4, T)));
       }
     }
+  }
+
+  // A run-down reflection of the moonlit sash across the top third: the width wanders, the opacity breathes, both ends fade.
+  {
+    float sv = vUv.x * 0.8 + vUv.y * 1.2;
+    float dpx = (sv - 0.55) / length(vec2(0.8 / uRes.x, 1.2 / uRes.y));
+    float along = vUv.x * 1.2 - vUv.y * 0.8;
+    float halfW = STREAK_HALF * uDpr * mix(0.55, 1.45, vnoise1(along * 6.0 + 3.0));
+    float streak = exp(-pow(dpx / halfW, 2.0));
+    float ends = smoothstep(0.0, 0.08, vUv.y) * (1.0 - smoothstep(0.2, 0.45, vUv.y)) * smoothstep(0.02, 0.14, vUv.x);
+    col = mix(col, uMoon, STREAK_A * streak * ends * mix(0.55, 1.0, vnoise1(along * 11.0 + 40.0)) * (1.0 - T));
   }
 
   // 6. Droplets on the glass, three scales, density following the film, none in cleared glass.

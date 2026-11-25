@@ -27,7 +27,7 @@ describe('composite constants (steam-renderer-v1 design §4, §5)', () => {
     expect(COMPOSITE_FRAG).toContain('STROKE_LUMA_MAX / max(lum')
   })
   it('caps the largest channel in a stroke, so a clipped red cannot turn the ember yellow-white (R2.4)', () => {
-    expect(STROKE_PEAK_MAX).toBeLessThanOrEqual(0.92)
+    expect(STROKE_PEAK_MAX).toBeLessThanOrEqual(0.9373) // --ink's red, 239/255
     expect(COMPOSITE_FRAG).toContain('STROKE_PEAK_MAX / max(peak')
   })
   it('refracts the room lookup by 1 to 3 css px (R2.2)', () => {

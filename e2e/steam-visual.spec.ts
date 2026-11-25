@@ -90,7 +90,7 @@ for (const [name, viewport] of SIZES) {
       }
     })
 
-    test('beads sit along the bottom rail and a streak crosses the top third', async ({ page }) => {
+    test('droplets cover the film and gather toward the bottom rail, and a streak crosses the top third', async ({ page }) => {
       await openPane(page, '?t=-1000')
       const png = await shot(page)
       const o = await canvasRegion(page)
@@ -114,10 +114,13 @@ for (const [name, viewport] of SIZES) {
         }
         return n
       }
+      // steam-renderer-v1 R3.3, R3.4: droplets follow the film everywhere (0.4 % of a 0.8-wide band at least) and are denser in the
+      // last 7 % than in the middle band. Measured on the desktop frame at t=-1000: rail 898, middle 448, top 241 (14 levels).
       const nearRail = beadPixels(o.y + o.h - zoneH)
-      const plainFog = beadPixels(o.y + o.h - 3 * zoneH)
-      expect(nearRail, 'bead pixels near the rail').toBeGreaterThan(5)
-      expect(plainFog, 'bead pixels in plain fog').toBeLessThan(nearRail / 4)
+      const middle = beadPixels(o.y + Math.round(o.h * 0.4))
+      const bandPx = zoneH * (w - 40)
+      expect(middle, 'droplet pixels in the middle band').toBeGreaterThan(0.004 * bandPx)
+      expect(nearRail, 'droplet pixels near the rail').toBeGreaterThan(1.5 * middle)
 
       // Streak: s = 0.8 u + 1.2 v = 0.55. Compare the line with parallel lines either side of it.
       const lum = (s: number): number => {

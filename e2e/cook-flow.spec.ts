@@ -99,7 +99,9 @@ test('"Show the note" at a pending note starts the write-on at once; a drag acro
   await wipe(page).click()
   const t0 = await page.evaluate(() => performance.now())
   const w = await waitMark(page, 'cook:write-on:when-tender', 5_000)
-  expect(w - t0).toBeLessThan(1_000)
+  // the 1.2 s thickening (the haunting cue: bloom, cloud, candle) comes first, then the hand is written (steam-renderer-v1 R7.1)
+  expect(w - t0).toBeLessThan(1_200 + 1_000)
+  expect(w - t0).toBeGreaterThan(900)
   await expect(root).toHaveAttribute('data-note-state', 'held', { timeout: 15_000 })
   const b = (await page.locator('.stage').boundingBox())!
   await page.mouse.move(b.x + b.width * 0.15, b.y + b.height * 0.6)
