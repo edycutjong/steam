@@ -37,15 +37,24 @@ Terms. "Paced": the pace is ×4 or ×12, so the clock shows cooking time, not wa
 7. The 48 x 48 CSS px floor of the Wipe control and the knob stops, `prefers-reduced-motion` behaviour, no horizontal scroll at 390 px, design tokens only, fonts as assigned.
 8. Desktop Cook Mode layout (apart from the timer caption and the tab order).
 
+## Measured
+
+- Q1, Q2, Q3, Q5, Q6, Q8: each test was written first and failed on the unfixed code (unit: `CountUpTimer`, `WipeControl`, `Cook`, `ReadingText`, `Quoted`, `StaticPane` resume; e2e: `cook-qa-r1`, `cook-phone`). Q8 on the unfixed code: after `WEBGL_lose_context` the static pane showed the fogged image only (held image opacity 0), and a note lost mid-write stayed `data-note-state="pending"` for good.
+- Q4: the chip, the stepper, the IndexedDB write, the announcement, the reload and Cook Mode's use of the time all already work. `e2e/cook-timing.spec.ts` passes on the first run, so no code changed. The chip's accessible name is "Change the moment of this note: <span>, <label>"; the basis reads "Basis: set by you on this device" once a time is set (source `cook` in the data).
+- Q7: no DOM-order defect exists. Tab from the top visits, on every screen, in visual order (`e2e/tab-order.spec.ts`: shelf, edition, Cook Mode, quoted; desktop and phone; Shift+Tab from the Wipe control walks back up in order). What the reviewer saw is the Wipe control taking focus when Cook Mode is ready (R14.9): Tab from it goes to Mute, then round to the licence link and "Start again" at the top. That is the cycle's own order, and R14.9 stays. The tests pin it.
+- Q5 phone, 393 x 727: the first three lines of the hero step stand above the bar without scrolling; the whole text and the timer clear the bar when the page is scrolled to the end; the meta block under the pane is at most 112 px (was 180).
+- Q2 decision: the control uses `aria-disabled` and not the `disabled` attribute, so it keeps keyboard focus while the hand is writing (R14.2).
+- Q6 phone 390 x 844: scan mat 165 px wide (was 96), both buttons 56 px tall and above the fold.
+
 ## Tasks
 
-- [ ] 0. `[kiro] cook-mode-qa-r1: bugfix spec`: this file.
-- [ ] 1. Q1: test first (`CountUpTimer.test.tsx`, a Cook test), then the paced timer.
-- [ ] 2. Q2: test first (`WipeControl.test.tsx`, `Cook.test.tsx` for every Wipe-table row), then the writing label.
-- [ ] 3. Q3: test first (`ReadingText.test.tsx`, `Cook.test.tsx`, `Quoted.test.tsx`), then the hidden description on † spans only.
-- [ ] 4. Q4: e2e first (`e2e/cook-timing.spec.ts`), then whatever it finds missing.
-- [ ] 5. Q5: test first (unit CSS contract and `e2e/cook-phone.spec.ts`), then the phone layout.
-- [ ] 6. Q6: test first (unit and phone e2e above the fold), then the shelf hero.
-- [ ] 7. Q7: e2e first (`e2e/tab-order.spec.ts`), then the DOM order.
-- [ ] 8. Q8: unit test of the resume clock and e2e first (`e2e/steam-context-loss.spec.ts`), then the resume.
-- [ ] 9. Final: `npm test`, `npm run typecheck`, `npm run build`, `npm run e2e`; refresh `docs/kiro-evidence/cook-mode/screens/` (the same 10 shots) and look at each; report.
+- [x] 0. `[kiro] cook-mode-qa-r1: bugfix spec`: this file.
+- [x] 1. Q1: test first (`CountUpTimer.test.tsx`, a Cook test), then the paced timer.
+- [x] 2. Q2: test first (`WipeControl.test.tsx`, `Cook.test.tsx` for every Wipe-table row), then the writing label.
+- [x] 3. Q3: test first (`ReadingText.test.tsx`, `Cook.test.tsx`, `Quoted.test.tsx`), then the hidden description on † spans only.
+- [x] 4. Q4: e2e first (`e2e/cook-timing.spec.ts`); it passes, nothing was missing.
+- [x] 5. Q5: test first (`e2e/cook-phone.spec.ts`), then the phone layout.
+- [x] 6. Q6: test first (phone and desktop above the fold), then the shelf hero.
+- [x] 7. Q7: e2e first (`e2e/tab-order.spec.ts`); it passes, the order is already visual.
+- [x] 8. Q8: unit test of the resume clock and e2e first, then the resume.
+- [x] 9. Final: `npm test`, `npm run typecheck`, `npm run build`, `npm run e2e`; refresh `docs/kiro-evidence/cook-mode/screens/` (the same 10 shots) and look at each; report.
