@@ -380,11 +380,23 @@
   font-size: 13px;
   letter-spacing: 0.04em;
   cursor: pointer;
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
 }
 
 .knob__stop[aria-current='true'] {
   border-color: var(--rule);
   color: var(--ink);
+}
+
+/* Hover and press feedback (interaction QA, P1d): the pace stops were the one control class that gave none. */
+.knob__stop:hover {
+  color: var(--ink);
+  border-color: var(--muted);
+  background: color-mix(in srgb, var(--rule) 40%, var(--bg));
+}
+
+.knob__stop:active {
+  background: var(--rule);
 }
 
 /* Controls: Wipe in the middle, Back and Mute beside it. On a phone the row stays at the bottom edge, in reach of a wet thumb. */
