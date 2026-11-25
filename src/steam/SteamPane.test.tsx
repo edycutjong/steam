@@ -78,3 +78,41 @@ describe('SteamPane note text from fetched JSON (a2a-arch-r05 B11)', () => {
     expect(h.querySelector('[data-note-reading]')!.textContent).toBe('till it Looks red & smooth,')
   })
 })
+
+// a2a-arch-r06 C2: the note JSON that never answers is aborted after 10 s; the pane keeps its empty text and nothing throws.
+describe('SteamPane note JSON deadline (a2a-arch-r06 C2)', () => {
+  async function openHanging(): Promise<{ host: HTMLElement; signals: AbortSignal[] }> {
+    const signals: AbortSignal[] = []
+    vi.stubGlobal('fetch', (_u: string, init?: RequestInit) => (init?.signal && signals.push(init.signal), new Promise<Response>(() => {})))
+    const host = document.createElement('div')
+    document.body.append(host)
+    root = createRoot(host)
+    await act(async () => {
+      root!.render(createElement(SteamPane, { stem: '/x/note-a', paneDir: '/x/panes', noteId: 'a', query: '' }))
+      await vi.advanceTimersByTimeAsync(10)
+    })
+    return { host, signals }
+  }
+  it('aborts the request at 10 s, not before, and the live region stays empty', async () => {
+    const { host, signals } = await openHanging()
+    expect(signals).toHaveLength(1)
+    await act(async () => void (await vi.advanceTimersByTimeAsync(9_980)))
+    expect(signals[0]!.aborted).toBe(false)
+    await act(async () => void (await vi.advanceTimersByTimeAsync(20)))
+    expect(signals[0]!.aborted).toBe(true)
+    await phase('writing')
+    expect(live(host)).toBe('')
+  })
+  it('unmounting before the deadline leaves no timer running', async () => {
+    await openHanging()
+    act(() => root!.unmount())
+    root = null
+    expect(vi.getTimerCount()).toBe(0)
+  })
+  it('an answer inside the deadline is used as before and clears the timer', async () => {
+    const h = await open({ span: 'till it Looks red', shownText: 'x' })
+    await phase('writing')
+    expect(live(h)).toBe(announcement('till it Looks red'))
+    expect(vi.getTimerCount()).toBe(0)
+  })
+})

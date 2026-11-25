@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { afterEach, vi } from 'vitest'
+import { fakeTimers, settle } from '../data/timers.fixture.ts'
 import { AssetError, loadNoteAssets, NoteMeta } from './assets.ts'
 
 const real = JSON.parse(
@@ -87,5 +88,71 @@ describe('loadNoteAssets checks the bundle (R15.3)', () => {
     const e = await loadNoteAssets('/x/note-a', { noteId: real.noteId, size: [real.size[0] + 1, real.size[1]] }).catch((x) => x)
     expect(e).toBeInstanceOf(AssetError)
     expect(e.field).toBe('meta.size')
+  })
+})
+
+// a2a-arch-r06 C2: a note asset that hangs ends as an AssetError for its field, so the failed-pane path (R15.12) runs.
+describe('loadNoteAssets deadlines (a2a-arch-r06 C2)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+  const metaBody = () => new Response(JSON.stringify(real), { status: 200 })
+  const stub = (impl: (url: string, init?: RequestInit) => Promise<Response>) => vi.stubGlobal('fetch', vi.fn(impl))
+
+  it('a note image that does not answer in 15 s is an AssetError for field "note"', async () => {
+    const t = fakeTimers()
+    const signals: AbortSignal[] = []
+    stub(async (url, init) => (url.endsWith('.json') ? metaBody() : (signals.push(init!.signal!), new Promise<Response>(() => {}))))
+    const p = loadNoteAssets('/x/note-a', undefined, undefined, { timers: t })
+    const seen = p.then(() => null, (e: unknown) => e)
+    await settle()
+    t.advance(14_999)
+    await settle()
+    expect(signals.every((s) => !s.aborted)).toBe(true)
+    t.advance(1)
+    const e = (await seen) as AssetError
+    expect(e).toBeInstanceOf(AssetError)
+    expect(e.field).toBe('note')
+    expect(e.message).toMatch(/no answer within 15 s/)
+    expect(signals.length).toBe(2)
+    expect(signals.every((s) => s.aborted)).toBe(true)
+  })
+  it('a meta JSON that does not answer is an AssetError for field "meta"', async () => {
+    const t = fakeTimers()
+    stub(() => new Promise<Response>(() => {}))
+    const seen = loadNoteAssets('/x/note-a', undefined, undefined, { timers: t }).then(() => null, (e: unknown) => e)
+    await settle()
+    t.advance(15_000)
+    const e = (await seen) as AssetError
+    expect(e).toBeInstanceOf(AssetError)
+    expect(e.field).toBe('meta')
+  })
+  it('a body that never arrives counts as no answer', async () => {
+    const t = fakeTimers()
+    stub(async () => ({ ok: true, status: 200, json: () => new Promise(() => {}) }) as unknown as Response)
+    const seen = loadNoteAssets('/x/note-a', undefined, undefined, { timers: t }).then(() => null, (e: unknown) => e)
+    await settle()
+    t.advance(15_000)
+    const e = (await seen) as AssetError
+    expect(e).toBeInstanceOf(AssetError)
+    expect(e.field).toBe('meta')
+  })
+  it('an abort the caller asked for is re-thrown as an abort, not an AssetError, and leaves no timer', async () => {
+    const t = fakeTimers()
+    const ctl = new AbortController()
+    stub((_u, init) => new Promise<Response>((_r, rej) => init!.signal!.addEventListener('abort', () => rej(Object.assign(new Error('aborted'), { name: 'AbortError' })))))
+    const seen = loadNoteAssets('/x/note-a', undefined, ctl.signal, { timers: t }).then(() => null, (e: unknown) => e)
+    await settle()
+    ctl.abort()
+    const e = (await seen) as Error
+    expect(e).not.toBeInstanceOf(AssetError)
+    expect(e.name).toBe('AbortError')
+    expect(t.pending).toBe(0)
+  })
+  it('a failure that is not a timeout keeps its message: could not fetch', async () => {
+    const t = fakeTimers()
+    stub(async () => Promise.reject(new TypeError('offline')))
+    const e = (await loadNoteAssets('/x/note-a', undefined, undefined, { timers: t }).catch((x: unknown) => x)) as AssetError
+    expect(e).toBeInstanceOf(AssetError)
+    expect(e.message).toMatch(/could not fetch \/x\/note-a\.json/)
+    expect(t.pending).toBe(0)
   })
 })

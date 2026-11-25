@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { DeadlineTimers } from '../data/deadline.ts'
 
 const Int = z.number().int()
 
@@ -115,7 +116,7 @@ export interface NoteCheck {
  * `stem` is the URL without extension, for example `/recipes/<id>/note-<noteId>`.
  * It loads `<stem>.json`, `<stem>.png` and `<stem>.toi.png`. With `check`, the JSON's `noteId` and `size` must equal the bundle's.
  */
-export async function loadNoteAssets(stem: string, check?: NoteCheck, signal?: AbortSignal): Promise<NoteAssets> {
+export async function loadNoteAssets(stem: string, check?: NoteCheck, signal?: AbortSignal, _opts: { timers?: DeadlineTimers } = {}): Promise<NoteAssets> {
   const jsonRes = await fetchOk(`${stem}.json`, 'meta', signal)
   let raw: unknown
   try {

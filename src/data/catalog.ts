@@ -2,6 +2,7 @@
 // content/catalog.json is imported rather than fetched: `steam-ingest catalog` writes it to content/ and copies only the recipe folders to public/.
 
 import catalogJson from '../../content/catalog.json' with { type: 'json' }
+import type { DeadlineTimers } from './deadline.ts'
 import { displayableNotes } from './provenance.ts'
 import { Catalog, RecipeBundle, type BundleNote } from './schema.ts'
 
@@ -61,7 +62,7 @@ interface Outcome {
  * `RETRY_DELAYS_MS.length` more times (`sleep` is injectable) and, if it still fails, is not cached, so a later `load()` asks again.
  * A 404 or a content failure (JSON, schema, `checkCookable`, withholding) is final, cached and never retried.
  */
-export function createShelfLoader(fetchFn: typeof fetch = (...a) => fetch(...a), catalog: unknown = catalogJson, sleep: (ms: number) => Promise<void> = wait) {
+export function createShelfLoader(fetchFn: typeof fetch = (...a) => fetch(...a), catalog: unknown = catalogJson, sleep: (ms: number) => Promise<void> = wait, _timers?: DeadlineTimers) {
   const cache = new Map<string, Promise<Outcome>>()
   const attemptOne = async (entry: CatalogEntry): Promise<Attempt> => {
     const final = (reason: string): Attempt => ({ transient: false, result: { id: entry.id, reason } })

@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import { checkCookable, createShelfLoader } from './catalog.ts'
 import { RecipeBundle } from './schema.ts'
+import { fakeTimers, settle } from './timers.fixture.ts'
 
 const catalog = JSON.parse(readFileSync('content/catalog.json', 'utf8'))
 const bundleText = readFileSync('public/recipes/quinces-marmalade/recipe.json', 'utf8')
@@ -61,7 +62,7 @@ describe('loadShelf (R2.1 to R2.5, R2.7)', () => {
     await loader.load()
     await loader.load()
     expect(f).toHaveBeenCalledTimes(1)
-    expect(f).toHaveBeenCalledWith('/recipes/quinces-marmalade/recipe.json')
+    expect(f).toHaveBeenCalledWith('/recipes/quinces-marmalade/recipe.json', { signal: expect.any(AbortSignal) }) // a2a-arch-r06 C2: the request carries the deadline's signal
   })
   it('checkCookable accepts the real bundle', () => {
     expect(checkCookable(RecipeBundle.parse(JSON.parse(bundleText)), catalog[0])).toBeNull()
@@ -219,5 +220,71 @@ describe('a rejection that ended on transport is marked (a2a-arch-r06 C1)', () =
     const r = await createShelfLoader(f, catalog, async () => {}).load()
     w.mockRestore()
     expect(r.rejected).toEqual([])
+  })
+})
+
+// a2a-arch-r06 C2: a recipe request that hangs ends as a transport failure, so B5's retry runs.
+describe('a recipe request that hangs (a2a-arch-r06 C2)', () => {
+  const quiet = () => vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const hang = (signals: AbortSignal[] = []) => vi.fn((_u: string, init?: RequestInit) => (signals.push(init!.signal!), new Promise<Response>(() => {}))) as unknown as typeof fetch
+  it('aborts after 10 s, retries on the B5 waits, and ends as a transient rejection after three attempts', async () => {
+    const w = quiet()
+    const t = fakeTimers()
+    const signals: AbortSignal[] = []
+    const f = hang(signals)
+    const waits: number[] = []
+    const p = createShelfLoader(f, catalog, async (ms) => void waits.push(ms), t).load()
+    for (let i = 0; i < 3; i++) {
+      await settle()
+      expect(signals).toHaveLength(i + 1)
+      t.advance(9999)
+      await settle()
+      expect(signals[i]!.aborted).toBe(false)
+      t.advance(1)
+    }
+    const r = await p
+    w.mockRestore()
+    expect(f).toHaveBeenCalledTimes(3)
+    expect(waits).toEqual([300, 1000])
+    expect(signals.every((s) => s.aborted)).toBe(true)
+    expect(r.recipes).toEqual([])
+    expect(r.rejected).toEqual([{ id: 'quinces-marmalade', reason: expect.stringMatching(/no answer within 10 s/), transient: true }])
+    expect(t.pending).toBe(0)
+  })
+  it('a body that never arrives is covered too; the next attempt then loads the recipe', async () => {
+    const w = quiet()
+    const t = fakeTimers()
+    let n = 0
+    const f = vi.fn(async () => (n++ === 0 ? ({ ok: true, status: 200, json: () => new Promise(() => {}) } as unknown as Response) : new Response(bundleText))) as unknown as typeof fetch
+    const p = createShelfLoader(f, catalog, async () => {}, t).load()
+    await settle()
+    t.advance(10_000)
+    const r = await p
+    w.mockRestore()
+    expect(f).toHaveBeenCalledTimes(2)
+    expect(r.rejected).toEqual([])
+    expect(r.recipes).toHaveLength(1)
+    expect(t.pending).toBe(0)
+  })
+  it('a hung load is not cached: the next load() asks again', async () => {
+    const w = quiet()
+    const t = fakeTimers()
+    let calls = 0
+    const f = vi.fn((): Promise<Response> => (++calls <= 3 ? new Promise(() => {}) : Promise.resolve(new Response(bundleText)))) as unknown as typeof fetch
+    const loader = createShelfLoader(f, catalog, async () => {}, t)
+    const p = loader.load()
+    for (let i = 0; i < 3; i++) {
+      await settle()
+      t.advance(10_000)
+    }
+    expect((await p).rejected[0]!.transient).toBe(true)
+    expect((await loader.load()).recipes).toHaveLength(1)
+    w.mockRestore()
+  })
+  it('an answer inside the deadline is untouched and leaves no timer behind', async () => {
+    const t = fakeTimers()
+    const r = await createShelfLoader(vi.fn(async () => new Response(bundleText)) as unknown as typeof fetch, catalog, async () => {}, t).load()
+    expect(r.recipes).toHaveLength(1)
+    expect(t.pending).toBe(0)
   })
 })
