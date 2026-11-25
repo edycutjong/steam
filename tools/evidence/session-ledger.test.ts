@@ -74,6 +74,19 @@ describe('buildLedger: the shell write that no hook saw (hook-coverage H1)', () 
     const other = session([...call('execute_bash', { command: heredoc }, 10, 'x1'), hook('shell-gate', 11, 'x2')])
     expect(buildLedger([other], [], WS).sessions[0]!.shellWritesSeenByAHook).toBe(0)
   })
+  it('a write-matcher hook that ran at the same time as a parallel shell call is not attributed to the shell call', () => {
+    // fs_write and execute_bash issued together: no-imitation (matcher write) ran for the fs_write, never for the shell
+    const parallel = session([...call('execute_bash', { command: heredoc }, 10), ...call('fs_write', { path: 'src/a.ts', text: 'x' }, 10), hook('no-imitation', 11), hook('catalog-gate', 11)])
+    expect(buildLedger([parallel], [], WS).sessions[0]).toMatchObject({ shellWritesSeenByAHook: 0, callsWithHookEvent: { fs_write: 1 } })
+  })
+  it('a file-event hook (props-on-save) is not attributed to any tool call', () => {
+    const file = session([...call('execute_bash', { command: heredoc }, 10), hook('props-on-save-save', 11)])
+    expect(buildLedger([file], [], WS).sessions[0]).toMatchObject({ shellWritesSeenByAHook: 0, callsWithHookEvent: {}, hookInvocations: { 'props-on-save-save': 1 } })
+  })
+  it('a shell hook (shell-gate, src-scan-after-shell) is attributed to the shell call', () => {
+    const s2 = session([...call('execute_bash', { command: heredoc }, 10), hook('shell-gate', 10.5), hook('src-scan-after-shell', 11)])
+    expect(buildLedger([s2], [], WS).sessions[0]).toMatchObject({ shellWritesSeenByAHook: 1, callsWithHookEvent: { execute_bash: 1 } })
+  })
 })
 
 describe('buildLedger: privacy and commits', () => {
