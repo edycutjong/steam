@@ -23,7 +23,7 @@ import LampDip, { type LampHandle } from './components/LampDip.tsx'
 import MuteButton from './components/MuteButton.tsx'
 import PaceBadge from './components/PaceBadge.tsx'
 import PaneStage, { type StageApi } from './components/PaneStage.tsx'
-import { DisagreeDescription, hasMarks } from './components/ReadingText.tsx'
+import ReadingText, { DisagreeDescription, hasMarks } from './components/ReadingText.tsx'
 import StepPanel, { stepReading } from './components/StepPanel.tsx'
 import WipeControl from './components/WipeControl.tsx'
 import { formatRoute } from './router.ts'
@@ -182,6 +182,9 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
   const control: Control = plan && state.status !== 'idle' ? controlFor(plan, state) : { label: COOK.loading, action: 'show', leavesCook: false }
   // The description of the † marks exists only where a mark is shown: in the step text, or in the typed note of a failed scan.
   const showsMarks = hasMarks(parseReading(stepReading(b, stepIndex))) || (paneNote !== null && failedNotes.includes(paneNote) && hasMarks(quoteSegments(b, recipe.notes.find((n) => n.id === paneNote)!)))
+  // The reviewed reading of the note, under the pane, once the hand holds on the glass (look pass 3, R20.3). The glass itself
+  // stays the scan's pixels; this is DOM text, hidden from assistive tech because the live region has announced the words.
+  const readingNote = ns === 'revealed' && noteAttr === 'held' && paneNote !== null && !failedHere ? (recipe.notes.find((n) => n.id === paneNote) ?? null) : null
   const showSlip = ns === 'revealed' && (noteAttr === 'writing' || noteAttr === 'held')
 
   const lastAct = useRef(-Infinity)
@@ -287,6 +290,11 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
         <PaceBadge pace={pace} />
       </DragSurface>
       <div className="cook__under">
+        {readingNote ? (
+          <p className="cook__reading" aria-hidden="true" data-note-reading>
+            <ReadingText segments={quoteSegments(b, readingNote)} />
+          </p>
+        ) : null}
         {showSlip ? (
           <div className="cook__source">
             <ArchiveSlip bundle={b} compact />

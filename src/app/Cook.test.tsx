@@ -46,6 +46,20 @@ describe('Cook screen (R9, R14.7, R14.8, R18.5, R18.6, R19.1, R19.2, R19.8, R15.
     expect(root.dataset.noteState).toBe('none')
     expect(host.querySelector('.cook__under .slip')).toBeNull()
   })
+  it('shows the reviewed reading under the pane only while the note holds, hidden from assistive tech (look pass 3, R20.3, R20.4)', async () => {
+    const { host, root } = await open('#/r/quinces-marmalade/cook')
+    expect(root.dataset.noteState).toBe('writing')
+    expect(host.querySelector('[data-note-reading]')).toBeNull()
+    await tick(WRITE_ON_MS + 100)
+    expect(root.dataset.noteState).toBe('held')
+    const reading = host.querySelector('.cook__under [data-note-reading]') as HTMLElement
+    expect(reading).not.toBeNull()
+    expect(reading.getAttribute('aria-hidden')).toBe('true')
+    expect(text(reading)).toBe('full ripe,')
+    expect(host.querySelector('.stage')!.contains(reading)).toBe(false) // under the pane, never on the glass
+    await press(host)
+    expect(host.querySelector('[data-note-reading]')).toBeNull()
+  })
   it('Back links to the edition view and keeps the snapshot', async () => {
     const { host, store } = await open('#/r/quinces-marmalade/cook')
     expect(host.querySelector('.controls a')!.getAttribute('href')).toBe('#/r/quinces-marmalade')

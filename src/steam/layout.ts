@@ -57,9 +57,9 @@ export const PAD_V_PARTS = 8
 /** Phone: the block sits this fraction of the pane height above the middle (at most). */
 export const LIFT_FRAC = 0.035
 /** Desktop: the core band never exceeds ~1.6x its scan size. */
-export const S_MAX_DESKTOP = 1.6
+export const S_MAX_DESKTOP = 1.85
 /** Desktop: the wider group spans this fraction of the pane width. */
-export const DESKTOP_FILL = 0.675
+export const DESKTOP_FILL = 0.8
 
 export function chooseLayout(paneW: number): LayoutKind {
   return paneW <= PHONE_MAX_W ? 'groups' : 'page'

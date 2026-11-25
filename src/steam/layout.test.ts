@@ -93,10 +93,20 @@ describe('desktop layout', () => {
       expect(top + (bottom - top) / 2).toBeCloseTo(h / 2, 6)
     })
   }
-  it('makes the wider group ~67.5% of a 1000 px pane, capped at 1.6x', () => {
+  it('makes the wider group 80% of a 1000 px pane, capped at 1.85x', () => {
     const [a] = computeLayout('page', 1000, 600, heroMeta).groups
     expect(a.scale).toBeCloseTo((1000 * DESKTOP_FILL) / 465, 6)
     const big = computeLayout('page', 3000, 2000, heroMeta).groups
     expect(big[0].scale).toBe(S_MAX_DESKTOP)
+  })
+  it('places the hero 15% larger than look pass 2, centred, with clear glass above the bottom rail on a 1236 x 345 pane (R20.1)', () => {
+    const l = computeLayout('page', 1236, 345, heroMeta)
+    const [a, b] = l.groups
+    expect(a.scale).toBeGreaterThanOrEqual(1.6 * 1.15)
+    const left = Math.min(a.inked[0], b.inked[0])
+    const right = Math.max(a.inked[2], b.inked[2])
+    expect(Math.abs((left + right) / 2 - 1236 / 2)).toBeLessThanOrEqual(1)
+    expect(345 - b.inked[3]).toBeGreaterThanOrEqual(24)
+    expect(a.inked[1]).toBeGreaterThanOrEqual(24)
   })
 })

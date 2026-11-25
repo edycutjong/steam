@@ -262,7 +262,7 @@ export function placeDrips(plan: readonly PlannedRun[], layout: Layout, paneW: n
       len2,
       dur2: 700 + 500 * p.r[1],
       halfWidth,
-      headR: Math.max(2.3, halfWidth * (1.9 + 0.5 * p.r[3])),
+      headR: Math.max(2.3 * (0.7 + 0.6 * (kk - 0.7)), halfWidth * (1.9 + 0.5 * p.r[3])) * (paneW > PHONE_RUN_W ? 1 : 0.85),
       seed: sd,
       u0: p.u0,
       amp: Math.min(RUN_AMP_CSS.hi, Math.max(RUN_AMP_CSS.lo, (1.6 + 1.8 * p.r[3]) * kk)),

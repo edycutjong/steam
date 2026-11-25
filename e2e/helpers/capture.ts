@@ -76,7 +76,7 @@ export async function captureFrame(
     const page = await context.newPage()
     await page.goto(`${baseUrl}${heroUrl(tMs === null ? '' : `?t=${tMs}`)}`)
     await page.locator('.steam-canvas').waitFor()
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2400)
     const png = await page.screenshot({ type: 'png' })
     if (outFile) {
       await mkdir(path.dirname(outFile), { recursive: true })

@@ -405,6 +405,34 @@
   display: block;
 }
 
+/* The reviewed reading of the note, under the glass once the hand has been written. DOM text, never on the glass. */
+.note-reading {
+  flex: 1 1 260px;
+  margin: 0;
+  color: var(--muted);
+  font-family: 'Literata', Georgia, serif;
+  font-style: italic;
+  font-size: 1.125rem;
+  line-height: 1.4;
+  text-align: center;
+  animation: reading-in 900ms ease both;
+}
+
+@keyframes reading-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note-reading {
+    animation: none;
+  }
+}
+
 .load-error {
   margin: 0;
   color: var(--muted);

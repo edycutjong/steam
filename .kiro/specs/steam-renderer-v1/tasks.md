@@ -78,15 +78,15 @@ Each line names the commit that did the work.
 The judge scored look pass 2 at 6.5/10 on desktop and phone (gate 7). Frames of that pass are kept in `docs/kiro-evidence/renderer-v1/v1b/`.
 The shader budget does not grow in textures: the window, the finger smear and the breath are ALU only (design section 15).
 
-- [ ] 20. Spec look pass 3 and the frame set (R22)
+- [x] 20. Spec look pass 3 and the frame set (R22)
   - This section, `requirements.md` R19 to R28, `design.md` section 15; `docs/kiro-evidence/renderer-v1/after` moves to `v1b`; `scripts/capture-renderer-frames.ts` takes its list from `e2e/helpers/frames.ts` (eight frames: both viewports at t = -600, 2000, 4000, 6500).
   - Satisfies: R22.
 
-- [ ] 21. The stroke is a window (R19)
+- [x] 21. The stroke is a window (R19)
   - Shader: `windowLight` (room gradient, pot, fine and coarse bokeh, candle discs) seen through the stroke, refracted by the edge normal; `EDGE_SHADE` and the inner shade removed; the meniscus (lamp-side highlight, far-side shade, broken, a few beads).
   - Satisfies: R19.
 
-- [ ] 22. Legible cold, and the reading under the pane (R20)
+- [x] 22. Legible cold, and the reading under the pane (R20)
   - Desktop scale up and centring, halo and lip reduced so counters stay open, transmission checked against `hero.coverage.test.ts`; the reviewed reading under the pane when the note holds (harness pane and Cook Mode).
   - Satisfies: R20.
 

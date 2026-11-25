@@ -183,7 +183,7 @@ export const LENS_WARM = 0.6
 
 /** Wet edge (design §6.1): blur lod of the ink for the lip and the normal, lip density and brightness, cold rim strength, bead size. */
 export const INK_LOD_BLUR = 1.0
-export const LIP_DENSITY = 0.07
+export const LIP_DENSITY = 0.04
 export const LIP_BRIGHT = 0.13
 /** Pen pressure (the scan's own ink darkness): below PRESSURE_LO a stroke is a hairline (dim, cool), above PRESSURE_HI it is a full stroke (clear and warm). */
 export const PRESSURE_LO = 0.3
@@ -191,7 +191,7 @@ export const PRESSURE_HI = 0.95
 export const PRESSURE_DIM = 0.85
 /** Warm light scattered into the film around written strokes: blur lod, strength. */
 export const HALO_LOD = 3.0
-export const HALO_GAIN = 0.16
+export const HALO_GAIN = 0.05
 export const BEAD_SPACING_CSS = 9.0
 export const BEAD_R_CSS = { lo: 1.2, hi: 2.4 }
 

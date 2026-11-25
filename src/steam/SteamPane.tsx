@@ -1,5 +1,7 @@
 // The spike's page: SteamGlass plus its chrome (credit, button, live region, URL reading). Cook Mode uses SteamGlass directly.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import ReadingText, { DisagreeDescription, hasMarks } from '../app/components/ReadingText.tsx'
+import { parseReading } from '../data/reading.ts'
 import { parseParams } from './params.ts'
 import SteamGlass, { LOAD_FAILED } from './SteamGlass.tsx'
 import type { GlassStatus, RevealController } from './SteamGlass.tsx'
@@ -46,6 +48,7 @@ export default function SteamPane({ stem, paneDir, noteId, query }: Props) {
   const [status, setStatus] = useState<GlassStatus>('loading')
   const [announced, setAnnounced] = useState('')
   const [noteText, setNoteText] = useState('')
+  const [reading, setReading] = useState('')
   const ctlRef = useRef<RevealController | null>(null)
   const phaseRef = useRef<Phase>('fogged')
   const frozen = params.t !== null
@@ -59,12 +62,18 @@ export default function SteamPane({ stem, paneDir, noteId, query }: Props) {
     let live = true
     fetch(`${stem}.json`)
       .then((r) => r.json())
-      .then((j: { span?: string; shownText?: string }) => live && setNoteText(j.span ?? j.shownText ?? ''))
+      .then((j: { span?: string; shownText?: string }) => {
+        if (!live) return
+        setNoteText(j.span ?? j.shownText ?? '')
+        setReading(j.shownText ?? j.span ?? '')
+      })
       .catch(() => {})
     return () => {
       live = false
     }
   }, [stem])
+
+  const segments = useMemo(() => parseReading(reading), [reading])
 
   const act = useCallback((): void => {
     const ctl = ctlRef.current
@@ -97,6 +106,11 @@ export default function SteamPane({ stem, paneDir, noteId, query }: Props) {
       <div className="steam-foot">
         {status === 'error' ? <p className="load-error">{LOAD_FAILED}</p> : null}
         <p className="credit">{CREDIT}</p>
+        {phase === 'holding' && reading ? (
+          <p className="note-reading" aria-hidden="true" data-note-reading>
+            <ReadingText segments={segments} />
+          </p>
+        ) : null}
         <button
           type="button"
           className="wipe-btn"
@@ -106,6 +120,7 @@ export default function SteamPane({ stem, paneDir, noteId, query }: Props) {
           {buttonLabel(phase)}
         </button>
       </div>
+      <DisagreeDescription show={phase === 'holding' && hasMarks(segments)} />
       <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {announced}
       </div>

@@ -28,7 +28,7 @@ describe('trans', () => {
     expect(hi - lo).toBeGreaterThan(0.6)
   })
   it('uses the documented constants', () => {
-    expect([TRANS_LO, TRANS_HI, TRANS_GAMMA]).toEqual([0.03, 0.97, 0.75])
+    expect([TRANS_LO, TRANS_HI, TRANS_GAMMA]).toEqual([0.03, 0.97, 0.9])
   })
 })
 

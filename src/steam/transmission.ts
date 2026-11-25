@@ -4,7 +4,7 @@
 
 export const TRANS_LO = 0.03
 export const TRANS_HI = 0.97
-export const TRANS_GAMMA = 0.75
+export const TRANS_GAMMA = 0.9
 
 const clamp01 = (x: number): number => (x < 0 ? 0 : x > 1 ? 1 : x)
 
