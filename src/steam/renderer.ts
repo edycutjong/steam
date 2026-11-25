@@ -32,6 +32,15 @@ export interface RendererOptions {
   bloom?: boolean
   /** Design tokens. Read from the canvas's CSS custom properties when absent. */
   tokens?: Tokens
+  /** Where page visibility comes from (default `document`; null for none). Tests inject a fake. */
+  visibility?: VisibilitySource | null
+}
+
+/** The part of `Document` the reveal clock needs: while the page is hidden the clock stands still. */
+export interface VisibilitySource {
+  readonly visibilityState: string
+  addEventListener(type: 'visibilitychange', cb: () => void): void
+  removeEventListener(type: 'visibilitychange', cb: () => void): void
 }
 
 /** Group placements the shader holds. */
@@ -211,6 +220,10 @@ export class SteamRenderer {
   private lostCb: (() => void) | null = null
   private readonly onLost: (e: Event) => void
   private readonly onRestored: () => void
+  private readonly vis: VisibilitySource | null
+  private readonly onVis: () => void
+  /** `performance.now()` when the page was hidden, or null while it is visible. */
+  private hiddenAt: number | null = null
 
   private constructor(
     canvas: HTMLCanvasElement,
@@ -241,6 +254,12 @@ export class SteamRenderer {
     this.applyLayout(layout, canvas.width, canvas.height, 1)
     this.onLost = this.handleLost.bind(this)
     this.onRestored = this.handleRestored.bind(this)
+    this.vis = opts.visibility !== undefined ? opts.visibility : typeof document === 'undefined' ? null : document
+    this.onVis = this.handleVisibility.bind(this)
+    if (this.vis) {
+      if (this.vis.visibilityState === 'hidden') this.hiddenAt = performance.now()
+      this.vis.addEventListener('visibilitychange', this.onVis)
+    }
     const ext = gl.getExtension('WEBGL_debug_renderer_info')
     this.pub.renderer = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : null
     canvas.addEventListener('webglcontextlost', this.onLost)
@@ -388,7 +407,7 @@ export class SteamRenderer {
   /** "Show the note": starts the reveal now, or replays from thickening after a wipe. */
   startReveal(): void {
     if (this.frozenT !== null) return
-    const now = performance.now()
+    const now = this.clockNow()
     if (Number.isNaN(this.t0)) {
       this.t0 = now
       this.revealStart = now
@@ -411,10 +430,11 @@ export class SteamRenderer {
   /** The cook's wipe. Accepted only while holding. */
   wipe(): void {
     if (this.frozenT !== null || Number.isNaN(this.revealStart)) return
-    const t = performance.now() - this.revealStart
+    const now = this.clockNow()
+    const t = now - this.revealStart
     if (revealState(t, this.wipeAt).phase !== 'holding') return
     this.wipeAt = t
-    this.notify(performance.now(), true)
+    this.notify(now, true)
   }
 
   /** Registers the callback run when the governor reaches tier 3: the pane is to be replaced by the static images. */
@@ -473,8 +493,36 @@ export class SteamRenderer {
     cb(revealState(t, this.wipeAt))
   }
 
+  /** The animation clock's "now": frozen at the moment the page was hidden, so nothing started while hidden counts the gap. */
+  private clockNow(): number {
+    return this.hiddenAt !== null ? this.hiddenAt : performance.now()
+  }
+
+  /** Hidden: the reveal clock stops. Visible again: everything measured on it moves forward by the hidden time, and no interval spans the gap. */
+  private handleVisibility(): void {
+    if (this.disposed || !this.vis) return
+    if (this.vis.visibilityState === 'hidden') {
+      if (this.hiddenAt === null) this.hiddenAt = performance.now()
+      return
+    }
+    if (this.hiddenAt === null) return
+    const gap = Math.max(0, performance.now() - this.hiddenAt)
+    this.hiddenAt = null
+    if (Number.isFinite(this.revealStart)) this.revealStart += gap
+    if (Number.isFinite(this.t0)) this.t0 += gap
+    if (Number.isFinite(this.lastNotify)) this.lastNotify += gap
+    if (Number.isFinite(this.lastStats)) this.lastStats += gap
+    this.lastFrame = Number.NaN
+  }
+
   private frame(now: number): void {
     if (!this.playing) return
+    if (this.hiddenAt !== null) {
+      // a browser that still runs frames in a hidden tab: nothing moves, nothing is measured
+      this.lastFrame = Number.NaN
+      this.rafId = requestAnimationFrame(this.loop)
+      return
+    }
     const last = this.lastFrame
     this.lastFrame = now
     if (last === last) {
@@ -651,6 +699,7 @@ export class SteamRenderer {
     this.lostTimer = null
     this.canvas.removeEventListener('webglcontextlost', this.onLost)
     this.canvas.removeEventListener('webglcontextrestored', this.onRestored)
+    this.vis?.removeEventListener('visibilitychange', this.onVis)
     SteamRenderer.release(this.gl, this.res)
   }
 
