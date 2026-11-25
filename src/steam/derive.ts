@@ -13,6 +13,8 @@ export interface Derived {
   chan: Uint8Array
   /** w*h. The scan's own continuous ink alpha (the toi map's R, 133 levels on the hero note), uploaded as the mipmapped `uInk`. */
   ink: Uint8Array
+  /** w*h*2. R the ink alpha, G alpha times time-of-ink: mip-blurred, G/R is the mean time-of-ink of the neighbourhood (the halo's wipe gate). */
+  inkRG: Uint8Array
   /** headBins * 2 floats: smoothed frontier centroid (x, y) in note px per toi bin. */
   head: Float32Array
   headBins: number
@@ -244,6 +246,11 @@ export function derive(toi: PixelSource, note: PixelSource): Derived {
   deriveChannel(toi, note, chan)
   deriveHull(toi, chan)
   const ink = new Uint8Array(toi.width * toi.height)
-  for (let p = 0; p < ink.length; p++) ink[p] = toi.data[p * 4]
-  return { chan, ink, head: deriveHead(toi), headBins: HEAD_BINS }
+  const inkRG = new Uint8Array(ink.length * 2)
+  for (let p = 0; p < ink.length; p++) {
+    ink[p] = toi.data[p * 4]
+    inkRG[2 * p] = ink[p]
+    inkRG[2 * p + 1] = Math.round((ink[p] * toi.data[p * 4 + 1]) / 255)
+  }
+  return { chan, ink, inkRG, head: deriveHead(toi), headBins: HEAD_BINS }
 }

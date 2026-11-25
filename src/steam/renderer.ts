@@ -284,7 +284,7 @@ export class SteamRenderer {
     gl.bindTexture(gl.TEXTURE_2D, texInk)
     // The scan's continuous ink alpha, single channel, with mips: `uInk` (design §2). The scan's RGB is never uploaded.
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, w, h, 0, gl.RED, gl.UNSIGNED_BYTE, assets.derived.ink)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG8, w, h, 0, gl.RG, gl.UNSIGNED_BYTE, assets.derived.inkRG)
     gl.generateMipmap(gl.TEXTURE_2D)
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4)
     gl.activeTexture(gl.TEXTURE0 + UNIT_CHAN)

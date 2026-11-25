@@ -80,7 +80,7 @@ void main() {
 /** Luminance cap inside strokes, 0..1 (D14). Applied by scaling the colour, so the ember hue survives. */
 export const STROKE_LUMA_MAX = 0.92
 /** Largest channel inside a stroke, so a clipped red can never turn the ember yellow-white. */
-export const STROKE_PEAK_MAX = 0.9
+export const STROKE_PEAK_MAX = 0.94
 
 /** Write-on leading edge: feather = TOI_SOFT * FEATHER_K in toi units, about 9 texels along the hero's path (D15). */
 export const FEATHER_K = 0.8
@@ -132,9 +132,12 @@ export const RAIL_DROP_BOOST = 3.0
 
 /** Wet edge (design §6.1): blur lod of the ink for the lip and the normal, lip density and brightness, cold rim strength, bead size. */
 export const INK_LOD_BLUR = 1.0
-export const LIP_DENSITY = 0.2
-export const LIP_BRIGHT = 0.42
-export const RIM_A = 0.42
+export const LIP_DENSITY = 0.12
+export const LIP_BRIGHT = 0.26
+export const RIM_A = 0.22
+/** Warm light scattered into the film around written strokes: blur lod, strength. */
+export const HALO_LOD = 3.0
+export const HALO_GAIN = 0.5
 export const BEAD_SPACING_CSS = 9.0
 export const BEAD_R_CSS = { lo: 1.2, hi: 2.4 }
 
@@ -222,6 +225,8 @@ const float INK_LOD = ${f(INK_LOD_BLUR)};
 const float LIP_DENSITY = ${f(LIP_DENSITY)};
 const float LIP_BRIGHT = ${f(LIP_BRIGHT)};
 const float RIM_A = ${f(RIM_A)};
+const float HALO_LOD = ${f(HALO_LOD)};
+const float HALO_GAIN = ${f(HALO_GAIN)};
 const float BEAD_SPACING = ${f(BEAD_SPACING_CSS)};
 const float BEAD_R_LO = ${f(BEAD_R_CSS.lo)};
 const float BEAD_R_HI = ${f(BEAD_R_CSS.hi)};
@@ -444,6 +449,15 @@ void main() {
     }
   }
 
+  // The hand's warm light scattered into the film around it: one wide blur tap, gated by the neighbourhood's own time-of-ink.
+  float halo = 0.0;
+  if (gi >= 0) {
+    vec2 hb = textureLod(uInkTex, npos / uNoteSize, HALO_LOD).rg;
+    float hToi = hb.g / max(hb.r, 1e-3);
+    float hw = clamp((uU - hToi) / (TOI_SOFT * FEATHER_K * 6.0), 0.0, 1.0);
+    halo = smoothstep(0.015, 0.4, hb.r) * hw * hw * (3.0 - 2.0 * hw);
+  }
+
   // Running water: clear trails behind a bead head, from the planned runs (design §6.2).
   float trail = 0.0;
   float trailLip = 0.0;
@@ -505,17 +519,22 @@ void main() {
   float opacity = clamp(fogD, 0.0, 1.0) * FOG_MAX;
   opacity = mix(opacity, 1.0, bloomM * 0.35);
   opacity += LIP_DENSITY * lip * (1.0 - T) + 0.16 * trailLip + BREATH_DENSITY * breath * (1.0 - T);
-  opacity *= (1.0 - 0.96 * T) * (1.0 - 0.62 * trail) * (1.0 - swept);
+  opacity *= (1.0 - 0.96 * T) * (1.0 - 0.5 * trail) * (1.0 - swept);
 
   float Lr = roomLight(vUv + refr / uRes, css + refr / px);
   vec3 seen = uBg + uAfter * Lr;
   // The hand: a clear stroke glows with the ember of the room behind it. Thin film (partly clear) glows less.
   float glow = pow(T, 0.7);
   float emberX = EMBER_BASE + EMBER_GAIN * Lr;
-  float ember = 1.3 * (1.0 - exp(-1.3 * emberX)); // soft shoulder: near the pot the light saturates, it does not wash to white
+  float ember = 1.55 * (1.0 - exp(-1.3 * emberX)); // soft shoulder: near the pot the light saturates, it does not wash to white
   seen = mix(seen, uBg + uAfter * ember, glow);
   // The meniscus band, where the clearing is half done, is a little darker.
   seen *= 1.0 - EDGE_SHADE * 4.0 * T * (1.0 - T);
+  // Inside the stroke near its edge the glass is a trough: the pot's light from below catches the lower edges and the upper
+  // edges fall into shade. Dimmer light runs redder.
+  float inner = (1.0 - smoothstep(0.3, 0.7, edgeB)) * smoothstep(0.4, 0.9, T);
+  seen *= 1.0 + 0.5 * inner * outN.y;
+  seen *= mix(vec3(1.0, 0.8, 0.62), vec3(1.0), smoothstep(0.25, 0.85, dot(seen, vec3(0.2126, 0.7152, 0.0722)) / max(dot(uAfter, vec3(0.2126, 0.7152, 0.0722)), 1e-3)));
 
   // 5. The film, lit from inside the scene: cool from the moon above, warm from the pot and candle below.
   float potF = potAt(vUv, 2.2);
@@ -531,6 +550,11 @@ void main() {
   film = mix(film, uGhost * 0.85, BREATH_COOL * breath);
   float edgeShade = 1.0 - smoothstep(0.0, 0.08 * min(uRes.x, uRes.y), min(min(fragPx.x, uRes.x - fragPx.x), fragPx.y));
   film = mix(film, film * vec3(0.94, 1.06, 1.0), edgeShade);
+
+  // The warm light of a written stroke reaches into the film around it and thins it a little.
+  float haloLit = halo * (1.0 - T) * (1.0 - swept) * (0.55 + 0.9 * Lr);
+  film += uAfter * HALO_GAIN * haloLit;
+  opacity *= 1.0 - 0.18 * halo * (1.0 - T);
 
   vec3 col = mix(seen, film, clamp(opacity, 0.0, 1.0));
 

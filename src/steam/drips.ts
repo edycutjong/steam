@@ -183,8 +183,8 @@ export function placeDrips(plan: readonly PlannedRun[], layout: Layout, paneW: n
       pause: 500 + 600 * p.r[3],
       len2,
       dur2: 700 + 500 * p.r[1],
-      halfWidth: Math.min(1.7, 0.8 + 0.18 * Math.sqrt(p.mass)),
-      headR: Math.min(4.2, 2.3 + 0.35 * Math.sqrt(p.mass)),
+      halfWidth: Math.min(2.6, 1.3 + 0.28 * Math.sqrt(p.mass)),
+      headR: Math.min(5.6, 3.2 + 0.45 * Math.sqrt(p.mass)),
       seed: hash01(seed, Math.round(p.x), Math.round(p.y)) * 100,
       u0: p.u0,
     })

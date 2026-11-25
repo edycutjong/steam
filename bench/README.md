@@ -1,6 +1,6 @@
 # Benchmarks
 
-`steam-renderer.json` is written by `scripts/measure-steam.ts`. It is the only source for any fps figure in this repository.
+`results.json` is written by `scripts/measure-steam.ts` (five profiles, steam-renderer-v1). `steam-renderer.json` and `steam-renderer-metal.json` are the older three-profile runs of the v0 renderer and are kept as they were. These files and `cook.json` are the only sources for any fps figure in this repository.
 
 ## Reproduce
 
@@ -10,17 +10,23 @@ npm run bench
 
 That runs `npm run build`, serves `dist/` with `vite preview`, and drives Chromium through Playwright. For each profile it loads `/?fps=1`, waits for the renderer's first frame, then records every `requestAnimationFrame` interval for 15 s (the lead-in, the write-on and the hold). It exits 1 when a profile has an average below 55 fps or a frame slower than 1000/55 ms; the JSON is written either way.
 
-Profiles:
+Profiles (defined in `scripts/steam-bench.ts`, summarised by `summarize` there):
 
-| Name | Viewport | Device scale | CPU |
-| --- | --- | --- | --- |
-| `desktop-1280x720` | 1280×720 | 1 | none |
-| `desktop-1920x1080` | 1920×1080 | 1 | none |
-| `pixel5-4x-cpu` | 393×851, touch | 2.75 | `Emulation.setCPUThrottlingRate` 4 |
+| Name | Viewport | Device scale | CPU | GL | URL |
+| --- | --- | --- | --- | --- | --- |
+| `desktop-1280x720` | 1280x720 | 1 | none | the machine's | hero route `?fps=1` |
+| `desktop-1920x1080` | 1920x1080 | 1 | none | the machine's | hero route `?fps=1` |
+| `pixel5-4x-cpu` | 393x851, touch | 2.75 | `Emulation.setCPUThrottlingRate` 4 | the machine's | hero route `?fps=1` |
+| `swiftshader-1280x720` | 1280x720 | 1 | none | Chromium software GL (`--use-angle=swiftshader`) | hero route `?fps=1` |
+| `capture-1920x1080` | 1920x1080 | 1 | none | the machine's | hero route, no overlay (the video-capture setup) |
 
-Each profile records frames, average fps, frames under 55 fps (intervals over 18.18 ms), p50 / p95 / worst frame time, the one-time `derive` duration, the GPU renderer from `WEBGL_debug_renderer_info`, and the profile's settings. The file also records the machine (`os.cpus()[0].model`), browser version and date.
+Each row records: frames, average fps, `p5Fps` (the 5th-percentile frame rate, 1000 / p95 frame time), frames under 55 fps (intervals over 18.18 ms), frame-time p50 / p95 / worst, `tier` (the quality governor's tier at the end of the run, read from `window.__steamStats.tier`: 0 full, 1 half-resolution fog, 2 no droplet or run detail, 3 static pane), the GPU renderer and vendor from `WEBGL_debug_renderer_info`, the one-time `derive` duration, and whether the row passed. The file also records the machine (`os.cpus()[0].model`), browser version and date. The software-GL row is recorded for the record: it has `budget: false` and never fails the run. The other four rows are the budget, and exit code 1 means one of them missed it.
 
-Options: `BENCH_MS=<ms>` changes the duration (default 15000). `BENCH_ANGLE=<backend>` passes `--use-angle=<backend>` to Chromium (for example `metal`); without it Chromium picks its own backend, which is what the committed run used.
+A row whose `tier` is above 0 means the governor had to give up quality on that machine, so its fps is not the full-quality figure. Read `tier` before `avgFps`.
+
+Options: `BENCH_MS=<ms>` changes the duration (default 15000). `BENCH_ANGLE=<backend>` passes `--use-angle=<backend>` to Chromium for the hardware rows (for example `metal`); without it Chromium picks its own backend. The software row always uses SwiftShader.
+
+`bench/results.json` is written by the autopilot's idle run of `npm run bench`; it is not in the repository until that run has happened. Every number about the v1 renderer must come from it.
 
 ## Reading the numbers
 
