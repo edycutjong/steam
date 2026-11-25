@@ -2,7 +2,7 @@
 // content/catalog.json is imported rather than fetched: `steam-ingest catalog` writes it to content/ and copies only the recipe folders to public/.
 
 import catalogJson from '../../content/catalog.json' with { type: 'json' }
-import type { DeadlineTimers } from './deadline.ts'
+import { DeadlineError, RECIPE_DEADLINE_MS, withDeadline, type DeadlineTimers } from './deadline.ts'
 import { displayableNotes } from './provenance.ts'
 import { Catalog, RecipeBundle, type BundleNote } from './schema.ts'
 
@@ -62,24 +62,34 @@ interface Outcome {
  * `RETRY_DELAYS_MS.length` more times (`sleep` is injectable) and, if it still fails, is not cached, so a later `load()` asks again.
  * A 404 or a content failure (JSON, schema, `checkCookable`, withholding) is final, cached and never retried.
  */
-export function createShelfLoader(fetchFn: typeof fetch = (...a) => fetch(...a), catalog: unknown = catalogJson, sleep: (ms: number) => Promise<void> = wait, _timers?: DeadlineTimers) {
+export function createShelfLoader(fetchFn: typeof fetch = (...a) => fetch(...a), catalog: unknown = catalogJson, sleep: (ms: number) => Promise<void> = wait, timers?: DeadlineTimers) {
   const cache = new Map<string, Promise<Outcome>>()
   const attemptOne = async (entry: CatalogEntry): Promise<Attempt> => {
     const final = (reason: string): Attempt => ({ transient: false, result: { id: entry.id, reason } })
-    let res: Response
+    // the request and its body share one deadline: a hang is a transport failure, so it is retried like one (a2a-arch-r06 C2)
+    let got: { status: number } | { json: unknown } | { badJson: string }
     try {
-      res = await fetchFn(`/recipes/${entry.id}/recipe.json`)
+      got = await withDeadline(
+        RECIPE_DEADLINE_MS,
+        async (signal) => {
+          const res = await fetchFn(`/recipes/${entry.id}/recipe.json`, { signal })
+          if (!res.ok) return { status: res.status }
+          try {
+            return { json: (await res.json()) as unknown }
+          } catch (e) {
+            // a body that is not JSON is the content's fault; a body that did not arrive is the network's
+            if (e instanceof SyntaxError) return { badJson: e.message }
+            throw e
+          }
+        },
+        { timers },
+      )
     } catch (e) {
-      return { transient: true, reason: `recipe.json could not be loaded: ${(e as Error).message}` }
+      return { transient: true, reason: `recipe.json could not be loaded: ${e instanceof DeadlineError ? e.message : (e as Error).message}` }
     }
-    if (!res.ok) return retryableStatus(res.status) ? { transient: true, reason: `recipe.json: HTTP ${res.status}` } : final(`recipe.json: HTTP ${res.status}`)
-    let json: unknown
-    try {
-      json = await res.json()
-    } catch (e) {
-      // a body that is not JSON is the content's fault; a body that did not arrive is the network's
-      return e instanceof SyntaxError ? final(`recipe.json could not be loaded: ${e.message}`) : { transient: true, reason: `recipe.json could not be loaded: ${(e as Error).message}` }
-    }
+    if ('status' in got) return retryableStatus(got.status) ? { transient: true, reason: `recipe.json: HTTP ${got.status}` } : final(`recipe.json: HTTP ${got.status}`)
+    if ('badJson' in got) return final(`recipe.json could not be loaded: ${got.badJson}`)
+    const json = got.json
     try {
       const parsed = RecipeBundle.safeParse(json)
       if (!parsed.success) return final(`recipe.json is invalid: ${parsed.error.issues[0]?.path.join('.')}: ${parsed.error.issues[0]?.message}`)

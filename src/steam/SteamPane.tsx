@@ -1,6 +1,7 @@
 // The spike's page: SteamGlass plus its chrome (credit, button, live region, URL reading). Cook Mode uses SteamGlass directly.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReadingText, { DisagreeDescription, hasMarks } from '../app/components/ReadingText.tsx'
+import { PANE_JSON_DEADLINE_MS, withDeadline } from '../data/deadline.ts'
 import { parseReading } from '../data/reading.ts'
 import { parseParams } from './params.ts'
 import SteamGlass, { LOAD_FAILED } from './SteamGlass.tsx'
@@ -60,8 +61,9 @@ export default function SteamPane({ stem, paneDir, noteId, query }: Props) {
   // The announced words are the note's span (R23.3), from its own JSON.
   useEffect(() => {
     let live = true
-    fetch(`${stem}.json`)
-      .then((r) => r.json())
+    const ctl = new AbortController()
+    // a request that hangs is given up on after 10 s and lands in the same .catch as any failure (a2a-arch-r06 C2)
+    withDeadline(PANE_JSON_DEADLINE_MS, (signal) => fetch(`${stem}.json`, { signal }).then((r) => r.json()), { signal: ctl.signal })
       .then((j: { span?: unknown; shownText?: unknown } | null) => {
         if (!live) return
         // the JSON is fetched, not typed: only a string is text (a2a-arch-r05 B11)
@@ -72,6 +74,7 @@ export default function SteamPane({ stem, paneDir, noteId, query }: Props) {
       .catch(() => {})
     return () => {
       live = false
+      ctl.abort()
     }
   }, [stem])
 

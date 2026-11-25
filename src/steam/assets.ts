@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { DeadlineTimers } from '../data/deadline.ts'
+import { DeadlineError, NOTE_DEADLINE_MS, withDeadline, type DeadlineTimers } from '../data/deadline.ts'
 
 const Int = z.number().int()
 
@@ -77,16 +77,26 @@ export interface NoteAssets {
 
 const DECODE: ImageBitmapOptions = { premultiplyAlpha: 'none', colorSpaceConversion: 'none' }
 
-async function fetchOk(url: string, field: string, signal?: AbortSignal): Promise<Response> {
-  let res: Response
+/**
+ * Fetches `url` and reads its body with `read`, under one deadline (a2a-arch-r06 C2). A request that does not answer in time is an `AssetError`
+ * for `field`, so the failed-pane path runs. An abort the caller asked for is re-thrown as it is.
+ */
+async function fetchRead<T>(url: string, field: string, signal: AbortSignal | undefined, timers: DeadlineTimers | undefined, read: (res: Response) => Promise<T>): Promise<T> {
   try {
-    res = await fetch(url, { signal })
+    return await withDeadline(
+      NOTE_DEADLINE_MS,
+      async (s) => {
+        const res = await fetch(url, { signal: s })
+        if (!res.ok) throw new AssetError(field, `${url} answered ${res.status}`)
+        return read(res)
+      },
+      { signal, timers },
+    )
   } catch (e) {
-    if (signal?.aborted) throw e
+    if (signal?.aborted || e instanceof AssetError) throw e
+    if (e instanceof DeadlineError) throw new AssetError(field, `${url}: ${e.message}`, { cause: e })
     throw new AssetError(field, `could not fetch ${url}`, { cause: e })
   }
-  if (!res.ok) throw new AssetError(field, `${url} answered ${res.status}`)
-  return res
 }
 
 function readBytes(bitmap: ImageBitmap): ImageData {
@@ -97,10 +107,10 @@ function readBytes(bitmap: ImageBitmap): ImageData {
   return ctx.getImageData(0, 0, bitmap.width, bitmap.height)
 }
 
-async function decode(url: string, field: string, signal?: AbortSignal): Promise<ImageBitmap> {
-  const res = await fetchOk(url, field, signal)
+async function decode(url: string, field: string, signal: AbortSignal | undefined, timers: DeadlineTimers | undefined): Promise<ImageBitmap> {
+  const blob = await fetchRead(url, field, signal, timers, (res) => res.blob())
   try {
-    return await createImageBitmap(await res.blob(), DECODE)
+    return await createImageBitmap(blob, DECODE)
   } catch (e) {
     throw new AssetError(field, `could not decode ${url}`, { cause: e })
   }
@@ -116,14 +126,15 @@ export interface NoteCheck {
  * `stem` is the URL without extension, for example `/recipes/<id>/note-<noteId>`.
  * It loads `<stem>.json`, `<stem>.png` and `<stem>.toi.png`. With `check`, the JSON's `noteId` and `size` must equal the bundle's.
  */
-export async function loadNoteAssets(stem: string, check?: NoteCheck, signal?: AbortSignal, _opts: { timers?: DeadlineTimers } = {}): Promise<NoteAssets> {
-  const jsonRes = await fetchOk(`${stem}.json`, 'meta', signal)
-  let raw: unknown
-  try {
-    raw = await jsonRes.json()
-  } catch (e) {
-    throw new AssetError('meta', 'not valid JSON', { cause: e })
-  }
+export async function loadNoteAssets(stem: string, check?: NoteCheck, signal?: AbortSignal, opts: { timers?: DeadlineTimers } = {}): Promise<NoteAssets> {
+  const raw: unknown = await fetchRead(`${stem}.json`, 'meta', signal, opts.timers, async (res) => {
+    try {
+      return (await res.json()) as unknown
+    } catch (e) {
+      if (e instanceof SyntaxError) throw new AssetError('meta', 'not valid JSON', { cause: e })
+      throw e // a body that did not arrive: the caller names it
+    }
+  })
   const parsed = NoteMeta.safeParse(raw)
   if (!parsed.success) {
     const issue = parsed.error.issues[0]
@@ -136,8 +147,8 @@ export async function loadNoteAssets(stem: string, check?: NoteCheck, signal?: A
   }
 
   const [note, toiBitmap] = await Promise.all([
-    decode(`${stem}.png`, 'note', signal),
-    decode(`${stem}.toi.png`, 'toi', signal),
+    decode(`${stem}.png`, 'note', signal, opts.timers),
+    decode(`${stem}.toi.png`, 'toi', signal, opts.timers),
   ])
   const [w, h] = meta.size
   if (note.width !== w || note.height !== h) {

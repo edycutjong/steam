@@ -28,6 +28,50 @@ export interface DeadlineOptions {
   timers?: DeadlineTimers
 }
 
-export async function withDeadline<T>(_ms: number, run: (signal: AbortSignal) => Promise<T>, opts: DeadlineOptions = {}): Promise<T> {
-  return run(opts.signal ?? new AbortController().signal)
+const globalTimers: DeadlineTimers = {
+  // read at call time, so a test that fakes the global timers is obeyed
+  setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),
+  clearTimeout: (h) => globalThis.clearTimeout(h as ReturnType<typeof setTimeout>),
+}
+
+const abortOf = (signal: AbortSignal): unknown => signal.reason ?? Object.assign(new Error('aborted'), { name: 'AbortError' })
+
+/**
+ * Runs `run(signal)` and rejects with a `DeadlineError` if it has not settled after `ms`, aborting `signal` so the request is cancelled.
+ * `run` should cover the body as well as the headers. A request that ignores the signal is still given up on. The caller's own `opts.signal`
+ * is passed on, and its abort rejects with the abort, never with a `DeadlineError`. The timer is cleared as soon as anything settles.
+ */
+export function withDeadline<T>(ms: number, run: (signal: AbortSignal) => Promise<T>, opts: DeadlineOptions = {}): Promise<T> {
+  const { signal: outer, timers = globalTimers } = opts
+  if (outer?.aborted) return Promise.reject(abortOf(outer))
+  return new Promise<T>((resolve, reject) => {
+    const ctl = new AbortController()
+    let done = false
+    const finish = (settle: () => void): void => {
+      if (done) return
+      done = true
+      timers.clearTimeout(handle)
+      outer?.removeEventListener('abort', onOuter)
+      settle()
+    }
+    const onOuter = (): void =>
+      finish(() => {
+        ctl.abort(abortOf(outer!))
+        reject(abortOf(outer!))
+      })
+    const handle = timers.setTimeout(
+      () =>
+        finish(() => {
+          const e = new DeadlineError(ms)
+          ctl.abort(e)
+          reject(e)
+        }),
+      ms,
+    )
+    outer?.addEventListener('abort', onOuter)
+    run(ctl.signal).then(
+      (v) => finish(() => resolve(v)),
+      (e: unknown) => finish(() => reject(e)),
+    )
+  })
 }
