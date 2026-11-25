@@ -1,0 +1,137 @@
+{
+  "generatedAt": "2026-11-25T13:25:05.205Z",
+  "command": "npm run bench",
+  "machine": {
+    "cpu": "Apple M1 Max",
+    "cores": 10,
+    "os": "darwin 27.2.0 arm64"
+  },
+  "browser": "Chromium 159.0.8154.6",
+  "angleOverride": "metal",
+  "thresholds": {
+    "minAvgFps": 55,
+    "maxFrameMs": 18.18
+  },
+  "profiles": [
+    {
+      "name": "desktop-1280x720",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "deviceScaleFactor": 1,
+      "cpuThrottle": 1,
+      "software": false,
+      "budget": true,
+      "durationMs": 15016,
+      "frames": 901,
+      "avgFps": 60,
+      "p5Fps": 59.88,
+      "framesUnder55Fps": 0,
+      "p50FrameMs": 16.7,
+      "p95FrameMs": 16.7,
+      "worstFrameMs": 16.8,
+      "tier": 0,
+      "gpuRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
+      "gpuVendor": "Google Inc. (Apple)",
+      "deriveMs": 33.5,
+      "pass": true
+    },
+    {
+      "name": "desktop-1920x1080",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "deviceScaleFactor": 1,
+      "cpuThrottle": 1,
+      "software": false,
+      "budget": true,
+      "durationMs": 15016,
+      "frames": 901,
+      "avgFps": 60,
+      "p5Fps": 59.52,
+      "framesUnder55Fps": 0,
+      "p50FrameMs": 16.7,
+      "p95FrameMs": 16.8,
+      "worstFrameMs": 16.8,
+      "tier": 0,
+      "gpuRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
+      "gpuVendor": "Google Inc. (Apple)",
+      "deriveMs": 39.4,
+      "pass": true
+    },
+    {
+      "name": "pixel5-4x-cpu",
+      "viewport": {
+        "width": 393,
+        "height": 851
+      },
+      "deviceScaleFactor": 2.75,
+      "cpuThrottle": 4,
+      "software": false,
+      "budget": true,
+      "durationMs": 15016,
+      "frames": 901,
+      "avgFps": 60,
+      "p5Fps": 59.88,
+      "framesUnder55Fps": 0,
+      "p50FrameMs": 16.7,
+      "p95FrameMs": 16.7,
+      "worstFrameMs": 16.8,
+      "tier": 0,
+      "gpuRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
+      "gpuVendor": "Google Inc. (Apple)",
+      "deriveMs": 127.7,
+      "pass": true
+    },
+    {
+      "name": "swiftshader-1280x720",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "deviceScaleFactor": 1,
+      "cpuThrottle": 1,
+      "software": true,
+      "budget": false,
+      "durationMs": 15016,
+      "frames": 646,
+      "avgFps": 43.02,
+      "p5Fps": 20,
+      "framesUnder55Fps": 162,
+      "p50FrameMs": 16.7,
+      "p95FrameMs": 50,
+      "worstFrameMs": 516.7,
+      "tier": 3,
+      "gpuRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+      "gpuVendor": "Google Inc. (Google)",
+      "deriveMs": 37.1,
+      "pass": false
+    },
+    {
+      "name": "capture-1920x1080",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "deviceScaleFactor": 1,
+      "cpuThrottle": 1,
+      "software": false,
+      "budget": true,
+      "durationMs": 15016,
+      "frames": 901,
+      "avgFps": 60,
+      "p5Fps": 59.52,
+      "framesUnder55Fps": 0,
+      "p50FrameMs": 16.7,
+      "p95FrameMs": 16.8,
+      "worstFrameMs": 16.8,
+      "tier": 0,
+      "gpuRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
+      "gpuVendor": "Google Inc. (Apple)",
+      "deriveMs": 39.3,
+      "pass": true
+    }
+  ]
+}
