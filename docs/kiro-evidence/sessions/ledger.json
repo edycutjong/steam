@@ -12,30 +12,32 @@
     "sessions": 39,
     "toolCalls": {
       "bash_placeholder": 1,
-      "execute_bash": 1737,
-      "fs_write": 87,
+      "execute_bash": 1820,
+      "fs_write": 107,
       "inspect_workflow": 2,
       "load_resource": 9,
-      "read_file": 346,
+      "read_file": 349,
       "run_workflow": 3,
       "send_message": 6,
-      "str_replace": 11,
+      "str_replace": 37,
       "tool_call": 3
     },
-    "shellWritesUnderSrc": 543,
-    "shellWritesUnderSrcNonTest": 368,
-    "shellWritesSeenByAHook": 0,
-    "writeToolCallsUnderSrc": 30,
+    "shellWritesUnderSrc": 545,
+    "shellWritesUnderSrcNonTest": 370,
+    "shellWritesSeenByAHook": 2,
+    "writeToolCallsUnderSrc": 36,
     "callsWithHookEvent": {
-      "execute_bash": 2,
-      "fs_write": 59,
-      "str_replace": 9
+      "execute_bash": 81,
+      "fs_write": 79,
+      "str_replace": 35
     },
     "hookInvocations": {
-      "catalog-gate": 68,
-      "no-imitation": 68,
+      "catalog-gate": 114,
+      "no-imitation": 114,
       "props-on-save-create": 5,
       "props-on-save-save": 11,
+      "shell-gate": 80,
+      "src-scan-after-shell": 71,
       "zz-record-shell": 2
     }
   },
@@ -2486,28 +2488,35 @@
       "id": "sess_cc50a90b-1553-4333-8561-d69615fb6666",
       "title": "Hook Coverage And Bash Writes",
       "createdAt": "2026-11-25T20:33:15.403Z",
-      "lastModifiedAt": "2026-11-25T20:43:12.421Z",
+      "lastModifiedAt": "2026-11-25T21:37:07.473Z",
       "modelId": "auto",
       "agentMode": "vibe",
       "toolCalls": {
-        "execute_bash": 23,
-        "fs_write": 8,
-        "str_replace": 8
+        "execute_bash": 106,
+        "fs_write": 28,
+        "read_file": 3,
+        "str_replace": 34
       },
-      "shellWritesUnderSrc": 1,
-      "shellWritesUnderSrcNonTest": 1,
-      "shellWritesToCatalog": 0,
-      "shellWritesSeenByAHook": 0,
-      "writeToolCallsUnderSrc": 0,
-      "writeToolPathsUnderSrc": [],
+      "shellWritesUnderSrc": 3,
+      "shellWritesUnderSrcNonTest": 3,
+      "shellWritesToCatalog": 1,
+      "shellWritesSeenByAHook": 2,
+      "writeToolCallsUnderSrc": 6,
+      "writeToolPathsUnderSrc": [
+        "src/steam/layout.clearance.test.ts",
+        "src/steam/layout.test.ts",
+        "src/steam/layout.ts"
+      ],
       "callsWithHookEvent": {
-        "execute_bash": 2,
-        "fs_write": 8,
-        "str_replace": 8
+        "execute_bash": 81,
+        "fs_write": 28,
+        "str_replace": 34
       },
       "hookInvocations": {
-        "catalog-gate": 16,
-        "no-imitation": 16,
+        "catalog-gate": 62,
+        "no-imitation": 62,
+        "shell-gate": 80,
+        "src-scan-after-shell": 71,
         "zz-record-shell": 2
       },
       "commits": [
@@ -2530,6 +2539,51 @@
           "hash": "7524a88",
           "at": "2026-11-25T20:42:53.000Z",
           "subject": "[kiro] hook-coverage: red H1 a hook event is attributed to a tool call by timing alone (parallel calls, file-event hooks)"
+        },
+        {
+          "hash": "3403c71",
+          "at": "2026-11-25T20:43:25.000Z",
+          "subject": "[kiro] hook-coverage: fix H1 attribute a hook event only to tools its matcher serves; ledger 'before' evidence (39 sessions)"
+        },
+        {
+          "hash": "079dcc2",
+          "at": "2026-11-25T20:45:32.000Z",
+          "subject": "[kiro] hook-coverage: red H2 a shell command that writes src/ or the catalog passes through unchecked (allow-all skeleton)"
+        },
+        {
+          "hash": "bf51930",
+          "at": "2026-11-25T20:46:46.000Z",
+          "subject": "[kiro] hook-coverage: fix H2 shell-gate judges what a shell command writes under src/ and refuses a shell write of the catalog"
+        },
+        {
+          "hash": "f8528cc",
+          "at": "2026-11-25T20:48:04.000Z",
+          "subject": "[kiro] hook-coverage: red H3 a file a script wrote under src/ is never judged after the command (skeleton)"
+        },
+        {
+          "hash": "0f4bd19",
+          "at": "2026-11-25T20:49:31.000Z",
+          "subject": "[kiro] hook-coverage: fix H3 src-scan judges the working tree after every shell command and logs a change of verdict"
+        },
+        {
+          "hash": "7869b7a",
+          "at": "2026-11-25T20:50:04.000Z",
+          "subject": "[kiro] hook-coverage: fix H4 steering rule for file edits; hooks.log table rows for shell-gate and src-scan"
+        },
+        {
+          "hash": "09faffe",
+          "at": "2026-11-25T20:50:39.000Z",
+          "subject": "[kiro] hook-coverage: H5 live probes (hooks.log lines) and the README sentence the probes support"
+        },
+        {
+          "hash": "1d649bd",
+          "at": "2026-11-25T20:59:05.000Z",
+          "subject": "[kiro] hero-hold-clearance: red R1 the desktop layout puts the lower group's ink on the bottom shade band (constants skeleton); bugfix.md and before frames"
+        },
+        {
+          "hash": "b708030",
+          "at": "2026-11-25T21:23:21.000Z",
+          "subject": "[kiro] hero-hold-clearance: fix R1 the desktop layout keeps the ink 28 css px (shade band + 12) from the top and bottom of the pane, centred in the clear glass"
         }
       ]
     }

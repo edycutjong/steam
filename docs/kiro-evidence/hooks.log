@@ -114,3 +114,10 @@
 2026-11-25T20:50:06.863Z · shell-gate · content/catalog.json · blocked: a shell command writes the catalog; only npm run catalog writes it
 2026-11-25T20:50:09.840Z · src-scan · src/steam/zz-shell-probe2.ts · fail speechSynthesis (src/steam/zz-shell-probe2.ts:1)
 2026-11-25T20:50:25.584Z · src-scan · src/ · pass (0 files)
+2026-11-25T20:57:33.506Z · no-imitation · src/steam/layout.ts · pass (no speech synthesis, handwriting font or handwriting package)
+2026-11-25T20:58:54.904Z · src-scan · src/ · pass (1 files)
+2026-11-25T20:59:06.091Z · src-scan · src/ · pass (0 files)
+2026-11-25T20:59:27.856Z · no-imitation · src/steam/layout.ts · pass (no speech synthesis, handwriting font or handwriting package)
+2026-11-25T20:59:30.858Z · src-scan · src/ · pass (1 files)
+2026-11-25T21:23:21.600Z · src-scan · src/ · pass (0 files)
+2026-11-25T21:23:22.104Z · shell-gate · src/steam/layout.ts · pass (no speech synthesis, handwriting font or handwriting package in the text the command introduces; the content is not in the command text; src-scan judges the file after)

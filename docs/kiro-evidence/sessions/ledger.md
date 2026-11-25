@@ -13,11 +13,11 @@ Which tool wrote what in the 39 Kiro sessions of this workspace. Written by `too
 
 ## Totals
 
-- Tool calls: bash_placeholder 1, execute_bash 1737, fs_write 87, inspect_workflow 2, load_resource 9, read_file 346, run_workflow 3, send_message 6, str_replace 11, tool_call 3.
-- Write-tool calls (`fs_write`, `str_replace`) under src/: 30.
-- Shell writes under src/: 543 (368 on a non-test file), of which 0 had a hook event during the call.
-- Calls with a hook event, by tool: execute_bash 2, fs_write 59, str_replace 9.
-- Hook invocations by hook: catalog-gate 68, no-imitation 68, props-on-save-create 5, props-on-save-save 11, zz-record-shell 2.
+- Tool calls: bash_placeholder 1, execute_bash 1820, fs_write 107, inspect_workflow 2, load_resource 9, read_file 349, run_workflow 3, send_message 6, str_replace 37, tool_call 3.
+- Write-tool calls (`fs_write`, `str_replace`) under src/: 36.
+- Shell writes under src/: 545 (370 on a non-test file), of which 2 had a hook event during the call.
+- Calls with a hook event, by tool: execute_bash 81, fs_write 79, str_replace 35.
+- Hook invocations by hook: catalog-gate 114, no-imitation 114, props-on-save-create 5, props-on-save-save 11, shell-gate 80, src-scan-after-shell 71, zz-record-shell 2.
 
 ## Sessions
 
@@ -61,7 +61,7 @@ Which tool wrote what in the 39 Kiro sessions of this workspace. Written by `too
 | `1bb68abb` | Fix Cook Mode Layout Issues P1d | 2026-11-25 15:39 | auto | 0 | 16 (12) | 0 | 1 | catalog-gate 1, no-imitation 1 | 4 |
 | `e73702e8` | Fix Steam Reveal Clock Hidden Tab Bug | 2026-11-25 18:29 | auto | 0 | 40 (18) | 0 | 0 | catalog-gate 2, no-imitation 2 | 27 |
 | `6f7ff68b` | Implement A2A Architecture R06 Bugfix Tests | 2026-11-25 19:46 | auto | 0 | 24 (13) | 0 | 0 | catalog-gate 2, no-imitation 2 | 17 |
-| `cc50a90b` | Hook Coverage And Bash Writes | 2026-11-25 20:33 | auto | 0 | 1 (1) | 0 | 0 | catalog-gate 16, no-imitation 16, zz-record-shell 2 | 4 |
+| `cc50a90b` | Hook Coverage And Bash Writes | 2026-11-25 20:33 | auto | 6 | 3 (3) | 2 | 1 | catalog-gate 62, no-imitation 62, shell-gate 80, src-scan-after-shell 71, zz-record-shell 2 | 13 |
 
 ## Per session
 
@@ -333,7 +333,7 @@ Which tool wrote what in the 39 Kiro sessions of this workspace. Written by `too
 
 ### Hook Coverage And Bash Writes
 
-- Id `sess_cc50a90b-1553-4333-8561-d69615fb6666`, 2026-11-25T20:33:15.403Z to 2026-11-25T20:43:12.421Z, model `auto`, mode `vibe`.
-- Tool calls: execute_bash 23, fs_write 8, str_replace 8. Calls with a hook event: execute_bash 2, fs_write 8, str_replace 8.
-- Paths written under src/ by a write tool (0 calls): –.
-- [kiro] commits in the window: `35d2672` `2275b61` `63c4763` `7524a88`.
+- Id `sess_cc50a90b-1553-4333-8561-d69615fb6666`, 2026-11-25T20:33:15.403Z to 2026-11-25T21:37:07.473Z, model `auto`, mode `vibe`.
+- Tool calls: execute_bash 106, fs_write 28, read_file 3, str_replace 34. Calls with a hook event: execute_bash 81, fs_write 28, str_replace 34.
+- Paths written under src/ by a write tool (6 calls): `src/steam/layout.clearance.test.ts`, `src/steam/layout.test.ts`, `src/steam/layout.ts`.
+- [kiro] commits in the window: `35d2672` `2275b61` `63c4763` `7524a88` `3403c71` `079dcc2` `bf51930` `f8528cc` `0f4bd19` `7869b7a` `09faffe` `1d649bd` `b708030`.

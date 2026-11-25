@@ -33,3 +33,13 @@ Dated entries, newest last, plain facts.
 - Two `sed -i` edits through the shell tool failed to parse (one with `#` as the delimiter in a pattern that held `#`, one with escaped quotes), and a chained `sed … && grep … && check` stopped silently after the failed `sed`. The red C7 commit had already gone in before the failed step. Edits through a Python one-liner worked every time.
 - A red test for a brand new module cannot typecheck without a stub. The C2 and C6 red commits carry an API skeleton (the pre-fix behaviour behind the new signatures) so the tests fail on behaviour and not on a missing import.
 - The first draft of the C1 browser test passed `page.route` rules that the service worker bypassed (the recipe loaded from its cache). `test.use({ serviceWorkers: 'block' })` fixed it; the failure looked like an app bug at first.
+
+## 2026-11-25 (hook-coverage, hero-hold-clearance)
+
+- Hooks hot-load: a `.kiro/hooks/*.json` file written in a session fired on the next tool call, with no restart. A temporary hook with matcher `shell` recorded the real shell hook stdin (`tool_name: "execute_bash"`, `tool_input.command`, `cwd`) in one call.
+- A PreToolUse exit 2 on a shell command refuses the whole command, including any `git commit` chained after the offending write; the commit has to be run again on its own.
+- A PostToolUse exit 2 (`src-scan`) wrote its `hooks.log` line but its stderr was not shown to the agent in the IDE, in the probe call or the next one. A PostToolUse hook is evidence here, not a block.
+- The session store (`~/.kiro/sessions/<sha256 of the workspace path, 16 hex>/sess_*/{session.json,messages.jsonl}`) has no link between a `ContextualHookInvoked` event and the tool call it ran for: only `executionId` (the turn) and time. Parallel tool calls overlap, so a hook of an `fs_write` was attributed to a shell call by timing alone until the ledger mapped each hook to the tools its matcher serves.
+- Two `fs_write` calls were followed by a shell command that did not find the file for about a second (`Cannot find module`), then found it. A second try worked.
+- Running `npm run e2e` in the background stalled at 0 % CPU again after 17 tests (as in a2a-arch-r05); killed and run in the foreground with a 30-minute tool timeout, the same specs finished (41 and 77 tests).
+- `str_replace` accepts an `oldStr` identical to `newStr` and reports success: three no-op edits were made by mistake and only found by reading the result.
