@@ -345,7 +345,7 @@ Rules for every task:
   - Files: `e2e/cook-a11y.spec.ts`.
   - Satisfies: R27.3, R27.4, R23.1, R23.2, R23.4, R16.2.
 
-- [ ] 53. E2E: sleep, restore, phone, bad bundles
+- [x] 53. E2E: sleep, restore, phone, bad bundles
   - Test first: `e2e/cook-session.spec.ts`: (a) sleep with `page.clock`: write a 60 s device override on `when-tender` through IndexedDB, start a session at step 4 through the shelf, fast-forward 10 minutes and fire `visibilitychange`: exactly one `cook:reveal:when-tender` mark and a timer reading of at least 10:00; (b) restore: reload at step 4 with the note held: step, pace and `data-note-state="held"` are restored with no second `cook:write-on` mark; "Cook it" from the shelf starts at step 1; (c) phone 390×844: the shelf's first card above the fold, Cook Mode with no horizontal scroll, Wipe at least 48×48, the step text at least 24 px (computed); (d) with `page.route` serving an invalid `recipe.json`, the shelf shows no card and a note with `cc-by-nc` is withheld (the step has no note, the edition notice shows).
   - Implement what the run finds missing.
   - Files: `e2e/cook-session.spec.ts`.
