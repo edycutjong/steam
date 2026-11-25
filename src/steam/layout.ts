@@ -60,6 +60,12 @@ export const LIFT_FRAC = 0.035
 export const S_MAX_DESKTOP = 1.85
 /** Desktop: the wider group spans this fraction of the pane width. */
 export const DESKTOP_FILL = 0.8
+/** The shade at the top and at the bottom of the pane, CSS px: `.rail--meeting::after` and `.rail--bottom::before` in steam.css. */
+export const SHADE_CSS = 16
+/** Clear glass kept between the ink and a shade band, CSS px: the phone-fit e2e's CLEAR_CSS. */
+export const CLEAR_CSS = 12
+/** Desktop: the inked rects stay this far from the top and the bottom of the pane. */
+export const V_INSET = SHADE_CSS + CLEAR_CSS
 
 export function chooseLayout(paneW: number): LayoutKind {
   return paneW <= PHONE_MAX_W ? 'groups' : 'page'
