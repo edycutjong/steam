@@ -132,7 +132,13 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stem])
 
-  const useStatic = reducedMotion || noWebGl || contextLost
+  // Once the static pane has been on the glass for this note it stays: a live renderer built now starts fogged (lead Infinity) and the
+  // reveal that was asked for has already been consumed, so going back would leave a revealed note under fog with a dead wipe control
+  // (a2a-arch-r06 C3). The next note is a new mount and may be live. Set during render, the React way to derive state from props.
+  const wantsStatic = reducedMotion || noWebGl || contextLost
+  const [stuckStatic, setStuckStatic] = useState(false)
+  if (wantsStatic && !stuckStatic) setStuckStatic(true)
+  const useStatic = wantsStatic || stuckStatic
   const status: GlassStatus = failed ? 'error' : useStatic ? 'fallback' : loaded ? 'ready' : 'loading'
   useEffect(() => latest.current.onStatus?.(status), [status])
 
