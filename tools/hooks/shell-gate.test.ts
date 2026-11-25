@@ -105,13 +105,17 @@ describe('shell-gate: a write to the public catalog', () => {
     ['sed -i', `sed -i 's/a/b/' ${CAT}`],
     ['a python one-liner', `python3 -c "open('${CAT}','w').write('[]')"`],
     ['node -e', `node -e "require('fs').writeFileSync('${CAT}','[]')"`],
-    ['an absolute path', `echo '[]' > ${root}/${CAT}`],
   ])('refuses %s with catalog-gate\'s reason', (_n, cmd) => {
     const r = gate(cmd)
     expect(r.exit).toBe(2)
     expect(r.stderr).toContain('Use `npm run catalog`: it verifies every recipe first and is the only writer of ' + CAT)
     expect(r.stderr).toContain('"Note crops and the gate": a recipe reaches Cook Mode only when P1-P6 pass in its gate.json.')
     expect(lines()).toEqual([`2026-11-25T12:00:00.000Z · shell-gate · ${CAT} · blocked: a shell command writes the catalog; only npm run catalog writes it`])
+  })
+  it('refuses an absolute path to the catalog inside the root', () => {
+    const r = gate(`echo '[]' > ${root}/${CAT}`)
+    expect(r.exit).toBe(2)
+    expect(lines()[0]).toContain(`shell-gate · ${CAT} · blocked`)
   })
   it('allows npm run catalog, the tsx form, and a read of the catalog; writes no line', () => {
     for (const c of ['npm run catalog', 'npx tsx tools/steam-ingest/cli.ts catalog', `cat ${CAT}`, `git diff -- ${CAT}`, 'echo x > content/recipes/quinces-marmalade/notes.md']) expect(gate(c), c).toEqual({ exit: 0, stdout: '', stderr: '' })

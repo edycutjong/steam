@@ -4,13 +4,15 @@
 // review.json with a reviewedBy, exits 2 and the stderr below goes back to the agent (probe-3.5.0 result 2).
 // Other paths: exit 0, no output, no log line.
 //
-// Not covered: a shell command that writes the file. Kiro matches this hook on write tools, and a matcher on shell tools was not probed.
+// Not covered here: a shell command that writes the file. Matcher "write" is fs_write and str_replace only. That gap is closed by
+// shell-gate.ts (PreToolUse, matcher "shell") and src-scan.ts (PostToolUse), which reuse `catalogUse` below (hook-coverage).
 
 import { existsSync, readFileSync } from 'node:fs'
 import { posix, resolve } from 'node:path'
 import { Catalog, Gate, Review } from '../../src/data/schema.ts'
 import { verifyRecipe } from '../steam-ingest/catalog.ts'
 import { recipeDir } from '../steam-ingest/gate.ts'
+import { catalogUse } from './catalog-rule.ts'
 import { isMain, logHook, ok, parseHookInput, rootOf, runAsMain, toRel, type HookInput, type HookResult } from './lib.ts'
 
 export const HOOK = 'catalog-gate'
@@ -105,7 +107,7 @@ export function run(raw: string, deps: Deps = {}): HookResult {
     const logFailure = logHook(root, HOOK, target, result, deps.now)
     return { exit, stdout: '', stderr: [stderr, logFailure].filter(Boolean).join('\n') }
   }
-  const use = `Use \`npm run catalog\`: it verifies every recipe first and is the only writer of ${CATALOG_REL}. Rule: .kiro/steering/product.md, "Note crops and the gate": a recipe reaches Cook Mode only when P1-P6 pass in its gate.json.`
+  const use = catalogUse(CATALOG_REL)
   const p = proposed(input, resolve(root, path))
   if ('skip' in p) return finish(0, `allowed (${p.skip})`)
   if (!p.ok) return finish(2, `blocked: ${p.why}`, `${HOOK}: refused. ${p.why}, so it cannot be checked. ${use}`)
