@@ -15,7 +15,7 @@ import NightView from '../steam/NightView.tsx'
 import type { SteamGlassProps } from '../steam/SteamGlass.tsx'
 import { WIPE_MS, type Phase } from '../steam/timeline.ts'
 import { useApp } from './AppContext.tsx'
-import ArchiveSlip, { creditLine } from './components/ArchiveSlip.tsx'
+import ArchiveSlip from './components/ArchiveSlip.tsx'
 import CountUpTimer from './components/CountUpTimer.tsx'
 import DragSurface from './components/DragSurface.tsx'
 import FlameKnob from './components/FlameKnob.tsx'
@@ -289,16 +289,18 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
         )}
         <PaceBadge pace={pace} />
       </DragSurface>
+      {/* the slot is always in the layout, one line high, so the reading arriving moves nothing (cook-layout-p1d L4) */}
       {readingNote ? (
         <p className="cook__reading" aria-hidden="true" data-note-reading>
           <ReadingText segments={quoteSegments(b, readingNote)} />
         </p>
-      ) : null}
+      ) : (
+        <div className="cook__reading" aria-hidden="true" />
+      )}
       <div className="cook__under">
         {showSlip ? (
           <div className="cook__source">
             <ArchiveSlip bundle={b} compact />
-            <p className="credit-line">{creditLine(b)}</p>
           </div>
         ) : null}
         <p className="cook__caption">{caption}</p>
@@ -315,7 +317,7 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
           <a className="btn btn--quiet" href={formatRoute({ name: 'edition', id: b.id })}>
             {COOK.back}
           </a>
-          <WipeControl control={control} writing={writing} disabled={state.status !== 'running'} ready={ready} onAct={perform} />
+          <WipeControl control={control} writing={writing} reduced={reduced} disabled={state.status !== 'running'} ready={ready} onAct={perform} />
           <MuteButton audio={audio} />
         </div>
       </div>

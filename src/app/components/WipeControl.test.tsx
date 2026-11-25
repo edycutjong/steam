@@ -36,6 +36,17 @@ describe('WipeControl (R14.1 to R14.6, R14.9, R14.10)', () => {
     key(document.body, ' ')
     expect(spy).not.toHaveBeenCalled()
   })
+  it('under reduced motion the writing state reads "Show the note" and "The note is appearing", never "writing" (cook-layout-p1d L6)', () => {
+    const spy = vi.fn()
+    const h = mount(<WipeControl control={controlFor(plan, at(2, ['q']))} writing reduced ready={false} onAct={spy} />)
+    const b = h.querySelector('button')!
+    expect(b.textContent).toBe('Show the note')
+    expect(b.getAttribute('aria-disabled')).toBe('true')
+    expect(document.getElementById(b.getAttribute('aria-describedby')!)!.textContent).toBe('The note is appearing')
+    expect(h.textContent!.toLowerCase()).not.toContain('writ')
+    click(b)
+    expect(spy).not.toHaveBeenCalled()
+  })
   // cook-mode-qa-r1 Q2: while the hand is written the control says so, whatever row of the table it would be on
   const writingRows: [string, SchedState][] = [
     ['revealed, not last', at(2, ['q'])],

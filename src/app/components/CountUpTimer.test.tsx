@@ -61,6 +61,22 @@ describe('CountUpTimer (R10.1, R10.4 to R10.7)', () => {
     expect(/\.timer\s*\{[^}]*color:\s*var\(--muted\)/.test(css('src/app/cook.css'))).toBe(true)
     expect(/\.timer--ember\s*\{[^}]*color:\s*var\(--after\)/.test(css('src/app/cook.css'))).toBe(true)
   })
+  // cook-layout-p1d L5: the colour follows a named state, and only that
+  it('names its state: running, ember in the last 10 s, paused when asleep, done when finished; the ember class goes with ember only', async () => {
+    const s = reduce(plan, initialState, { type: 'start', wallMs: T0, pace: 12 }).state
+    const h = mount(<CountUpTimer plan={plan} state={s} clock={systemClock} />)
+    const el = () => h.querySelector('.timer')!
+    expect(el().getAttribute('data-timer-state')).toBe('running')
+    await tick(41_000)
+    expect(el().getAttribute('data-timer-state')).toBe('ember')
+    expect(el().className).toContain('timer--ember')
+    const sleep = reduce(plan, s, { type: 'sleep', wallMs: T0 + 1000 } as never).state
+    expect(mount(<CountUpTimer plan={plan} state={sleep} clock={systemClock} />).querySelector('.timer')!.getAttribute('data-timer-state')).toBe('paused')
+    const done = { ...s, status: 'finished' as const }
+    const d = mount(<CountUpTimer plan={plan} state={done} clock={systemClock} />).querySelector('.timer')!
+    expect(d.getAttribute('data-timer-state')).toBe('done')
+    expect(d.className).not.toContain('timer--ember')
+  })
   it('has role="timer" and no live announcement', () => {
     const el = mount(<CountUpTimer plan={plan} state={initialState} clock={systemClock} />).querySelector('.timer')!
     expect(el.getAttribute('role')).toBe('timer')

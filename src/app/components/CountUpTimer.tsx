@@ -26,12 +26,14 @@ export default function CountUpTimer({ plan, state, clock, pace }: { plan: Plan 
   const now = clock.now()
   const ms = state.status === 'idle' ? 0 : elapsedMs(state, now)
   const ember = plan !== null && emberActive(plan, state, now)
+  // The colour is a function of this state alone (cook-layout-p1d L5); `ember` is the last 10 s before a note.
+  const tstate = state.status === 'finished' ? 'done' : state.asleep ? 'paused' : ember ? 'ember' : 'running'
   // The clock counts cooking time: at ×4 or ×12 it must say so, or "3:17" reads as real minutes (cook-mode-qa-r1 Q1).
   const p = pace ?? state.paceHistory.at(-1)?.pace ?? 1
   const digits = formatElapsed(ms)
   const caption = p === 1 ? null : PACE.cooking(p)
   return (
-    <div className={`timer ${ember ? 'timer--ember' : ''}`} role="timer" aria-live="off" aria-label={caption ? `${digits}, ${caption}` : undefined} data-ms={Math.floor(ms)}>
+    <div className={`timer ${ember ? 'timer--ember' : ''}`} data-timer-state={tstate} role="timer" aria-live="off" aria-label={caption ? `${digits}, ${caption}` : undefined} data-ms={Math.floor(ms)}>
       <span className="timer__t">{digits}</span>
       {caption ? (
         <>

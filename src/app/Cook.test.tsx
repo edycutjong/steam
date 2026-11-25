@@ -38,7 +38,12 @@ describe('Cook screen (R9, R14.7, R14.8, R18.5, R18.6, R19.1, R19.2, R19.8, R15.
     const { host, root } = await open('#/r/quinces-marmalade/cook')
     expect(root.dataset.noteState).toBe('writing')
     expect(host.querySelector('.cook__under .slip')).not.toBeNull()
-    expect(text(host.querySelector('.cook__under'))).toContain('Wellcome Collection, Public Domain Mark')
+    // one attribution line (cook-layout-p1d L3): the mono slip names the source, no serif credit line repeats it
+    expect(host.querySelector('.cook__under .credit-line')).toBeNull()
+    expect(text(host.querySelector('.cook__under .slip'))).toContain('Wellcome Collection')
+    expect(text(host.querySelector('.cook__under .slip'))).toContain('c. 1750')
+    expect(text(host.querySelector('.cook__under .slip'))).toContain('Public Domain Mark')
+    expect(text(host.querySelector('.cook__under')).split('Wellcome Collection').length - 1).toBe(1)
     await tick(WRITE_ON_MS + 100)
     expect(root.dataset.noteState).toBe('held')
     await press(host)
@@ -59,6 +64,17 @@ describe('Cook screen (R9, R14.7, R14.8, R18.5, R18.6, R19.1, R19.2, R19.8, R15.
     expect(host.querySelector('.stage')!.contains(reading)).toBe(false) // under the pane, never on the glass
     await press(host)
     expect(host.querySelector('[data-note-reading]')).toBeNull()
+  })
+  it('keeps a one-line reading slot in the layout before the hold, so the reading arriving moves nothing (cook-layout-p1d L4)', async () => {
+    const { host, root } = await open('#/r/quinces-marmalade/cook')
+    expect(root.dataset.noteState).toBe('writing')
+    const slot = host.querySelector('.cook > .cook__reading') as HTMLElement
+    expect(slot).not.toBeNull()
+    expect(slot.getAttribute('aria-hidden')).toBe('true')
+    expect(slot.hasAttribute('data-note-reading')).toBe(false)
+    await tick(WRITE_ON_MS + 100)
+    expect(host.querySelectorAll('.cook > .cook__reading')).toHaveLength(1)
+    expect(host.querySelector('.cook > .cook__reading')!.hasAttribute('data-note-reading')).toBe(true)
   })
   it('Back links to the edition view and keeps the snapshot', async () => {
     const { host, store } = await open('#/r/quinces-marmalade/cook')

@@ -13,6 +13,8 @@ export const WIPE = {
   wipe: 'Wipe the glass',
   quoted: 'The hand, quoted',
   writing: 'The note is being written',
+  /** The same description under reduced motion, where the note fades in and nothing is written (cook-layout-p1d L6). */
+  appearing: 'The note is appearing',
   /** The control's own label while the hand is being written on the glass (cook-mode-qa-r1 Q2). */
   handWriting: 'The hand is writing…',
 } as const

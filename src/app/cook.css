@@ -13,9 +13,9 @@
 
 @media (min-width: 1025px) {
   .cook {
-    --glass-h: 47dvh;
+    --glass-h: 44dvh;
     --stage-w: min(60vw, 1100px);
-    padding-bottom: 40px;
+    padding-bottom: 8px;
   }
 }
 
@@ -160,6 +160,8 @@
   font-size: 18px;
   line-height: 1.4;
   text-align: center;
+  /* the slot is always one line high, so the reading arriving shifts nothing (cook-layout-p1d L4) */
+  min-height: 1.4em;
 }
 
 .cook__caption .btn {
@@ -170,10 +172,6 @@
   border-top: 0;
   padding-top: 0;
   animation: slip-in 900ms ease both;
-}
-
-.cook__under .credit-line {
-  margin-top: 2px;
 }
 
 @keyframes slip-in {
@@ -453,11 +451,13 @@
     font-size: 15px;
   }
 
+  /* the label may wrap to two lines ("The hand is writing…" at 320 px) and never runs into Back or Unmute (cook-layout-p1d L2) */
   .wipe {
     min-width: 0;
-    padding: 0 12px;
+    padding: 0 8px;
     font-size: 18px;
-    white-space: nowrap;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
   }
 }
 
@@ -499,7 +499,7 @@
    the step text has no scroll box of its own: the page scrolls, with room under the last line for the bar. */
 @media (max-width: 640px) {
   .cook {
-    --glass-h: 42dvh;
+    --glass-h: max(36dvh, 300px);
     padding-bottom: calc(60px + 2 * 12px + 28px + env(safe-area-inset-bottom, 0px));
   }
 
@@ -523,6 +523,7 @@
     margin: 6px auto 0;
     font-size: 15px;
     line-height: 1.3;
+    min-height: 1.3em;
   }
 
   .cook__source {
@@ -541,12 +542,6 @@
   .cook__source .slip--compact > * {
     display: inline;
     margin-right: 1em;
-  }
-
-  .cook__source .credit-line {
-    display: inline;
-    margin: 0;
-    font-size: 12px;
   }
 
   .cook__caption {
@@ -576,5 +571,17 @@
     min-height: 0;
     max-height: none;
     overflow: visible;
+  }
+}
+
+@media (max-width: 380px) {
+  .wipe {
+    font-size: 16px;
+  }
+
+  /* the clock and the knob wrap rather than widen the page at 320 px */
+  .cook__side {
+    flex-wrap: wrap;
+    gap: 8px 16px;
   }
 }

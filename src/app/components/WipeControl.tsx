@@ -20,13 +20,15 @@ interface Props {
   disabled?: boolean
   /** Cook Mode is ready: take focus once, so Space and Enter work at once (R14.9). */
   ready: boolean
+  /** `prefers-reduced-motion`: nothing is written stroke by stroke, the note appears (cook-layout-p1d L6). */
+  reduced?: boolean
   onAct: (c: Control) => void
   /** Wall-clock source for the debounce (tests). */
   now?: () => number
 }
 
 /** The one large control, labelled and driven by the Wipe table (R14). A second activation within 400 ms is ignored. */
-export default function WipeControl({ control, writing, disabled = false, ready, onAct, now = () => performance.now() }: Props) {
+export default function WipeControl({ control, writing, disabled = false, ready, reduced = false, onAct, now = () => performance.now() }: Props) {
   const ref = useRef<HTMLButtonElement>(null)
   const last = useRef(-Infinity)
   const inactive = writing || disabled
@@ -77,10 +79,10 @@ export default function WipeControl({ control, writing, disabled = false, ready,
         data-action={control.action}
         onClick={act}
       >
-        {writing ? WIPE.handWriting : control.label}
+        {writing ? (reduced ? WIPE.show : WIPE.handWriting) : control.label}
       </button>
       <span id={descId} className="sr-only">
-        {writing ? WIPE.writing : ''}
+        {writing ? (reduced ? WIPE.appearing : WIPE.writing) : ''}
       </span>
     </>
   )
