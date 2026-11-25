@@ -26,10 +26,12 @@ export default function Quoted({ recipe }: { recipe: LoadedRecipe }) {
           const href = regionUrl(b, n)!
           return (
             <li key={n.id} className="quote" data-note={n.id}>
-              <p className="quote__step">{QUOTED.step(n.step)}</p>
-              <div className="mat quote__crop">
+              <div className="mat quote__crop" style={{ width: 2 * n.size[0] }}>
+                {/* scaled by CSS only, never above twice its pixel size (design 10.3) */}
                 <img src={`/recipes/${b.id}/${n.files.png}`} width={n.size[0]} height={n.size[1]} alt={QUOTED.noteAlt(n.span)} loading="lazy" />
               </div>
+              <div className="quote__body">
+              <p className="quote__step">{QUOTED.step(n.step)}</p>
               <p className="quote__reading">
                 <ReadingText segments={quoteSegments(b, n)} />
               </p>
@@ -39,6 +41,7 @@ export default function Quoted({ recipe }: { recipe: LoadedRecipe }) {
                   {QUOTED.verify}
                 </a>
                 {n.verifyApproximate ? <p className="quote__approx">{QUOTED.approximate}</p> : null}
+              </div>
               </div>
             </li>
           )

@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-11-25T00:18:54.986Z",
+  "command": "npm run build && node scripts/measure-judge-path.ts",
+  "server": "vite preview (production build in dist/)",
+  "browser": "Chromium (Playwright), 1280x800, --use-angle=swiftshader",
+  "machine": {
+    "cpu": "Apple M1 Max",
+    "loadAverage": [
+      43.4,
+      30.46,
+      24.8
+    ]
+  },
+  "url": "/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12",
+  "definitions": {
+    "navigation": "performance.timeOrigin of the page (the deep link opened cold)",
+    "interactive": "performance mark cook:ready: the first pane has drawn its first frame and the Wipe control has focus",
+    "revealStart": "performance mark cook:reveal:till-it-looks-red-smooth: the reveal effect applied, with no input",
+    "lead": "default 10 s hold from session start (R19.3)"
+  },
+  "timing": {
+    "navigationToInteractiveMs": 2269,
+    "interactiveToRevealStartMs": 7823,
+    "navigationToRevealStartMs": 10091,
+    "writeOnStartMs": 10091,
+    "focusedAtInteractive": "wipe",
+    "playwrightWallClock": {
+      "gotoToDataReadyMs": 2376,
+      "gotoToRevealMarkMs": 10098
+    }
+  },
+  "verifyAtSource": {
+    "note": "till-it-looks-red-smooth",
+    "url": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/641,3660,2897,511/full/0/default.jpg",
+    "curl": "curl -sS -o /dev/null -w %{http_code} %{content_type} %{size_download} <url>",
+    "httpStatus": 200,
+    "contentType": "image/jpeg",
+    "bytes": 288843,
+    "host": "iiif.wellcomecollection.org",
+    "imageService": "https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2"
+  }
+}

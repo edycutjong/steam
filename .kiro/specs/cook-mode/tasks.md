@@ -365,7 +365,15 @@ Rules for every task:
   - Files: `scripts/measure-cook.ts`, `scripts/measure-cook.test.ts`, `bench/cook.json`, `bench/README.md`, `package.json` (`"bench:cook"`).
   - Satisfies: R26.2, R26.3.
 
-- [ ] 56. Final verification
+- [x] 56. Final verification
   - Run `npm test`, `npm run typecheck`, `npm run lint`, `npm run props`, `npm run build`, `npm run check:dist`, `npm run e2e`. Confirm: `content/catalog.json` was written only by `npm run catalog`; `gateSha256` of quinces is still `eb3fabc0…df10d`; `public/hero` is gone; the words guard (task 26) and the no-imitation hook pass on `src/`; every requirement R1 to R27 appears in at least one task above and one test; the number of properties green (P7, P8, K1 to K9); report the measured `bench/cook.json` values and the time-to-reveal numbers from the e2e log as measured, with any miss named.
   - Files: none (reads only), plus a result note appended under this task.
   - Satisfies: R25.1, R25.6, R26.1, R27.9.
+
+  - Result (2026-11-25, this run):
+    - `npm test`: 143 files, 1070 passed, 5 expected fail, about 21 to 27 s. `npm run typecheck`: clean. `npm run lint`: exit 0, 0 errors, 61 warnings (React-compiler rules: refs read during render, setState in effects). `npm run props`: gate quinces-marmalade pass (matches the committed gate.json). `npm run build`: built. `npm run check:dist`: 5 passed. `npm run e2e`: 40 passed (3.4 m), renderer and cook specs in one run.
+    - `content/catalog.json` is unchanged since commit 8643c48 (`npm run catalog`; task 4 re-ran it and it wrote the same bytes); `gateSha256` of quinces is still eb3fabc0…df10d; `public/hero` is gone; the words guard and the no-speech/no-handwriting-face scan pass.
+    - Properties green: P7 (16 cases, 800 runs each), P8 (P8.1 to P8.6), K1 to K9.
+    - `bench/cook.json` as measured: desktop-1280x720 mean 59.54 fps, min 29.94, worst 33.4 ms, 7 frames over 18.2 ms (fail); pixel5-4x-cpu mean 28.01 fps, min 14.99, worst 66.7 ms, 388 frames over 18.2 ms (fail). Both miss the budget; the machine was loaded and the renderer alone measured worse under the same load (docs/kiro-evidence/cook-mode/renderer-same-load.txt). An idle-machine run is owed.
+    - Judge path (`docs/kiro-evidence/cook-mode/judge-path.json`): navigation to interactive 2269 ms, interactive to reveal start 7823 ms. The hero verify URL answered 200 image/jpeg from iiif.wellcomecollection.org.
+    - Open: the phone layout of the hero overflows the pane by 1 px (390 px) and 16 px (360 px) per side because the renderer keeps a 16 px core band (renderer spec); the e2e time-to-reveal from the main flow was 9 869 ms after cook:ready in the last run, inside the 10 s bound by 131 ms.
