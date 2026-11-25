@@ -110,3 +110,7 @@
 2026-11-25T01:36:41.143Z · no-imitation · src/steam/transmission.ts · pass (no speech synthesis, handwriting font or handwriting package)
 2026-11-25T01:45:13.265Z · no-imitation · src/steam/drips.ts · pass (no speech synthesis, handwriting font or handwriting package)
 2026-11-25T20:49:14.998Z · src-scan · src/ · pass (0 files)
+2026-11-25T20:50:00.300Z · shell-gate · src/steam/zz-shell-probe.ts · blocked: speechSynthesis (line 1), SpeechSynthesisUtterance (line 1)
+2026-11-25T20:50:06.863Z · shell-gate · content/catalog.json · blocked: a shell command writes the catalog; only npm run catalog writes it
+2026-11-25T20:50:09.840Z · src-scan · src/steam/zz-shell-probe2.ts · fail speechSynthesis (src/steam/zz-shell-probe2.ts:1)
+2026-11-25T20:50:25.584Z · src-scan · src/ · pass (0 files)
