@@ -509,7 +509,16 @@ export class SteamRenderer {
 
   /** The animation clock's "now": frozen at the moment the page was hidden, so nothing started while hidden counts the gap. */
   private clockNow(): number {
+    this.resumeIfVisible()
     return this.hiddenAt !== null ? this.hiddenAt : performance.now()
+  }
+
+  /**
+   * The clock must not depend on one event: a page restored as visible may skip `visibilitychange` (a2a-arch-r05 B8). When the clock is
+   * frozen at a hidden instant and the source now says the page is not hidden, the same shift as on the event is applied.
+   */
+  private resumeIfVisible(): void {
+    if (this.hiddenAt !== null && this.vis && this.vis.visibilityState !== 'hidden') this.handleVisibility()
   }
 
   /** Hidden: the reveal clock stops. Visible again: everything measured on it moves forward by the hidden time, and no interval spans the gap. */
@@ -531,6 +540,7 @@ export class SteamRenderer {
 
   private frame(now: number): void {
     if (!this.playing) return
+    this.resumeIfVisible()
     if (this.hiddenAt !== null) {
       // a browser that still runs frames in a hidden tab: nothing moves, nothing is measured
       this.lastFrame = Number.NaN
