@@ -197,7 +197,7 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
   // The description of the † marks exists only where a mark is shown: in the step text, or in the typed note of a failed scan.
   const showsMarks = hasMarks(parseReading(stepReading(b, stepIndex))) || (paneNote !== null && failedNotes.includes(paneNote) && hasMarks(quoteSegments(b, recipe.notes.find((n) => n.id === paneNote)!)))
   // The reviewed reading of the note, under the pane, once the hand holds on the glass (look pass 3, R20.3). The glass itself
-  // stays the scan's pixels; this is DOM text, hidden from assistive tech because the live region has announced the words.
+  // stays the scan's pixels; this is DOM text and it is in the accessibility tree: the polite live region says the words once, and the next message replaces them there.
   const readingNote = ns === 'revealed' && noteAttr === 'held' && paneNote !== null && !failedHere ? (recipe.notes.find((n) => n.id === paneNote) ?? null) : null
   const showSlip = ns === 'revealed' && (noteAttr === 'writing' || noteAttr === 'held')
 
@@ -305,7 +305,7 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
       </DragSurface>
       {/* the slot is always in the layout, one line high, so the reading arriving moves nothing (cook-layout-p1d L4) */}
       {readingNote ? (
-        <p className="cook__reading" aria-hidden="true" data-note-reading>
+        <p className="cook__reading" data-note-reading>
           <ReadingText segments={quoteSegments(b, readingNote)} />
         </p>
       ) : (
