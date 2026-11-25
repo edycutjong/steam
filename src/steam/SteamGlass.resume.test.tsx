@@ -123,3 +123,73 @@ describe('SteamGlass hands the live state to the static pane (a2a-arch-r05 B4)',
     expect(m.states.at(-1)!.phase).not.toBe('fogged')
   })
 })
+
+// a2a-arch-r06 C3: the way back from static to live is not a way: a revealed note must never meet a fogged pane.
+describe('once static, a note stays static (a2a-arch-r06 C3)', () => {
+  const setReduced = (v: boolean) => {
+    reduced = v
+    act(() => void [...mqListeners].forEach((f) => f()))
+  }
+
+  it('reduced motion switched off again while the note is held: the pane stays static, held, and the wipe still works', async () => {
+    const m = mount()
+    await settle(50)
+    act(() => live.onState!(HOLDING))
+    setReduced(true)
+    await settle(150)
+    expect(m.host.querySelector('.static-pane')).not.toBeNull()
+    m.states.length = 0
+    setReduced(false)
+    await settle(300)
+    expect(m.host.querySelector('.static-pane')).not.toBeNull()
+    expect(m.host.querySelector('canvas')).toBeNull()
+    expect(live.created).toBe(1) // no new live renderer, which would start fogged with lead Infinity
+    expect(m.states.every((s) => s.phase === 'holding')).toBe(true)
+    act(() => m.ref.current!.wipe())
+    await settle(300)
+    expect(m.states.some((s) => s.phase === 'wiped' && s.wipe > 0)).toBe(true)
+  })
+
+  it('tier 3 then reduced motion on and off: still the static pane, never fogged', async () => {
+    const m = mount()
+    await settle(50)
+    act(() => live.onState!(HOLDING))
+    act(() => live.onDegrade!())
+    await settle(150)
+    m.states.length = 0
+    setReduced(true)
+    await settle(100)
+    setReduced(false)
+    await settle(300)
+    expect(live.created).toBe(1)
+    expect(m.host.querySelector('.static-pane')).not.toBeNull()
+    expect(m.states.every((s) => s.phase === 'holding')).toBe(true)
+  })
+
+  it('the next note\'s pane (a new mount) is live again once reduced motion is off', async () => {
+    const first = mount()
+    await settle(50)
+    act(() => live.onState!(HOLDING))
+    setReduced(true)
+    await settle(150)
+    setReduced(false)
+    await settle(150)
+    expect(first.host.querySelector('.static-pane')).not.toBeNull()
+    act(() => root?.unmount())
+    root = null
+    const next = mount()
+    await settle(50)
+    expect(live.created).toBe(2)
+    expect(next.host.querySelector('canvas')).not.toBeNull()
+    expect(next.host.querySelector('.static-pane')).toBeNull()
+  })
+
+  it('a page that is reduced from the start and stays so is unchanged: static, fogged, waits for startReveal', async () => {
+    reduced = true
+    const m = mount()
+    await settle(500)
+    expect(live.created).toBe(0)
+    expect(m.host.querySelector('.static-pane')).not.toBeNull()
+    expect(m.states.every((s) => s.phase === 'fogged')).toBe(true)
+  })
+})
