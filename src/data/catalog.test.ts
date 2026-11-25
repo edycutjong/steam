@@ -77,3 +77,111 @@ describe('no recipe data in src (honesty: the app shows what the bundle says)', 
     }
   })
 })
+
+// a2a-arch-r05 B5: a transient fetch failure must not hide the recipe for the whole visit.
+describe('loadShelf retries transport failures (a2a-arch-r05 B5)', () => {
+  type Sleep = (ms: number) => Promise<void>
+  const withSleep = createShelfLoader as unknown as (f: typeof fetch, c: unknown, sleep: Sleep) => ReturnType<typeof createShelfLoader>
+  const ok = () => new Response(bundleText, { status: 200 })
+  /** A fetch that answers from a script, one entry per call; the last entry repeats. */
+  const script = (...steps: (Response | Error | (() => Response))[]) => {
+    let i = 0
+    return vi.fn(async () => {
+      const s = steps[Math.min(i++, steps.length - 1)]!
+      if (s instanceof Error) throw s
+      return typeof s === 'function' ? s() : s.clone()
+    }) as unknown as typeof fetch
+  }
+  const sleeper = () => {
+    const waits: number[] = []
+    const fn: Sleep = async (ms) => void waits.push(ms)
+    return { fn, waits }
+  }
+  const quiet = () => vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+  it('two network rejections then success: the recipe loads, after waits of 300 ms and 1000 ms', async () => {
+    const w = quiet()
+    const f = script(new TypeError('Failed to fetch'), new TypeError('Failed to fetch'), ok())
+    const s = sleeper()
+    const r = await withSleep(f, catalog, s.fn).load()
+    w.mockRestore()
+    expect(r.rejected).toEqual([])
+    expect(r.recipes).toHaveLength(1)
+    expect(f).toHaveBeenCalledTimes(3)
+    expect(s.waits).toEqual([300, 1000])
+  })
+  it.each([408, 429, 500, 502, 503, 504])('HTTP %i is retried', async (status) => {
+    const w = quiet()
+    const f = script(new Response('', { status }), ok())
+    const r = await withSleep(f, catalog, sleeper().fn).load()
+    w.mockRestore()
+    expect(r.recipes).toHaveLength(1)
+    expect(f).toHaveBeenCalledTimes(2)
+  })
+  it('a load that still fails after the retries is reported, warned once, and not cached', async () => {
+    const w = quiet()
+    const f = script(new Response('', { status: 503 }))
+    const loader = withSleep(f, catalog, sleeper().fn)
+    const first = await loader.load()
+    expect(first.recipes).toEqual([])
+    expect(first.rejected).toEqual([{ id: 'quinces-marmalade', reason: expect.stringMatching(/503/) }])
+    expect(f).toHaveBeenCalledTimes(3)
+    expect(w).toHaveBeenCalledTimes(1)
+    // the same loader fetches again on a later load(): the failure was not kept
+    const h = script(new Response('', { status: 503 }), new Response('', { status: 503 }), new Response('', { status: 503 }), ok())
+    const l2 = withSleep(h, catalog, sleeper().fn)
+    expect((await l2.load()).recipes).toEqual([])
+    expect((await l2.load()).recipes).toHaveLength(1)
+    expect(h).toHaveBeenCalledTimes(4)
+    w.mockRestore()
+  })
+  it('a network failure that stays is not cached either', async () => {
+    const w = quiet()
+    const f = script(new TypeError('offline'), new TypeError('offline'), new TypeError('offline'), ok())
+    const loader = withSleep(f, catalog, sleeper().fn)
+    expect((await loader.load()).rejected[0]!.reason).toMatch(/offline/)
+    expect((await loader.load()).recipes).toHaveLength(1)
+    w.mockRestore()
+  })
+  it('two callers at once share one load, retries included', async () => {
+    const w = quiet()
+    const f = script(new TypeError('x'), ok())
+    const loader = withSleep(f, catalog, sleeper().fn)
+    const [a, b] = await Promise.all([loader.load(), loader.load()])
+    w.mockRestore()
+    expect(a.recipes).toHaveLength(1)
+    expect(b.recipes).toHaveLength(1)
+    expect(f).toHaveBeenCalledTimes(2)
+  })
+  const terminal: [string, () => typeof fetch, RegExp][] = [
+    ['HTTP 404', () => script(new Response('', { status: 404 })), /404/],
+    ['HTTP 403', () => script(new Response('', { status: 403 })), /403/],
+    ['invalid JSON', () => script(new Response('{not json', { status: 200 })), /./],
+    ['a schema failure', () => script(new Response(variant((b) => delete b.source.canvas), { status: 200 })), /invalid/],
+    ['a bundle that fails checkCookable', () => script(new Response(variant((b) => { b.notes[0].step = 9 }), { status: 200 })), /step 9/],
+  ]
+  it.each(terminal)('%s is terminal: one fetch, no wait, cached', async (_n, mk, why) => {
+    const w = quiet()
+    const f = mk()
+    const s = sleeper()
+    const loader = withSleep(f, catalog, s.fn)
+    const r = await loader.load()
+    await loader.load()
+    w.mockRestore()
+    expect(r.rejected).toEqual([{ id: 'quinces-marmalade', reason: expect.stringMatching(why) }])
+    expect(f).toHaveBeenCalledTimes(1)
+    expect(s.waits).toEqual([])
+  })
+  it('a provenance withholding is terminal and the recipe stays in, cached', async () => {
+    const w = quiet()
+    const f = script(new Response(variant((b) => { b.source.licence.id = 'cc-by-nc'; b.notes[0].provenance.licence.id = 'cc-by-nc' }), { status: 200 }))
+    const s = sleeper()
+    const loader = withSleep(f, catalog, s.fn)
+    const r = await loader.load()
+    await loader.load()
+    w.mockRestore()
+    expect(r.recipes[0]!.withheld.length).toBe(3)
+    expect(f).toHaveBeenCalledTimes(1)
+    expect(s.waits).toEqual([])
+  })
+})
