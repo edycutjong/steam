@@ -11,6 +11,8 @@ export interface PixelSource {
 export interface Derived {
   /** RGBA, w*h*4. R channel alpha, G toi, B pressure, A hull feather. */
   chan: Uint8Array
+  /** w*h. The scan's own continuous ink alpha (the toi map's R, 133 levels on the hero note), uploaded as the mipmapped `uInk`. */
+  ink: Uint8Array
   /** headBins * 2 floats: smoothed frontier centroid (x, y) in note px per toi bin. */
   head: Float32Array
   headBins: number
@@ -241,5 +243,7 @@ export function derive(toi: PixelSource, note: PixelSource): Derived {
   const chan = new Uint8Array(toi.width * toi.height * 4)
   deriveChannel(toi, note, chan)
   deriveHull(toi, chan)
-  return { chan, head: deriveHead(toi), headBins: HEAD_BINS }
+  const ink = new Uint8Array(toi.width * toi.height)
+  for (let p = 0; p < ink.length; p++) ink[p] = toi.data[p * 4]
+  return { chan, ink, head: deriveHead(toi), headBins: HEAD_BINS }
 }

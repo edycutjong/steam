@@ -62,6 +62,7 @@ const meta = {
 function assets(): RendererAssets {
   const derived: Derived = {
     chan: new Uint8Array(200 * 60 * 4),
+    ink: new Uint8Array(200 * 60),
     head: new Float32Array(256 * 2),
     headBins: 256,
   }

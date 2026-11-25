@@ -2,6 +2,7 @@
 // No colour literals live here: every colour arrives as a token uniform (R14.9).
 
 import { TOI_SOFT } from './timeline.ts'
+import { TRANS_GAMMA, TRANS_HI, TRANS_LO } from './transmission.ts'
 
 /** Full-screen triangle from gl_VertexID. vUv has y = 0 at the top of the pane. */
 export const VERT = /* glsl */ `#version 300 es
@@ -72,23 +73,6 @@ void main() {
 }
 `
 
-/**
- * Clear curve over the scan's ink alpha (D12). One narrow smoothstep centred on CLEAR_MID, so a stroke is
- * clear exactly where the scan has ink and no wider. `hero.coverage.test.ts` measures the area it reveals.
- */
-export const CLEAR_MID = 0.45
-export const CLEAR_HALF = 0.15
-/** D13: the edge band follows the fog density. Thin fog gives a soft edge, thick fog a crisp wet edge. */
-export const CLEAR_HALF_THIN = 0.2
-export const CLEAR_HALF_THICK = 0.1
-/** Fog density range (pass-1 value) over which the edge goes from soft to crisp. */
-export const EDGE_FOG_LO = 0.45
-export const EDGE_FOG_HI = 0.85
-export function clearCurve(alpha: number, half: number = CLEAR_HALF): number {
-  const t = Math.min(1, Math.max(0, (alpha - (CLEAR_MID - half)) / (2 * half)))
-  return t * t * (3 - 2 * t)
-}
-
 /** Ember seen through the clear glass: gain far from the pot, gain at the pot, and the falloff exp(-d^2 K) (D13). */
 export const THROUGH_FAR = 0.4
 export const THROUGH_NEAR = 1.1
@@ -157,7 +141,7 @@ uniform vec3 uGhost;
 uniform vec3 uMoon;
 uniform vec3 uNight;
 uniform vec2 uPot;
-uniform sampler2D uNote;
+uniform sampler2D uInkTex;
 uniform sampler2D uChan;
 uniform sampler2D uFog;
 
@@ -180,11 +164,9 @@ const float GRAIN_A = ${GRAIN_A.toFixed(2)};
 const float DROP_CELL_CSS = 26.0;
 const float DROP_KEEP_OUT_CSS = 28.0;
 const float BLOOM_A = 0.26;
-const float CLEAR_MID = ${CLEAR_MID.toFixed(2)};
-const float CLEAR_HALF_THIN = ${CLEAR_HALF_THIN.toFixed(2)};
-const float CLEAR_HALF_THICK = ${CLEAR_HALF_THICK.toFixed(2)};
-const float EDGE_FOG_LO = ${EDGE_FOG_LO.toFixed(2)};
-const float EDGE_FOG_HI = ${EDGE_FOG_HI.toFixed(2)};
+const float TRANS_LO = ${TRANS_LO.toFixed(3)};
+const float TRANS_HI = ${TRANS_HI.toFixed(3)};
+const float TRANS_GAMMA = ${TRANS_GAMMA.toFixed(3)};
 const float RIM_A = 0.45;
 const float PLUME_A = ${PLUME_A.toFixed(2)};
 const float BEAD_CELL_CSS = 14.0;
@@ -219,6 +201,35 @@ float edgeMask(vec2 uv) {
 // Slight green-grey tint, derived from the fog colour itself (no new token).
 vec3 glassEdgeTint(vec3 fog) {
   return fog * vec3(0.94, 1.06, 1.0);
+}
+
+// How clear the glass is for a scan alpha: monotone and continuous over the whole range (transmission.ts is the twin).
+float trans(float a) {
+  float x = clamp((a - TRANS_LO) / (TRANS_HI - TRANS_LO), 0.0, 1.0);
+  return pow(x * x * (3.0 - 2.0 * x), TRANS_GAMMA);
+}
+
+// Catmull-Rom magnification of the ink alpha in 5 bilinear taps (the 16-texel filter, corner taps dropped).
+float inkCubic(vec2 npos) {
+  vec2 tex = uNoteSize;
+  vec2 pos = npos;
+  vec2 c = floor(pos - 0.5) + 0.5;
+  vec2 f = pos - c;
+  vec2 w0 = f * (-0.5 + f * (1.0 - 0.5 * f));
+  vec2 w1 = 1.0 + f * f * (-2.5 + 1.5 * f);
+  vec2 w2 = f * (0.5 + f * (2.0 - 1.5 * f));
+  vec2 w3 = f * f * (-0.5 + 0.5 * f);
+  vec2 w12 = w1 + w2;
+  vec2 p0 = (c - 1.0) / tex;
+  vec2 p3 = (c + 2.0) / tex;
+  vec2 p12 = (c + w2 / w12) / tex;
+  float s = textureLod(uInkTex, vec2(p12.x, p0.y), 0.0).r * (w12.x * w0.y)
+          + textureLod(uInkTex, vec2(p0.x, p12.y), 0.0).r * (w0.x * w12.y)
+          + textureLod(uInkTex, p12, 0.0).r * (w12.x * w12.y)
+          + textureLod(uInkTex, vec2(p3.x, p12.y), 0.0).r * (w3.x * w12.y)
+          + textureLod(uInkTex, vec2(p12.x, p3.y), 0.0).r * (w12.x * w3.y);
+  float wsum = w12.x * w0.y + w0.x * w12.y + w12.x * w12.y + w3.x * w12.y + w12.x * w3.y;
+  return clamp(s / wsum, 0.0, 1.0);
 }
 
 // Samples the channel at a screen px position. Where group rects overlap (the stacked layout),
@@ -312,17 +323,14 @@ void main() {
   float wf = wiped * wiped * (3.0 - 2.0 * wiped);
   float depth = 0.9 + 0.1 * ch.b;
   float c = ch.r * wiped;
-  float aRaw = clamp(ch.r * depth, 0.0, 1.0);
-  float clearM = aRaw;
-  // Edge width: follows the fog density (D13), and never narrower than about one screen px of the alpha ramp.
-  float fogK = smoothstep(EDGE_FOG_LO, EDGE_FOG_HI, fogD);
-  float edgeHalf = mix(CLEAR_HALF_THIN, CLEAR_HALF_THICK, fogK);
-  edgeHalf = max(edgeHalf, 0.6 * length(vec2(dFdx(clearM), dFdy(clearM))));
+  // The scan's continuous ink alpha, magnified bicubically. gi < 0 means no group covers this pixel.
+  float aInk = gi >= 0 ? inkCubic(npos) : 0.0;
+  float clearM = aInk;
+  float fogK = smoothstep(0.45, 0.85, fogD);
 
   // Neighbourhood of written ink, only near the hull: a pile-up ring, a warm bloom and run-off drips.
   float near = 0.0;
   float far = 0.0;
-  float drip = 0.0;
   if (hullF > 0.01 && uU > -0.5) {
     // Rings rotated per pixel (interleaved noise) so the taps blur instead of ghosting.
     float ang = 6.2831853 * fract(52.9829189 * fract(dot(fragPx, vec2(0.06711056, 0.00583715))));
@@ -336,24 +344,10 @@ void main() {
     vec2 m45 = (e1 - e2) * 0.7071;
     far = (tapC(fragPx + e1 * rb) + tapC(fragPx - e1 * rb) + tapC(fragPx + e2 * rb) + tapC(fragPx - e2 * rb)
          + tapC(fragPx + d45 * ra) + tapC(fragPx - d45 * ra) + tapC(fragPx + m45 * ra) + tapC(fragPx - m45 * ra)) * 0.125;
-    // Short run-off drips below written ink: a few thin columns, each of its own length.
-    float cell = 7.0 * px;
-    vec2 id = floor(vec2(fragPx.x / cell, 0.0));
-    float h = hash(id + 3.1);
-    float h2 = hash(id + 17.9);
-    float colMatch = 1.0 - smoothstep(0.55 * px, 0.95 * px, abs(fragPx.x - (id.x + 0.2 + 0.6 * h2) * cell));
-    if (colMatch > 0.0 && h > 0.9 && c < 0.2) {
-      float len = (6.0 + 8.0 * h2) * px;
-      float hit = 0.0;
-      hit = max(hit, step(0.55, tapC(fragPx - vec2(0.0, len * 0.25))) * 0.9);
-      hit = max(hit, step(0.55, tapC(fragPx - vec2(0.0, len * 0.55))) * 0.7);
-      hit = max(hit, step(0.55, tapC(fragPx - vec2(0.0, len))) * 0.5);
-      drip = hit * colMatch;
-    }
   }
-  // Glass is clear exactly where the scan has ink: one narrow band over the scan's alpha (D12).
-  float clearRaw = smoothstep(CLEAR_MID - edgeHalf, CLEAR_MID + edgeHalf, aRaw);
-  float clearS = max(clearRaw * wf, smoothstep(CLEAR_MID - edgeHalf, CLEAR_MID + edgeHalf, drip));
+  // The glass is as clear as the scan is dark: a smooth monotone map, never a band (design §3).
+  float clearRaw = trans(aInk);
+  float clearS = clearRaw * wf;
 
   // 2. Cook's wipe: a soft front sweeps left to right. The hull stays clear, the rest re-fogs.
   float front = uWipe * (1.0 + SWEEP_SOFT) - vUv.x;

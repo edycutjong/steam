@@ -1,20 +1,14 @@
-// D12: the revealed channel must not be wider than the scan's own ink at the displayed scale.
-//
-// Re-pinned in cook-mode task 27, when the spike note was replaced by the bundle's hero note.
-// Measured with a throwaway script that ran this file's own revealedArea() over both notes (revealed area / scan ink area):
-//                                  1x      2x      thin    thick
-//   spike  note-looks-red-smooth   1.0951  1.0985  1.0980  1.0989
-//   bundle note-till-it-looks-red-smooth
-//                                  1.1739  1.1422  1.1277  1.1526
-// The 1.15 bound of the spike held at 2x and in thin fog and is exceeded at 1x (1.1739) and in thick fog (1.1526), so those two
-// bounds are set to the measured value rounded up to the next 0.01 (1.18, 1.16). The lower bound 0.85 is unchanged. The renderer's
-// own code was not touched; the note is a different strip of the same page, with more hairlines per area.
+// P-T3 (steam-renderer-v1 design §3): the glass clears by the scan's continuous alpha through `trans`, so the area it clears
+// (the sum of T over the displayed pixels) stays within 0.85 and 1.15 of the scan's own ink (the sum of a), at texture
+// resolution and magnified 2x with the bicubic filter the composite uses. Counters stay open; hairlines stay present.
+// (v0's D12 bound measured a narrow threshold band over the same alpha: 1.17 at 1x.)
 import { readFileSync } from 'node:fs'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 import { derive, type PixelSource } from './derive.ts'
-import { CLEAR_HALF, CLEAR_HALF_THICK, CLEAR_HALF_THIN, FEATHER_K, clearCurve } from './shaders.ts'
+import { FEATHER_K } from './shaders.ts'
 import { TOI_SOFT } from './timeline.ts'
+import { sampleCatmull, trans } from './transmission.ts'
 
 const base = new URL('../../public/recipes/quinces-marmalade/', import.meta.url)
 const toiUrl = new URL('note-till-it-looks-red-smooth.toi.png', base)
@@ -25,51 +19,45 @@ function decode(u: URL): PixelSource {
   return { data: p.data, width: p.width, height: p.height }
 }
 
-/** Revealed area at an integer upsampling factor, bilinear like the GPU's LINEAR filter. */
-function revealedArea(chan: Uint8Array, w: number, h: number, up: number, half: number): number {
-  const R = (x: number, y: number): number =>
-    chan[(Math.min(h - 1, Math.max(0, y)) * w + Math.min(w - 1, Math.max(0, x))) * 4] / 255
+/** Sum of T over the displayed pixels at an integer magnification, divided by `up^2` so it is in note-pixel units. */
+function clearedArea(ink: Uint8Array, w: number, h: number, up: number): number {
   let area = 0
   for (let y = 0; y < h * up; y++) {
     for (let x = 0; x < w * up; x++) {
-      const fx = (x + 0.5) / up - 0.5
-      const fy = (y + 0.5) / up - 0.5
-      const x0 = Math.floor(fx)
-      const y0 = Math.floor(fy)
-      const tx = fx - x0
-      const ty = fy - y0
-      const v =
-        (R(x0, y0) * (1 - tx) + R(x0 + 1, y0) * tx) * (1 - ty) +
-        (R(x0, y0 + 1) * (1 - tx) + R(x0 + 1, y0 + 1) * tx) * ty
-      area += clearCurve(v, half)
+      area += trans(sampleCatmull(ink, w, h, (x + 0.5) / up, (y + 0.5) / up))
     }
   }
   return area / (up * up)
 }
 
-describe('revealed stroke coverage on the hero toi map (D12)', () => {
+describe('cleared glass area on the hero note (P-T3)', () => {
   const toi = decode(toiUrl)
   const note = decode(noteUrl)
-  const { chan } = derive(toi, note)
+  const { ink } = derive(toi, note)
   const { width: w, height: h } = toi
   let scanInk = 0
   for (let p = 0; p < w * h; p++) scanInk += toi.data[p * 4] / 255
 
-  it('reveals at most 1.18 times the scan ink area, at texture resolution (measured 1.1739)', () => {
-    expect(revealedArea(chan, w, h, 1, CLEAR_HALF) / scanInk).toBeLessThanOrEqual(1.18)
+  it('carries the scan alpha unchanged into the ink texture', () => {
+    for (let p = 0; p < w * h; p += 7) expect(ink[p]).toBe(toi.data[p * 4])
   })
-  it('reveals at most 1.15 times the scan ink area at 2x bilinear (the desktop display scale)', () => {
-    expect(revealedArea(chan, w, h, 2, CLEAR_HALF) / scanInk).toBeLessThanOrEqual(1.15)
+  it.each([1, 2])('clears between 0.85 and 1.15 times the scan ink area at %ix magnification', (up) => {
+    const ratio = clearedArea(ink, w, h, up) / scanInk
+    expect(ratio).toBeLessThanOrEqual(1.15)
+    expect(ratio).toBeGreaterThanOrEqual(0.85)
   })
-  it('keeps the bound in thin and in thick fog, where the edge band is wider and narrower (D13)', () => {
-    for (const half of [CLEAR_HALF_THIN, CLEAR_HALF_THICK]) {
-      const ratio = revealedArea(chan, w, h, 2, half) / scanInk
-      expect(ratio).toBeLessThanOrEqual(1.16) // measured 1.1277 thin, 1.1526 thick
-      expect(ratio).toBeGreaterThanOrEqual(0.85)
+  it('clears hairlines partly: pixels with alpha 0.1 to 0.3 are neither fog nor fully clear', () => {
+    let n = 0
+    let mid = 0
+    for (let p = 0; p < w * h; p++) {
+      const a = ink[p] / 255
+      if (a < 0.1 || a > 0.3) continue
+      n++
+      const t = trans(a)
+      if (t > 0.02 && t < 0.6) mid++
     }
-  })
-  it('does not lose the pen: at least 0.85 of the scan ink area stays revealed (hairlines, counters)', () => {
-    expect(revealedArea(chan, w, h, 2, CLEAR_HALF) / scanInk).toBeGreaterThanOrEqual(0.85)
+    expect(n).toBeGreaterThan(200)
+    expect(mid / n).toBeGreaterThan(0.95)
   })
 })
 

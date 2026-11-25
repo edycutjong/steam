@@ -35,7 +35,7 @@ const COMP_UNIFORMS = [
   'uRes', 'uDpr', 'uTime', 'uU', 'uThicken', 'uHead', 'uWipe', 'uRefog',
   'uGroupSrc', 'uGroupDst', 'uGroupCount', 'uNoteSize', 'uHeadPos', 'uHeadGroup',
   'uBg', 'uInk', 'uBefore', 'uAfter', 'uRule', 'uGhost', 'uMoon', 'uNight', 'uPot',
-  'uNote', 'uChan', 'uFog',
+  'uInkTex', 'uChan', 'uFog',
 ] as const
 type Locs<K extends string> = Record<K, WebGLUniformLocation | null>
 
@@ -55,7 +55,7 @@ export interface FrameStats {
 }
 
 /** Sampler units. */
-const UNIT_NOTE = 0
+const UNIT_INK = 0
 const UNIT_CHAN = 1
 const UNIT_FOG = 2
 
@@ -109,7 +109,7 @@ interface Resources {
   progFog: WebGLProgram
   progComp: WebGLProgram
   vao: WebGLVertexArrayObject
-  texNote: WebGLTexture
+  texInk: WebGLTexture
   texChan: WebGLTexture
   texFog: WebGLTexture
   fboFog: WebGLFramebuffer
@@ -117,12 +117,12 @@ interface Resources {
   compLoc: Locs<(typeof COMP_UNIFORMS)[number]>
 }
 
-function texture(gl: WebGL2RenderingContext, unit: number, wrapX: number): WebGLTexture | null {
+function texture(gl: WebGL2RenderingContext, unit: number, wrapX: number, minFilter: number = gl.LINEAR): WebGLTexture | null {
   const tex = gl.createTexture()
   if (!tex) return null
   gl.activeTexture(gl.TEXTURE0 + unit)
   gl.bindTexture(gl.TEXTURE_2D, tex)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapX)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
@@ -223,19 +223,23 @@ export class SteamRenderer {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false)
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false)
     gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE)
-    const texNote = texture(gl, UNIT_NOTE, gl.CLAMP_TO_EDGE)
+    const texInk = texture(gl, UNIT_INK, gl.CLAMP_TO_EDGE, gl.LINEAR_MIPMAP_LINEAR)
     const texChan = texture(gl, UNIT_CHAN, gl.CLAMP_TO_EDGE)
     const texFog = texture(gl, UNIT_FOG, gl.REPEAT)
     const fboFog = gl.createFramebuffer()
-    if (!progFog || !progComp || !vao || !texNote || !texChan || !texFog || !fboFog) {
-      SteamRenderer.release(gl, { progFog, progComp, vao, texNote, texChan, texFog, fboFog })
+    if (!progFog || !progComp || !vao || !texInk || !texChan || !texFog || !fboFog) {
+      SteamRenderer.release(gl, { progFog, progComp, vao, texInk, texChan, texFog, fboFog })
       return null
     }
 
     const [w, h] = assets.meta.size
-    gl.activeTexture(gl.TEXTURE0 + UNIT_NOTE)
-    gl.bindTexture(gl.TEXTURE_2D, texNote)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, assets.note)
+    gl.activeTexture(gl.TEXTURE0 + UNIT_INK)
+    gl.bindTexture(gl.TEXTURE_2D, texInk)
+    // The scan's continuous ink alpha, single channel, with mips: `uInk` (design §2). The scan's RGB is never uploaded.
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, w, h, 0, gl.RED, gl.UNSIGNED_BYTE, assets.derived.ink)
+    gl.generateMipmap(gl.TEXTURE_2D)
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4)
     gl.activeTexture(gl.TEXTURE0 + UNIT_CHAN)
     gl.bindTexture(gl.TEXTURE_2D, texChan)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, assets.derived.chan)
@@ -249,7 +253,7 @@ export class SteamRenderer {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     if (!complete) {
       console.error('steam: fog framebuffer is incomplete')
-      SteamRenderer.release(gl, { progFog, progComp, vao, texNote, texChan, texFog, fboFog })
+      SteamRenderer.release(gl, { progFog, progComp, vao, texInk, texChan, texFog, fboFog })
       return null
     }
 
@@ -258,7 +262,7 @@ export class SteamRenderer {
 
     // Per-program constants, set once: sampler units and token colours.
     gl.useProgram(progComp)
-    gl.uniform1i(compLoc.uNote, UNIT_NOTE)
+    gl.uniform1i(compLoc.uInkTex, UNIT_INK)
     gl.uniform1i(compLoc.uChan, UNIT_CHAN)
     gl.uniform1i(compLoc.uFog, UNIT_FOG)
     gl.uniform3fv(compLoc.uBg, tokens.bg)
@@ -273,7 +277,7 @@ export class SteamRenderer {
     gl.uniform2f(compLoc.uNoteSize, w, h)
     gl.bindVertexArray(vao)
 
-    return { progFog, progComp, vao, texNote, texChan, texFog, fboFog, fogLoc, compLoc }
+    return { progFog, progComp, vao, texInk, texChan, texFog, fboFog, fogLoc, compLoc }
   }
 
   /** Deletes whichever resources exist. Safe with nulls. */
@@ -283,7 +287,7 @@ export class SteamRenderer {
       progFog: WebGLProgram | null
       progComp: WebGLProgram | null
       vao: WebGLVertexArrayObject | null
-      texNote: WebGLTexture | null
+      texInk: WebGLTexture | null
       texChan: WebGLTexture | null
       texFog: WebGLTexture | null
       fboFog: WebGLFramebuffer | null
@@ -292,7 +296,7 @@ export class SteamRenderer {
     if (r.progFog) gl.deleteProgram(r.progFog)
     if (r.progComp) gl.deleteProgram(r.progComp)
     if (r.vao) gl.deleteVertexArray(r.vao)
-    if (r.texNote) gl.deleteTexture(r.texNote)
+    if (r.texInk) gl.deleteTexture(r.texInk)
     if (r.texChan) gl.deleteTexture(r.texChan)
     if (r.texFog) gl.deleteTexture(r.texFog)
     if (r.fboFog) gl.deleteFramebuffer(r.fboFog)

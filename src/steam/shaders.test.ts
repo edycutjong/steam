@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CLEAR_HALF_THICK, CLEAR_HALF_THIN, COMPOSITE_FRAG, PLUME_A, PLUME_H0, PLUME_H2, PLUME_REACH, STREAK_A, STREAK_HALF_CSS, STROKE_LUMA_MAX, THROUGH_FAR, THROUGH_K, THROUGH_NEAR } from './shaders.ts'
+import { COMPOSITE_FRAG, PLUME_A, PLUME_H0, PLUME_H2, PLUME_REACH, STREAK_A, STREAK_HALF_CSS, STROKE_LUMA_MAX, THROUGH_FAR, THROUGH_K, THROUGH_NEAR } from './shaders.ts'
 import { parseColor } from './tokens.ts'
 
 /** --after, the only colour the plume adds. */
@@ -21,8 +21,10 @@ describe('composite constants', () => {
     expect(gain(0.18)).toBeGreaterThan(gain(1.18) * 1.8)
     expect(gain(1.18)).toBeLessThan(0.6)
   })
-  it('makes the edge crisper in thick fog than in thin fog (D13)', () => {
-    expect(CLEAR_HALF_THICK).toBeLessThan(CLEAR_HALF_THIN)
+  it('clears by the continuous transmission, never by a threshold band (R1.4)', () => {
+    expect(COMPOSITE_FRAG).toContain('trans(aInk)')
+    expect(COMPOSITE_FRAG).toContain('inkCubic')
+    expect(COMPOSITE_FRAG).not.toMatch(/CLEAR_MID|CLEAR_HALF|edgeHalf/)
   })
   it('caps stroke luminance at 92% and keeps --ink under that cap too (D14)', () => {
     expect(STROKE_LUMA_MAX).toBeLessThanOrEqual(0.92)
