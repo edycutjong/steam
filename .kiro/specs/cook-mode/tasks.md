@@ -339,7 +339,7 @@ Rules for every task:
   - Files: `e2e/cook-flow.spec.ts`.
   - Satisfies: R27.2, R14.1 to R14.5, R11.4, R15.5.
 
-- [ ] 52. E2E: reduced motion and keyboard only
+- [x] 52. E2E: reduced motion and keyboard only
   - Test first: `e2e/cook-a11y.spec.ts`: with `emulateMedia({reducedMotion: 'reduce'})`: no `canvas` in Cook Mode, the held image's computed `transition-duration` is 0.6 s with opacity as the only property, the same live-region text, the lamp overlay present and animating once. Keyboard only (no pointer calls): Tab and Enter from the shelf to the edition, Tab to "Cook it", Enter; in Cook Mode the Wipe control has focus, ←/→ on the knob changes the pace (the badge appears), Space and Enter advance through to "The hand, quoted"; every focused element shows an outline of 2 px or more in the `--ghost` colour (computed style).
   - Implement what the run finds missing.
   - Files: `e2e/cook-a11y.spec.ts`.
