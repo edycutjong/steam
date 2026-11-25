@@ -78,9 +78,9 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
   const readyOnce = useRef(false)
   const latest = useRef({ onState, onReady, onError, onStatus })
   latest.current = { onState, onReady, onError, onStatus }
-  const { t, lead: paramLead, fps } = params
+  const { t, lead: paramLead, fps, bloom } = params
   // A held pane has its reveal clock started a whole write-on ago, so its first frame is `holding` (R15.4).
-  const effective = useMemo<SteamParams>(() => (initial === 'held' ? { t: null, lead: -WRITE_ON_MS, fps } : { t, lead: paramLead, fps }), [initial, t, paramLead, fps])
+  const effective = useMemo<SteamParams>(() => (initial === 'held' ? { t: null, lead: -WRITE_ON_MS, fps, bloom } : { t, lead: paramLead, fps, bloom }), [initial, t, paramLead, fps, bloom])
   // The last state the pane reported and when, so a static pane that replaces a lost live one carries on from it (Q8).
   const lastState = useRef<{ state: RevealState; at: number } | null>(null)
   const [haunt, setHaunt] = useState<Haunt>(initial === 'held' ? 'clear' : 'calm')
@@ -142,7 +142,7 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
     const w = canvas.clientWidth
     const h = canvas.clientHeight
     const layout = computeLayout(chooseLayout(w), w, h, meta)
-    const renderer = SteamRenderer.create(canvas, { meta, note: assets.note, derived }, layout, { dprCap: 2, frozenT: p.t, lead: p.lead })
+    const renderer = SteamRenderer.create(canvas, { meta, note: assets.note, derived }, layout, { dprCap: 2, frozenT: p.t, lead: p.lead, bloom: p.bloom })
     if (!renderer) {
       setNoWebGl(true)
       return

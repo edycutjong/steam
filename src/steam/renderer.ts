@@ -4,6 +4,7 @@
 import type { NoteMeta } from './assets.ts'
 import type { Derived } from './derive.ts'
 import type { Layout } from './layout.ts'
+import { bloomAt, candleLevel } from './haunt.ts'
 import { placeDrips, planDrips, writeRunUniforms } from './drips.ts'
 import type { PlacedRun, PlannedRun } from './drips.ts'
 import { COMPOSITE_FRAG, FOG_FRAG, RUN_MAX, TRAIL_N, TRAIL_STEP, VERT } from './shaders.ts'
@@ -25,6 +26,8 @@ export interface RendererOptions {
   frozenT: number | null
   /** Lead-in before the reveal, ms. */
   lead: number
+  /** The cue's cold bloom. Default true; false for the static pane images. */
+  bloom?: boolean
   /** Design tokens. Read from the canvas's CSS custom properties when absent. */
   tokens?: Tokens
 }
@@ -362,7 +365,10 @@ export class SteamRenderer {
       this.revealStart = now
     }
     const phase = revealState(now - this.revealStart, this.wipeAt).phase
-    if (phase === 'fogged' || phase === 'thickening') {
+    if (phase === 'fogged') {
+      // the cue comes first: the cold bloom, the cloud and the candle, THICKEN_MS before the hand is written
+      this.revealStart = now + THICKEN_MS
+    } else if (phase === 'thickening') {
       this.revealStart = now
     } else if (phase === 'wiped') {
       this.wipeAt = null
@@ -466,7 +472,7 @@ export class SteamRenderer {
     gl.uniform2f(r.compLoc.uHeadPos, head[2 * bin], head[2 * bin + 1])
     gl.uniform1i(r.compLoc.uHeadGroup, headGroup)
     gl.uniform2f(r.compLoc.uFogTexel, 1 / this.fogW, 1 / this.fogH)
-    gl.uniform3f(r.compLoc.uCandle, this.candleU, this.candleV, 0.9 + 0.1 * Math.sin(time * 7.3) * Math.sin(time * 4.1 + 0.6))
+    gl.uniform3f(r.compLoc.uCandle, this.candleU, this.candleV, candleLevel(time, t))
     const nRuns = this.runs.length
     for (let k = 0; k < nRuns; k++) writeRunUniforms(this.runs[k], t, this.dpr, this.runA, this.runB, k)
     this.writeTrail(bin)
@@ -474,7 +480,7 @@ export class SteamRenderer {
     gl.uniform4fv(r.compLoc.uRunA, this.runA)
     gl.uniform4fv(r.compLoc.uRunB, this.runB)
     gl.uniform1i(r.compLoc.uRunCount, nRuns)
-    gl.uniform1f(r.compLoc.uBloom, 0)
+    gl.uniform1f(r.compLoc.uBloom, this.opts.bloom === false ? 0 : bloomAt(t))
     gl.uniform1f(r.compLoc.uDetail, 1)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }

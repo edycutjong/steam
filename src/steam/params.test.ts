@@ -30,6 +30,11 @@ describe('parseParams', () => {
   it('falls back to the hash when the search value is bad', () => {
     expect(parseParams('?t=x', '#/?t=2').t).toBe(2)
   })
+  it('reads ?bloom=0 and leaves the key out otherwise', () => {
+    expect(parseParams('?t=-1&bloom=0', '').bloom).toBe(false)
+    expect(parseParams('', '#/?bloom=0')).toEqual({ t: null, lead: LEAD_MS, fps: false, bloom: false })
+    expect('bloom' in parseParams('?bloom=1', '')).toBe(false)
+  })
   it('t overrides lead', () => {
     expect(parseParams('?t=100&lead=50', '').lead).toBe(LEAD_MS)
   })

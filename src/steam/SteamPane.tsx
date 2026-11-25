@@ -15,7 +15,7 @@ const WIPE = 'Wipe the glass'
 const WRITING = 'Writing…'
 
 export function buttonLabel(phase: Phase): string {
-  if (phase === 'writing') return WRITING
+  if (phase === 'writing' || phase === 'thickening') return WRITING
   return phase === 'holding' ? WIPE : SHOW
 }
 
@@ -69,7 +69,7 @@ export default function SteamPane({ stem, paneDir, noteId, query }: Props) {
   const act = useCallback((): void => {
     const ctl = ctlRef.current
     const p = phaseRef.current
-    if (!ctl || frozen || p === 'writing') return
+    if (!ctl || frozen || p === 'writing' || p === 'thickening') return
     if (p === 'holding') ctl.wipe()
     else ctl.startReveal()
   }, [frozen])
@@ -87,8 +87,8 @@ export default function SteamPane({ stem, paneDir, noteId, query }: Props) {
 
   // Live region: set when the write-on starts, cleared on replay so it is announced again.
   useEffect(() => {
-    if (phase === 'writing' && noteText) setAnnounced(announcement(noteText))
-    else if (phase === 'fogged' || phase === 'thickening') setAnnounced('')
+    if ((phase === 'writing' || phase === 'thickening') && noteText) setAnnounced(announcement(noteText))
+    else if (phase === 'fogged' || phase === 'wiped') setAnnounced('')
   }, [phase, noteText])
 
   return (
@@ -100,7 +100,7 @@ export default function SteamPane({ stem, paneDir, noteId, query }: Props) {
         <button
           type="button"
           className="wipe-btn"
-          aria-disabled={phase === 'writing' || frozen || status === 'loading' || status === 'error' ? true : undefined}
+          aria-disabled={phase === 'writing' || phase === 'thickening' || frozen || status === 'loading' || status === 'error' ? true : undefined}
           onClick={act}
         >
           {buttonLabel(phase)}

@@ -7,6 +7,8 @@ export interface SteamParams {
   lead: number
   /** Show the fps overlay. */
   fps: boolean
+  /** `?bloom=0` turns the cue's cold bloom off (the static pane images are made without it). */
+  bloom?: boolean
 }
 
 function queryOf(hash: string): URLSearchParams {
@@ -36,5 +38,6 @@ export function parseParams(search: string, hash: string): SteamParams {
     return n !== null && n >= 0
   }))
   const fps = get('fps', (v) => v === '1') === '1'
-  return { t, lead: t !== null || leadRaw === null ? LEAD_MS : leadRaw, fps }
+  const noBloom = get('bloom', (v) => v === '0') === '0'
+  return { t, lead: t !== null || leadRaw === null ? LEAD_MS : leadRaw, fps, ...(noBloom ? { bloom: false } : {}) }
 }
