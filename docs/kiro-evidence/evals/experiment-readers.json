@@ -1,0 +1,52 @@
+{
+  "recipe": "quinces-marmalade",
+  "goldBy": "Claude Code builder agent (Opus 5.5)",
+  "goldLines": 11,
+  "scribeErrors": 2,
+  "secondReaderErrors": 3,
+  "scribeUncertainTokens": 6,
+  "diffFlags": 5,
+  "caughtByUncertainOnly": 2,
+  "caughtByDiff": 2,
+  "caughtByEither": 2,
+  "missedByBoth": [],
+  "scribeErrorRows": [
+    {
+      "line": 6,
+      "agent": "6.",
+      "gold": "L.",
+      "op": "replace",
+      "uncertain": true,
+      "diff": true
+    },
+    {
+      "line": 10,
+      "agent": "stir'd",
+      "gold": "stirred",
+      "op": "replace",
+      "uncertain": true,
+      "diff": true
+    }
+  ],
+  "secondReaderErrorRows": [
+    {
+      "line": 3,
+      "agent": "cores",
+      "gold": "Cores",
+      "op": "replace"
+    },
+    {
+      "line": 6,
+      "agent": "C.",
+      "gold": "L.",
+      "op": "replace"
+    },
+    {
+      "line": 8,
+      "agent": "sugʳ.",
+      "gold": "sug.r",
+      "op": "replace"
+    }
+  ],
+  "command": "python3 scripts/experiment_readers.py quinces-marmalade"
+}
