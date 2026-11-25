@@ -7,7 +7,7 @@ import { chooseLayout } from './layout.ts'
 import type { LayoutKind } from './layout.ts'
 import type { SteamParams } from './params.ts'
 import type { Phase, RevealState } from './timeline.ts'
-import { revealState, THICKEN_MS } from './timeline.ts'
+import { REFOG_MS, revealState, THICKEN_MS, WIPE_MS, WRITE_ON_MS } from './timeline.ts'
 
 export const CROSSFADE_MS = 600
 const STATE_PERIOD_MS = 100
@@ -31,6 +31,30 @@ export class RevealClock {
   constructor(frozen: number | null, lead: number, now: number) {
     this.frozen = frozen
     this.revealStart = now + lead
+  }
+
+  /**
+   * A clock that carries on from a state the live renderer last reported at `at`, for the fallback after a lost context
+   * (cook-mode-qa-r1 Q8). The phase and the place in it come from the state; the time since `at` counts. A pane that was
+   * still fogged had not been started: it waits for `startReveal`.
+   */
+  static resume(state: RevealState, at: number, now: number): RevealClock {
+    const elapsed = Math.max(0, now - at)
+    if (state.phase === 'fogged') return new RevealClock(null, Infinity, now)
+    // invert the timeline's own easings
+    const inv = (x: number): number => 0.5 - Math.sin(Math.asin(1 - 2 * x) / 3) // smoothstep
+    let t: number
+    let wipeAt: number | null = null
+    if (state.phase === 'thickening') t = -THICKEN_MS + inv(state.thicken) * THICKEN_MS
+    else if (state.phase === 'writing') t = state.u * WRITE_ON_MS
+    else if (state.phase === 'holding') t = WRITE_ON_MS
+    else {
+      wipeAt = WRITE_ON_MS
+      t = WRITE_ON_MS + state.wipe * WIPE_MS + (state.refog > 0 ? (1 - Math.cbrt(1 - state.refog)) * REFOG_MS : 0)
+    }
+    const c = new RevealClock(null, -(t + elapsed), now)
+    c.wipeAt = wipeAt
+    return c
   }
 
   state(now: number): RevealState {
@@ -66,14 +90,17 @@ interface Props {
   onReady?: () => void
   /** Show only the fogged image and run no clock (the note could not be loaded). */
   fogOnly?: boolean
+  /** The state the live renderer last reported and when: after a lost context the pane carries on from it (cook-mode-qa-r1 Q8). */
+  resume?: { state: RevealState; at: number } | null
 }
 
-export default function StaticPane({ paneDir, noteId, params, controllerRef, onState, onReady, fogOnly = false }: Props) {
+export default function StaticPane({ paneDir, noteId, params, controllerRef, onState, onReady, fogOnly = false, resume = null }: Props) {
   const rootRef = useRef<HTMLDivElement>(null)
   const [kind, setKind] = useState<LayoutKind>(() => chooseLayout(window.innerWidth))
   const [phase, setPhase] = useState<Phase>('fogged')
   const fogRef = useRef<HTMLImageElement>(null)
   const readyRef = useRef(onReady)
+  const resumeRef = useRef(resume) // read once, when the pane mounts
   readyRef.current = onReady
 
   // Ready when the fogged base image has decoded; a missing or broken image does not hold the reveal back.
@@ -97,7 +124,8 @@ export default function StaticPane({ paneDir, noteId, params, controllerRef, onS
 
   useEffect(() => {
     if (fogOnly) return
-    const clock = new RevealClock(params.t, params.lead, performance.now())
+    const r = resumeRef.current
+    const clock = r && params.t === null ? RevealClock.resume(r.state, r.at, performance.now()) : new RevealClock(params.t, params.lead, performance.now())
     const push = (): void => {
       const st = clock.state(performance.now())
       setPhase(st.phase)

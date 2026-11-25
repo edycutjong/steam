@@ -78,7 +78,12 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
   const { t, lead: paramLead, fps } = params
   // A held pane has its reveal clock started a whole write-on ago, so its first frame is `holding` (R15.4).
   const effective = useMemo<SteamParams>(() => (initial === 'held' ? { t: null, lead: -WRITE_ON_MS, fps } : { t, lead: paramLead, fps }), [initial, t, paramLead, fps])
-  const pushState = useCallback((s: RevealState): void => latest.current.onState?.(s), [])
+  // The last state the pane reported and when, so a static pane that replaces a lost live one carries on from it (Q8).
+  const lastState = useRef<{ state: RevealState; at: number } | null>(null)
+  const pushState = useCallback((s: RevealState): void => {
+    lastState.current = { state: s, at: performance.now() }
+    latest.current.onState?.(s)
+  }, [])
   const fpsRef = useRef<HTMLDivElement>(null)
 
   const markReady = (): void => {
@@ -194,6 +199,7 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
             onState={pushState}
             onReady={markReady}
             fogOnly={status === 'error'}
+            resume={contextLost ? lastState.current : null}
           />
         ) : (
           <canvas ref={canvasRef} className="steam-canvas" aria-hidden="true" />
