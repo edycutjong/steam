@@ -8,7 +8,7 @@ import { openStore } from '../data/store.ts'
 import { testApp } from './app.fixture.tsx'
 import Cook from './Cook.tsx'
 import { FakeGlass, panes, setAutoReady, setWriteMs } from './glass.fixture.tsx'
-import { bundleText, click, css, flush, loaded, mount, stubBrowser, text, tick, unmountAll } from './render.fixture.tsx'
+import { bundleText, click, css, flush, loaded, mount, rerender, stubBrowser, text, tick, unmountAll } from './render.fixture.tsx'
 import { parseRoute } from './router.ts'
 
 beforeEach(() => {
@@ -50,6 +50,24 @@ describe('the haunting cue (R16.1, R16.2, R16.4 to R16.7, R23.8)', () => {
     await tick(100)
     expect(panes.get('till-it-looks-red-smooth')!.started).toBe(1)
     expect(lamp(h).dataset.dips).toBe('1')
+    expect(duck).toHaveBeenCalledTimes(1)
+  })
+  // a2a-arch-r05 B6: on a return visit the recipe is ready before IndexedDB opens, so Cook's first render has no audio; the audio arrives later.
+  it('an audio that arrives after Cook mounted is ducked on the next reveal, once', async () => {
+    const audio = createAudio({ createContext: fakeCtx, doc: document }, memStore)
+    audio.unlock()
+    const duck = vi.spyOn(audio, 'duck')
+    const hash = '#/r/quinces-marmalade/cook?note=when-tender&lead=2'
+    location.hash = hash
+    const el = (a: ReturnType<typeof createAudio> | null) => testApp({ recipes: [r], audio: a }).wrap(<Cook recipe={r} route={parseRoute(hash) as never} Glass={FakeGlass} wakeNav={{}} />)
+    const host = mount(el(null))
+    await flush()
+    await tick(50)
+    expect(lamp(host).dataset.dips ?? '0').toBe('0') // nothing has been revealed yet
+    rerender(host, el(audio))
+    await flush()
+    await tick(2500)
+    expect(lamp(host).dataset.dips).toBe('1')
     expect(duck).toHaveBeenCalledTimes(1)
   })
   it('the lamp is a --bg layer with pointer-events none; the dip changes opacity only and returns to 0', async () => {
