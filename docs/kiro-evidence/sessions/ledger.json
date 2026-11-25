@@ -12,14 +12,14 @@
     "sessions": 39,
     "toolCalls": {
       "bash_placeholder": 1,
-      "execute_bash": 1820,
-      "fs_write": 107,
+      "execute_bash": 1826,
+      "fs_write": 110,
       "inspect_workflow": 2,
       "load_resource": 9,
       "read_file": 349,
       "run_workflow": 3,
       "send_message": 6,
-      "str_replace": 37,
+      "str_replace": 47,
       "tool_call": 3
     },
     "shellWritesUnderSrc": 545,
@@ -27,17 +27,17 @@
     "shellWritesSeenByAHook": 2,
     "writeToolCallsUnderSrc": 36,
     "callsWithHookEvent": {
-      "execute_bash": 81,
-      "fs_write": 79,
-      "str_replace": 35
+      "execute_bash": 88,
+      "fs_write": 82,
+      "str_replace": 45
     },
     "hookInvocations": {
-      "catalog-gate": 114,
-      "no-imitation": 114,
+      "catalog-gate": 127,
+      "no-imitation": 127,
       "props-on-save-create": 5,
       "props-on-save-save": 11,
-      "shell-gate": 80,
-      "src-scan-after-shell": 71,
+      "shell-gate": 86,
+      "src-scan-after-shell": 78,
       "zz-record-shell": 2
     }
   },
@@ -2488,14 +2488,14 @@
       "id": "sess_cc50a90b-1553-4333-8561-d69615fb6666",
       "title": "Hook Coverage And Bash Writes",
       "createdAt": "2026-11-25T20:33:15.403Z",
-      "lastModifiedAt": "2026-11-25T21:37:07.473Z",
+      "lastModifiedAt": "2026-11-25T21:39:47.895Z",
       "modelId": "auto",
       "agentMode": "vibe",
       "toolCalls": {
-        "execute_bash": 106,
-        "fs_write": 28,
+        "execute_bash": 112,
+        "fs_write": 31,
         "read_file": 3,
-        "str_replace": 34
+        "str_replace": 44
       },
       "shellWritesUnderSrc": 3,
       "shellWritesUnderSrcNonTest": 3,
@@ -2508,15 +2508,15 @@
         "src/steam/layout.ts"
       ],
       "callsWithHookEvent": {
-        "execute_bash": 81,
-        "fs_write": 28,
-        "str_replace": 34
+        "execute_bash": 88,
+        "fs_write": 31,
+        "str_replace": 44
       },
       "hookInvocations": {
-        "catalog-gate": 62,
-        "no-imitation": 62,
-        "shell-gate": 80,
-        "src-scan-after-shell": 71,
+        "catalog-gate": 75,
+        "no-imitation": 75,
+        "shell-gate": 86,
+        "src-scan-after-shell": 78,
         "zz-record-shell": 2
       },
       "commits": [
@@ -2584,6 +2584,11 @@
           "hash": "b708030",
           "at": "2026-11-25T21:23:21.000Z",
           "subject": "[kiro] hero-hold-clearance: fix R1 the desktop layout keeps the ink 28 css px (shade band + 12) from the top and bottom of the pane, centred in the clear glass"
+        },
+        {
+          "hash": "d346e0d",
+          "at": "2026-11-25T21:39:30.000Z",
+          "subject": "[kiro] hook-coverage, hero-hold-clearance: NOTES, after frames, ledger re-run (H6), hooks.log lines, DX report"
         }
       ]
     }

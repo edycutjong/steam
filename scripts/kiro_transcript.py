@@ -6,7 +6,8 @@
 <session-dir> is ~/.kiro/sessions/<workspace-hash>/sess_<id> (session.json + messages.jsonl, written by kiro-cli).
 Kept: the prompt, every assistant message (full text), every tool call (tool name + the first line of its command or
 its path, cut at 200 chars), every hook invocation Kiro recorded, and the session's own metadata.
-Dropped: tool OUTPUT (file contents, test logs), which is long and can hold anything; the home path is replaced by `~`.
+Dropped: tool OUTPUT (file contents, test logs), which is long and can hold anything. The workspace path becomes `.`;
+any path outside the repository becomes `<outside-repo>`.
 The output is meant to be leak-scanned before it is committed.
 """
 from __future__ import annotations
@@ -20,8 +21,17 @@ from pathlib import Path
 HOME = os.path.expanduser('~')
 
 
+WORKSPACE: str = ''
+
+
 def scrub(s: str) -> str:
-    s = s.replace(HOME, '~')
+    """Workspace path → `.`; any other path outside the repository (the private planning folders beside it, the home
+    folder) → `<outside-repo>`; credentials-looking assignments → `<scrubbed>`."""
+    if WORKSPACE:
+        s = s.replace(WORKSPACE + '/', './').replace(WORKSPACE, '.')
+        s = s.replace(WORKSPACE.replace(HOME, '~') + '/', './').replace(WORKSPACE.replace(HOME, '~'), '.')
+    s = re.sub(r'(?:~|' + re.escape(HOME) + r')/[^\s`\'")\]]*', '<outside-repo>', s)
+    s = re.sub(r'(?<![\w.])(?:\.\./)+(?:specs|kiro-prompts|submission|logs|assets|_[a-z]+|project\.json|event\.json|CLAUDE\.md)\b[^\s`\'")\]]*', '<outside-repo>', s)
     return re.sub(r'(?i)(token|secret|password|api[_-]?key)=\S+', r'\1=<scrubbed>', s)
 
 
@@ -34,6 +44,8 @@ def main() -> int:
     sdir, out = Path(sys.argv[1]), Path(sys.argv[2])
     label = sys.argv[sys.argv.index('--label') + 1] if '--label' in sys.argv else sdir.name
     meta = json.loads((sdir / 'session.json').read_text())
+    global WORKSPACE
+    WORKSPACE = (meta.get('workspacePaths') or [''])[0]
     lines = [f'# Kiro session transcript — {label}', '',
              f'- Session: `{meta["id"]}` · title (by Kiro): "{meta.get("title", "")}"',
              f'- Window (UTC): {meta.get("createdAt")} → {meta.get("lastModifiedAt")} · model: {meta.get("modelId")} · mode: {meta.get("agentMode")}',
