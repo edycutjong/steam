@@ -31,7 +31,7 @@ export const HAND_PACKAGE = /handwriting|calligrapher|handwritten\.js/i
 /** A line that declares or loads a font, as opposed to prose that mentions one. */
 const FONT_SYNTAX = /font-family|fontFamily|font-face|FontFace|@fontsource|fontsource|fonts\.(?:googleapis|gstatic)|(?:^|[\s;{(])font\s*:\s*(?:(?:italic|oblique|normal|bold|bolder|lighter|\d{3})\s+)*[\d.]+(?:px|rem|em|pt|%)|--[\w-]*font[\w-]*\s*:/i
 
-const isTestFile = (rel: string): boolean => /\.(?:test|spec)\.[cm]?[jt]sx?$/.test(rel) || rel.startsWith('src/__tests__/')
+export const isTestFile = (rel: string): boolean => /\.(?:test|spec)\.[cm]?[jt]sx?$/.test(rel) || rel.startsWith('src/__tests__/')
 
 /** Blanks comments out (line count kept) so that a comment that names a rule is not a violation. */
 export function stripComments(text: string): string {
