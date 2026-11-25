@@ -1,6 +1,6 @@
 // cook-mode-qa-r1 Q5 and Q6: the phone (Pixel 5, 393 x 727 CSS px, and 390 x 844) in Cook Mode and on the shelf.
 import { expect, test, type Page } from '@playwright/test'
-import { cookRoot, DEEP_LINK, wipe } from './helpers/cook.ts'
+import { cookRoot, DEEP_LINK, openShelf, wipe } from './helpers/cook.ts'
 
 const box = async (page: Page, sel: string) => (await page.locator(sel).first().boundingBox())!
 
@@ -62,5 +62,45 @@ test.describe('Q5 Pixel 5 Cook Mode, held note at the last step', () => {
     await expect(page.locator('.cook__under .slip a')).toHaveAttribute('href', /creativecommons\.org/)
     const w = await wipe(page).boundingBox()
     expect(w!.height).toBeGreaterThanOrEqual(48)
+  })
+})
+
+// Q6: the shelf is a composed hero for its one recipe
+async function heroChecks(page: Page, vw: number, vh: number, minThumb: number) {
+  await openShelf(page)
+  await page.locator('.shelf__thumb img').evaluate((i) => (i as HTMLImageElement).decode())
+  const card = page.locator('.shelf__item').first()
+  const thumb = (await card.locator('.shelf__thumb .mat').boundingBox())!
+  const img = (await card.locator('.shelf__thumb img').boundingBox())!
+  expect(thumb.width, 'mat width').toBeGreaterThanOrEqual(minThumb)
+  expect(img.width, 'scan width').toBeGreaterThanOrEqual(minThumb - 40)
+  for (const name of ['Cook it', 'Watch it at ×12']) {
+    const b = (await card.getByRole('button', { name }).boundingBox())!
+    expect(b.y + b.height, `${name} above the fold`).toBeLessThanOrEqual(vh)
+    expect(b.x + b.width).toBeLessThanOrEqual(vw)
+    expect(b.height).toBeGreaterThanOrEqual(48)
+  }
+  expect(await card.locator('.shelf__title').evaluate((e) => getComputedStyle(e).fontFamily)).toContain('IM Fell English')
+  const title = (await card.locator('.shelf__title').boundingBox())!
+  expect(title.y + title.height).toBeLessThanOrEqual(vh)
+  await expect(card.locator('.slip')).toContainText('MS.1810')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  return { card: (await card.boundingBox())! }
+}
+
+test.describe('Q6 shelf hero, phone 390 x 844', () => {
+  test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true })
+  test('a bigger scan on its paper mat, the title, the slip and both buttons above the fold', async ({ page }) => {
+    await heroChecks(page, 390, 844, 160)
+  })
+})
+
+test.describe('Q6 shelf hero, desktop 1280 x 800', () => {
+  test.use({ viewport: { width: 1280, height: 800 } })
+  test('the card fills the width, with a scan of at least 380 px on its mat and both buttons above the fold', async ({ page }) => {
+    const { card } = await heroChecks(page, 1280, 800, 380)
+    expect(card.width).toBeGreaterThanOrEqual(1280 * 0.85)
+    const body = (await page.locator('.shelf__body').boundingBox())!
+    expect(body.x + body.width, 'the text column reaches the right side').toBeGreaterThanOrEqual(1280 * 0.85)
   })
 })

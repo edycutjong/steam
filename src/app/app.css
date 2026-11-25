@@ -344,21 +344,29 @@ a:hover {
 
 .shelf__item {
   display: grid;
-  grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
-  gap: clamp(20px, 4vw, 56px);
-  align-items: start;
-  padding: 28px 0;
+  grid-template-columns: minmax(280px, 40%) minmax(0, 1fr);
+  gap: clamp(24px, 5vw, 80px);
+  align-items: center;
+  padding: clamp(24px, 4vh, 44px) 0;
   border-top: var(--hair);
   border-bottom: var(--hair);
 }
 
 .shelf__thumb {
   min-width: 0;
+  justify-self: start;
 }
 
+.shelf__thumb .mat {
+  padding: clamp(10px, 1.4vw, 18px);
+}
+
+/* the scan is as big as the fold allows: header and card fit one screen */
 .shelf__thumb img {
-  width: 100%;
-  max-height: 56dvh;
+  width: auto;
+  max-width: 100%;
+  max-height: calc(100dvh - 330px);
+  min-height: 200px;
   object-fit: contain;
 }
 
@@ -373,8 +381,8 @@ a:hover {
   margin: 0;
   font-family: var(--face-title);
   font-weight: 400;
-  font-size: clamp(28px, 3.4vw, 44px);
-  line-height: 1.1;
+  font-size: clamp(32px, 4.6vw, 64px);
+  line-height: 1.05;
 }
 
 .shelf__title a {
@@ -389,7 +397,7 @@ a:hover {
 .shelf__hint {
   margin: 0;
   max-width: 32em;
-  font-size: 17px;
+  font-size: 18px;
   color: var(--muted);
 }
 
@@ -401,32 +409,99 @@ a:hover {
   margin: 0;
 }
 
+.shelf__body .btn-row .btn {
+  min-height: 56px;
+}
+
 .shelf__empty {
   margin: 32px 0 0;
   color: var(--muted);
 }
 
+/* Phone: the scan beside kicker, title and hint; the slip and both buttons below it, all above the fold (cook-mode-qa-r1 Q6). */
 @media (max-width: 640px) {
-  .shelf__item {
-    grid-template-columns: 96px minmax(0, 1fr);
-    gap: 16px;
-    padding: 18px 0;
+  .shelf {
+    padding-top: 20px;
   }
 
-  .shelf__thumb .mat {
-    padding: 5px;
+  .shelf__list {
+    margin-top: 16px;
+  }
+
+  .shelf__head .lede {
+    margin-top: 10px;
+    font-size: 17px;
+  }
+
+  .shelf__item {
+    grid-template-columns: minmax(0, 48%) minmax(0, 1fr);
+    gap: 10px 16px;
+    align-items: start;
+    padding: 16px 0;
   }
 
   .shelf__body {
-    gap: 12px;
+    display: contents;
   }
 
-  .shelf__body .btn-row {
-    grid-column: 1 / -1;
+  .shelf__thumb {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+  }
+
+  .shelf__thumb img {
+    width: 100%;
+    max-height: none;
+    min-height: 0;
+  }
+
+  .shelf__thumb .mat {
+    padding: 8px;
+  }
+
+  .shelf__body > .kicker {
+    grid-column: 2;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  .shelf__body > .kicker,
+  .shelf__title,
+  .shelf__hint {
+    margin: 0;
   }
 
   .shelf__title {
-    font-size: 26px;
+    grid-column: 2;
+    font-size: 28px;
+  }
+
+  .shelf__hint {
+    grid-column: 2;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .shelf__body > .slip,
+  .shelf__body > .credit-line,
+  .shelf__body > .btn-row {
+    grid-column: 1 / -1;
+  }
+
+  .shelf__body > .slip .slip__grid {
+    gap: 0 14px;
+  }
+
+  .shelf__body > .btn-row {
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  .shelf__body > .btn-row .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 8px;
+    font-size: 16px;
   }
 }
 
