@@ -302,7 +302,7 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
           <a className="btn btn--quiet" href={formatRoute({ name: 'edition', id: b.id })}>
             {COOK.back}
           </a>
-          <WipeControl control={control} writing={writing || state.status !== 'running'} ready={ready} onAct={perform} />
+          <WipeControl control={control} writing={writing} disabled={state.status !== 'running'} ready={ready} onAct={perform} />
           <MuteButton audio={audio} />
         </div>
       </div>

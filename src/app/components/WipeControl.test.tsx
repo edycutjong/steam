@@ -29,11 +29,48 @@ describe('WipeControl (R14.1 to R14.6, R14.9, R14.10)', () => {
     const spy = vi.fn()
     const h = mount(<WipeControl control={controlFor(plan, at(2, ['q']))} writing ready={false} onAct={spy} />)
     const b = h.querySelector('button')!
-    expect(b.textContent).toBe('Wipe the glass')
+    expect(b.textContent).toBe('The hand is writing…')
     expect(b.getAttribute('aria-disabled')).toBe('true')
     expect(document.getElementById(b.getAttribute('aria-describedby')!)!.textContent).toBe('The note is being written')
     click(b)
     key(document.body, ' ')
+    expect(spy).not.toHaveBeenCalled()
+  })
+  // cook-mode-qa-r1 Q2: while the hand is written the control says so, whatever row of the table it would be on
+  const writingRows: [string, SchedState][] = [
+    ['revealed, not last', at(2, ['q'])],
+    ['revealed, last step', at(3, ['q'])],
+    ['pending (a reveal waiting for its pane)', at(0, [])],
+  ]
+  it.each(writingRows)('writing, %s: "The hand is writing…", aria-disabled, keeps focus, no action', (_n, s) => {
+    const spy = vi.fn()
+    const h = mount(<WipeControl control={controlFor(plan, s)} writing ready onAct={spy} />)
+    const b = h.querySelector('button')!
+    expect(b.textContent).toBe('The hand is writing…')
+    expect(b.getAttribute('aria-disabled')).toBe('true')
+    expect(document.activeElement).toBe(b)
+    click(b)
+    key(b, ' ')
+    expect(spy).not.toHaveBeenCalled()
+  })
+  it('the table label returns, enabled, when the writing ends', () => {
+    const spy = vi.fn()
+    const c = controlFor(plan, at(2, ['q']))
+    const h = mount(<WipeControl control={c} writing ready={false} onAct={spy} now={() => 1e6} />)
+    rerender(h, <WipeControl control={c} writing={false} ready={false} onAct={spy} now={() => 1e6} />)
+    const b = h.querySelector('button')!
+    expect(b.textContent).toBe('Wipe the glass')
+    expect(b.hasAttribute('aria-disabled')).toBe(false)
+    click(b)
+    expect(spy).toHaveBeenCalledTimes(1)
+  })
+  it('a control that is only not running (not writing) keeps its table label and is aria-disabled', () => {
+    const spy = vi.fn()
+    const h = mount(<WipeControl control={controlFor(plan, at(1, []))} writing={false} disabled ready={false} onAct={spy} />)
+    const b = h.querySelector('button')!
+    expect(b.textContent).toBe('Next step')
+    expect(b.getAttribute('aria-disabled')).toBe('true')
+    click(b)
     expect(spy).not.toHaveBeenCalled()
   })
   it('Space on the document acts and prevents scroll, unless focus is in another button', () => {

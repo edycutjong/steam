@@ -14,8 +14,10 @@ export function isOtherInteractive(target: EventTarget | null, self: Element | n
 
 interface Props {
   control: Control
-  /** The pane is writing the revealed note: keep the label, do nothing (R14.2). */
+  /** The pane is writing the revealed note: the label says so and the control does nothing until the note is held (R14.2, cook-mode-qa-r1 Q2). */
   writing: boolean
+  /** The session is not running (loading, finishing): the table's label stays, the control does nothing. */
+  disabled?: boolean
   /** Cook Mode is ready: take focus once, so Space and Enter work at once (R14.9). */
   ready: boolean
   onAct: (c: Control) => void
@@ -24,11 +26,12 @@ interface Props {
 }
 
 /** The one large control, labelled and driven by the Wipe table (R14). A second activation within 400 ms is ignored. */
-export default function WipeControl({ control, writing, ready, onAct, now = () => performance.now() }: Props) {
+export default function WipeControl({ control, writing, disabled = false, ready, onAct, now = () => performance.now() }: Props) {
   const ref = useRef<HTMLButtonElement>(null)
   const last = useRef(-Infinity)
-  const latest = useRef({ control, writing, onAct })
-  latest.current = { control, writing, onAct }
+  const inactive = writing || disabled
+  const latest = useRef({ control, writing: inactive, onAct })
+  latest.current = { control, writing: inactive, onAct }
   const descId = useId()
 
   const act = () => {
@@ -69,12 +72,12 @@ export default function WipeControl({ control, writing, ready, onAct, now = () =
         ref={ref}
         type="button"
         className="wipe"
-        aria-disabled={writing ? true : undefined}
+        aria-disabled={inactive ? true : undefined}
         aria-describedby={writing ? descId : undefined}
         data-action={control.action}
         onClick={act}
       >
-        {control.label}
+        {writing ? WIPE.handWriting : control.label}
       </button>
       <span id={descId} className="sr-only">
         {writing ? WIPE.writing : ''}

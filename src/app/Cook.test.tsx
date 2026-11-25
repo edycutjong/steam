@@ -141,4 +141,41 @@ describe('Cook screen (R9, R14.7, R14.8, R18.5, R18.6, R19.1, R19.2, R19.8, R15.
     expect(text(b.host.querySelector('.timer'))).toMatch(/^\d+:\d\d$/)
     expect(b.host.querySelector('.timer')!.hasAttribute('aria-label')).toBe(false)
   })
+  // cook-mode-qa-r1 Q2: every row of the Wipe table, with the writing state of each revealed row
+  it('the button says "The hand is writing…" (aria-disabled) while a revealed note is written, then its table label; every row', async () => {
+    const { host, root } = await open('#/r/quinces-marmalade/cook')
+    const rows: string[] = []
+    for (let i = 0; i < 5; i++) {
+      if (root.dataset.noteState === 'writing') {
+        rows.push(`${root.dataset.step}:${wipeBtn(host).textContent}:${wipeBtn(host).getAttribute('aria-disabled')}`)
+        click(wipeBtn(host)) // pressing it while writing does nothing
+        await tick(450)
+        expect(root.dataset.step).toBe(String(i + 1))
+        await tick(WRITE_ON_MS + 100)
+      }
+      rows.push(`${root.dataset.step}:${wipeBtn(host).textContent}:${wipeBtn(host).getAttribute('aria-disabled')}`)
+      await press(host)
+      await tick(WIPE_MS + 700)
+    }
+    expect(rows).toEqual([
+      '1:The hand is writing…:true',
+      '1:Wipe the glass:null',
+      '2:Next step:null',
+      '3:Next step:null',
+      '4:The hand is writing…:true',
+      '4:Wipe the glass:null',
+      '5:The hand is writing…:true',
+      '5:The hand, quoted:null',
+    ])
+  })
+  it('a pending note shows "Show the note", enabled; a revealed note whose pane is not ready says the hand is writing', async () => {
+    const a = await open('#/r/quinces-marmalade/cook?note=when-tender')
+    expect(wipeBtn(a.host).textContent).toBe('Show the note')
+    expect(wipeBtn(a.host).hasAttribute('aria-disabled')).toBe(false)
+    unmountAll()
+    setAutoReady(false)
+    const b = await open('#/r/quinces-marmalade/cook')
+    expect(wipeBtn(b.host).textContent).toBe('The hand is writing…')
+    expect(wipeBtn(b.host).getAttribute('aria-disabled')).toBe('true')
+  })
 })
