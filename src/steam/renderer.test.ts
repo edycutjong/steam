@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { NoteMeta } from './assets.ts'
 import type { Derived } from './derive.ts'
 import { computeLayout } from './layout.ts'
-import { SteamRenderer } from './renderer.ts'
+import { QualityGovernor } from './governor.ts'
+import { CONTEXT_RESTORE_MS, SteamRenderer } from './renderer.ts'
 import type { RendererAssets, RendererOptions } from './renderer.ts'
 import { revealState, WIPE_MS } from './timeline.ts'
 import type { Tokens } from './tokens.ts'
@@ -363,5 +364,133 @@ describe('SteamRenderer reveal clock and a hidden tab (a2a-arch-r05 B1)', () => 
     expect(vis.listeners()).toBe(1)
     r.dispose()
     expect(vis.listeners()).toBe(0)
+  })
+})
+
+// a2a-arch-r05 B3: tier 3 swaps the canvas for the static pane; never in the middle of a stroke or a wipe sweep.
+describe('SteamRenderer tier 3 waits for a calm phase (a2a-arch-r05 B3)', () => {
+  type Priv = { wipeAt: number | null }
+  beforeEach(() => {
+    vi.spyOn(performance, 'now').mockImplementation(() => clock)
+  })
+  afterEach(() => vi.restoreAllMocks())
+  const priv = (r: SteamRenderer) => r as unknown as Priv
+  /** A governor one slow frame away from tier 3: tier 2 with 59 slow intervals already in the window. */
+  function primeForTier3(r: SteamRenderer): void {
+    const g = new QualityGovernor()
+    g.tier = 2
+    for (let i = 0; i < 59; i++) g.push(30)
+    ;(r as unknown as { gov: QualityGovernor }).gov = g
+  }
+  function make(lead: number) {
+    const { gl } = mockGl()
+    const layout = computeLayout('page', 800, 600, meta)
+    const r = SteamRenderer.create(fakeCanvas(gl), assets(), layout, { dprCap: 2, frozenT: null, lead, tokens })!
+    r.resize(800, 600, layout)
+    const seen: { phase: string; wipe: number }[] = []
+    r.onDegrade(() => seen.push(revealState(r.revealMs, priv(r).wipeAt)))
+    return { r, seen }
+  }
+
+  it('a tier-3 request while the hand is being written is held until the write-on is done', () => {
+    const { r, seen } = make(0)
+    r.play()
+    runFrames(30)
+    expect(revealState(r.revealMs, null).phase).toBe('writing')
+    primeForTier3(r)
+    runFrames(1, 30)
+    expect(r.tier).toBe(3)
+    expect(seen).toEqual([])
+    runFrames(100, 16.6)
+    expect(seen).toEqual([])
+    runFrames(300, 16.6) // past WRITE_ON_MS
+    expect(seen).toHaveLength(1)
+    expect(seen[0].phase).toBe('holding')
+    runFrames(50)
+    expect(seen).toHaveLength(1) // once
+    r.dispose()
+  })
+
+  it('a tier-3 request while the note is thickening is held too', () => {
+    const { r, seen } = make(2000)
+    r.play()
+    runFrames(60)
+    expect(revealState(r.revealMs, null).phase).toBe('thickening')
+    primeForTier3(r)
+    runFrames(1, 30)
+    expect(seen).toEqual([])
+    runFrames(450)
+    expect(seen).toHaveLength(1)
+    expect(seen[0].phase).toBe('holding')
+    r.dispose()
+  })
+
+  it('a tier-3 request while a wipe sweep is moving is held until the sweep is finished', () => {
+    const { r, seen } = make(0)
+    r.play()
+    runFrames(320)
+    expect(revealState(r.revealMs, null).phase).toBe('holding')
+    r.wipe()
+    primeForTier3(r)
+    runFrames(1, 30)
+    expect(r.tier).toBe(3)
+    expect(seen).toEqual([])
+    runFrames(40) // 0.66 s of the 1.4 s sweep
+    expect(seen).toEqual([])
+    runFrames(60)
+    expect(seen).toHaveLength(1)
+    expect(seen[0].phase).toBe('wiped')
+    expect(seen[0].wipe).toBe(1)
+    r.dispose()
+  })
+
+  it('applies at once while holding and while still fogged', () => {
+    const held = make(0)
+    held.r.play()
+    runFrames(320)
+    primeForTier3(held.r)
+    runFrames(1, 30)
+    expect(held.seen).toHaveLength(1)
+    held.r.dispose()
+    const fogged = make(Infinity)
+    fogged.r.play()
+    runFrames(5)
+    primeForTier3(fogged.r)
+    runFrames(1, 30)
+    expect(fogged.seen).toHaveLength(1)
+    expect(fogged.seen[0].phase).toBe('fogged')
+    fogged.r.dispose()
+  })
+
+  it('tiers 1 and 2 apply at once, mid-stroke', () => {
+    const { r } = make(0)
+    r.play()
+    runFrames(30)
+    runFrames(61, 30)
+    expect(r.tier).toBe(1)
+    expect((r as unknown as { fogW: number }).fogW).toBe(Math.ceil(r.canvas.width / 8))
+    r.dispose()
+  })
+
+  it('a lost context still reaches the fallback after its 2 s restore window, mid-stroke', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    const { gl } = mockGl()
+    const handlers: Record<string, (e: Event) => void> = {}
+    const canvas = { width: 300, height: 150, getContext: () => gl, addEventListener: (t: string, h: (e: Event) => void) => void (handlers[t] = h), removeEventListener: () => {} } as unknown as HTMLCanvasElement
+    const layout = computeLayout('page', 800, 600, meta)
+    const r = SteamRenderer.create(canvas, assets(), layout, { dprCap: 2, frozenT: null, lead: 0, tokens })!
+    r.resize(800, 600, layout)
+    let lost = 0
+    r.onContextLost(() => lost++)
+    r.play()
+    runFrames(30)
+    expect(revealState(r.revealMs, null).phase).toBe('writing')
+    handlers.webglcontextlost({ preventDefault() {} } as Event)
+    vi.advanceTimersByTime(CONTEXT_RESTORE_MS - 1)
+    expect(lost).toBe(0)
+    vi.advanceTimersByTime(2)
+    expect(lost).toBe(1)
+    r.dispose()
+    vi.useRealTimers()
   })
 })
