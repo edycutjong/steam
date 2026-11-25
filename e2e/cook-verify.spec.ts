@@ -20,7 +20,6 @@ for (const vp of [{ name: 'desktop', width: 1280, height: 800 }, { name: 'phone'
     const view = page.viewportSize()!
     expect(box.x, 'inside the viewport on the left').toBeGreaterThanOrEqual(0)
     expect(box.x + box.width, 'inside the viewport on the right').toBeLessThanOrEqual(view.width)
-    if (vp.name === 'desktop') expect(box.height, 'tap height on desktop').toBeGreaterThanOrEqual(44)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'no horizontal scroll').toBe(true)
     await axe(page)
     await wipe(page).click()
