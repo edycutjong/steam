@@ -494,3 +494,93 @@ describe('SteamRenderer tier 3 waits for a calm phase (a2a-arch-r05 B3)', () => 
     vi.useRealTimers()
   })
 })
+
+// a2a-arch-r06 C5: the clock must not depend on one event. A page restored as visible may skip "visibilitychange" (a2a-arch-r05 B8).
+describe('SteamRenderer clock when visibility comes back without an event (a2a-arch-r06 C5)', () => {
+  beforeEach(() => {
+    vi.spyOn(performance, 'now').mockImplementation(() => clock)
+  })
+  afterEach(() => vi.restoreAllMocks())
+
+  function make(vis: FakeVisibility, lead = 0) {
+    const { gl } = mockGl()
+    const layout = computeLayout('page', 800, 600, meta)
+    const opts: RendererOptions & { visibility?: unknown } = { dprCap: 2, frozenT: null, lead, tokens, visibility: vis }
+    const r = SteamRenderer.create(fakeCanvas(gl), assets(), layout, opts)!
+    r.resize(800, 600, layout)
+    return r
+  }
+  const priv = (r: SteamRenderer) => r as unknown as { wipeAt: number | null }
+  /** Hidden with the event, then visible again with none: the state is "visible" and nobody was told. */
+  const hideThenRestoreSilently = (vis: FakeVisibility, ms: number) => {
+    vis.set('hidden')
+    clock += ms
+    vis.visibilityState = 'visible'
+  }
+
+  it('the next frame advances the write-on, and the gap is not a frame', () => {
+    const vis = fakeVisibility()
+    const r = make(vis)
+    r.play()
+    runFrames(120)
+    const before = r.revealMs
+    const frames = r.stats.frames
+    hideThenRestoreSilently(vis, 120_000)
+    runFrames(1)
+    expect(r.revealMs - before).toBeLessThan(100)
+    expect(revealState(r.revealMs, null).phase).toBe('writing')
+    runFrames(30)
+    expect(r.revealMs - before).toBeGreaterThan(400) // it carries on
+    expect(r.stats.worstMs).toBeLessThan(50)
+    expect(r.stats.over).toBe(0)
+    expect(r.stats.frames).toBeGreaterThan(frames)
+    r.dispose()
+  })
+
+  it('a wipe asked for after a silent restore sweeps instead of standing still', () => {
+    const vis = fakeVisibility()
+    const r = make(vis)
+    r.play()
+    runFrames(320)
+    expect(revealState(r.revealMs, null).phase).toBe('holding')
+    hideThenRestoreSilently(vis, 60_000)
+    r.wipe()
+    expect(priv(r).wipeAt).not.toBeNull()
+    runFrames(30)
+    const into = r.revealMs - (priv(r).wipeAt as number)
+    expect(into).toBeGreaterThan(300)
+    expect(into).toBeLessThan(WIPE_MS)
+    r.dispose()
+  })
+
+  it('startReveal after a silent restore starts a reveal that runs, from the visible time', () => {
+    const vis = fakeVisibility()
+    const r = make(vis, Infinity)
+    r.play()
+    runFrames(10)
+    hideThenRestoreSilently(vis, 30_000)
+    r.startReveal()
+    runFrames(60)
+    expect(['thickening', 'writing']).toContain(revealState(r.revealMs, null).phase)
+    expect(r.revealMs).toBeLessThan(2500)
+    r.dispose()
+  })
+
+  it('a page that is still hidden stays frozen, and the real event afterwards still resumes it once', () => {
+    const vis = fakeVisibility()
+    const r = make(vis)
+    r.play()
+    runFrames(60)
+    const at = r.revealMs
+    vis.set('hidden')
+    clock += 5000
+    runFrames(30)
+    expect(r.revealMs).toBe(at)
+    vis.set('visible')
+    runFrames(1)
+    expect(r.revealMs - at).toBeLessThan(100)
+    runFrames(1)
+    expect(r.revealMs - at).toBeLessThan(150) // the gap was shifted once, not twice
+    r.dispose()
+  })
+})
