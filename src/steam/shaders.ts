@@ -100,9 +100,9 @@ export const BREATH_R_CSS = 34.0
 export const BREATH_DENSITY = 0.22
 export const BREATH_COOL = 0.3
 export const SWEEP_SOFT = 0.35
-/** The reflection of the moonlit sash across the top third of the glass: faint, about 10 css px wide. */
-export const STREAK_A = 0.12
-export const STREAK_HALF_CSS = 5.0
+/** The reflection of the moonlit sash across the top third of the glass: faint, about 16 css px wide, soft. */
+export const STREAK_A = 0.09
+export const STREAK_HALF_CSS = 8.0
 
 /** Room behind the glass (design §4): light of the pot, of the candle, of the floor, and the bokeh. */
 export const POT_GAIN = 0.62
@@ -140,7 +140,7 @@ export const LIP_BRIGHT = 0.26
 export const RIM_A = 0.22
 /** Warm light scattered into the film around written strokes: blur lod, strength. */
 export const HALO_LOD = 3.0
-export const HALO_GAIN = 0.5
+export const HALO_GAIN = 0.4
 export const BEAD_SPACING_CSS = 9.0
 export const BEAD_R_CSS = { lo: 1.2, hi: 2.4 }
 

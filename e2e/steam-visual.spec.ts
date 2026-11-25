@@ -8,6 +8,7 @@ import {
   baselineEdgeStep,
   canvasOrigin,
   canvasRegion,
+  channelPixels,
   groupRegions,
   openPane,
   pixel,
@@ -53,6 +54,39 @@ for (const [name, viewport] of SIZES) {
       }
       expect(max, 'brightest pixel over the groups').toBeLessThanOrEqual(0.92 * 255 + 1)
       expect(ember, 'ember-coloured pixels in the groups').toBeGreaterThan(300)
+    })
+
+    test('the hand is not a flat fill and no window of it is a white blob (R2.3, R2.5)', async ({ page }) => {
+      await openPane(page, '?t=6500&bloom=0')
+      const png = await shot(page)
+      const pts = await channelPixels(page)
+      const lum = (x: number, y: number): number => {
+        const [r, g, b] = pixel(png, x, y)
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+      }
+      // only the cores of strokes: pixels whose 5x5 neighbours are all stroke pixels
+      const set = new Set(pts.map(([x, y]) => y * 100000 + x))
+      const cores = pts.filter(([x, y]) => {
+        for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (!set.has((y + dy) * 100000 + x + dx)) return false
+        return true
+      })
+      expect(cores.length, 'stroke core pixels').toBeGreaterThan(200)
+      const ls = cores.map(([x, y]) => lum(x, y)).sort((a, b) => a - b)
+      const spread = ls[Math.floor(ls.length * 0.95)] - ls[Math.floor(ls.length * 0.05)]
+      expect(spread, 'luminance spread (p95 - p5) across the stroke cores').toBeGreaterThanOrEqual(12)
+      // no 24 x 24 window around the strokes is brighter than 92 % on average
+      let worst = 0
+      for (let i = 0; i < pts.length; i += 97) {
+        const [cx, cy] = pts[i]
+        let sum = 0
+        let n = 0
+        for (let dy = -12; dy < 12; dy += 2) for (let dx = -12; dx < 12; dx += 2) {
+          sum += lum(cx + dx, cy + dy)
+          n++
+        }
+        worst = Math.max(worst, sum / n)
+      }
+      expect(worst, 'brightest 24 x 24 window mean').toBeLessThanOrEqual(0.92 * 255)
     })
 
     test('no 1 px border or outline-like shadow on pane, canvas or caption', async ({ page }) => {

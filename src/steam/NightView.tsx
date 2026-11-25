@@ -3,8 +3,9 @@
 // that splits the sash into two panes. `haunt` drives the cue by CSS: the cloud slides over the moon and comes off again.
 import { useMemo } from 'react'
 import { branchPaths, NIGHT_H, NIGHT_W, prng } from './branches.ts'
+import type { Haunt } from './haunt.ts'
 
-export type Haunt = 'calm' | 'gather' | 'clear'
+export type { Haunt } from './haunt.ts'
 
 export const MOON = { x: 760, y: 196, r: 58 }
 export const STAR_COUNT = 22

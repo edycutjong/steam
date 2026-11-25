@@ -10,13 +10,14 @@ import { buildSplits } from './gaps.ts'
 import type { Derived } from './derive.ts'
 import Candle from './Candle.tsx'
 import { chooseLayout, computeLayout } from './layout.ts'
+import { hauntOfPhase } from './haunt.ts'
+import type { Haunt } from './haunt.ts'
 import NightView from './NightView.tsx'
-import type { Haunt } from './NightView.tsx'
 import type { Layout } from './layout.ts'
 import type { SteamParams } from './params.ts'
 import { SteamRenderer } from './renderer.ts'
 import StaticPane from './StaticPane.tsx'
-import { WRITE_ON_MS } from './timeline.ts'
+import { revealState, WRITE_ON_MS } from './timeline.ts'
 import type { RevealState } from './timeline.ts'
 import { usePrefersReducedMotion } from './useReducedMotion.ts'
 import './steam.css'
@@ -84,10 +85,11 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
   const effective = useMemo<SteamParams>(() => (initial === 'held' ? { t: null, lead: -WRITE_ON_MS, fps, bloom } : { t, lead: paramLead, fps, bloom }), [initial, t, paramLead, fps, bloom])
   // The last state the pane reported and when, so a static pane that replaces a lost live one carries on from it (Q8).
   const lastState = useRef<{ state: RevealState; at: number } | null>(null)
-  const [haunt, setHaunt] = useState<Haunt>(initial === 'held' ? 'clear' : 'calm')
+  // a frozen clock (?t=) or a held pane starts in its own state, so a frame never shows a transition on its way there
+  const [haunt, setHaunt] = useState<Haunt>(() => (initial === 'held' ? 'clear' : t !== null ? hauntOfPhase(revealState(t, null).phase) : 'calm'))
   const pushState = useCallback((s: RevealState): void => {
     lastState.current = { state: s, at: performance.now() }
-    const h: Haunt = s.phase === 'fogged' ? 'calm' : s.phase === 'thickening' || s.phase === 'writing' ? 'gather' : 'clear'
+    const h: Haunt = hauntOfPhase(s.phase)
     setHaunt((prev) => (prev === h ? prev : h))
     latest.current.onState?.(s)
   }, [])

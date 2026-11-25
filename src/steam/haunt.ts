@@ -1,6 +1,14 @@
 // The haunting cue's shader side (steam-renderer-v1 design §7.4): a cold bloom of fog from the pane edges and the dip of the
 // candle's light. Pure functions of the reveal clock (ms after reveal start; negative while thickening).
 import { THICKEN_MS, WRITE_ON_MS } from './timeline.ts'
+import type { Phase } from './timeline.ts'
+
+/** The DOM side of the cue: calm before the reveal, gather while the hand is written, clear once it holds. */
+export type Haunt = 'calm' | 'gather' | 'clear'
+
+export function hauntOfPhase(phase: Phase): Haunt {
+  return phase === 'fogged' ? 'calm' : phase === 'thickening' || phase === 'writing' ? 'gather' : 'clear'
+}
 
 /** The bloom relaxes from 1 to BLOOM_HOLD over this long after the write-on starts, and fades to 0 over BLOOM_FADE_MS after it ends. */
 export const BLOOM_RELAX_MS = 2000

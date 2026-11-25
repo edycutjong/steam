@@ -1,6 +1,6 @@
 // The candle on the sill (steam-renderer-v1 design §7.2): SVG wax body with runs and a wick, a CSS flame that flickers.
 // Its flame position is measured by SteamGlass and handed to the shader as `uCandle`. Still under prefers-reduced-motion.
-import type { Haunt } from './NightView.tsx'
+import type { Haunt } from './haunt.ts'
 
 export default function Candle({ haunt = 'calm' }: { haunt?: Haunt }) {
   return (

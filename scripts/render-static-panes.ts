@@ -1,6 +1,7 @@
 // Renders the live steam pane into the static fallback images, for every displayable note of every catalogued recipe:
 //   public/recipes/<id>/panes/<noteId>-{page,groups}-{fogged,held,wiped}.webp
-// Fogged and held use the frozen clock (t=-1, t=5100), so they are reproducible.
+// Fogged and held use the frozen clock (t=-1, t=5100) with the cue's cold bloom off (`bloom=0`: reduced motion has no bloom), so they are reproducible.
+// The candle is DOM on top of the glass and StaticPane renders it too, so it is hidden while the glass is photographed.
 // Wiped uses the live clock (the wipe cannot be frozen), captured once the sweep has finished.
 // The pane is opened through the renderer harness route, #/pane/<id>/<noteId>, with its parameters in the hash query.
 //
@@ -26,6 +27,7 @@ const VIEWPORTS = [
 ] as const
 
 async function canvasPng(page: Page): Promise<Buffer> {
+  await page.addStyleTag({ content: '.candle { visibility: hidden !important; }' })
   return page.locator('.steam-canvas').screenshot({ type: 'png' })
 }
 
@@ -84,7 +86,7 @@ async function main(): Promise<void> {
         const out: Array<[string, Buffer]> = []
 
         for (const [name, t] of [['fogged', FOGGED_T], ['held', HELD_T]] as const) {
-          await page.goto(`${route}?t=${t}`)
+          await page.goto(`${route}?t=${t}&bloom=0`)
           await page.reload()
           await waitForFrame(page)
           out.push([name, await toWebp(page, await canvasPng(page))])
