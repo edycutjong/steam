@@ -62,10 +62,12 @@ export default function SteamPane({ stem, paneDir, noteId, query }: Props) {
     let live = true
     fetch(`${stem}.json`)
       .then((r) => r.json())
-      .then((j: { span?: string; shownText?: string }) => {
+      .then((j: { span?: unknown; shownText?: unknown } | null) => {
         if (!live) return
-        setNoteText(j.span ?? j.shownText ?? '')
-        setReading(j.shownText ?? j.span ?? '')
+        // the JSON is fetched, not typed: only a string is text (a2a-arch-r05 B11)
+        const str = (v: unknown): string => (typeof v === 'string' ? v : '')
+        setNoteText(str(j?.span ?? j?.shownText))
+        setReading(str(j?.shownText ?? j?.span))
       })
       .catch(() => {})
     return () => {
