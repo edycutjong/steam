@@ -134,7 +134,7 @@ export function useCookSession({ recipe, route, store, clock = systemClock, onEf
     return () => clearTimeout(t)
   }, [plan, state, dispatch, clock])
 
-  // Sleep and resume from page visibility; tick on pageshow and focus; save on pagehide (R12.7, R18.2).
+  // Sleep and resume from page visibility; tick (or resume, if asleep and visible) on pageshow and focus; save on pagehide (R12.7, R18.2).
   useEffect(() => {
     const onVis = () => {
       if (doc.visibilityState === 'hidden') {
@@ -142,7 +142,8 @@ export function useCookSession({ recipe, route, store, clock = systemClock, onEf
         save(ref.current.state)
       } else dispatch({ type: 'resume' })
     }
-    const onTick = () => dispatch({ type: 'tick' })
+    // pageshow and focus: a tick never clears `asleep`, so a page the engine restored as visible without a visibilitychange must be resumed
+    const onTick = () => dispatch({ type: doc.visibilityState === 'visible' && ref.current.state.asleep ? 'resume' : 'tick' })
     const onHide = () => save(ref.current.state)
     doc.addEventListener('visibilitychange', onVis)
     win.addEventListener('pageshow', onTick)
