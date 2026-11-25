@@ -8,12 +8,14 @@ import ReadingText, { DisagreeDescription, hasMarks } from './components/Reading
 import { startFresh } from './Shelf.tsx'
 import { formatRoute } from './router.ts'
 import { useScreen } from './useScreen.ts'
+import { useOnline } from '../offline/useOnline.ts'
 
 /** Every note the writer left, as the scan shows it, each with a link to the same pixels on the archive's server (R20). */
 export default function Quoted({ recipe }: { recipe: LoadedRecipe }) {
   const b = recipe.bundle
   const h1 = useScreen(QUOTED.title)
   const { store } = useApp()
+  const online = useOnline()
   return (
     <main className="screen quoted">
       <p className="kicker">{b.title}</p>
@@ -21,6 +23,11 @@ export default function Quoted({ recipe }: { recipe: LoadedRecipe }) {
         {QUOTED.title}
       </h1>
       <DisagreeDescription show={recipe.notes.some((n) => hasMarks(quoteSegments(b, n)))} />
+      {online ? null : (
+        <p id="offline-note" className="quoted__offline" role="status">
+          {QUOTED.offline}
+        </p>
+      )}
       <ol className="quoted__list">
         {recipe.notes.map((n) => {
           const href = regionUrl(b, n)!
@@ -37,7 +44,7 @@ export default function Quoted({ recipe }: { recipe: LoadedRecipe }) {
               </p>
               <ArchiveSlip bundle={b} compact />
               <div>
-                <a className="verify" href={href} target="_blank" rel="noopener noreferrer" aria-label={QUOTED.verifyName}>
+                <a className="verify" href={href} target="_blank" rel="noopener noreferrer" aria-label={QUOTED.verifyName} aria-describedby={online ? undefined : 'offline-note'}>
                   {QUOTED.verify}
                 </a>
                 {n.verifyApproximate ? <p className="quote__approx">{QUOTED.approximate}</p> : null}

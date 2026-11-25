@@ -902,3 +902,10 @@ a:hover {
     animation: none !important;
   }
 }
+
+/* Shown only while the browser is offline: the verify links need the archive's server (offline-shell). */
+.quoted__offline {
+  margin: 0 0 16px;
+  font-size: 15px;
+  color: var(--muted);
+}

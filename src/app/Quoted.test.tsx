@@ -59,6 +59,30 @@ describe('"The hand, quoted" (R20, R22.3, R3.3, R25.5)', () => {
     expect(foot.compareDocumentPosition(h.querySelector('.quoted__list')!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     expect(text(foot.querySelector('.credit-line'))).toBe('Wellcome Collection, Public Domain Mark')
   })
+  // offline-shell: the verify links need the archive's server; offline the page says so, briefly
+  it('says so, once, while the browser is offline, and the links stay; online there is no such line', async () => {
+    const online = Object.getOwnPropertyDescriptor(Navigator.prototype, 'onLine')
+    const set = (v: boolean) => Object.defineProperty(navigator, 'onLine', { value: v, configurable: true })
+    try {
+      set(true)
+      const h = await open()
+      expect(h.querySelector('#offline-note')).toBeNull()
+      expect(h.querySelector('a.verify')!.hasAttribute('aria-describedby')).toBe(false)
+      set(false)
+      window.dispatchEvent(new Event('offline'))
+      await flush()
+      expect(text(h.querySelector('#offline-note'))).toBe('You are offline. The verify links open the archive and need a connection.')
+      expect(h.querySelectorAll('a.verify')).toHaveLength(3)
+      expect(h.querySelector('a.verify')!.getAttribute('aria-describedby')).toBe('offline-note')
+      set(true)
+      window.dispatchEvent(new Event('online'))
+      await flush()
+      expect(h.querySelector('#offline-note')).toBeNull()
+    } finally {
+      delete (navigator as { onLine?: boolean }).onLine
+      if (online) Object.defineProperty(Navigator.prototype, 'onLine', online)
+    }
+  })
   it('"Cook again" deletes the session and opens the cook route; there is no upload action', async () => {
     const store = openStore(null)
     await (await store).putSession({ recipeId: 'quinces-marmalade' })

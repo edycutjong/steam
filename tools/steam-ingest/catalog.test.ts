@@ -88,8 +88,8 @@ describe('the only writer of content/catalog.json (R35.5)', () => {
       }
     }
     for (const d of ['src', 'tools', 'scripts']) if (existsSync(join(repo, d))) walk(join(repo, d))
-    // Readers: the app imports it at build time (cook-mode design 2.1) and the static-panes script lists notes from it. Neither writes it.
-    expect([...hits].sort()).toEqual(['scripts/render-static-panes.ts', 'src/data/catalog.ts', 'tools/steam-ingest/catalog.ts'])
+    // Readers: the app imports it at build time (cook-mode design 2.1) and the static-panes script lists notes from it. The offline-shell build plugin reads it for the recipe ids the shelf lists. None writes it.
+    expect([...hits].sort()).toEqual(['scripts/render-static-panes.ts', 'src/data/catalog.ts', 'tools/offline/vite-plugin.ts', 'tools/steam-ingest/catalog.ts'])
     for (const h of hits.filter((x) => !x.startsWith('tools/'))) {
       const lines = readFileSync(join(repo, h), 'utf8').split('\n').filter((l) => l.includes('catalog.json') && !l.trim().startsWith('//'))
       expect(lines.filter((l) => /write|append|copy|rmSync|unlink/i.test(l)), h).toEqual([])

@@ -132,6 +132,8 @@ export const COOK = {
 export const QUOTED = {
   title: 'The hand, quoted',
   verify: 'verify at source ↗',
+  /** Shown while the browser is offline: the verify links open the archive's server, which the offline shell cannot hold. */
+  offline: 'You are offline. The verify links open the archive and need a connection.',
   verifyName: 'Verify at source: opens the same pixels on the Wellcome Collection image server in a new tab',
   approximate: "The region is the note's bounding box on the original page and may take in a little of the lines beside it.",
   cookAgain: 'Cook again',
