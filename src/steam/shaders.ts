@@ -158,7 +158,7 @@ export const BOKEH_CELL_CSS = 72.0
  */
 export const WINDOW_REFRACT_CSS = 3.0
 export const WINDOW_REFRACT_K = 26.0
-export const WINDOW_FLOOR = 0.28
+export const WINDOW_FLOOR = 0.31
 export const WINDOW_GRAD = 0.34
 export const WINDOW_BOKEH_COARSE = 1.3
 export const WINDOW_BOKEH_FINE = 1.8
@@ -182,8 +182,8 @@ export const WARM_POT = 0.2
 export const WARM_CANDLE = 0.3
 
 /** Droplet layers (design §5): cell css px, radius range css px, probability at full film. */
-export const DROP_TINY = { cell: 7.0, rLo: 0.8, rHi: 1.3, prob: 0.16 }
-export const DROP_MID = { cell: 15.0, rLo: 1.8, rHi: 3.4, prob: 0.13 }
+export const DROP_TINY = { cell: 7.0, rLo: 1.0, rHi: 1.5, prob: 0.18 }
+export const DROP_MID = { cell: 15.0, rLo: 1.8, rHi: 3.4, prob: 0.19 }
 export const DROP_LARGE = { cell: 38.0, rLo: 3.5, rHi: 6.5, prob: 0.07 }
 /** The sill gathers a few more large droplets, not a row of glowing beads; they are smaller and take less of the room's light. */
 export const RAIL_DROP_BOOST = 1.6
@@ -191,7 +191,7 @@ export const RAIL_SHRINK = 0.3
 /** Droplets at the top of the pane are this fraction of their size at the bottom. */
 export const DROP_TOP_SCALE = 0.6
 export const LENS_WARM = 0.5
-export const LENS_BODY = 0.6
+export const LENS_BODY = 0.68
 
 /** Wet edge (design §6.1): blur lod of the ink for the lip and the normal, lip density and brightness, cold rim strength, bead size. */
 export const INK_LOD_BLUR = 1.0
@@ -498,7 +498,7 @@ vec3 lensColour(vec2 q, float Lb, float r2, vec3 filmC) {
   vec3 c = filmC * LENS_BODY + uAfter * Lb * LENS_WARM * (0.2 + 0.8 * inv) * smoothstep(0.12, 0.7, Lb);
   vec2 a = q - vec2(-0.38, -0.42);
   c += uMoon * 0.55 * exp(-dot(a, a) * 60.0);
-  return mix(c, filmC * 0.22, smoothstep(0.55, 0.96, r2) * 0.88);
+  return mix(c, filmC * 0.25, smoothstep(0.55, 0.96, r2) * 0.8);
 }
 
 // One layer of jittered droplets: each cell holds at most one, radius at most 0.3 cell, so the 2x2 cells nearest the
@@ -786,7 +786,7 @@ void main() {
     float dens = smoothstep(0.3, 0.9, fogD) * keep;
     // Gravity: fewer and finer at the top, larger and in clusters lower down.
     float low = vUv.y;
-    float g = smoothstep(0.0, 0.6, low);
+    float g = smoothstep(0.0, 0.45, low);
     float clump = 0.7 + 0.7 * smoothstep(0.35, 0.65, vnoise2(css / 70.0 + 3.1));
     float rS = mix(DROP_TOP_SCALE, 1.0, sqrt(g));
     float rail = 1.0 + (RAIL_BOOST - 1.0) * smoothstep(0.88, 0.98, vUv.y);
@@ -808,7 +808,7 @@ void main() {
   if (uHead > 0.0) {
     vec3 cold = mix(uGhost, uMoon, 0.5);
     float before = dot(col, vec3(0.2126, 0.7152, 0.0722));
-    vec3 lit = col + cold * (HEAD_A * 1.3) * cres + cold * 0.07 * fing;
+    vec3 lit = mix(col, uGhost * 0.55, 0.4 * fing) + cold * (HEAD_A * 1.3) * cres + cold * 0.07 * fing; // the cleared patch is cool: the finger is never amber
     float after = dot(lit, vec3(0.2126, 0.7152, 0.0722));
     // luminance added by the finger never exceeds HEAD_MAX_LUMA
     col = after - before > HEAD_MAX_LUMA ? mix(col, lit, HEAD_MAX_LUMA / max(after - before, 1e-4)) : lit;

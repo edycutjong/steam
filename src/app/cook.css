@@ -160,13 +160,6 @@
   font-size: 18px;
   line-height: 1.4;
   text-align: center;
-  animation: slip-in 900ms ease both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cook__reading {
-    animation: none;
-  }
 }
 
 .cook__caption .btn {

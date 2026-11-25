@@ -110,6 +110,6 @@ The shader budget does not grow in textures: the window, the finger smear and th
   - Bevel, putty line and soft inner shadow in gradients; the button label at 4.5:1 or more.
   - Satisfies: R28.
 
-- [ ] 28. Look rounds, static panes, NOTES, suite green
+- [x] 28. Look rounds, static panes, NOTES, suite green
   - At least three capture rounds against items 1 to 11; `npm run static-panes`; NOTES "Look pass 3 (go/no-go retry)"; `npm test`, `typecheck`, `lint`, `build`, `npx playwright test`.
   - Satisfies: R10, R19 to R28.

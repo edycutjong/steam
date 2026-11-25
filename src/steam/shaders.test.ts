@@ -166,6 +166,7 @@ describe('look pass 3: the unseen finger (R21)', () => {
     expect(COMPOSITE_FRAG).toContain('uniform vec4 uFinger')
     expect(COMPOSITE_FRAG).toContain('opacity *= 1.0 - FINGER_CLEAR * fing')
     expect(COMPOSITE_FRAG).toContain('cold * (HEAD_A * 1.3) * cres')
+    expect(COMPOSITE_FRAG).toContain('mix(col, uGhost * 0.55, 0.4 * fing)') // the cleared patch is cooled, even over the pot's warm light
     expect(COMPOSITE_FRAG).toContain('HEAD_MAX_LUMA')
     expect(COMPOSITE_FRAG).toContain('mix(uGhost, uMoon, 0.5)')
   })
