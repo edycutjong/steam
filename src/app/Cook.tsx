@@ -6,7 +6,7 @@ import { DEBOUNCE_MS } from '../cook/drag.ts'
 import { paneNoteFor } from '../cook/plan.ts'
 import { createRevealGate } from '../cook/revealGate.ts'
 import { controlFor, noteState, type Control, type Pace, type SchedEffect } from '../cook/scheduler.ts'
-import { createWakeLock, type WakeLockNav, type WakeStatus } from '../cook/wakelock.ts'
+import { createWakeLock, type WakeLock, type WakeLockNav, type WakeStatus } from '../cook/wakelock.ts'
 import type { Clock } from '../cook/clock.ts'
 import type { LoadedRecipe } from '../data/catalog.ts'
 import { parseReading, quoteSegments } from '../data/reading.ts'
@@ -154,18 +154,29 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Wake lock: held while Cook Mode is visible, released when it closes (R17).
+  // Wake lock: held while Cook Mode is visible, released when it closes (R17). Best effort: nothing waits for it.
   useEffect(() => {
-    const w = createWakeLock(wakeNav)
-    const sync = () => setWake(w.status)
+    let closed = false
+    const w: WakeLock = createWakeLock(wakeNav, { visible: () => document.visibilityState === 'visible', onChange: () => !closed && setWake(w.status) })
+    const sync = () => !closed && setWake(w.status)
     void w.acquire().then(sync)
     sync()
     const onVis = () => {
       if (document.visibilityState === 'visible') void w.onVisible().then(sync)
     }
+    // a refusal is asked again on the next gesture; a held key is one gesture, not many
+    const onPointer = () => void w.onGesture().then(sync)
+    const onKey = (e: KeyboardEvent) => {
+      if (!e.repeat) void w.onGesture().then(sync)
+    }
     document.addEventListener('visibilitychange', onVis)
+    document.addEventListener('pointerdown', onPointer)
+    document.addEventListener('keydown', onKey)
     return () => {
+      closed = true
       document.removeEventListener('visibilitychange', onVis)
+      document.removeEventListener('pointerdown', onPointer)
+      document.removeEventListener('keydown', onKey)
       w.release()
     }
   }, [wakeNav])

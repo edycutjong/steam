@@ -57,8 +57,7 @@ describe('wake lock (R17)', () => {
 
 // a2a-arch-r05 B7: the lock follows Cook Mode, and survives what a browser or an OS does to it.
 describe('wake lock lifecycle (a2a-arch-r05 B7)', () => {
-  type Opts = { visible?: () => boolean; onChange?: () => void }
-  const make = createWakeLock as unknown as (nav: Parameters<typeof createWakeLock>[0], o?: Opts) => ReturnType<typeof createWakeLock> & { onGesture(): Promise<void> }
+  const make = createWakeLock
   const flush = async () => { for (let i = 0; i < 10; i++) await Promise.resolve() }
   const deferred = <T,>() => {
     let resolve!: (v: T) => void
