@@ -35,7 +35,8 @@ describe('loadShelf (R2.1 to R2.5, R2.7)', () => {
     // a2a-arch-r05 B5: 'a network error' is now retried twice before it is reported, so the test passes an instant sleep (it used to fetch once)
     const r = await createShelfLoader(mk(), catalog, async () => {}).load()
     expect(r.recipes).toEqual([])
-    expect(r.rejected).toEqual([{ id: 'quinces-marmalade', reason: expect.stringMatching(why) }])
+    // a2a-arch-r06 C1: only the network error ended on transport, and only it is marked as such
+    expect(r.rejected).toEqual([{ id: 'quinces-marmalade', reason: expect.stringMatching(why), ...(/offline/.test(String(why)) ? { transient: true } : {}) }])
     expect(warn).toHaveBeenCalledTimes(1)
     expect(String(warn.mock.calls[0]![0])).toMatch(/quinces-marmalade/)
     warn.mockRestore()
@@ -125,7 +126,7 @@ describe('loadShelf retries transport failures (a2a-arch-r05 B5)', () => {
     const loader = withSleep(f, catalog, sleeper().fn)
     const first = await loader.load()
     expect(first.recipes).toEqual([])
-    expect(first.rejected).toEqual([{ id: 'quinces-marmalade', reason: expect.stringMatching(/503/) }])
+    expect(first.rejected).toEqual([{ id: 'quinces-marmalade', reason: expect.stringMatching(/503/), transient: true }]) // a2a-arch-r06 C1
     expect(f).toHaveBeenCalledTimes(3)
     expect(w).toHaveBeenCalledTimes(1)
     // the same loader fetches again on a later load(): the failure was not kept
@@ -184,5 +185,39 @@ describe('loadShelf retries transport failures (a2a-arch-r05 B5)', () => {
     expect(r.recipes[0]!.withheld.length).toBe(3)
     expect(f).toHaveBeenCalledTimes(1)
     expect(s.waits).toEqual([])
+  })
+})
+
+// a2a-arch-r06 C1: a rejection that ended on transport says so, so a screen can offer a retry; a final one does not.
+describe('a rejection that ended on transport is marked (a2a-arch-r06 C1)', () => {
+  const quiet = () => vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const flag = (r: { rejected: object[] }) => (r.rejected[0] as { transient?: boolean }).transient
+  it('a network rejection that stays, and a 5xx that stays, are transient', async () => {
+    const w = quiet()
+    const a = await createShelfLoader(vi.fn(async () => { throw new TypeError('offline') }) as unknown as typeof fetch, catalog, async () => {}).load()
+    const b = await createShelfLoader(vi.fn(async () => new Response('', { status: 503 })) as unknown as typeof fetch, catalog, async () => {}).load()
+    w.mockRestore()
+    expect(flag(a)).toBe(true)
+    expect(flag(b)).toBe(true)
+  })
+  it.each([
+    ['HTTP 404', () => new Response('', { status: 404 })],
+    ['invalid JSON', () => new Response('{not json')],
+    ['a schema failure', () => new Response(variant((b) => delete b.source.canvas))],
+    ['a bundle that fails checkCookable', () => new Response(variant((b) => { b.notes[0].step = 9 }))],
+  ])('%s is final and carries no transient mark', async (_n, mk) => {
+    const w = quiet()
+    const r = await createShelfLoader(vi.fn(async () => mk()) as unknown as typeof fetch, catalog, async () => {}).load()
+    w.mockRestore()
+    expect(r.rejected).toHaveLength(1)
+    expect('transient' in r.rejected[0]!).toBe(false)
+  })
+  it('a recipe that loaded on the retry has no rejection at all', async () => {
+    const w = quiet()
+    let n = 0
+    const f = vi.fn(async () => (n++ < 1 ? Promise.reject(new TypeError('x')) : new Response(bundleText))) as unknown as typeof fetch
+    const r = await createShelfLoader(f, catalog, async () => {}).load()
+    w.mockRestore()
+    expect(r.rejected).toEqual([])
   })
 })
