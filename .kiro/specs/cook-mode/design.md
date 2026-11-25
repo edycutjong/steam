@@ -551,7 +551,7 @@ export function createWakeLock(nav: Pick<Navigator, 'wakeLock'> | undefined): { 
 ```
 <main>
   <h1>Recipes in a hand</h1>
-  <p class="intro">Every note you'll see is the writer's own hand, photographed. Nothing is generated.</p>
+  <p class="intro">Every note you'll see is the writer's own hand, photographed. The handwriting is never generated.</p>
   <ul>
     <li class="card">
       <div class="mat"><img src="/recipes/<id>/page.jpg" loading="lazy" width=1601 height=2052 alt="The manuscript page, MS.1810 p.23"></div>

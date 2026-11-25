@@ -44,7 +44,7 @@ Probe files deleted: `git status` shows no `zz-` file, `git ls-files src | grep 
 
 Other lines the live hooks wrote while the spec ran: `src-scan … pass (N files)` lines (7 in total at the end, one per change of verdict, none per command), and `2026-11-25T21:23:22.104Z · shell-gate · src/steam/layout.ts · pass (… the content is not in the command text; src-scan judges the file after)`, written for a `git checkout <rev> -- src/steam/layout.ts` that restored a file for a measurement. Of 80 shell-gate invocations in this session, 3 wrote a line (the probes and that restore): the no-spam rule holds.
 
-## Before and after for this session (`sessions/before/ledger.json` taken 03:42 local, `sessions/ledger.json` at the end)
+## Before and after for this session (`sessions/before/ledger.json` taken 03:43 local, `sessions/ledger.json` at the end)
 
 | This session, `sess_cc50a90b` | before the hooks | at the end |
 |---|---|---|

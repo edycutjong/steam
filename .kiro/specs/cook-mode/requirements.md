@@ -69,7 +69,7 @@ Terms:
 **User story:** As a judge, I want to open the site and reach the product in one tap, with the provenance in sight.
 
 1. THE SYSTEM SHALL render the title "Recipes in a hand" in IM Fell English (56 px desktop, 34 px phone) as the screen's `<h1>`.
-2. WHILE the visitor has not yet left the shelf for a recipe, THE SYSTEM SHALL show under the title, in body type, the line "Every note you'll see is the writer's own hand, photographed. Nothing is generated." Afterwards it SHALL show the same words as a standing `--muted` line. The flag SHALL be kept on this device (R18.9).
+2. WHILE the visitor has not yet left the shelf for a recipe, THE SYSTEM SHALL show under the title, in body type, the line "Every note you'll see is the writer's own hand, photographed. The handwriting is never generated." Afterwards it SHALL show the same words as a standing `--muted` line. The flag SHALL be kept on this device (R18.9).
 3. THE SYSTEM SHALL render one card per displayable recipe, in catalog order. A card holds: the scan thumbnail on a `--paper` mat (the bundle's `page.jpg`, `loading="lazy"`, with its natural width and height set, alt text "The manuscript page, <shelfmark> <page>"), the recipe title in IM Fell English as a link to `#/r/:id`, the `ArchiveSlip` (title, shelfmark, page, date, licence, credit), and two buttons.
 4. THE SYSTEM SHALL label the buttons "Cook it" and "Watch it at ×12". "Cook it" SHALL start a new session at step 1 in real time (`#/r/:id/cook`). "Watch it at ×12" SHALL start a new session at step 1 at pace 12 (`#/r/:id/cook?pace=12`). Both SHALL discard any saved session of that recipe first (R18.5).
 5. THE SYSTEM SHALL make both buttons at least 48×48 CSS px and keyboard operable.
