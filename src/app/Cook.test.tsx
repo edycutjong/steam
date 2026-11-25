@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { openStore, type Store } from '../data/store.ts'
 import { WIPE_MS, WRITE_ON_MS } from '../steam/timeline.ts'
@@ -51,7 +52,7 @@ describe('Cook screen (R9, R14.7, R14.8, R18.5, R18.6, R19.1, R19.2, R19.8, R15.
     expect(root.dataset.noteState).toBe('none')
     expect(host.querySelector('.cook__under .slip')).toBeNull()
   })
-  it('shows the reviewed reading under the pane only while the note holds, hidden from assistive tech (look pass 3, R20.3, R20.4)', async () => {
+  it('shows the reviewed reading under the pane only while the note holds, in the accessibility tree (look pass 3, R20.3, R20.4; a2a-arch-r05 B9)', async () => {
     const { host, root } = await open('#/r/quinces-marmalade/cook')
     expect(root.dataset.noteState).toBe('writing')
     expect(host.querySelector('[data-note-reading]')).toBeNull()
@@ -59,11 +60,36 @@ describe('Cook screen (R9, R14.7, R14.8, R18.5, R18.6, R19.1, R19.2, R19.8, R15.
     expect(root.dataset.noteState).toBe('held')
     const reading = host.querySelector('.cook > [data-note-reading]') as HTMLElement
     expect(reading).not.toBeNull()
-    expect(reading.getAttribute('aria-hidden')).toBe('true')
+    // a2a-arch-r05 B9 changed this assertion on purpose: it was `aria-hidden` = 'true', on the claim that the live region had announced the
+    // words; the next message (a pace change) replaces them there, so the held note must be readable in the tree itself.
+    expect(reading.hasAttribute('aria-hidden')).toBe(false)
+    expect(reading.closest('[aria-hidden="true"]')).toBeNull()
     expect(text(reading)).toBe('full ripe,')
     expect(host.querySelector('.stage')!.contains(reading)).toBe(false) // under the pane, never on the glass
     await press(host)
     expect(host.querySelector('[data-note-reading]')).toBeNull()
+  })
+  it('the held reading stays readable after a later message replaces the note in the live region, and adds no announcement of its own (a2a-arch-r05 B9)', async () => {
+    const { host, root, app } = await open('#/r/quinces-marmalade/cook')
+    await tick(WRITE_ON_MS - 500)
+    const before = app.said.length
+    await tick(700)
+    expect(root.dataset.noteState).toBe('held')
+    expect(app.said.length).toBe(before) // the reading's arrival says nothing
+    // any later message, here a pace change, replaces the live region's text
+    const knob = host.querySelector('[role="slider"]') as HTMLElement
+    const said = app.said.length
+    act(() => void knob.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })))
+    const reading = host.querySelector('[data-note-reading]') as HTMLElement
+    expect(app.said.length).toBeGreaterThan(said)
+    expect(app.said.at(-1)).not.toContain('full ripe')
+    expect(reading.closest('[aria-hidden="true"]')).toBeNull()
+    expect(text(reading)).toBe('full ripe,')
+  })
+  it('the canvas pane and the empty reading slot stay hidden from assistive tech (a2a-arch-r05 B9)', async () => {
+    const { host } = await open('#/r/quinces-marmalade/cook')
+    expect((host.querySelector('.cook > .cook__reading') as HTMLElement).getAttribute('aria-hidden')).toBe('true') // the empty placeholder
+    expect(host.querySelector('.stage section.pane')!.getAttribute('aria-hidden')).toBe('true')
   })
   it('keeps a one-line reading slot in the layout before the hold, so the reading arriving moves nothing (cook-layout-p1d L4)', async () => {
     const { host, root } = await open('#/r/quinces-marmalade/cook')
