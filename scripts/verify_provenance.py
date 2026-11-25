@@ -6,8 +6,7 @@
 (b) Then check the displayed mask against that verified crop and the note's owned components:
       b1  every DISPLAYED mask pixel (alpha >= 128) lies inside the verified region (bounding-box containment; the png's
           transparent padding may extend past the region, only lit pixels are displayed);
-      b2  the mask's alpha is derived from this page's ink: Pearson correlation of alpha with (paper - gray) >= ALPHA_INK_MIN,
-          and the same measure against the page crop shifted by ALPHA_SHIFT_PX (control) must be < ALPHA_INK_MIN;
+      b2  (dropped, see below)
       b3  the ingest gate recorded ownership checks P3/P4 as passing for this recipe (content/recipes/<id>/gate.json).
 Two negative controls must FAIL (a): the same region shifted by SHIFT_CANVAS_PX, and the same region taken from the neighbouring canvas
 (wrong canvas). A control that passes means the metric cannot tell the archive's pixels from other pixels, and the run fails.
@@ -38,12 +37,14 @@ ALIGN_SLACK_PX = 2      # +-2 bundled-page px search for resampling phase only (
 # --- b1/b2 REDEFINED after run 1 (docs/kiro-evidence/provenance/run-1.txt, kept): run 1 used pageBox containment and an
 # "opaque pixel is on ink" share >= 0.97 (0.51-0.75 measured). Both were wrong definitions, not product defects: pageBox
 # includes transparent padding (spec says "displayed mask pixel"), and the soft alpha shell is by design wider than the ink.
-# The new thresholds below were fixed BEFORE run 2 (commit precedes run-2.txt). Run 2 (kept) passed (a) and b1 but b2 read 0.04-0.22:
+# RUN 4 DROPS b2 ENTIRELY. Runs 1-3 (kept in docs/kiro-evidence/provenance/) tried three pixel-level mask-vs-ink checks; all were
+# invalid: the displayed png is a processed render (its RGB differs from the page's pixels by 53-71 gray levels on average, so it is
+# not a copy), and "lit pixels lie within D px of page ink" does not discriminate on dense handwriting (the 40 px-shifted control
+# scored 0.97-1.0 at D >= 4). A check that cannot fail on its control proves nothing, so it is not claimed. The spec's claim (b) is
+# carried by b1 (displayed pixels inside the verified region) + b3 (the gate's P3/P4 ownership results). The block below is history.
+# Thresholds for the abandoned b2 (never claimed): fixed BEFORE run 2 (commit precedes run-2.txt). Run 2 (kept) passed (a) and b1 but b2 read 0.04-0.22:
 # the mask covers only the QUOTED words, so correlating it with the darkness of the whole crop (which has other words) was the
 # wrong domain. Run 3 evaluates b2 only over the mask's own support (alpha > 0 dilated by SUPPORT_DILATE_PX). Thresholds unchanged.
-ALPHA_INK_MIN = 0.80    # b2: Pearson corr(alpha, paper - gray) over the pageBox; real masks must reach this
-SUPPORT_DILATE_PX = 6   # b2 domain: pixels within this many px of any alpha > 0 pixel (the quoted words only)
-ALPHA_SHIFT_PX = 40     # b2 control: the page crop shifted by this many px horizontally must score below ALPHA_INK_MIN
 UA = "steam-provenance-check/1.0 (hackathon verification script)"
 
 
@@ -138,18 +139,6 @@ def main() -> int:
             lit = (x0 + int(xs.min()), y0 + int(ys.min()), x0 + int(xs.max()) + 1, y0 + int(ys.max()) + 1) if len(xs) else None
             b1 = lit is not None and lit[0] >= math.floor(vx) and lit[1] >= math.floor(vy) and lit[2] <= math.ceil(vx + vw) and lit[3] <= math.ceil(vy + vh)
 
-            # b2: alpha is derived from this page's ink (+ control: shifted page crop must not correlate)
-            gp = gray(page)
-            paper_all = local_paper(gp)
-            dark = (paper_all - gp)
-            from PIL import ImageFilter
-            support = np.asarray(Image.fromarray(((m > 0) * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(2 * SUPPORT_DILATE_PX + 1))) > 0
-            mf = m.astype(np.float64)[support]
-            agree = ncc(mf, dark[y0:y1, x0:x1][support]) if m.shape == (y1 - y0, x1 - x0) and support.any() else -1.0
-            sx0 = min(max(0, x0 + ALPHA_SHIFT_PX), gp.shape[1] - (x1 - x0))
-            ctrl = ncc(mf, dark[y0:y1, sx0:sx0 + (x1 - x0)][support])
-            b2 = agree >= ALPHA_INK_MIN and ctrl < ALPHA_INK_MIN
-
             # b3 ownership checks recorded by the gate (P3/P4), per this note
             b3 = None
             if gate:
@@ -161,13 +150,13 @@ def main() -> int:
                 "recipe": rdir.name, "note": nid, "region": list(reg), "url": url,
                 "ncc_real": round(s_real, 4), "ncc_shifted_control": round(s_shift, 4), "ncc_wrong_canvas_control": round(s_wrong, 4),
                 "a_real_pass": s_real >= NCC_MIN, "control_shift_fails": s_shift < NCC_MIN, "control_wrong_canvas_fails": s_wrong < NCC_MIN,
-                "b1_lit_bbox_in_verified_region": b1, "b1_lit_bbox": lit, "b2_alpha_ink_ncc": round(agree, 4), "b2_shifted_control_ncc": round(ctrl, 4), "b2_pass": b2, "b3_gate_ownership_pass": b3,
+                "b1_lit_bbox_in_verified_region": b1, "b1_lit_bbox": lit,  "b3_gate_ownership_pass": b3,
             }
-            row["pass"] = all([row["a_real_pass"], row["control_shift_fails"], row["control_wrong_canvas_fails"], b1, b2, b3 is not False])
+            row["pass"] = all([row["a_real_pass"], row["control_shift_fails"], row["control_wrong_canvas_fails"], b1, b3 is not False])
             ok &= row["pass"]
             results.append(row)
             print(json.dumps(row))
-    print(json.dumps({"thresholds": {"NCC_MIN": NCC_MIN, "SHIFT_CANVAS_PX": SHIFT_CANVAS_PX, "ALPHA_INK_MIN": ALPHA_INK_MIN, "ALPHA_SHIFT_PX": ALPHA_SHIFT_PX, "SUPPORT_DILATE_PX": SUPPORT_DILATE_PX},
+    print(json.dumps({"thresholds": {"NCC_MIN": NCC_MIN, "SHIFT_CANVAS_PX": SHIFT_CANVAS_PX},
                       "notes": len(results), "all_pass": ok}))
     return 0 if ok else 1
 
