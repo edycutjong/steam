@@ -42,9 +42,9 @@ describe('desktop layout keeps the ink clear of the shade bands (hero-hold-clear
     expect(b.inked[1] - a.inked[3]).toBeGreaterThanOrEqual(GROUP_GAP_CSS - 1e-9)
     for (const g of l.groups) expect(g.coreBandCssPx, `group ${g.index}`).toBeGreaterThanOrEqual(MIN_CORE_CSS_PX)
   })
-  it('fits is true, and false for a pane too short for the rule', () => {
+  it('fits is true, and false for a pane with no room between the two insets', () => {
     expect(l.fits).toBe(true)
-    expect(computeLayout('page', PANE.w, 120, whenTender).fits).toBe(false)
+    expect(computeLayout('page', PANE.w, 60, whenTender).fits).toBe(false)
   })
 })
 

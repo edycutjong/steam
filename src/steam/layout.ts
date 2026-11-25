@@ -136,7 +136,9 @@ export function computeLayout(
 
   if (kind === 'page') {
     // Same stacked arrangement as the phone: one scale for both groups (the hand keeps one size),
-    // left edges aligned, the stack centred in the pane.
+    // left edges aligned, the stack centred in the pane. Vertically the ink keeps V_INSET (the shade band plus the phone's clear
+    // glass) from the top and the bottom, so no stroke sinks into the dark band above the bottom rail; the stack is centred in
+    // the clear glass, whose middle is the middle of the pane (hero-hold-clearance R1).
     const rectW = order.map((i) => meta.groups[i].rect[2] - meta.groups[i].rect[0])
     const rectH = order.map((i) => meta.groups[i].rect[3] - meta.groups[i].rect[1])
     const wide = Math.max(...rectW)
@@ -145,7 +147,7 @@ export function computeLayout(
     let s = Math.min(
       (paneW * DESKTOP_FILL) / wide,
       (paneW - 2 * PAD_PX) / wide,
-      (paneH - 2 * PAD_PX - gaps) / stackH,
+      (paneH - 2 * V_INSET - gaps) / stackH,
       S_MAX_DESKTOP,
     )
     s = Math.max(1e-6, s)
@@ -156,7 +158,7 @@ export function computeLayout(
       y += rectH[k] * s + GROUP_GAP_CSS
       return p
     })
-    return { kind, groups, fits: groups.every((p) => inkedFits(p, paneW, paneH)) }
+    return { kind, groups, fits: groups.every((p) => inkedFits(p, paneW, paneH, V_INSET)) }
   }
 
   // Phone: every group on its own line at the largest scale that fits. A line that cannot keep the minimum core band

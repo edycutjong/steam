@@ -21,7 +21,7 @@ async function openHeld(page: Page): Promise<void> {
   await page.waitForTimeout(900)
 }
 
-/** Screen pixels (relative to the pane) on the writer's ink: note alpha above 200 inside a group rect, through the reported layout. */
+/** Rows (relative to the pane) of the writer's ink: every note pixel with alpha above 50 inside a group rect (the faint ends of strokes count; alpha above 200 is only their core), through the reported layout. */
 async function inkRows(page: Page): Promise<{ top: number; bottom: number; h: number }> {
   const [layout, o] = await Promise.all([readLayout(page), canvasOrigin(page)])
   let top = Infinity
@@ -30,7 +30,7 @@ async function inkRows(page: Page): Promise<{ top: number; bottom: number; h: nu
     const [rx0, ry0, rx1, ry1] = g.rect!
     for (let ny = ry0; ny < ry1; ny++)
       for (let nx = rx0; nx < rx1; nx++) {
-        if (note.data[(ny * note.width + nx) * 4 + 3] <= 200) continue
+        if (note.data[(ny * note.width + nx) * 4 + 3] <= 50) continue
         const y = g.inked[1] + (ny - ry0 + 0.5) * g.scale
         top = Math.min(top, y)
         bottom = Math.max(bottom, y)
