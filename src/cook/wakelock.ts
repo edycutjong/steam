@@ -1,5 +1,5 @@
 // Screen wake lock (R17). Best effort: nothing depends on the lock and nothing waits for it.
-// A refusal is tried again when the page becomes visible and on the next gesture. A lock the browser or the OS takes away
+// A refusal is tried again when the page becomes visible and on the next gesture, and so is a lock the browser took away (a2a-arch-r06 C4). A lock the browser or the OS takes away
 // while the page is visible is asked for once more, and a refusal of that stops it (a2a-arch-r05 B7).
 
 export interface SentinelLike {
@@ -27,6 +27,8 @@ export function createWakeLock(nav: WakeLockNav | undefined, opts: WakeLockOpts 
   let pending = -1
   /** A release from the browser has been answered with one request already; the next waits for a hide/show or a gesture. */
   let answered = false
+  /** `release()` has been called and nothing has asked since: a gesture must not bring the lock back for a Cook Mode that has closed. */
+  let released = false
   const set = (s: WakeStatus): void => {
     if (s === status) return
     status = s
@@ -39,6 +41,7 @@ export function createWakeLock(nav: WakeLockNav | undefined, opts: WakeLockOpts 
     /** Requests the lock unless it is held, being requested or was refused since the page was last visible. */
     async acquire(): Promise<void> {
       if (!nav?.wakeLock || status === 'held' || status === 'refused' || pending === gen) return
+      released = false
       const mine = gen
       pending = mine
       try {
@@ -71,9 +74,13 @@ export function createWakeLock(nav: WakeLockNav | undefined, opts: WakeLockOpts 
       if (status === 'refused') set('idle')
       await api.acquire()
     },
-    /** A pointerdown or keydown inside Cook Mode: a refusal is tried once more. A held lock is left alone. */
+    /**
+     * A pointerdown or keydown inside Cook Mode: a refusal is tried once more, and so is a lock the browser took away after the one
+     * automatic re-acquire was spent (status `idle`, nothing pending; a2a-arch-r06 C4). A held lock is left alone. This also gives
+     * the automatic re-acquire its one more try.
+     */
     async onGesture(): Promise<void> {
-      if (status !== 'refused') return
+      if (!nav?.wakeLock || released || status === 'held' || status === 'unsupported' || pending === gen) return
       answered = false
       set('idle')
       await api.acquire()
@@ -82,6 +89,7 @@ export function createWakeLock(nav: WakeLockNav | undefined, opts: WakeLockOpts 
     release(): void {
       const s = sentinel
       sentinel = null
+      released = true
       gen++
       if (nav?.wakeLock && status !== 'refused') set('idle')
       if (s) void s.release().catch(() => {})
