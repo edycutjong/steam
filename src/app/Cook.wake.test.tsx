@@ -44,6 +44,58 @@ describe('wake lock and persistence notices (R17, R18.8)', () => {
     await flush()
     expect(request).toHaveBeenCalledTimes(2)
   })
+  // a2a-arch-r05 B7
+  it('a refusal is asked again on the next pointerdown or keydown inside Cook Mode, and the listeners go when Cook closes', async () => {
+    const release = vi.fn(async () => {})
+    const request = vi.fn().mockRejectedValueOnce(new Error('NotAllowedError')).mockResolvedValue({ release })
+    const { root } = await open({ wakeLock: { request } })
+    expect(root.dataset.wake).toBe('refused')
+    act(() => void document.dispatchEvent(new Event('pointerdown', { bubbles: true })))
+    await flush()
+    expect(request).toHaveBeenCalledTimes(2)
+    expect(root.dataset.wake).toBe('held')
+    act(() => void document.dispatchEvent(new Event('pointerdown', { bubbles: true })))
+    await flush()
+    expect(request).toHaveBeenCalledTimes(2)
+    unmountAll()
+    act(() => void document.dispatchEvent(new Event('pointerdown', { bubbles: true })))
+    act(() => void document.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true })))
+    await flush()
+    expect(request).toHaveBeenCalledTimes(2)
+  })
+  it('a keydown retries a refusal too, but a held key (repeat) does not hammer it', async () => {
+    const request = vi.fn().mockRejectedValue(new Error('NotAllowedError'))
+    const { root } = await open({ wakeLock: { request } })
+    act(() => void document.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, repeat: true })))
+    await flush()
+    expect(request).toHaveBeenCalledTimes(1)
+    act(() => void document.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true })))
+    await flush()
+    expect(request).toHaveBeenCalledTimes(2)
+    expect(root.dataset.wake).toBe('refused')
+  })
+  it('a release from the browser while the page is visible asks once more, and data-wake follows', async () => {
+    const added: (() => void)[] = []
+    const s1 = { release: vi.fn(async () => {}), addEventListener: (_t: string, cb: () => void) => void added.push(cb) }
+    const s2 = { release: vi.fn(async () => {}), addEventListener: () => {} }
+    const request = vi.fn().mockResolvedValueOnce(s1).mockResolvedValueOnce(s2)
+    const { root } = await open({ wakeLock: { request } })
+    expect(root.dataset.wake).toBe('held')
+    act(() => added[0]!())
+    await flush()
+    expect(request).toHaveBeenCalledTimes(2)
+    expect(root.dataset.wake).toBe('held')
+  })
+  it('a lock that arrives after Cook has closed is released at once', async () => {
+    let resolve!: (s: { release(): Promise<void> }) => void
+    const request = vi.fn(() => new Promise<{ release(): Promise<void> }>((r) => { resolve = r }))
+    await open({ wakeLock: { request } })
+    unmountAll()
+    const release = vi.fn(async () => {})
+    resolve({ release })
+    await flush()
+    expect(release).toHaveBeenCalledTimes(1)
+  })
   it('no API gives "unsupported" and no text', async () => {
     const { host, root } = await open({})
     expect(root.dataset.wake).toBe('unsupported')
