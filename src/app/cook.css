@@ -336,6 +336,16 @@
   background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--rule) 70%, var(--ink)) 0%, var(--rule) 46%, var(--bg) 100%);
   cursor: grab;
   touch-action: none;
+  transition: border-color 140ms ease, filter 140ms ease;
+}
+
+.knob__dial:hover {
+  border-color: var(--ink);
+  filter: brightness(1.15);
+}
+
+.knob__dial:active {
+  cursor: grabbing;
 }
 
 .knob__dial::before {
