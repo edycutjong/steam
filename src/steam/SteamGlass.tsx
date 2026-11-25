@@ -7,7 +7,10 @@ import { loadNoteAssets } from './assets.ts'
 import type { NoteAssets, NoteCheck } from './assets.ts'
 import { derive } from './derive.ts'
 import type { Derived } from './derive.ts'
+import Candle from './Candle.tsx'
 import { chooseLayout, computeLayout } from './layout.ts'
+import NightView from './NightView.tsx'
+import type { Haunt } from './NightView.tsx'
 import type { Layout } from './layout.ts'
 import type { SteamParams } from './params.ts'
 import { SteamRenderer } from './renderer.ts'
@@ -80,8 +83,11 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
   const effective = useMemo<SteamParams>(() => (initial === 'held' ? { t: null, lead: -WRITE_ON_MS, fps } : { t, lead: paramLead, fps }), [initial, t, paramLead, fps])
   // The last state the pane reported and when, so a static pane that replaces a lost live one carries on from it (Q8).
   const lastState = useRef<{ state: RevealState; at: number } | null>(null)
+  const [haunt, setHaunt] = useState<Haunt>(initial === 'held' ? 'clear' : 'calm')
   const pushState = useCallback((s: RevealState): void => {
     lastState.current = { state: s, at: performance.now() }
+    const h: Haunt = s.phase === 'fogged' ? 'calm' : s.phase === 'thickening' || s.phase === 'writing' ? 'gather' : 'clear'
+    setHaunt((prev) => (prev === h ? prev : h))
     latest.current.onState?.(s)
   }, [])
   const fpsRef = useRef<HTMLDivElement>(null)
@@ -145,6 +151,15 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
     publishLayout(canvas, layout)
     controllerRef.current = renderer
     renderer.onState(pushState)
+    const measureCandle = (): void => {
+      const candle = canvas.parentElement?.querySelector('.candle')
+      if (!candle) return
+      const c = candle.getBoundingClientRect()
+      const g = canvas.getBoundingClientRect()
+      if (g.width < 1 || g.height < 1) return
+      renderer.setCandle((c.left + c.width / 2 - g.left) / g.width, (c.top - 6 - g.top) / g.height)
+    }
+    measureCandle()
     let fpsTimer = 0
     if (p.fps) {
       renderer.resetStats()
@@ -170,6 +185,7 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
       const next = computeLayout(chooseLayout(box.width), box.width, box.height, meta)
       renderer.resize(box.width, box.height, next)
       publishLayout(canvas, next)
+      measureCandle()
     })
     ro.observe(canvas)
     return () => {
@@ -185,9 +201,7 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
 
   return (
     <>
-      <div className="sash sash--upper">
-        <div className="moon" />
-      </div>
+      <NightView haunt={haunt} />
       <div className="rail rail--meeting" />
       <div className="sash sash--lower">
         {status === 'fallback' || status === 'error' ? (
@@ -204,6 +218,7 @@ export default function SteamGlass({ stem, paneDir, noteId, params, controllerRe
         ) : (
           <canvas ref={canvasRef} className="steam-canvas" aria-hidden="true" />
         )}
+        <Candle haunt={haunt} />
         {fps ? <div ref={fpsRef} className="fps" /> : null}
         {status === 'error' && showError ? <p className="load-error load-error--glass">{LOAD_FAILED}</p> : null}
       </div>

@@ -4,6 +4,8 @@ import type { createRevealGate } from '../../cook/revealGate.ts'
 import { quoteSegments } from '../../data/reading.ts'
 import type { LoadedRecipe } from '../../data/catalog.ts'
 import { createPreparer, type Preparer } from '../../steam/prepare.ts'
+import Candle from '../../steam/Candle.tsx'
+import NightView from '../../steam/NightView.tsx'
 import SteamGlass, { type RevealController, type SteamGlassProps } from '../../steam/SteamGlass.tsx'
 import { WIPE_MS, type Phase } from '../../steam/timeline.ts'
 import ReadingText from './ReadingText.tsx'
@@ -130,7 +132,7 @@ export default function PaneStage({ recipe, noteId, heldAtMount, gate, fps = fal
   }, [firstReady])
 
   if (!noteId && panes.length === 0) {
-    return <section className="steam-root pane pane--empty" aria-hidden="true"><div className="sash sash--upper"><div className="moon" /></div><div className="rail rail--meeting" /><div className="sash sash--lower" /><div className="rail rail--bottom" /></section>
+    return <section className="steam-root pane pane--empty" aria-hidden="true"><NightView /><div className="rail rail--meeting" /><div className="sash sash--lower"><Candle /></div><div className="rail rail--bottom" /></section>
   }
 
   return (

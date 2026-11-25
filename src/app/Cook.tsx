@@ -10,6 +10,8 @@ import { createWakeLock, type WakeLockNav, type WakeStatus } from '../cook/wakel
 import type { Clock } from '../cook/clock.ts'
 import type { LoadedRecipe } from '../data/catalog.ts'
 import { parseReading, quoteSegments } from '../data/reading.ts'
+import Candle from '../steam/Candle.tsx'
+import NightView from '../steam/NightView.tsx'
 import type { SteamGlassProps } from '../steam/SteamGlass.tsx'
 import { WIPE_MS, type Phase } from '../steam/timeline.ts'
 import { useApp } from './AppContext.tsx'
@@ -276,9 +278,9 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
           />
         ) : (
           <section className="steam-root pane" aria-hidden="true">
-            <div className="sash sash--upper"><div className="moon" /></div>
+            <NightView />
             <div className="rail rail--meeting" />
-            <div className="sash sash--lower" />
+            <div className="sash sash--lower"><Candle /></div>
             <div className="rail rail--bottom" />
           </section>
         )}
