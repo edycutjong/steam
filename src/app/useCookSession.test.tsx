@@ -101,6 +101,49 @@ describe('useCookSession (R12.7, R18.2, R18.4, R18.5, R19.1, R19.3, R19.5, R26.4
     await tick(5_000)
     expect(reveals(o).length).toBe(1)
   })
+  // a2a-arch-r05 B8: a page restored as visible without a visibilitychange (bfcache order differs between engines) must wake.
+  describe.each(['pageshow', 'focus'])('%s (a2a-arch-r05 B8)', (evt) => {
+    const setVis = (v: DocumentVisibilityState) => Object.defineProperty(document, 'visibilityState', { value: v, configurable: true })
+    afterEach(() => setVis('visible'))
+    const sleepAndFreeze = async () => {
+      const store = openStore(null)
+      await (await store).putTiming('quinces-marmalade', 'full-ripe', 600)
+      const o = harness('#/r/quinces-marmalade/cook', store)
+      await flush()
+      setVis('hidden')
+      act(() => void document.dispatchEvent(new Event('visibilitychange')))
+      expect(o.s!.state.asleep).toBe(true)
+      vi.setSystemTime(T0 + 3 * 3600_000)
+      return o
+    }
+    it('wakes a sleeping session when the document is visible, with no visibilitychange', async () => {
+      const o = await sleepAndFreeze()
+      setVis('visible') // no event: the engine restored the page without one
+      act(() => void window.dispatchEvent(new Event(evt)))
+      await flush()
+      expect(o.s!.state.asleep).toBe(false)
+      expect(reveals(o).length).toBe(1)
+    })
+    it('leaves a sleeping session asleep while the document is hidden', async () => {
+      const o = await sleepAndFreeze()
+      act(() => void window.dispatchEvent(new Event(evt)))
+      await flush()
+      expect(o.s!.state.asleep).toBe(true)
+      expect(reveals(o).length).toBe(0)
+    })
+    it('on a session that is awake it is still a tick: a reveal that came due while the timer slept is applied', async () => {
+      const store = openStore(null)
+      await (await store).putTiming('quinces-marmalade', 'full-ripe', 600)
+      const o = harness('#/r/quinces-marmalade/cook', store)
+      await flush()
+      expect(o.s!.state.asleep).toBe(false)
+      vi.setSystemTime(T0 + 3 * 3600_000) // the timer has not run; the clock moved on
+      act(() => void window.dispatchEvent(new Event(evt)))
+      await flush()
+      expect(o.s!.state.asleep).toBe(false)
+      expect(reveals(o).length).toBe(1)
+    })
+  })
   it('every change of state writes the snapshot', async () => {
     const store = openStore(null)
     const o = harness('#/r/quinces-marmalade/cook', store)
