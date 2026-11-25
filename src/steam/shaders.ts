@@ -143,11 +143,23 @@ export const CANDLE_GAIN = 0.7
 export const FLOOR_GAIN = 0.1
 export const BOKEH_GAIN = 0.16
 export const BOKEH_CELL_CSS = 72.0
-/** Light the hand carries at no room light, and how much of the room light it adds on top (the ember inside a stroke). */
-export const EMBER_BASE = 1.0
-export const EMBER_GAIN = 0.9
-/** Darkening of the meniscus band, where the clearing is half done. */
-export const EDGE_SHADE = 0.3
+/**
+ * A cleared stroke is a window (look pass 3, design section 15): it shows the room behind the glass. The room is a dark
+ * gradient with the pot's and the candle's glow and out-of-focus discs at two scales; the lookup is bent by the edge normal.
+ */
+export const WINDOW_REFRACT_CSS = 3.0
+export const WINDOW_REFRACT_K = 26.0
+export const WINDOW_FLOOR = 0.2
+export const WINDOW_GRAD = 0.3
+export const WINDOW_BOKEH_COARSE = 1.3
+export const WINDOW_BOKEH_FINE = 1.5
+export const WINDOW_FINE_CELL_CSS = 22.0
+export const WINDOW_SHOULDER = 1.25
+/** Meniscus: highlight width (css px, at dpr 1), strength, shade on the far side, and the direction of the lamp and candle (y down). */
+export const MENISCUS_PX = 1.0
+export const MENISCUS_A = 0.6
+export const FAR_SHADE = 0.12
+export const LAMP_DIR = [0.28, 0.96] as const
 /** Refraction offset of the room lookup, css px at the strongest film gradient (design §4: 1 to 3). */
 export const REFRACT_MAX_CSS = 3.0
 export const REFRACT_GAIN = 90.0
@@ -173,15 +185,10 @@ export const LENS_WARM = 0.6
 export const INK_LOD_BLUR = 1.0
 export const LIP_DENSITY = 0.07
 export const LIP_BRIGHT = 0.13
-export const RIM_A = 0.2
-/** The cold rim on the fog side of an edge: designed width in css px at dpr 1 (never more than 1), the band of T it occupies, and how much of it survives where the film is thin. */
-export const RIM_PX = 1.0
-export const RIM_T_LO = 0.02
-export const RIM_T_HI = 0.14
 /** Pen pressure (the scan's own ink darkness): below PRESSURE_LO a stroke is a hairline (dim, cool), above PRESSURE_HI it is a full stroke (clear and warm). */
 export const PRESSURE_LO = 0.3
 export const PRESSURE_HI = 0.95
-export const PRESSURE_DIM = 0.72
+export const PRESSURE_DIM = 0.85
 /** Warm light scattered into the film around written strokes: blur lod, strength. */
 export const HALO_LOD = 3.0
 export const HALO_GAIN = 0.16
@@ -258,9 +265,17 @@ const float CANDLE_GAIN = ${f(CANDLE_GAIN)};
 const float FLOOR_GAIN = ${f(FLOOR_GAIN)};
 const float BOKEH_GAIN = ${f(BOKEH_GAIN)};
 const float BOKEH_CELL = ${f(BOKEH_CELL_CSS)};
-const float EMBER_BASE = ${f(EMBER_BASE)};
-const float EMBER_GAIN = ${f(EMBER_GAIN)};
-const float EDGE_SHADE = ${f(EDGE_SHADE)};
+const float WINDOW_REFRACT = ${f(WINDOW_REFRACT_CSS)};
+const float WINDOW_REFRACT_K = ${f(WINDOW_REFRACT_K)};
+const float WINDOW_FLOOR = ${f(WINDOW_FLOOR)};
+const float WINDOW_GRAD = ${f(WINDOW_GRAD)};
+const float WINDOW_BOKEH_COARSE = ${f(WINDOW_BOKEH_COARSE)};
+const float WINDOW_BOKEH_FINE = ${f(WINDOW_BOKEH_FINE)};
+const float WINDOW_FINE_CELL = ${f(WINDOW_FINE_CELL_CSS)};
+const float WINDOW_SHOULDER = ${f(WINDOW_SHOULDER)};
+const float MENISCUS_A = ${f(MENISCUS_A)};
+const float FAR_SHADE = ${f(FAR_SHADE)};
+const vec2 LAMP_DIR = normalize(vec2(${f(LAMP_DIR[0])}, ${f(LAMP_DIR[1])}));
 const float REFRACT_MAX = ${f(REFRACT_MAX_CSS)};
 const float REFRACT_GAIN = ${f(REFRACT_GAIN)};
 const float FILM_BASE = ${f(FILM_BASE)};
@@ -272,9 +287,6 @@ const float WARM_CANDLE = ${f(WARM_CANDLE)};
 const float INK_LOD = ${f(INK_LOD_BLUR)};
 const float LIP_DENSITY = ${f(LIP_DENSITY)};
 const float LIP_BRIGHT = ${f(LIP_BRIGHT)};
-const float RIM_A = ${f(RIM_A)};
-const float RIM_T_LO = ${f(RIM_T_LO)};
-const float RIM_T_HI = ${f(RIM_T_HI)};
 const float PRESSURE_LO = ${f(PRESSURE_LO)};
 const float PRESSURE_HI = ${f(PRESSURE_HI)};
 const float PRESSURE_DIM = ${f(PRESSURE_DIM)};
@@ -410,6 +422,36 @@ float roomLight(vec2 uv, vec2 cssPos) {
   return roomBase(uv) + BOKEH_GAIN * bokeh(cssPos, uv) * near;
 }
 
+// Out-of-focus discs of the kitchen at one scale: soft inside, a little brighter at the rim, like a real defocused lamp.
+float discs(vec2 cssPos, float cell, float rLo, float rHi, float occ, float seed) {
+  vec2 g = cssPos / cell;
+  vec2 base = floor(g - 0.5);
+  float s = 0.0;
+  for (int j = 0; j < 2; j++) {
+    for (int i = 0; i < 2; i++) {
+      vec2 id = base + vec2(float(i), float(j));
+      if (hash(id + seed) >= occ) continue;
+      vec2 c = (id + 0.5 + (vec2(hash(id + seed + 11.1), hash(id + seed + 23.9)) - 0.5) * 0.5) * cell;
+      float r = mix(rLo, rHi, hash(id + seed + 5.5));
+      float d = length(cssPos - c) / r;
+      float body = 1.0 - smoothstep(0.7, 1.0, d);
+      float rim = smoothstep(0.45, 0.85, d) * body;
+      s += body * (0.35 + 0.55 * hash(id + seed + 31.0)) * (0.7 + 0.6 * rim);
+    }
+  }
+  return s;
+}
+
+// What a cleared stroke shows: the room behind the glass. Dark at the top, warmer toward the pot, the pot's and the candle's
+// glow, and discs of light at two scales so brightness and hue change inside one stroke.
+float windowLight(vec2 cssPos, vec2 uv) {
+  float grad = WINDOW_FLOOR + WINDOW_GRAD * smoothstep(0.1, 1.1, uv.y);
+  float L = grad + roomBase(uv);
+  L += WINDOW_BOKEH_COARSE * discs(cssPos, BOKEH_CELL, BOKEH_CELL * 0.14, BOKEH_CELL * 0.3, 0.55, 3.7) * (0.35 + 0.65 * smoothstep(0.0, 0.8, uv.y));
+  L += WINDOW_BOKEH_FINE * discs(cssPos, WINDOW_FINE_CELL, WINDOW_FINE_CELL * 0.17, WINDOW_FINE_CELL * 0.4, 0.68, 91.3);
+  return L;
+}
+
 // ---- Droplets as lenses ---------------------------------------------------------------------------------------------
 // q is the offset from the droplet centre in radius units (y down).
 vec3 lensColour(vec2 q, float Lb, float r2, vec3 filmC) {
@@ -518,12 +560,14 @@ void main() {
   float edgeB = 0.0;
   float sd = 0.0;
   float scaleDev = 1.0;
+  vec2 inkGrad = vec2(0.0);
   if (gi >= 0) {
     edgeB = inkBlur(npos);
     if (edgeB > 0.02) {
       float bx = inkBlur(npos + vec2(1.0, 0.0)) - edgeB;
       float by = inkBlur(npos + vec2(0.0, 1.0)) - edgeB;
       float gl = length(vec2(bx, by));
+      inkGrad = vec2(bx, by);
       if (gl > 1e-4) outN = -vec2(bx, by) / gl;
       lit = 0.5 + 0.5 * dot(outN, normalize(MOON_DIR));
       scaleDev = (uGroupDst[gi].z - uGroupDst[gi].x) / (uGroupSrc[gi].z - uGroupSrc[gi].x);
@@ -615,22 +659,20 @@ void main() {
   opacity *= (1.0 - 0.96 * T) * (1.0 - swept);
 
   float Lr = roomLight(vUv + refr / uRes, css + refr / px);
-  vec3 seen = uBg + uAfter * Lr;
-  // The hand: a clear stroke glows with the ember of the room behind it. Thin film (partly clear) glows less.
+  vec3 seenFog = uBg + uAfter * Lr;
+  // The hand is a window: a cleared stroke shows the room behind the glass, bent a little at the edge like a water-filled groove.
+  float igl = length(inkGrad);
+  vec2 wOff = inkGrad * (WINDOW_REFRACT_K * min(1.0, WINDOW_REFRACT / max(igl * WINDOW_REFRACT_K, 1e-4)));
+  float Lw = windowLight(css + refr / px + wOff, vUv + (refr + wOff * px) / uRes);
+  Lw = 1.5 * (1.0 - exp(-WINDOW_SHOULDER * Lw)); // soft shoulder: near the pot the light saturates, it does not wash to white
+  vec3 seenWin = uBg + uNight * 0.35 + uAfter * Lw;
+  // Dimmer light runs redder.
+  seenWin *= mix(vec3(1.0, 0.8, 0.62), vec3(1.0), smoothstep(0.25, 0.85, dot(seenWin, vec3(0.2126, 0.7152, 0.0722)) / max(dot(uAfter, vec3(0.2126, 0.7152, 0.0722)), 1e-3)));
   float glow = pow(T, 0.7);
-  float emberX = EMBER_BASE + EMBER_GAIN * Lr;
-  float ember = 1.55 * (1.0 - exp(-1.3 * emberX)); // soft shoulder: near the pot the light saturates, it does not wash to white
-  seen = mix(seen, uBg + uAfter * ember, glow);
+  vec3 seen = mix(seenFog, seenWin, glow);
   // Pen pressure: a thick dark stroke is the clearest and warmest, a hairline dimmer and cooler.
   float press = smoothstep(PRESSURE_LO, PRESSURE_HI, aInk);
   seen *= mix(vec3(1.0), mix(vec3(0.74, 0.86, 1.0), vec3(1.04, 1.0, 0.94), press) * mix(PRESSURE_DIM, 1.0, press), glow);
-  // The meniscus band, where the clearing is half done, is a little darker.
-  seen *= 1.0 - EDGE_SHADE * 4.0 * T * (1.0 - T);
-  // Inside the stroke near its edge the glass is a trough: the pot's light from below catches the lower edges and the upper
-  // edges fall into shade. Dimmer light runs redder.
-  float inner = (1.0 - smoothstep(0.3, 0.7, edgeB)) * smoothstep(0.4, 0.9, T);
-  seen *= 1.0 + 0.5 * inner * outN.y;
-  seen *= mix(vec3(1.0, 0.8, 0.62), vec3(1.0), smoothstep(0.25, 0.85, dot(seen, vec3(0.2126, 0.7152, 0.0722)) / max(dot(uAfter, vec3(0.2126, 0.7152, 0.0722)), 1e-3)));
 
   // 5. The film, lit from inside the scene: cool from the moon above, warm from the pot and candle below.
   float potF = potAt(vUv, 2.2);
@@ -654,9 +696,12 @@ void main() {
 
   vec3 col = mix(seen, film, clamp(opacity, 0.0, 1.0));
 
-  // Cold rim on the fog side of the edge only (T below one half), brighter where the moon lights it.
-  float rim = smoothstep(RIM_T_LO * 0.5, RIM_T_LO * 2.0, T) * (1.0 - smoothstep(RIM_T_LO, RIM_T_HI, T)) * (0.12 + 0.88 * brk);
-  col = mix(col, uGhost, RIM_A * clamp(rim * (0.1 + 0.9 * lit * lit), 0.0, 1.0) * (1.0 - swept));
+  // The edge is a thin wet meniscus: a fine bright line on the side that faces the lamp and the candle, a slight shade on the
+  // far side, both broken by the film height. There is no outline that runs all the way round a letter.
+  float facing = dot(outN, LAMP_DIR);
+  float mBand = smoothstep(0.05, 0.2, T) * (1.0 - smoothstep(0.28, 0.6, T)) * (0.12 + 0.88 * brk) * (1.0 - swept);
+  col += mix(uMoon, uAfter, 0.55) * MENISCUS_A * mBand * smoothstep(0.05, 0.75, facing);
+  col *= 1.0 - FAR_SHADE * mBand * smoothstep(0.05, 0.75, -facing);
 
   // The channel of a run is clear glass: the dark room and the night seen through it, with a little warmth from the pot.
   vec3 chan = uBg + uNight * 1.5 + uAfter * (0.04 + Lr * 0.5);
@@ -666,7 +711,7 @@ void main() {
   if (uDetail > 0.5 && edgeB > 0.04 && edgeB < 0.45 && outN.y > 0.55 && sd > 0.0) {
     float S = BEAD_SPACING * px;
     float id = floor(fragPx.x / S);
-    if (hash(vec2(id, 9.1)) < 0.6) {
+    if (hash(vec2(id, 9.1)) < 0.4) {
       float rb = mix(BEAD_R_LO, BEAD_R_HI, hash(vec2(id, 2.3))) * px;
       float cx = (id + 0.25 + 0.5 * hash(vec2(id, 5.7))) * S;
       vec2 q = vec2((fragPx.x - cx) / rb, (sd - rb * 0.95) / rb);

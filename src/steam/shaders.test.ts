@@ -12,8 +12,11 @@ import {
   OLD_WIPE_DENSITY,
   PRESSURE_DIM,
   RAIL_DROP_BOOST,
-  RIM_PX,
-  RIM_T_HI,
+  MENISCUS_PX,
+  MENISCUS_A,
+  FAR_SHADE,
+  LAMP_DIR,
+  WINDOW_REFRACT_CSS,
   HEAD_MAX_LUMA,
   TRAIL_N,
   TRAIL_FALLOFF,
@@ -88,9 +91,8 @@ describe('composite constants (steam-renderer-v1 design §4, §5)', () => {
 })
 
 describe('look pass 2 constants (R13 to R17)', () => {
-  it('draws a thin broken rim, a faint halo and a pressure-dependent fill (R14.1 to R14.3)', () => {
-    expect(RIM_PX).toBeLessThanOrEqual(1)
-    expect(RIM_T_HI).toBeLessThanOrEqual(0.2)
+  it('draws a thin broken meniscus, a faint halo and a pressure-dependent fill (R14.1 to R14.3)', () => {
+    expect(MENISCUS_PX).toBeLessThanOrEqual(1.2)
     expect(COMPOSITE_FRAG).toContain('(0.12 + 0.88 * brk)') // the film height and a fine noise break the rim
     expect(HALO_GAIN).toBeLessThanOrEqual(0.2)
     expect(PRESSURE_DIM).toBeLessThan(1)
@@ -123,3 +125,28 @@ describe('look pass 2 constants (R13 to R17)', () => {
   })
 })
 
+
+describe('look pass 3: the stroke is a window (R19)', () => {
+  it('shows the room behind the glass at two bokeh scales, refracted by the edge, with a soft shoulder (R19.1)', () => {
+    expect(COMPOSITE_FRAG).toContain('windowLight(css + refr / px + wOff')
+    expect(COMPOSITE_FRAG).toContain('WINDOW_FINE_CELL')
+    expect(COMPOSITE_FRAG).toContain('BOKEH_CELL')
+    expect(WINDOW_REFRACT_CSS).toBeGreaterThanOrEqual(1)
+    expect(WINDOW_REFRACT_CSS).toBeLessThanOrEqual(3)
+  })
+  it('has no brown inner outline and no flat ember fill (R19.2, R19.3)', () => {
+    expect(COMPOSITE_FRAG).not.toMatch(/EDGE_SHADE|EMBER_BASE|EMBER_GAIN|inner \* outN/)
+  })
+  it('draws the meniscus as a thin lamp-side highlight and a slight far-side shade, never an outline (R19.4)', () => {
+    expect(MENISCUS_PX).toBeLessThanOrEqual(1.2)
+    expect(MENISCUS_A).toBeGreaterThan(0)
+    expect(FAR_SHADE).toBeLessThanOrEqual(0.2)
+    expect(LAMP_DIR[1]).toBeGreaterThan(0) // the pot and the candle are below
+    expect(COMPOSITE_FRAG).toContain('smoothstep(0.05, 0.75, facing)')
+    expect(COMPOSITE_FRAG).toContain('smoothstep(0.05, 0.75, -facing)')
+    expect(COMPOSITE_FRAG).toContain('(0.12 + 0.88 * brk)')
+  })
+  it('does not threshold the ink alpha (R19.5)', () => {
+    expect(COMPOSITE_FRAG).not.toMatch(/\bstep\([^)]*aInk|aInk\s*[<>]=?\s*0\.\d/)
+  })
+})
