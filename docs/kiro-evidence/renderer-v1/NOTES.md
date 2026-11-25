@@ -1,6 +1,6 @@
 # Steam renderer v1: notes
 
-Spec: `.kiro/specs/steam-renderer-v1/` (design first, then requirements, then tasks). Frames: `before/` (v0.2) and `after/` (v1), both made by `scripts/capture-renderer-frames.ts` at a frozen clock (`?t=` ms after reveal start): desktop 1280x720, and a Pixel 5 (393x851, dpr 2.75), in software GL (SwiftShader). Nothing here is a number from a GPU run: no fps figure is claimed. `bench/results.json` is written by `npm run bench` on an idle machine and does not exist yet.
+Spec: `.kiro/specs/steam-renderer-v1/` (design first, then requirements, then tasks). Frames: `before/` (v0.2), `v1a/` (the first v1 frames) and `after/` (look pass 2; section below), both made by `scripts/capture-renderer-frames.ts` at a frozen clock (`?t=` ms after reveal start): desktop 1280x720, and a Pixel 5 (393x851, dpr 2.75), in software GL (SwiftShader). Nothing here is a number from a GPU run: no fps figure is claimed. `bench/results.json` is written by `npm run bench` on an idle machine and does not exist yet.
 
 ## What changed, against the seven findings
 
@@ -35,3 +35,36 @@ At tier 0, per fragment inside a group rectangle: 1 to 2 `uChan`, 5 `uInkTex` (C
 - **Phone candle** is tall for the phone's short glass and stands near the last stroke; it could be smaller on narrow screens.
 - **Night view on short panes**: the horizon is anchored at the bottom, so the moon may crop when the viewport gets shorter than the Pixel 5's.
 - `derive` still runs on the main thread (still owed from v0).
+
+## Look pass 2
+
+Frames in `after/` are from this pass; `v1a/` holds the frames the pass started from, `before/` is v0.2. Same capture script, same frozen clock, software GL (SwiftShader). Two capture rounds were judged against `v1a/` (the first round showed drips as black pearls on stubs and the phone note still small; both changed before the second). No fps or timing figure comes from this pass.
+
+| # | Finding | What changed | Judged on the frames |
+|---|---|---|---|
+| 1 | Drips as matchsticks | 2 to 4 runs on a wide pane, 1 to 3 on a phone, picked with a seeded key (not every word sheds one). Lengths in core-band heights, mostly 0.7 to 2, one run may reach 3.4 when its start has room. The path bends (two seeded sines plus a small lean, `runOffset`, same formula in GLSL). The trail is a thin clear channel: the dark room seen through it, a wider lip at the start, a faint ridge beside it, re-fogged from its top with age. The head is a lens bead (film-lit body, warm light high in it, dark rim, one catch-light). Widths and bead scale with the pane. | **Fixed in kind**: no sticks, no white dot, channels bend and read as water. On the hero frames the runs are short (30 to 60 css px); the one long run did not occur because every start with room for 2.2 core bands was taken by the lines below. |
+| 2 | Neon-tube strokes | Rim only on the fog side, band of about 1 css px, broken by a fine noise mixed with the film height; halo 0.4 to 0.16; lip and its density halved and broken; fill follows the scan's ink darkness (thick strokes warm and clear, hairlines dim and cool); luminance cap untouched. | **Fixed**: at 100 % the strokes read as cleared glass with a wet dark edge and internal variation. The stroke luminance spread (p95 - p5) measured 64 (desktop) and 40 (phone) against 12 allowed in v1. |
+| 3 | Phone composition | When every line has an ink gap, the phone cuts all of them and stacks four parts at one scale: 1.04 against 0.80, the ink block fills about 76 % of the glass height (45 % before) and sits 3.5 % of the height above the middle. Sill droplets: large-lens boost 3 to 1.6, smaller toward the rail, 0.6 of the room's warm light. Candle at most 44 css px under 640 px (92 on desktop), flame clear of the last stroke (e2e). | **Fixed**: the note uses the pane, the bottom confetti is gone. |
+| 4 | Fog without history | Pass 1 gets three seeded old swipes of three fingers (long arcs, broken along their length, 0.10 of density and a little height, so they refract) and a broad density noise (0.16). Static, no read of the note. | **Fixed, kept subtle**: on desktop two curved swipes show near the centre and read as old wiper marks, not letters. |
+| 5 | Streak | Removed. | **Fixed.** |
+| 6 | Moon on short panes | `nightViewBox` never lets the visible top fall below the moon's top; `NightView` measures its svg and sets the viewBox. | **Fixed**: unit test over 1024 to 1920 wide by 600 to 1080 tall and the Pixel 5, and an e2e on the rendered disc at six viewports (including 1920x600). |
+
+### Bounds re-pinned because the look changed (each in its commit)
+
+- `steam-visual` stroke luminance spread 12 to 30 (measured 64 and 40; R14.3 asks for more).
+- `steam-visual` sill droplet ratio 1.5 to 1.1 (measured 1.27 desktop; the sill gathers less on purpose, R15.3). The streak assertion became "no streak lift" (below 6 levels; measured 2.9 and 1.4).
+- `steam-timing` written-note detail variance ratio 1.6 to 1.3 (measured 1.42; the bright outline that produced extra high-pass detail is gone). Fog alone is still held under 1.6, and the warmth check is unchanged.
+- `steam-hold` cold-rim colour tolerance 60 to 72 (blue channel was 66 off `--ghost`; the rim is now thinner and broken).
+- `steam-phone` placements `[[0,0],[1,0],[1,1]]` to `[[0,0],[0,1],[1,0],[1,1]]` (four parts).
+- `baselineEdgeStep` tries 48, 32 and 24 px boxes when fewer than three 48 px boxes of plain fog fit between the larger phone groups.
+- `drips.test` counts per pane (2 to 4 wide, 1 to 3 phone) instead of 3 or more.
+
+Nothing was deleted or weakened otherwise: R1 transmission, `hero.coverage.test.ts` (0.85 to 1.15), P7/P8, the phone-fit e2e at 390 and 393 (it now also measures the block's fill and lift and the candle's clearance), the judge-path timing, the governor, the `?t=` determinism and the static panes (re-rendered with `npm run static-panes`) all pass.
+
+### What I would still improve
+
+- **Long runs on the hero.** The note leaves little room under its lines (24 css px sill clearance, the next line below), so no run is long on the hero frames. A pane taller than the glass on a desktop, or one run allowed to pass between two words of the next line, would show the long slide.
+- **Dark brown edge.** Where a stroke's film is half cleared the meniscus shading (`EDGE_SHADE`) gives a thin dark edge that is slightly brown at 100 %; a cooler edge shade may read more like water.
+- **Old swipes** are tuned by eye on two frames; at other panes the arcs land elsewhere and nobody has looked.
+- **Still no GPU measurement.** The new work in the shader (noise for the rim break, the swipe loop in pass 1, the run path) is ALU only, but the 55 fps claim and the governor thresholds wait for `npm run bench` on a quiet machine.
+- `derive` still runs on the main thread.
