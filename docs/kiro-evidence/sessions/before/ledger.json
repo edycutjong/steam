@@ -1,0 +1,2537 @@
+{
+  "workspace": "/Users/edycu/Hackathon/devpost/devpost-kiroween/steam/build",
+  "rule": [
+    "A shell write under src/ is an `execute_bash` command with a simple command that redirects (>, >>, tee) into src/, runs sed -i / perl -i on a path in src/, copies or moves into src/, restores a path of src/ with git, applies a diff by heredoc that names one, or runs an interpreter (python, node, ruby, perl, php, deno, bun, tsx) on an inline script or heredoc that calls a file-writing API and names a path under src/. The rule is `analyzeShell` in tools/hooks/shell-writes.ts, the same one the shell-gate hook uses.",
+    "Written paths are relative to the workspace root after cd, ./, .. and a leading $VAR/ are resolved. A test file (*.test.ts, *.spec.ts, src/__tests__/) is counted in \"under src\" and not in \"non-test\".",
+    "Not seen by the rule: a script file run by name, a path built from parts that is not named `src`, find -exec and xargs. The count is a lower bound.",
+    "A call \"had a hook event\" when a ContextualHookInvoked event with the same executionId is logged between the call and its result and the hook can run for that tool (its matcher: no-imitation and catalog-gate run for fs_write and str_replace, shell-gate and src-scan-after-shell for execute_bash, props-on-save for no tool). Events are counted by hook name (the name field, else the file name of hookId).",
+    "The window of a session is createdAt to the later of lastModifiedAt and its last message. A `[kiro]` commit belongs to it when its author time lies in the window, ends included. Parallel sessions can share commits.",
+    "Nothing of a prompt, an assistant message, a tool result or a command is copied."
+  ],
+  "totals": {
+    "sessions": 39,
+    "toolCalls": {
+      "bash_placeholder": 1,
+      "execute_bash": 1737,
+      "fs_write": 87,
+      "inspect_workflow": 2,
+      "load_resource": 9,
+      "read_file": 346,
+      "run_workflow": 3,
+      "send_message": 6,
+      "str_replace": 11,
+      "tool_call": 3
+    },
+    "shellWritesUnderSrc": 543,
+    "shellWritesUnderSrcNonTest": 368,
+    "shellWritesSeenByAHook": 0,
+    "writeToolCallsUnderSrc": 30,
+    "callsWithHookEvent": {
+      "execute_bash": 2,
+      "fs_write": 59,
+      "str_replace": 9
+    },
+    "hookInvocations": {
+      "catalog-gate": 68,
+      "no-imitation": 68,
+      "props-on-save-create": 5,
+      "props-on-save-save": 11,
+      "zz-record-shell": 2
+    }
+  },
+  "sessions": [
+    {
+      "id": "sess_8a54feda-92f5-465b-aa5e-eb9f4939c382",
+      "title": "Setup Kiro Steering for Handwritten Recipes",
+      "createdAt": "2026-11-24T16:16:43.053Z",
+      "lastModifiedAt": "2026-11-24T16:17:03.983Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 1
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": []
+    },
+    {
+      "id": "sess_72c9f4ff-e57a-41dd-b44d-29f976cf736d",
+      "title": "Design Steam Renderer Feature Spec",
+      "createdAt": "2026-11-24T16:22:11.641Z",
+      "lastModifiedAt": "2026-11-24T16:27:39.650Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 2,
+        "fs_write": 3,
+        "str_replace": 1
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": []
+    },
+    {
+      "id": "sess_b24e25e9-3207-42ab-b9b2-192782c3217c",
+      "title": "Implement Steam-Renderer Spec Tasks 1-18",
+      "createdAt": "2026-11-24T16:28:05.743Z",
+      "lastModifiedAt": "2026-11-24T16:32:52.406Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 24,
+        "read_file": 1
+      },
+      "shellWritesUnderSrc": 13,
+      "shellWritesUnderSrcNonTest": 8,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": [
+        {
+          "hash": "7cb8cd0",
+          "at": "2026-11-24T16:28:36.000Z",
+          "subject": "[kiro] steam-renderer task 1: add zod, vitest, fast-check, playwright"
+        },
+        {
+          "hash": "ef1db01",
+          "at": "2026-11-24T16:29:07.000Z",
+          "subject": "[kiro] steam-renderer task 3: timeline boundary tests"
+        },
+        {
+          "hash": "e804a1b",
+          "at": "2026-11-24T16:29:07.000Z",
+          "subject": "[kiro] steam-renderer task 2: timing constants and revealState"
+        },
+        {
+          "hash": "caf5ec8",
+          "at": "2026-11-24T16:29:20.000Z",
+          "subject": "[kiro] steam-renderer task 4: timeline property tests"
+        },
+        {
+          "hash": "3939a19",
+          "at": "2026-11-24T16:29:44.000Z",
+          "subject": "[kiro] steam-renderer task 5: URL parameter parsing"
+        },
+        {
+          "hash": "409edb6",
+          "at": "2026-11-24T16:29:52.000Z",
+          "subject": "[kiro] steam-renderer task 6: layout types and chooseLayout"
+        },
+        {
+          "hash": "366c2be",
+          "at": "2026-11-24T16:30:04.000Z",
+          "subject": "[kiro] steam-renderer task 7: computeLayout for page and groups"
+        },
+        {
+          "hash": "d165a9b",
+          "at": "2026-11-24T16:30:12.000Z",
+          "subject": "[kiro] steam-renderer task 8: layout unit tests"
+        },
+        {
+          "hash": "124068c",
+          "at": "2026-11-24T16:30:19.000Z",
+          "subject": "[kiro] steam-renderer task 9: layout property test"
+        },
+        {
+          "hash": "d17e5fc",
+          "at": "2026-11-24T16:30:39.000Z",
+          "subject": "[kiro] steam-renderer task 10: NoteMeta zod schema"
+        },
+        {
+          "hash": "1752633",
+          "at": "2026-11-24T16:30:43.000Z",
+          "subject": "[kiro] steam-renderer task 11: NoteMeta schema tests"
+        },
+        {
+          "hash": "0e33dd5",
+          "at": "2026-11-24T16:31:41.000Z",
+          "subject": "[kiro] steam-renderer task 12: asset loader"
+        },
+        {
+          "hash": "f673cb7",
+          "at": "2026-11-24T16:31:51.000Z",
+          "subject": "[kiro] steam-renderer task 13: derive channel alpha, toi and pressure"
+        },
+        {
+          "hash": "386b72d",
+          "at": "2026-11-24T16:31:52.000Z",
+          "subject": "[kiro] steam-renderer task 14: derive hull distance and feather"
+        },
+        {
+          "hash": "d083f0d",
+          "at": "2026-11-24T16:31:53.000Z",
+          "subject": "[kiro] steam-renderer task 15: derive head table"
+        },
+        {
+          "hash": "76c945a",
+          "at": "2026-11-24T16:32:21.000Z",
+          "subject": "[kiro] steam-renderer task 16: derive tests and property test"
+        },
+        {
+          "hash": "656a102",
+          "at": "2026-11-24T16:32:41.000Z",
+          "subject": "[kiro] steam-renderer task 18: token parsing tests"
+        },
+        {
+          "hash": "2885870",
+          "at": "2026-11-24T16:32:41.000Z",
+          "subject": "[kiro] steam-renderer task 17: design tokens reader and token stylesheet"
+        },
+        {
+          "hash": "01485ff",
+          "at": "2026-11-24T16:32:42.000Z",
+          "subject": "[kiro] steam-renderer task 8: note PAD_PX scale figures in tasks.md"
+        }
+      ]
+    },
+    {
+      "id": "sess_c3f759f7-b3bd-434c-b266-7ab31919231d",
+      "title": "Steam Renderer Tasks 19-30 Implementation",
+      "createdAt": "2026-11-24T16:33:02.778Z",
+      "lastModifiedAt": "2026-11-24T16:41:58.468Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 34,
+        "fs_write": 5,
+        "read_file": 4
+      },
+      "shellWritesUnderSrc": 11,
+      "shellWritesUnderSrcNonTest": 9,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 4,
+      "writeToolPathsUnderSrc": [
+        "src/steam/renderer.test.ts",
+        "src/steam/renderer.ts",
+        "src/steam/shaders.ts",
+        "src/steam/steam.css"
+      ],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": [
+        {
+          "hash": "ad4c475",
+          "at": "2026-11-24T16:33:43.000Z",
+          "subject": "[kiro] steam-renderer task 19: shared vertex and fog pass shaders"
+        },
+        {
+          "hash": "f2c5597",
+          "at": "2026-11-24T16:34:35.000Z",
+          "subject": "[kiro] steam-renderer task 20: composite pass shader"
+        },
+        {
+          "hash": "581e553",
+          "at": "2026-11-24T16:35:33.000Z",
+          "subject": "[kiro] steam-renderer task 21: renderer context, programs and GPU resources"
+        },
+        {
+          "hash": "90c3d76",
+          "at": "2026-11-24T16:36:18.000Z",
+          "subject": "[kiro] steam-renderer task 22: frame loop, clock, uniforms and state callback"
+        },
+        {
+          "hash": "fbc4330",
+          "at": "2026-11-24T16:36:41.000Z",
+          "subject": "[kiro] steam-renderer task 23: resize, DPR cap, context loss and idempotent dispose"
+        },
+        {
+          "hash": "7f24ad5",
+          "at": "2026-11-24T16:37:10.000Z",
+          "subject": "[kiro] steam-renderer task 24: renderer allocation guard test"
+        },
+        {
+          "hash": "56958de",
+          "at": "2026-11-24T16:37:41.000Z",
+          "subject": "[kiro] steam-renderer task 25: sash frame, rails, upper sash and moon styles"
+        },
+        {
+          "hash": "7e0a01c",
+          "at": "2026-11-24T16:38:26.000Z",
+          "subject": "[kiro] steam-renderer task 26: SteamPane structure, asset loading and renderer wiring"
+        },
+        {
+          "hash": "944e9f9",
+          "at": "2026-11-24T16:39:01.000Z",
+          "subject": "[kiro] steam-renderer task 27: button, Space key, live region and fps overlay"
+        },
+        {
+          "hash": "33c38d6",
+          "at": "2026-11-24T16:39:37.000Z",
+          "subject": "[kiro] steam-renderer task 28: StaticPane fallback with opacity crossfade, wired into SteamPane"
+        },
+        {
+          "hash": "b45f868",
+          "at": "2026-11-24T16:41:45.000Z",
+          "subject": "[kiro] steam-renderer task 30: App renders SteamPane, self-hosted fonts and tokens stylesheet"
+        },
+        {
+          "hash": "a70fd45",
+          "at": "2026-11-24T16:41:45.000Z",
+          "subject": "[kiro] steam-renderer task 29: static pane image script (images not generated, task left open)"
+        }
+      ]
+    },
+    {
+      "id": "sess_d0e14ef3-3048-4452-a6e3-8979565ce2b4",
+      "title": "Fix Steam Renderer Visual Defects",
+      "createdAt": "2026-11-24T16:44:50.019Z",
+      "lastModifiedAt": "2026-11-24T16:48:11.316Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 14,
+        "fs_write": 1,
+        "read_file": 5
+      },
+      "shellWritesUnderSrc": 4,
+      "shellWritesUnderSrcNonTest": 3,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": [
+        {
+          "hash": "606d3d7",
+          "at": "2026-11-24T16:45:44.000Z",
+          "subject": "[kiro] renderer-v0-frames: bugfix spec D1-D5 with before frames"
+        },
+        {
+          "hash": "f80d6f4",
+          "at": "2026-11-24T16:46:13.000Z",
+          "subject": "[kiro] renderer-v0-frames: D1 toi covers the whole alpha halo, no early rim"
+        },
+        {
+          "hash": "f3c83bf",
+          "at": "2026-11-24T16:47:59.000Z",
+          "subject": "[kiro] renderer-v0-frames: after frames"
+        },
+        {
+          "hash": "5532a87",
+          "at": "2026-11-24T16:47:59.000Z",
+          "subject": "[kiro] renderer-v0-frames: task 31 capture helper and frame script"
+        },
+        {
+          "hash": "f79aa55",
+          "at": "2026-11-24T16:47:59.000Z",
+          "subject": "[kiro] renderer-v0-frames: D5 moon halo"
+        },
+        {
+          "hash": "bbc9496",
+          "at": "2026-11-24T16:47:59.000Z",
+          "subject": "[kiro] renderer-v0-frames: D2 ember through clear glass, thin outer rim; D3 faint narrow streak; D4 transparent sparse beads"
+        }
+      ]
+    },
+    {
+      "id": "sess_303a37d6-2267-46cf-97b6-497ad469f2dc",
+      "title": "Execute Steam Renderer Remaining Tasks",
+      "createdAt": "2026-11-24T16:48:58.029Z",
+      "lastModifiedAt": "2026-11-24T17:06:50.776Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 49
+      },
+      "shellWritesUnderSrc": 7,
+      "shellWritesUnderSrcNonTest": 7,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": [
+        {
+          "hash": "d7b4f58",
+          "at": "2026-11-24T16:54:19.000Z",
+          "subject": "[kiro] steam-renderer task 32: e2e concealment and timing specs, Playwright config"
+        },
+        {
+          "hash": "4eff4ca",
+          "at": "2026-11-24T16:57:14.000Z",
+          "subject": "[kiro] steam-renderer task 33: e2e brightness, glass and fog patch specs"
+        },
+        {
+          "hash": "bacc10b",
+          "at": "2026-11-24T17:01:00.000Z",
+          "subject": "[kiro] steam-renderer task 34: e2e hold, wipe and refog specs"
+        },
+        {
+          "hash": "8b2aa1e",
+          "at": "2026-11-24T17:03:06.000Z",
+          "subject": "[kiro] steam-renderer task 35: e2e phone layout and accessibility specs"
+        },
+        {
+          "hash": "acdf7c7",
+          "at": "2026-11-24T17:05:01.000Z",
+          "subject": "[kiro] steam-renderer task 36: performance measurement script and measured report"
+        },
+        {
+          "hash": "285cf05",
+          "at": "2026-11-24T17:05:21.000Z",
+          "subject": "[kiro] steam-renderer task 37: deferred, no hooks yet"
+        },
+        {
+          "hash": "d829327",
+          "at": "2026-11-24T17:06:41.000Z",
+          "subject": "[kiro] steam-renderer task 38: final verification"
+        }
+      ]
+    },
+    {
+      "id": "sess_60012c04-650c-4d37-9e53-a06c6a1936be",
+      "title": "Fix Handwriting Rendering In Steam View",
+      "createdAt": "2026-11-24T17:15:14.704Z",
+      "lastModifiedAt": "2026-11-24T17:39:42.215Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 52,
+        "fs_write": 1,
+        "read_file": 21
+      },
+      "shellWritesUnderSrc": 23,
+      "shellWritesUnderSrcNonTest": 19,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": [
+        {
+          "hash": "64383b0",
+          "at": "2026-11-24T17:15:49.000Z",
+          "subject": "[kiro] renderer-v0-frames: D8 stacked desktop layout, one scale, centred"
+        },
+        {
+          "hash": "0cca269",
+          "at": "2026-11-24T17:15:55.000Z",
+          "subject": "[kiro] renderer-v0-frames: D8 fix layout test pane size"
+        },
+        {
+          "hash": "f30aa94",
+          "at": "2026-11-24T17:17:22.000Z",
+          "subject": "[kiro] renderer-v0-frames: D6 channel follows scan alpha (DILATE_PX 0, SOFT_PX 1)"
+        },
+        {
+          "hash": "f396e0a",
+          "at": "2026-11-24T17:21:34.000Z",
+          "subject": "[kiro] renderer-v0-frames: D7 D9 D10 D11 clear-glass shader, overlap-safe sampling, soft streak, pot plume and drips"
+        },
+        {
+          "hash": "68a379d",
+          "at": "2026-11-24T17:38:50.000Z",
+          "subject": "[kiro] renderer-v0-frames: D6-D11 spec findings and after-v01 frames"
+        },
+        {
+          "hash": "8e971d1",
+          "at": "2026-11-24T17:38:50.000Z",
+          "subject": "[kiro] renderer-v0-frames: D8 concealment e2e uses detail variance, clips bead/plume rows, warmth 16 with sensitivity check"
+        },
+        {
+          "hash": "552e3b9",
+          "at": "2026-11-24T17:38:50.000Z",
+          "subject": "[kiro] renderer-v0-frames: D9 ember lights faint ink fully; D11 plume falloff constants; D10 streak tests"
+        }
+      ]
+    },
+    {
+      "id": "sess_aea6613d-3853-44f4-abd3-ac7d6a8d3db6",
+      "title": "Improve Steam Renderer Desktop Frame Quality",
+      "createdAt": "2026-11-24T17:47:11.894Z",
+      "lastModifiedAt": "2026-11-24T18:00:21.099Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 31,
+        "fs_write": 1,
+        "read_file": 12
+      },
+      "shellWritesUnderSrc": 12,
+      "shellWritesUnderSrcNonTest": 10,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": [
+        {
+          "hash": "f2dd27e",
+          "at": "2026-11-24T17:49:59.000Z",
+          "subject": "[kiro] renderer-v0-frames: round 3 spec (D12 to D16)"
+        },
+        {
+          "hash": "b6476ad",
+          "at": "2026-11-24T17:50:47.000Z",
+          "subject": "[kiro] renderer-v0-frames: D12 channel follows the scan's ink (no blur growth), narrow clear curve, smaller bloom, coverage test"
+        },
+        {
+          "hash": "d497ed3",
+          "at": "2026-11-24T17:52:23.000Z",
+          "subject": "[kiro] renderer-v0-frames: D13 clear-glass channel: ember falls off from the pot, fog-modulated edge band, rim only on the fog side"
+        },
+        {
+          "hash": "40e647a",
+          "at": "2026-11-24T17:52:47.000Z",
+          "subject": "[kiro] renderer-v0-frames: D14 hue-preserving luminance cap of 92% inside strokes"
+        },
+        {
+          "hash": "5e7074a",
+          "at": "2026-11-24T17:53:36.000Z",
+          "subject": "[kiro] renderer-v0-frames: D15 plume raised and softened off the rail; write-on edge feathered in the toi domain after the alpha curve"
+        },
+        {
+          "hash": "04d2c9f",
+          "at": "2026-11-24T17:53:59.000Z",
+          "subject": "[kiro] renderer-v0-frames: D15 test: feather width in texels on the hero toi map"
+        },
+        {
+          "hash": "a1c56ac",
+          "at": "2026-11-24T17:57:02.000Z",
+          "subject": "[kiro] renderer-v0-frames: D16 fog grain, sparse droplets away from the note, variable-width feathered streak"
+        },
+        {
+          "hash": "830b8bf",
+          "at": "2026-11-24T18:00:04.000Z",
+          "subject": "[kiro] renderer-v0-frames: round 3 after-v02 frames, D14 e2e, tasks done"
+        }
+      ]
+    },
+    {
+      "id": "sess_9ee468c2-85b9-49e3-b251-d7ac097dd73b",
+      "title": "Ingest Pipeline Requirements And Design Spec",
+      "createdAt": "2026-11-24T18:03:26.808Z",
+      "lastModifiedAt": "2026-11-24T18:15:38.664Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 13,
+        "fs_write": 3,
+        "read_file": 4
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": [
+        {
+          "hash": "43aa1f6",
+          "at": "2026-11-24T18:15:26.000Z",
+          "subject": "[kiro] ingest-pipeline: requirements, design, tasks"
+        }
+      ]
+    },
+    {
+      "id": "sess_7ea98753-dcc0-4269-9487-71b207446c3a",
+      "title": "Ingest Pipeline Implementation Sprint",
+      "createdAt": "2026-11-24T18:16:00.634Z",
+      "lastModifiedAt": "2026-11-24T19:24:29.046Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 171,
+        "fs_write": 2,
+        "read_file": 16
+      },
+      "shellWritesUnderSrc": 86,
+      "shellWritesUnderSrcNonTest": 55,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 1,
+      "writeToolPathsUnderSrc": [
+        "src/ingest/gate.ts"
+      ],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": [
+        {
+          "hash": "78c6d47",
+          "at": "2026-11-24T18:19:35.000Z",
+          "subject": "[kiro] ingest-pipeline task 1: scaffolding, purity test, frozen constants, jpeg-js and tsx"
+        },
+        {
+          "hash": "06c2541",
+          "at": "2026-11-24T18:20:26.000Z",
+          "subject": "[kiro] ingest-pipeline task 2: pure SHA-256 with vectors and a node:crypto property test"
+        },
+        {
+          "hash": "ab9fb4c",
+          "at": "2026-11-24T18:20:49.000Z",
+          "subject": "[kiro] ingest-pipeline task 3: image primitives: gray, crop, area resample, rotate, pixel hash"
+        },
+        {
+          "hash": "562f31c",
+          "at": "2026-11-24T18:21:27.000Z",
+          "subject": "[kiro] ingest-pipeline task 4: Sauvola binarisation from integral images"
+        },
+        {
+          "hash": "9d93bda",
+          "at": "2026-11-24T18:21:59.000Z",
+          "subject": "[kiro] ingest-pipeline task 5: 8-connected component labelling by union-find"
+        },
+        {
+          "hash": "a9ad7cd",
+          "at": "2026-11-24T18:22:27.000Z",
+          "subject": "[kiro] ingest-pipeline task 6: zod schemas part 1: source, lines, readers, review, alignment"
+        },
+        {
+          "hash": "965fae0",
+          "at": "2026-11-24T18:23:34.000Z",
+          "subject": "[kiro] ingest-pipeline task 7: licence resolved by code from the iiif-presentation location"
+        },
+        {
+          "hash": "f78195d",
+          "at": "2026-11-24T18:24:17.000Z",
+          "subject": "[kiro] ingest-pipeline task 8: row projection and line finding with core bands and valleys"
+        },
+        {
+          "hash": "bb21785",
+          "at": "2026-11-24T18:24:26.000Z",
+          "subject": "[kiro] ingest-pipeline task 9: tilt estimate and the 0.5 degree apply rule; design S2 wording corrected"
+        },
+        {
+          "hash": "35a9671",
+          "at": "2026-11-24T18:25:43.000Z",
+          "subject": "[kiro] ingest-pipeline task 10: separators, blocks, region rows and marginalia"
+        },
+        {
+          "hash": "9ed87b1",
+          "at": "2026-11-24T18:26:51.000Z",
+          "subject": "[kiro] ingest-pipeline task 11: slant estimate and shear, sign settled by test"
+        },
+        {
+          "hash": "9590d09",
+          "at": "2026-11-24T18:27:52.000Z",
+          "subject": "[kiro] ingest-pipeline task 12: ownership by core bands with valley splits and the centroid rule"
+        },
+        {
+          "hash": "93cf7db",
+          "at": "2026-11-24T18:28:19.000Z",
+          "subject": "[kiro] ingest-pipeline task 13: split share, the frozen 0.02 threshold and the P3 note verdict"
+        },
+        {
+          "hash": "072ff64",
+          "at": "2026-11-24T18:29:43.000Z",
+          "subject": "[kiro] ingest-pipeline task 14: ownership review: validation and application; agent-written review allowed (addendum 2a)"
+        },
+        {
+          "hash": "8093ada",
+          "at": "2026-11-24T18:30:35.000Z",
+          "subject": "[kiro] ingest-pipeline task 15: ownership artifacts: splits entries, overlay and flag crops"
+        },
+        {
+          "hash": "ced6b5c",
+          "at": "2026-11-24T18:31:00.000Z",
+          "subject": "[kiro] ingest-pipeline task 16: zero-ink runs in sheared coordinates"
+        },
+        {
+          "hash": "85ab058",
+          "at": "2026-11-24T18:31:36.000Z",
+          "subject": "[kiro] ingest-pipeline task 17: automatic word alignment from the widest zero-ink runs"
+        },
+        {
+          "hash": "95a7db8",
+          "at": "2026-11-24T18:32:18.000Z",
+          "subject": "[kiro] ingest-pipeline task 18: alignment fallbacks: curator run indices and labelled whole lines"
+        },
+        {
+          "hash": "6b07ff9",
+          "at": "2026-11-24T18:33:58.000Z",
+          "subject": "[kiro] ingest-pipeline task 19: merge, disagreements and the strict transcription.md format"
+        },
+        {
+          "hash": "231a1d3",
+          "at": "2026-11-24T18:34:42.000Z",
+          "subject": "[kiro] ingest-pipeline task 20: corrections: before/after records, stale and structure checks, kept disagreements"
+        },
+        {
+          "hash": "92b1c0f",
+          "at": "2026-11-24T18:35:41.000Z",
+          "subject": "[kiro] ingest-pipeline task 21: steps and notes validation: verbatim spans, quote bounds, disagreement splits"
+        },
+        {
+          "hash": "c8a32eb",
+          "at": "2026-11-24T18:36:16.000Z",
+          "subject": "[kiro] ingest-pipeline task 22: Zhang-Suen skeleton, traced path sorted by sheared column, nearest-skeleton times"
+        },
+        {
+          "hash": "048c8d2",
+          "at": "2026-11-24T18:38:13.000Z",
+          "subject": "[kiro] ingest-pipeline task 23: P6 checker: reveal times, path monotonicity, coverage, quantisation; mirror symmetry fixes the shear sign"
+        },
+        {
+          "hash": "fede3df",
+          "at": "2026-11-24T18:40:10.000Z",
+          "subject": "[kiro] ingest-pipeline task 24: note build: continuous-alpha PNG, toi, groups, 32 px margin; shell rule stated in design 3.6"
+        },
+        {
+          "hash": "ec4db7d",
+          "at": "2026-11-24T18:40:51.000Z",
+          "subject": "[kiro] ingest-pipeline task 25: verify link: pct region from the page box, approximate after deskew"
+        },
+        {
+          "hash": "81e9182",
+          "at": "2026-11-24T18:41:48.000Z",
+          "subject": "[kiro] ingest-pipeline task 26: P1 and P2 checkers with generated structures; note alignment ignores whole-line parts"
+        },
+        {
+          "hash": "954b19f",
+          "at": "2026-11-24T18:42:05.000Z",
+          "subject": "[kiro] ingest-pipeline task 27: P3 evaluator: owner totality, valley-only cuts, review and share verdict"
+        },
+        {
+          "hash": "e380520",
+          "at": "2026-11-24T18:50:59.000Z",
+          "subject": "[kiro] ingest-pipeline task 28: P4 fidelity checker and fixture scoring; p0c replay on the real page; region rows from core bands and whole-component region ink (design 3.2 fixed)"
+        },
+        {
+          "hash": "947176a",
+          "at": "2026-11-24T18:51:46.000Z",
+          "subject": "[kiro] ingest-pipeline task 29: P5 contrast checker with the 2 px exclusion ring"
+        },
+        {
+          "hash": "05c233e",
+          "at": "2026-11-24T18:52:58.000Z",
+          "subject": "[kiro] ingest-pipeline task 30: zod schemas part 2: merged, note json, gate, recipe bundle, catalog"
+        },
+        {
+          "hash": "d4d6c84",
+          "at": "2026-11-24T18:56:49.000Z",
+          "subject": "[kiro] ingest-pipeline task 31: runGate: pure orchestrator, waiting/fail/pass states, recomputed segmentation, scoring and artifacts"
+        },
+        {
+          "hash": "41fe3ba",
+          "at": "2026-11-24T18:57:49.000Z",
+          "subject": "[kiro] ingest-pipeline task 32: check times and recipe.json bundle with provenance"
+        },
+        {
+          "hash": "e994af7",
+          "at": "2026-11-24T18:58:11.000Z",
+          "subject": "[kiro] ingest-pipeline task 33: CLI io: canonical JSON, jpeg-js and pngjs codecs, frame resampling"
+        },
+        {
+          "hash": "b073426",
+          "at": "2026-11-24T18:58:47.000Z",
+          "subject": "[kiro] ingest-pipeline task 34: append-only hooks.log with the who precedence"
+        },
+        {
+          "hash": "cd2d8f5",
+          "at": "2026-11-24T19:00:01.000Z",
+          "subject": "[kiro] ingest-pipeline task 35: fetch: licence resolved first, manifest fields, atomic writes, recorded-fixture get"
+        },
+        {
+          "hash": "c9a68b2",
+          "at": "2026-11-24T19:01:53.000Z",
+          "subject": "[kiro] ingest-pipeline task 36: segment subcommand on the real page; measured figures recorded"
+        },
+        {
+          "hash": "6c21e98",
+          "at": "2026-11-24T19:02:46.000Z",
+          "subject": "[kiro] ingest-pipeline task 37: merge and fallback subcommands"
+        },
+        {
+          "hash": "0636ab7",
+          "at": "2026-11-24T19:05:01.000Z",
+          "subject": "[kiro] ingest-pipeline task 38: gate subcommand: write, re-read and judge the written PNGs, no-op on unchanged inputs, hooks.log; split share judged on the automatic ownership (design 3.3 fixed)"
+        },
+        {
+          "hash": "ba6f152",
+          "at": "2026-11-24T19:06:20.000Z",
+          "subject": "[kiro] ingest-pipeline task 39: --once watch protocol with the one-poll wait for invalid reader files"
+        },
+        {
+          "hash": "18af70d",
+          "at": "2026-11-24T19:07:10.000Z",
+          "subject": "[kiro] ingest-pipeline task 40: CLI dispatch, gate --all --verify, npm scripts ingest:gate/props/catalog, props in CI"
+        },
+        {
+          "hash": "2663b4e",
+          "at": "2026-11-24T19:08:17.000Z",
+          "subject": "[kiro] ingest-pipeline task 41: catalog: verify every recipe first, review binding to gateSha256, public bundle copy"
+        },
+        {
+          "hash": "022f54c",
+          "at": "2026-11-24T19:12:26.000Z",
+          "subject": "[kiro] ingest-pipeline task 42: first real run: live fetch (canvas index corrected to 32), segment --block 1, fallback structure; spans may leave off the last word's trailing comma (addendum 2c)"
+        },
+        {
+          "hash": "8a45093",
+          "at": "2026-11-24T19:18:01.000Z",
+          "subject": "[kiro] ingest-pipeline task 43: first real gate run on the fallback reading: P3 fails with joined strokes, hero falls to whole lines; rejected automatic candidate scored; hero integration test"
+        },
+        {
+          "hash": "2a151e9",
+          "at": "2026-11-24T19:19:23.000Z",
+          "subject": "[kiro] ingest-pipeline task 44: ownership review for the hero note, written by Kiro (agent) turn-18 and re-gated: P3 reviewed; P5 now fails on a word crop with no background (reported, not tuned)"
+        },
+        {
+          "hash": "a29f7e4",
+          "at": "2026-11-24T19:21:02.000Z",
+          "subject": "[kiro] ingest-pipeline task 45: reproducible measure-ingest script and the evidence README"
+        },
+        {
+          "hash": "d1a36a2",
+          "at": "2026-11-24T19:23:08.000Z",
+          "subject": "[kiro] ingest-pipeline task 46: final check: typecheck, test and build pass; props fails on the recipe's P5 (reported); R30.8 version test added"
+        },
+        {
+          "hash": "02082a8",
+          "at": "2026-11-24T19:23:31.000Z",
+          "subject": "[kiro] ingest-pipeline: first real run on Quinces p.23 (fallback reader)"
+        }
+      ]
+    },
+    {
+      "id": "sess_36f015f8-2fe2-4bb1-b295-ca25c6d2baac",
+      "title": "Write Crop Overlap Bug Fix Spec",
+      "createdAt": "2026-11-24T19:24:51.425Z",
+      "lastModifiedAt": "2026-11-24T19:50:51.764Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 86,
+        "fs_write": 9,
+        "read_file": 8,
+        "str_replace": 1
+      },
+      "shellWritesUnderSrc": 16,
+      "shellWritesUnderSrcNonTest": 14,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 7,
+      "writeToolPathsUnderSrc": [
+        "src/ingest/alignSpeck.bug.test.ts",
+        "src/ingest/alignSpeck.prop.test.ts",
+        "src/ingest/alignSpeck.test.ts",
+        "src/ingest/cropOverlap.bug.test.ts",
+        "src/ingest/cropOverlap.fixture.ts",
+        "src/ingest/cropOverlap.prop.test.ts",
+        "src/ingest/cropSource.ts"
+      ],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": [
+        {
+          "hash": "0795cec",
+          "at": "2026-11-24T19:27:58.000Z",
+          "subject": "[kiro] crop-overlap: bugfix spec (current, expected, unchanged behaviour, tasks)"
+        },
+        {
+          "hash": "354f560",
+          "at": "2026-11-24T19:28:06.000Z",
+          "subject": "[kiro] crop-overlap: bug condition exploration test (red)"
+        },
+        {
+          "hash": "10b4122",
+          "at": "2026-11-24T19:30:08.000Z",
+          "subject": "[kiro] crop-overlap: fix — notes take code-built ownership masks"
+        },
+        {
+          "hash": "bacab08",
+          "at": "2026-11-24T19:33:06.000Z",
+          "subject": "[kiro] crop-overlap: preservation properties (Unchanged)"
+        },
+        {
+          "hash": "725a49d",
+          "at": "2026-11-24T19:33:35.000Z",
+          "subject": "[kiro] crop-overlap: tick tasks, record measured figures in the spec"
+        },
+        {
+          "hash": "676fb65",
+          "at": "2026-11-24T19:36:48.000Z",
+          "subject": "[kiro] word-align-speck: bugfix spec (current, expected, unchanged behaviour, tasks)"
+        },
+        {
+          "hash": "654ec95",
+          "at": "2026-11-24T19:37:28.000Z",
+          "subject": "[kiro] word-align-speck: exploration test reproducing it on the real page (red)"
+        },
+        {
+          "hash": "35fcf6e",
+          "at": "2026-11-24T19:46:43.000Z",
+          "subject": "[kiro] word-align-speck: fix from the root cause — text extent ignores specks outside the writing, alignment rejects a word box under the ink floor (green)"
+        },
+        {
+          "hash": "e13b1b2",
+          "at": "2026-11-24T19:49:26.000Z",
+          "subject": "[kiro] word-align-speck: preservation properties (Unchanged)"
+        },
+        {
+          "hash": "8f65b87",
+          "at": "2026-11-24T19:50:30.000Z",
+          "subject": "[kiro] word-align-speck: gate re-run (pass, props exit 0), measured figures, tick tasks; open finding: word cuts inside words on all aligned parts"
+        }
+      ]
+    },
+    {
+      "id": "sess_8ead1585-8ef6-4f07-bb6c-620ea496bfc0",
+      "title": "Build Kiro Ingestion Configuration",
+      "createdAt": "2026-11-24T19:51:21.427Z",
+      "lastModifiedAt": "2026-11-24T20:08:42.852Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 62,
+        "fs_write": 2
+      },
+      "shellWritesUnderSrc": 1,
+      "shellWritesUnderSrcNonTest": 1,
+      "shellWritesToCatalog": 1,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {
+        "fs_write": 1
+      },
+      "hookInvocations": {
+        "catalog-gate": 1,
+        "no-imitation": 1
+      },
+      "commits": [
+        {
+          "hash": "4030333",
+          "at": "2026-11-24T19:53:19.000Z",
+          "subject": "[kiro] kiro-config: manuscript-reading steering (auto inclusion): diplomatic transcription rules for an 18th-century round hand"
+        },
+        {
+          "hash": "688571f",
+          "at": "2026-11-24T19:56:54.000Z",
+          "subject": "[kiro] kiro-config: second-reader agent: transcribes only, write-only own file, cannot read the scribe, gold reading or transcription.md"
+        },
+        {
+          "hash": "71bf961",
+          "at": "2026-11-24T19:56:54.000Z",
+          "subject": "[kiro] kiro-config: scribe agent: first independent reader, write-only own file, cannot read the second reader, gold reading or transcription.md"
+        },
+        {
+          "hash": "c3cc740",
+          "at": "2026-11-24T19:57:36.000Z",
+          "subject": "[kiro] kiro-config: ingest-recipe workflow: scribe and second-reader in parallel, then a command watch on steam-ingest gate --once (dry run: one JSON object, 5 s; its hooks.log line is included)"
+        },
+        {
+          "hash": "08c7769",
+          "at": "2026-11-24T20:00:52.000Z",
+          "subject": "[kiro] kiro-config: props-on-save hook: PostFileSave and PostFileCreate (regex matcher) run the gate for the saved recipe, one hooks.log line, exit 0 always"
+        },
+        {
+          "hash": "11ffaaf",
+          "at": "2026-11-24T20:02:41.000Z",
+          "subject": "[kiro] kiro-config: catalog-gate hook: PreToolUse write; blocks (exit 2) a hand-written catalog that lists a recipe without a passing gate, matching hashes and a reviewed review.json"
+        },
+        {
+          "hash": "4762d13",
+          "at": "2026-11-24T20:04:04.000Z",
+          "subject": "[kiro] kiro-config: no-imitation hook: PreToolUse write under src/ blocks (exit 2) speech synthesis, handwriting fonts and handwriting packages, quoting the product.md rule"
+        },
+        {
+          "hash": "2f4a3de",
+          "at": "2026-11-24T20:05:16.000Z",
+          "subject": "[kiro] kiro-config: tests-after-task hook: PostTaskExec runs npm test -- --reporter=dot and logs pass/fail counts (cannot fire headless; shipped for IDE spec runs)"
+        },
+        {
+          "hash": "f4843c8",
+          "at": "2026-11-24T20:07:04.000Z",
+          "subject": "[kiro] kiro-config: hook scripts: relative tool paths resolve against the event cwd (found by a live Kiro run), catalog path normalised, error lines carry no absolute path"
+        },
+        {
+          "hash": "4b1311b",
+          "at": "2026-11-24T20:08:03.000Z",
+          "subject": "[kiro] kiro-config: docs/kiro-evidence/README.md (each evidence file, which hook writes which hooks.log line) and the hooks.log lines of a live Kiro self-test of three hooks"
+        }
+      ]
+    },
+    {
+      "id": "sess_0793f34f-050c-4ce5-8c66-7729db749a25",
+      "title": "Permission Self-Test Session",
+      "createdAt": "2026-11-24T19:55:07.062Z",
+      "lastModifiedAt": "2026-11-24T19:55:34.115Z",
+      "modelId": "claude-opus-5.5",
+      "agentMode": "scribe",
+      "toolCalls": {
+        "read_file": 2
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": []
+    },
+    {
+      "id": "sess_988e686b-885c-4ada-b206-4673f4e8cf82",
+      "title": "Permission Test Across Multiple Files",
+      "createdAt": "2026-11-24T19:55:43.646Z",
+      "lastModifiedAt": "2026-11-24T19:56:07.174Z",
+      "modelId": "claude-opus-5.5",
+      "agentMode": "scribe",
+      "toolCalls": {
+        "read_file": 2
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": []
+    },
+    {
+      "id": "sess_dfdc8dc1-6dcb-4ff3-920e-2855522fcdbb",
+      "title": "Read and Write Recipe Files",
+      "createdAt": "2026-11-24T19:56:18.391Z",
+      "lastModifiedAt": "2026-11-24T19:56:45.062Z",
+      "modelId": "claude-haiku-5.5",
+      "agentMode": "zz-permtest",
+      "toolCalls": {
+        "fs_write": 2,
+        "read_file": 10
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": []
+    },
+    {
+      "id": "sess_0f5a755d-16c3-4219-b532-b8836b6e7349",
+      "title": "Write Four Hook Probe Files",
+      "createdAt": "2026-11-24T20:05:24.206Z",
+      "lastModifiedAt": "2026-11-24T20:05:38.708Z",
+      "modelId": "claude-haiku-5.5",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "fs_write": 2
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 1,
+      "writeToolPathsUnderSrc": [
+        "src/steam/zz-hook-probe-ok.ts"
+      ],
+      "callsWithHookEvent": {
+        "fs_write": 2
+      },
+      "hookInvocations": {
+        "catalog-gate": 2,
+        "no-imitation": 2,
+        "props-on-save-create": 1,
+        "props-on-save-save": 1
+      },
+      "commits": []
+    },
+    {
+      "id": "sess_0723c1cd-3202-41da-8f82-809ba4f12528",
+      "title": "Test Repository Hooks Enforcement",
+      "createdAt": "2026-11-24T20:06:03.205Z",
+      "lastModifiedAt": "2026-11-24T20:06:15.426Z",
+      "modelId": "claude-haiku-5.5",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "fs_write": 4
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 2,
+      "writeToolPathsUnderSrc": [
+        "src/steam/zz-hook-probe-ok.ts",
+        "src/steam/zz-hook-probe-voice.ts"
+      ],
+      "callsWithHookEvent": {
+        "fs_write": 4
+      },
+      "hookInvocations": {
+        "catalog-gate": 4,
+        "no-imitation": 4,
+        "props-on-save-create": 1,
+        "props-on-save-save": 1
+      },
+      "commits": []
+    },
+    {
+      "id": "sess_8f24c4a1-35a4-440c-a0c5-a0482712afca",
+      "title": "Test Repository Hooks",
+      "createdAt": "2026-11-24T20:07:14.554Z",
+      "lastModifiedAt": "2026-11-24T20:07:25.740Z",
+      "modelId": "claude-haiku-5.5",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "fs_write": 4
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 2,
+      "writeToolPathsUnderSrc": [
+        "src/steam/zz-hook-probe-ok.ts",
+        "src/steam/zz-hook-probe-voice.ts"
+      ],
+      "callsWithHookEvent": {
+        "fs_write": 4
+      },
+      "hookInvocations": {
+        "catalog-gate": 4,
+        "no-imitation": 4,
+        "props-on-save-create": 1,
+        "props-on-save-save": 1
+      },
+      "commits": []
+    },
+    {
+      "id": "sess_77b64201-4d32-4f68-8503-fcdd4d057db4",
+      "title": "Fix Word-Cut-Inside-Word Detection",
+      "createdAt": "2026-11-24T20:09:02.725Z",
+      "lastModifiedAt": "2026-11-24T20:29:39.991Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 71,
+        "fs_write": 4,
+        "read_file": 26
+      },
+      "shellWritesUnderSrc": 9,
+      "shellWritesUnderSrcNonTest": 4,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 3,
+      "writeToolPathsUnderSrc": [
+        "src/ingest/plausible.ts",
+        "src/ingest/wordCut.bug.test.ts",
+        "src/ingest/wordCut.prop.test.ts"
+      ],
+      "callsWithHookEvent": {
+        "fs_write": 4
+      },
+      "hookInvocations": {
+        "catalog-gate": 4,
+        "no-imitation": 4
+      },
+      "commits": [
+        {
+          "hash": "399ac56",
+          "at": "2026-11-24T20:12:58.000Z",
+          "subject": "[kiro] word-cut-inside-word: bugfix spec and the detection rule, written before measuring"
+        },
+        {
+          "hash": "96eecba",
+          "at": "2026-11-24T20:14:28.000Z",
+          "subject": "[kiro] word-cut-inside-word: exploration test on the real page (red)"
+        },
+        {
+          "hash": "322b6b1",
+          "at": "2026-11-24T20:27:23.000Z",
+          "subject": "[kiro] word-cut-inside-word: reject implausible alignment, curator alignment from code-found runs, null for a gap without a run (green)"
+        },
+        {
+          "hash": "42ccedb",
+          "at": "2026-11-24T20:28:37.000Z",
+          "subject": "[kiro] word-cut-inside-word: preservation properties (Unchanged)"
+        },
+        {
+          "hash": "f6a1c10",
+          "at": "2026-11-24T20:29:23.000Z",
+          "subject": "[kiro] word-cut-inside-word: final gate and props run, tick tasks, hooks.log lines"
+        }
+      ]
+    },
+    {
+      "id": "sess_17dfe7bc-2708-4cdd-bcce-de5c2d3a5fdc",
+      "title": "Run Ingest Recipe Workflow With Validation",
+      "createdAt": "2026-11-24T20:30:06.464Z",
+      "lastModifiedAt": "2026-11-24T20:35:12.007Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 11,
+        "fs_write": 3,
+        "inspect_workflow": 1,
+        "load_resource": 1,
+        "read_file": 9,
+        "run_workflow": 1,
+        "tool_call": 1
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 1,
+      "writeToolPathsUnderSrc": [
+        "src/cook/speak-note.ts"
+      ],
+      "callsWithHookEvent": {
+        "fs_write": 3
+      },
+      "hookInvocations": {
+        "catalog-gate": 3,
+        "no-imitation": 3
+      },
+      "commits": [
+        {
+          "hash": "4d18f79",
+          "at": "2026-11-24T20:34:48.000Z",
+          "subject": "[kiro] ingest-recipe: first two-reader workflow run on Quinces p.23 + catalog-gate and no-imitation block evals"
+        }
+      ]
+    },
+    {
+      "id": "sess_88c73e27-ef83-4bd1-9314-c4110109884e",
+      "title": "ingest-recipe-quinces-marmalade · scribe",
+      "createdAt": "2026-11-24T20:30:11.906Z",
+      "lastModifiedAt": "2026-11-24T20:32:16.321Z",
+      "modelId": "claude-opus-5.5",
+      "agentMode": "scribe",
+      "toolCalls": {
+        "fs_write": 1,
+        "load_resource": 1,
+        "read_file": 15,
+        "send_message": 1,
+        "str_replace": 1
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {
+        "fs_write": 1,
+        "str_replace": 1
+      },
+      "hookInvocations": {
+        "catalog-gate": 2,
+        "no-imitation": 2,
+        "props-on-save-create": 1,
+        "props-on-save-save": 2
+      },
+      "commits": []
+    },
+    {
+      "id": "sess_dc2b58cf-9c6b-4408-90c6-fa6f1761c9ac",
+      "title": "ingest-recipe-quinces-marmalade · second-reader",
+      "createdAt": "2026-11-24T20:30:11.924Z",
+      "lastModifiedAt": "2026-11-24T20:31:21.613Z",
+      "modelId": "claude-sonnet-5.5",
+      "agentMode": "second-reader",
+      "toolCalls": {
+        "fs_write": 1,
+        "load_resource": 1,
+        "read_file": 14,
+        "send_message": 1
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {
+        "fs_write": 1
+      },
+      "hookInvocations": {
+        "catalog-gate": 1,
+        "no-imitation": 1,
+        "props-on-save-create": 1,
+        "props-on-save-save": 1
+      },
+      "commits": []
+    },
+    {
+      "id": "sess_59ebf688-03a0-4232-a67d-679d22c8b583",
+      "title": "Fix Scribe Strip Reading Order",
+      "createdAt": "2026-11-24T20:35:45.805Z",
+      "lastModifiedAt": "2026-11-24T20:52:52.740Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 20,
+        "inspect_workflow": 1,
+        "load_resource": 1,
+        "run_workflow": 1,
+        "tool_call": 1
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": [
+        {
+          "hash": "033722e",
+          "at": "2026-11-24T20:37:14.000Z",
+          "subject": "[kiro] kiro-config: scribe reads strip i into line i only: strips opened one at a time in index order, line count echoed against lines.json, every sight/touch/feel judgement listed as a note; second-reader and steering carry the same strip rule, page-specific examples removed"
+        },
+        {
+          "hash": "bd0e2c9",
+          "at": "2026-11-24T20:52:33.000Z",
+          "subject": "[kiro] ingest-recipe: retry run of the two-reader workflow on Quinces p.23: gate passes P1-P6 on the agent readings (readers scribe, second), transcription.md re-merged, hero note id till-it-looks-red-smooth, hero.test reproduces the committed agent gate"
+        }
+      ]
+    },
+    {
+      "id": "sess_e29c9db3-b967-4897-a19f-935cb926fbd2",
+      "title": "ingest-recipe-quinces-run2 · scribe",
+      "createdAt": "2026-11-24T20:37:21.921Z",
+      "lastModifiedAt": "2026-11-24T20:39:39.405Z",
+      "modelId": "claude-opus-5.5",
+      "agentMode": "scribe",
+      "toolCalls": {
+        "fs_write": 1,
+        "load_resource": 1,
+        "read_file": 14,
+        "send_message": 1
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {
+        "fs_write": 1
+      },
+      "hookInvocations": {
+        "catalog-gate": 1,
+        "no-imitation": 1,
+        "props-on-save-save": 1
+      },
+      "commits": []
+    },
+    {
+      "id": "sess_b1c41b7c-2855-437d-977a-ece0cb7ca569",
+      "title": "ingest-recipe-quinces-run2 · second-reader",
+      "createdAt": "2026-11-24T20:37:21.945Z",
+      "lastModifiedAt": "2026-11-24T20:39:21.863Z",
+      "modelId": "claude-sonnet-5.5",
+      "agentMode": "second-reader",
+      "toolCalls": {
+        "fs_write": 1,
+        "load_resource": 1,
+        "read_file": 14,
+        "send_message": 1
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {
+        "fs_write": 1
+      },
+      "hookInvocations": {
+        "catalog-gate": 1,
+        "no-imitation": 1,
+        "props-on-save-save": 1
+      },
+      "commits": []
+    },
+    {
+      "id": "sess_76aa2bae-d249-4f37-83f1-c2feba1890bf",
+      "title": "Fix Hero Note Boundaries With Component Partition",
+      "createdAt": "2026-11-24T20:53:18.036Z",
+      "lastModifiedAt": "2026-11-24T21:39:17.257Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 121,
+        "fs_write": 7,
+        "load_resource": 1,
+        "read_file": 11,
+        "run_workflow": 1,
+        "tool_call": 1
+      },
+      "shellWritesUnderSrc": 26,
+      "shellWritesUnderSrcNonTest": 13,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 5,
+      "writeToolPathsUnderSrc": [
+        "src/ingest/alignComponent.test.ts",
+        "src/ingest/partition.gate.test.ts",
+        "src/ingest/partition.prop.test.ts",
+        "src/ingest/partition.test.ts",
+        "src/ingest/partition.ts"
+      ],
+      "callsWithHookEvent": {
+        "fs_write": 7
+      },
+      "hookInvocations": {
+        "catalog-gate": 7,
+        "no-imitation": 7
+      },
+      "commits": [
+        {
+          "hash": "f4b0bd4",
+          "at": "2026-11-24T20:59:58.000Z",
+          "subject": "[kiro] ingest-pipeline: spec: component-partition boundary (R19.8-19.15, design 3.5), stale transcription never waits (R16.2/16.7, R32.8), readers named second-reader (R30.9); tasks 47-54, written before measuring"
+        },
+        {
+          "hash": "e1104f0",
+          "at": "2026-11-24T21:13:49.000Z",
+          "subject": "[kiro] ingest-pipeline: component partition tests first (red): order, candidates, tie rule, alignment rules, mask, P4, gate end to end, partition command; propsVersion 2 and second-reader expected"
+        },
+        {
+          "hash": "8e8ccbd",
+          "at": "2026-11-24T21:17:59.000Z",
+          "subject": "[kiro] ingest-pipeline: component-partition boundary (green): partition order and candidates, {kind: component} in alignment.json, ink-share plausibility, mask and P4 by component, partition command, propsVersion 2, readers named second-reader; gate.json and merged.json regenerated, hero unchanged"
+        },
+        {
+          "hash": "7b12804",
+          "at": "2026-11-24T21:25:43.000Z",
+          "subject": "[kiro] ingest-pipeline: hero lines 9 and 10 cut by component partition (curator boundaries from the ranked candidates, comma kept): P1-P6 pass, note recall 0.9572 vs 0.85; evidence PNG and per-word score; preservation tests run on the alignment without the hero entries; partition prints on stdout"
+        },
+        {
+          "hash": "19848e0",
+          "at": "2026-11-24T21:27:24.000Z",
+          "subject": "[kiro] ingest-pipeline: tests first (red): a stale transcription.md is regenerated when unrevised, fails terminally when revised, never waits; merge comment records the generated lines; watch ends on the first poll"
+        },
+        {
+          "hash": "e73e2c4",
+          "at": "2026-11-24T21:30:57.000Z",
+          "subject": "[kiro] ingest-pipeline: a stale transcription.md never waits: regenerated when it carries no agent revision (recorded merge hash), terminal fail 'revised against an older reading: re-review' when it does; the gate writes it when missing; merge shares the rule; second-reader named in gate.json readers; committed transcription.md gains its merge comment"
+        },
+        {
+          "hash": "e4a9e8a",
+          "at": "2026-11-24T21:38:55.000Z",
+          "subject": "[kiro] ingest-recipe: third agent run on Quinces p.23, allowed because the fix was to the gate, not the readers: the watch ended on its first poll with terminal-state pass:true (stale transcription.md regenerated); the new readings differ and the gate decided, nothing edited by hand"
+        }
+      ]
+    },
+    {
+      "id": "sess_bcf955f6-6ec3-47a7-9bd1-a8865ae01578",
+      "title": "ingest-recipe-quinces-terminal-proof · second-reader",
+      "createdAt": "2026-11-24T21:31:04.837Z",
+      "lastModifiedAt": "2026-11-24T21:32:56.898Z",
+      "modelId": "claude-sonnet-5.5",
+      "agentMode": "second-reader",
+      "toolCalls": {
+        "fs_write": 2,
+        "load_resource": 1,
+        "read_file": 15,
+        "send_message": 1
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {
+        "fs_write": 2
+      },
+      "hookInvocations": {
+        "catalog-gate": 2,
+        "no-imitation": 2,
+        "props-on-save-save": 2
+      },
+      "commits": []
+    },
+    {
+      "id": "sess_b82baf3d-1610-4fc2-90c8-3342b65dd72d",
+      "title": "ingest-recipe-quinces-terminal-proof · scribe",
+      "createdAt": "2026-11-24T21:31:04.862Z",
+      "lastModifiedAt": "2026-11-24T21:33:24.920Z",
+      "modelId": "claude-opus-5.5",
+      "agentMode": "scribe",
+      "toolCalls": {
+        "fs_write": 1,
+        "load_resource": 1,
+        "read_file": 14,
+        "send_message": 1
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {
+        "fs_write": 1
+      },
+      "hookInvocations": {
+        "catalog-gate": 1,
+        "no-imitation": 1,
+        "props-on-save-save": 1
+      },
+      "commits": []
+    },
+    {
+      "id": "sess_c7db237f-0e35-4335-964a-ce16d9340fe7",
+      "title": "Cook Mode Feature Spec and Tasks",
+      "createdAt": "2026-11-24T21:40:11.290Z",
+      "lastModifiedAt": "2026-11-24T22:01:33.640Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 39,
+        "fs_write": 3
+      },
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {
+        "fs_write": 3
+      },
+      "hookInvocations": {
+        "catalog-gate": 3,
+        "no-imitation": 3
+      },
+      "commits": [
+        {
+          "hash": "a77ca47",
+          "at": "2026-11-24T22:01:16.000Z",
+          "subject": "[kiro] cook-mode: requirements, design, tasks"
+        }
+      ]
+    },
+    {
+      "id": "sess_70343b23-1293-4111-9978-549677560c01",
+      "title": "Implement Cook Mode Spec Tasks",
+      "createdAt": "2026-11-24T22:01:49.668Z",
+      "lastModifiedAt": "2026-11-25T00:33:14.115Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 267,
+        "fs_write": 2,
+        "read_file": 31
+      },
+      "shellWritesUnderSrc": 123,
+      "shellWritesUnderSrcNonTest": 81,
+      "shellWritesToCatalog": 3,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 2,
+      "writeToolPathsUnderSrc": [
+        "src/app/Cook.tsx",
+        "src/app/app.css"
+      ],
+      "callsWithHookEvent": {
+        "fs_write": 2
+      },
+      "hookInvocations": {
+        "catalog-gate": 2,
+        "no-imitation": 2
+      },
+      "commits": [
+        {
+          "hash": "3466274",
+          "at": "2026-11-24T22:03:51.000Z",
+          "subject": "[kiro] cook-mode task 1: test environment and dev dependencies (happy-dom, fake-indexeddb, axe)"
+        },
+        {
+          "hash": "b6d9bac",
+          "at": "2026-11-24T22:06:52.000Z",
+          "subject": "[kiro] cook-mode task 2: one computation for the verify box and the percentage URL"
+        },
+        {
+          "hash": "296f28f",
+          "at": "2026-11-24T22:09:09.000Z",
+          "subject": "[kiro] cook-mode task 3: steam-ingest canvas records the manifest canvas in source.json"
+        },
+        {
+          "hash": "58054df",
+          "at": "2026-11-24T22:11:11.000Z",
+          "subject": "[kiro] cook-mode task 4: bundle fields: source.canvas, source.frame, verifyBox, review"
+        },
+        {
+          "hash": "67be4df",
+          "at": "2026-11-24T22:13:08.000Z",
+          "subject": "[kiro] cook-mode task 5: the IIIF region and its URL (regionOf, regionUrl, parseRegionUrl)"
+        },
+        {
+          "hash": "e935e8b",
+          "at": "2026-11-24T22:13:15.000Z",
+          "subject": "[kiro] cook-mode task 6: resolve a note to its source (resolveNote, displayableNotes, LICENCES; code and tests shipped with task 5 in src/data/provenance.ts)"
+        },
+        {
+          "hash": "ed77565",
+          "at": "2026-11-24T22:15:56.000Z",
+          "subject": "[kiro] cook-mode task 7: P8 property test (every displayed note resolves to its source)"
+        },
+        {
+          "hash": "dd470c3",
+          "at": "2026-11-24T22:17:23.000Z",
+          "subject": "[kiro] cook-mode task 9: quote segments and K2 (quoteSegments in reading.ts since task 8; K2 property test and the real-bundle checks)"
+        },
+        {
+          "hash": "4924e13",
+          "at": "2026-11-24T22:18:01.000Z",
+          "subject": "[kiro] cook-mode task 8: reading marks: parse, join, primary and plain text"
+        },
+        {
+          "hash": "a4d3af3",
+          "at": "2026-11-24T22:19:09.000Z",
+          "subject": "[kiro] cook-mode task 10: router and K1"
+        },
+        {
+          "hash": "77f19ef",
+          "at": "2026-11-24T22:20:47.000Z",
+          "subject": "[kiro] cook-mode task 11: catalog and bundle loader"
+        },
+        {
+          "hash": "d5bcb9d",
+          "at": "2026-11-24T22:21:42.000Z",
+          "subject": "[kiro] cook-mode task 12: device store with memory fallback"
+        },
+        {
+          "hash": "532ef35",
+          "at": "2026-11-24T22:22:48.000Z",
+          "subject": "[kiro] cook-mode task 13: check-time labels, durations, effective check time (K8)"
+        },
+        {
+          "hash": "8ff8ce8",
+          "at": "2026-11-24T22:23:22.000Z",
+          "subject": "[kiro] cook-mode task 14: the plan and the pane's note"
+        },
+        {
+          "hash": "c15ab1c",
+          "at": "2026-11-24T22:24:59.000Z",
+          "subject": "[kiro] cook-mode task 15: scheduler core: start, deep link, elapsed, scheduled reveal"
+        },
+        {
+          "hash": "384344a",
+          "at": "2026-11-24T22:25:50.000Z",
+          "subject": "[kiro] cook-mode task 16: scheduler: sleep, resume, pace, show"
+        },
+        {
+          "hash": "9abbd17",
+          "at": "2026-11-24T22:26:59.000Z",
+          "subject": "[kiro] cook-mode task 17: scheduler: wipe, advance, finish, controlFor, nextDueWall, snapshot, restore"
+        },
+        {
+          "hash": "1684d81",
+          "at": "2026-11-24T22:31:21.000Z",
+          "subject": "[kiro] cook-mode task 18: P7 property test (each note is revealed exactly once)"
+        },
+        {
+          "hash": "c1553db",
+          "at": "2026-11-24T22:32:17.000Z",
+          "subject": "[kiro] cook-mode task 19: timer functions and K3"
+        },
+        {
+          "hash": "3003a5c",
+          "at": "2026-11-24T22:33:25.000Z",
+          "subject": "[kiro] cook-mode task 20: session snapshot validity and K5"
+        },
+        {
+          "hash": "6c3ccd2",
+          "at": "2026-11-24T22:34:47.000Z",
+          "subject": "[kiro] cook-mode task 21: drag recognizer and K9"
+        },
+        {
+          "hash": "2a73543",
+          "at": "2026-11-24T22:35:47.000Z",
+          "subject": "[kiro] cook-mode task 22: the reveal gate and K7"
+        },
+        {
+          "hash": "8070cea",
+          "at": "2026-11-24T22:36:34.000Z",
+          "subject": "[kiro] cook-mode task 23: announcements"
+        },
+        {
+          "hash": "fb59eb9",
+          "at": "2026-11-24T22:38:25.000Z",
+          "subject": "[kiro] cook-mode task 24: the cue envelope, brown noise and K6"
+        },
+        {
+          "hash": "f63a71b",
+          "at": "2026-11-24T22:39:44.000Z",
+          "subject": "[kiro] cook-mode task 25: audio engine and wake lock"
+        },
+        {
+          "hash": "35d8dce",
+          "at": "2026-11-24T22:41:33.000Z",
+          "subject": "[kiro] cook-mode task 26: copy strings and the words guard"
+        },
+        {
+          "hash": "9d11d5c",
+          "at": "2026-11-24T22:43:49.000Z",
+          "subject": "[kiro] cook-mode task 27: pane metadata from the bundle's note files"
+        },
+        {
+          "hash": "d8057de",
+          "at": "2026-11-24T22:46:40.000Z",
+          "subject": "[kiro] cook-mode task 28: extract SteamGlass from SteamPane"
+        },
+        {
+          "hash": "d606604",
+          "at": "2026-11-24T22:50:32.000Z",
+          "subject": "[kiro] cook-mode task 29: StaticPane images per note"
+        },
+        {
+          "hash": "3cf591f",
+          "at": "2026-11-24T22:53:06.000Z",
+          "subject": "[kiro] cook-mode task 30: app shell, route switch, harness route"
+        },
+        {
+          "hash": "b52c8fe",
+          "at": "2026-11-24T23:11:00.000Z",
+          "subject": "[kiro] cook-mode task 31: migrate the renderer specs and scripts, delete public/hero"
+        },
+        {
+          "hash": "b89aabe",
+          "at": "2026-11-24T23:13:53.000Z",
+          "subject": "[kiro] cook-mode task 32: ArchiveSlip, ReadingText, credit line and the base stylesheet"
+        },
+        {
+          "hash": "acb2c61",
+          "at": "2026-11-24T23:17:51.000Z",
+          "subject": "[kiro] cook-mode task 33: shelf screen"
+        },
+        {
+          "hash": "f8dd181",
+          "at": "2026-11-24T23:18:49.000Z",
+          "subject": "[kiro] cook-mode task 34: zoom and pan reducer and K4"
+        },
+        {
+          "hash": "78194d8",
+          "at": "2026-11-24T23:20:57.000Z",
+          "subject": "[kiro] cook-mode task 35: facsimile component"
+        },
+        {
+          "hash": "4a1f206",
+          "at": "2026-11-24T23:23:35.000Z",
+          "subject": "[kiro] cook-mode task 36: edition view: transcription, gutter, notices"
+        },
+        {
+          "hash": "7b786d9",
+          "at": "2026-11-24T23:24:30.000Z",
+          "subject": "[kiro] cook-mode task 37: timing stepper and provenance disclosure"
+        },
+        {
+          "hash": "47caffe",
+          "at": "2026-11-24T23:25:29.000Z",
+          "subject": "[kiro] cook-mode: shelf card polish after a look in the browser (kicker, step and note counts from the bundle, credit in the card body, no ring on the router-focused heading)"
+        },
+        {
+          "hash": "0ce256b",
+          "at": "2026-11-24T23:28:35.000Z",
+          "subject": "[kiro] cook-mode task 38: the session hook with a fake clock and store"
+        },
+        {
+          "hash": "5e7216d",
+          "at": "2026-11-24T23:30:01.000Z",
+          "subject": "[kiro] cook-mode task 39: step panel and timer"
+        },
+        {
+          "hash": "af439bc",
+          "at": "2026-11-24T23:30:26.000Z",
+          "subject": "[kiro] cook-mode task 40: flame knob and pace badge"
+        },
+        {
+          "hash": "6ab81b3",
+          "at": "2026-11-24T23:32:03.000Z",
+          "subject": "[kiro] cook-mode task 41: wipe control and the drag surface"
+        },
+        {
+          "hash": "e8d7213",
+          "at": "2026-11-24T23:33:51.000Z",
+          "subject": "[kiro] cook-mode task 42: PaneStage: pane choice, preparation, gate wiring, outgoing sweep, failed scan"
+        },
+        {
+          "hash": "3d178af",
+          "at": "2026-11-24T23:44:08.000Z",
+          "subject": "[kiro] cook-mode task 43: Cook screen assembly, captions, test hooks"
+        },
+        {
+          "hash": "c63c455",
+          "at": "2026-11-24T23:45:24.000Z",
+          "subject": "[kiro] cook-mode task 44: the haunting cue: lamp dip, simmer duck, Mute control"
+        },
+        {
+          "hash": "521a708",
+          "at": "2026-11-24T23:46:06.000Z",
+          "subject": "[kiro] cook-mode task 45: wake lock and persistence notices in the screen"
+        },
+        {
+          "hash": "72e26f7",
+          "at": "2026-11-24T23:46:53.000Z",
+          "subject": "[kiro] cook-mode task 46: deep link behaviour in the screen"
+        },
+        {
+          "hash": "1625fb3",
+          "at": "2026-11-24T23:47:52.000Z",
+          "subject": "[kiro] cook-mode task 47: quoted screen and P8.6"
+        },
+        {
+          "hash": "70559be",
+          "at": "2026-11-24T23:49:07.000Z",
+          "subject": "[kiro] cook-mode task 48: responsive CSS and contrast"
+        },
+        {
+          "hash": "396642b",
+          "at": "2026-11-24T23:50:14.000Z",
+          "subject": "[kiro] cook-mode task 49: built-site checks"
+        },
+        {
+          "hash": "61d475a",
+          "at": "2026-11-24T23:58:16.000Z",
+          "subject": "[kiro] cook-mode task 51: e2e, the x12 walk through every row of the Wipe table, Show the note at a pending note, drag to advance (written and run with task 50's spec file: 3 passed)"
+        },
+        {
+          "hash": "44bdde4",
+          "at": "2026-11-24T23:58:16.000Z",
+          "subject": "[kiro] cook-mode task 50: e2e helpers and the main flow"
+        },
+        {
+          "hash": "6323822",
+          "at": "2026-11-25T00:01:57.000Z",
+          "subject": "[kiro] cook-mode task 52: e2e reduced motion and keyboard only"
+        },
+        {
+          "hash": "68931f9",
+          "at": "2026-11-25T00:09:38.000Z",
+          "subject": "[kiro] cook-mode task 53: e2e sleep, restore, phone, bad bundles"
+        },
+        {
+          "hash": "315a0b6",
+          "at": "2026-11-25T00:15:24.000Z",
+          "subject": "[kiro] cook-mode task 54: e2e in CI and the renderer specs"
+        },
+        {
+          "hash": "16a5841",
+          "at": "2026-11-25T00:18:13.000Z",
+          "subject": "[kiro] cook-mode task 55: Cook Mode performance script"
+        },
+        {
+          "hash": "6144706",
+          "at": "2026-11-25T00:32:31.000Z",
+          "subject": "[kiro] cook-mode task 56: final verification, judge-path timing and the verify-at-source fetch, screenshots"
+        }
+      ]
+    },
+    {
+      "id": "sess_c5c335d2-8301-4804-a575-12fab9508921",
+      "title": "Cook Mode QA R1 Bugfix Spec",
+      "createdAt": "2026-11-25T00:40:31.771Z",
+      "lastModifiedAt": "2026-11-25T01:16:32.869Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 79,
+        "fs_write": 1,
+        "read_file": 14
+      },
+      "shellWritesUnderSrc": 14,
+      "shellWritesUnderSrcNonTest": 9,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {
+        "fs_write": 1
+      },
+      "hookInvocations": {
+        "catalog-gate": 1,
+        "no-imitation": 1
+      },
+      "commits": [
+        {
+          "hash": "d1fa01b",
+          "at": "2026-11-25T00:45:51.000Z",
+          "subject": "[kiro] cook-mode-qa-r1: bugfix spec"
+        },
+        {
+          "hash": "a8212e2",
+          "at": "2026-11-25T00:48:01.000Z",
+          "subject": "[kiro] cook-mode-qa-r1: Q1 the step clock says it is cooking time at ×4 or ×12, in its text and its accessible name"
+        },
+        {
+          "hash": "71baa19",
+          "at": "2026-11-25T00:50:57.000Z",
+          "subject": "[kiro] cook-mode-qa-r1: Q2 the Wipe button reads \"The hand is writing…\" (aria-disabled) until the note is held; every Wipe-table row tested (e2e of Q1 rides along)"
+        },
+        {
+          "hash": "f0cb350",
+          "at": "2026-11-25T00:52:40.000Z",
+          "subject": "[kiro] cook-mode-qa-r1: Q3 the readers-disagree description is hidden, rendered only where a † is shown, and reached only through the † spans"
+        },
+        {
+          "hash": "ce0720a",
+          "at": "2026-11-25T00:53:27.000Z",
+          "subject": "[kiro] cook-mode-qa-r1: Q4 e2e: the moment chip opens the per-note timing stepper; it exists and works (no code change needed)"
+        },
+        {
+          "hash": "3c1d174",
+          "at": "2026-11-25T00:59:34.000Z",
+          "subject": "[kiro] cook-mode-qa-r1: Q5 phone Cook Mode: shorter glass, badge off the moon, slip and credit run together, step text whole above the bar"
+        },
+        {
+          "hash": "f11cd93",
+          "at": "2026-11-25T01:01:58.000Z",
+          "subject": "[kiro] cook-mode-qa-r1: Q6 shelf hero: bigger scan on its mat, IM Fell title, slip and both buttons above the fold on a phone"
+        },
+        {
+          "hash": "e5bbf00",
+          "at": "2026-11-25T01:05:46.000Z",
+          "subject": "[kiro] cook-mode-qa-r1: Q7 e2e: Tab order follows visual order on shelf, edition, Cook Mode and quoted, desktop and phone (DOM order already correct; the report came from the Wipe auto-focus start)"
+        },
+        {
+          "hash": "226b430",
+          "at": "2026-11-25T01:08:39.000Z",
+          "subject": "[kiro] cook-mode-qa-r1: Q8 a lost WebGL context falls back to StaticPane at the current phase (resume clock, e2e with WEBGL_lose_context)"
+        },
+        {
+          "hash": "c038409",
+          "at": "2026-11-25T01:16:19.000Z",
+          "subject": "[kiro] cook-mode-qa-r1: spec measured and ticked, refreshed Cook Mode screenshots"
+        }
+      ]
+    },
+    {
+      "id": "sess_c7d203f1-b144-435b-8a5c-ebf87ba68c74",
+      "title": "Steam Renderer Ghost Writing Effect UI",
+      "createdAt": "2026-11-25T01:27:45.644Z",
+      "lastModifiedAt": "2026-11-25T02:46:27.241Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 135,
+        "fs_write": 8,
+        "read_file": 25
+      },
+      "shellWritesUnderSrc": 50,
+      "shellWritesUnderSrcNonTest": 39,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 2,
+      "writeToolPathsUnderSrc": [
+        "src/steam/drips.ts",
+        "src/steam/transmission.ts"
+      ],
+      "callsWithHookEvent": {
+        "fs_write": 8
+      },
+      "hookInvocations": {
+        "catalog-gate": 8,
+        "no-imitation": 8
+      },
+      "commits": [
+        {
+          "hash": "5f49968",
+          "at": "2026-11-25T01:36:29.000Z",
+          "subject": "[kiro] steam-renderer-v1: design-first spec"
+        },
+        {
+          "hash": "09e9f73",
+          "at": "2026-11-25T01:39:29.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 1 continuous ink transmission, bicubic ink texture"
+        },
+        {
+          "hash": "3f9aca9",
+          "at": "2026-11-25T01:44:31.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 2 room behind the glass, lit condensation film, droplet lenses, refraction"
+        },
+        {
+          "hash": "7255b3d",
+          "at": "2026-11-25T01:47:25.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 3 wet edges, rim, beads, seeded running water (drips.ts)"
+        },
+        {
+          "hash": "e152013",
+          "at": "2026-11-25T01:48:13.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 4 capped cold writing head, breath along the path, fresh-stroke sheen"
+        },
+        {
+          "hash": "9fd2a29",
+          "at": "2026-11-25T01:51:47.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 5 night view (SVG sky, moon, seeded branches, cloud, muntin) and the candle on the sill"
+        },
+        {
+          "hash": "2e50b65",
+          "at": "2026-11-25T01:54:24.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 6 haunting cue completed (bloom, candle dip, thickening before the write-on)"
+        },
+        {
+          "hash": "7422e72",
+          "at": "2026-11-25T02:00:26.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 7 phone gap groups (cut at ink column gaps), e2e fit measure at 390 and 393"
+        },
+        {
+          "hash": "8721fb1",
+          "at": "2026-11-25T02:02:01.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 8 quality governor (p95 over 60 frames), tiers, window.__steamStats, overlay tier"
+        },
+        {
+          "hash": "827d744",
+          "at": "2026-11-25T02:09:59.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 11 bench profiles (five rows, p5, tier), results.json writer, README; look pass: halo, inner edge light, wider runs"
+        },
+        {
+          "hash": "2abd881",
+          "at": "2026-11-25T02:32:59.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 12 e2e expectations the v1 look legitimately changes, night/cue/governor specs, governor opt-out under automation (gov=1 to enable), streak and droplets"
+        },
+        {
+          "hash": "cca38cf",
+          "at": "2026-11-25T02:40:19.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 10 static panes re-rendered from the v1 renderer (bloom off, candle hidden), frozen frames start in their own cue state, soft streak"
+        }
+      ]
+    },
+    {
+      "id": "sess_ddeb52f8-7e69-4cf3-9d92-e25cff1ff513",
+      "title": "Don't hold back. Give it your all: aim for the best possible result, not a sa...",
+      "createdAt": "2026-11-25T12:37:39.145Z",
+      "lastModifiedAt": "2026-11-25T12:37:44.273Z",
+      "modelId": "",
+      "agentMode": "vibe",
+      "toolCalls": {},
+      "shellWritesUnderSrc": 0,
+      "shellWritesUnderSrcNonTest": 0,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": []
+    },
+    {
+      "id": "sess_3a8ae063-5c7a-405a-9e01-ae49255eca1e",
+      "title": "Polish Steam Renderer V1 For Design Contest",
+      "createdAt": "2026-11-25T12:38:35.145Z",
+      "lastModifiedAt": "2026-11-25T13:20:18.790Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 52,
+        "read_file": 17
+      },
+      "shellWritesUnderSrc": 14,
+      "shellWritesUnderSrcNonTest": 10,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": [
+        {
+          "hash": "8034395",
+          "at": "2026-11-25T12:40:46.000Z",
+          "subject": "[kiro] steam-renderer-v1: spec look pass 2 (tasks 1-12 ticked, tasks 13-19, R13-R18), v1 frames kept as v1a"
+        },
+        {
+          "hash": "ca30636",
+          "at": "2026-11-25T12:40:50.000Z",
+          "subject": "[kiro] steam-renderer-v1: tick tasks 1-12 in tasks.md"
+        },
+        {
+          "hash": "57ab916",
+          "at": "2026-11-25T12:52:02.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 13 running water as water (2-4 runs desktop, 1-3 phone, stroke-height lengths, bent seeded path, clear channel with lip, lens bead, re-fog from the top); tasks 14-18 first pass (thin broken rim, faint halo, pressure fill, phone composition, old wipes, no streak, whole moon) with their tests"
+        },
+        {
+          "hash": "5597d4c",
+          "at": "2026-11-25T13:06:19.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 14 e2e re-pinned for the new look (stroke spread 12 -> 30; rim 60 -> 72, variance 1.6 -> 1.3, sill ratio 1.5 -> 1.1, phone parts [[0,0],[0,1],[1,0],[1,1]], streak check inverted) and the phone composition, candle and moon e2e"
+        },
+        {
+          "hash": "61028bb",
+          "at": "2026-11-25T13:11:11.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 15 static panes re-rendered from the look-pass-2 renderer; design.md section 14, requirements and tasks 13-19 in step"
+        },
+        {
+          "hash": "f6d2ef8",
+          "at": "2026-11-25T13:19:58.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 19 frames after look pass 2, NOTES Look pass 2, suite green (tests 1185, playwright 77, typecheck, lint 0 errors, build)"
+        }
+      ]
+    },
+    {
+      "id": "sess_8e420621-eafc-4787-8f7e-ea8413c0e170",
+      "title": "Renderer V1 Final Pass Improvements",
+      "createdAt": "2026-11-25T13:34:15.475Z",
+      "lastModifiedAt": "2026-11-25T15:21:36.273Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 122,
+        "read_file": 41
+      },
+      "shellWritesUnderSrc": 53,
+      "shellWritesUnderSrcNonTest": 42,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {},
+      "hookInvocations": {},
+      "commits": [
+        {
+          "hash": "dd0bfd4",
+          "at": "2026-11-25T13:38:59.000Z",
+          "subject": "[kiro] steam-renderer-v1: spec look pass 3 (tasks 13-19 recorded, tasks 20-28, R19-R28, design section 15)"
+        },
+        {
+          "hash": "8c4e094",
+          "at": "2026-11-25T13:39:09.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 20 frame set (mobile-t-600 and mobile-t4000 added), pass-2 frames kept as v1b"
+        },
+        {
+          "hash": "5b9a933",
+          "at": "2026-11-25T13:43:45.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 21 the stroke is a window (room gradient, pot, candle and two bokeh scales seen through it, edge-refracted; EDGE_SHADE and the inner shade removed; lamp-side meniscus)"
+        },
+        {
+          "hash": "67b3546",
+          "at": "2026-11-25T13:48:18.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 22 legible cold (desktop scale 1.6 to 1.85 and centred, transmission exponent 0.75 to 0.9: coverage ratio 1.108 to 1.020, halo 0.16 to 0.05, lip 0.07 to 0.04) and the reviewed reading under the pane when the note holds"
+        },
+        {
+          "hash": "af3367d",
+          "at": "2026-11-25T13:53:52.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 23 something unseen is writing (finger smear 300 ms ahead of the ink with a cold crescent, breath pulse, cold bloom at the path start and stronger edge thickening, candle lean, cloud crossing the moon from the reveal clock)"
+        },
+        {
+          "hash": "e9a8269",
+          "at": "2026-11-25T13:57:12.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 24 moon and branches (soft limb, procedural mottling in place of ellipses, tapered crooked branches with a keep-out around the disc centre)"
+        },
+        {
+          "hash": "9776717",
+          "at": "2026-11-25T14:02:23.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 26 runs are lighter channels ending in a bright bead and never over ink; droplets by gravity (dark lenses, clusters, finer at the top); neutral edge condensation (no green push, the cue's cold is the film's own colour)"
+        },
+        {
+          "hash": "edd30e4",
+          "at": "2026-11-25T14:02:23.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 25 candle on a sill ledge (ledge over the rail, irregular wax with drips, bigger flame, flicker paused at -t under a frozen clock, warm bloom on glass and rail)"
+        },
+        {
+          "hash": "e9e68b1",
+          "at": "2026-11-25T14:05:52.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 27 window frame (bevel, putty line, soft inner shadow in gradients) and the button label in --ink in every state (12.6:1)"
+        },
+        {
+          "hash": "9372931",
+          "at": "2026-11-25T14:40:15.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 28 e2e for look pass 3 (reading under the pane, cloud and candle lean from the clock, t=-600 edges, neutral edges, ledge, one t one frame); re-pinned: timing mean tolerance 8 to 16 (measured 11.9, 13.3, 15.1), stroke spread 30 to 40, hold rim 72 to 90 (measured 82.7); phone candle 36 px and smaller flame; droplets weigh gravity; the cloud drift is paused at -t under a frozen clock"
+        },
+        {
+          "hash": "553c771",
+          "at": "2026-11-25T15:21:04.000Z",
+          "subject": "[kiro] steam-renderer-v1: task 28 look rounds done (droplet contrast and density re-balanced to the R3.3, R3.4 and R26.1 e2e, stroke floor, Cook reading without fade for axe), static panes re-rendered, frames after look pass 3, NOTES Look pass 3; tests 1216 + 5 expected fail, typecheck, lint 0 errors, build, playwright 82 of 83 (one timing check flaked once, passed on rerun)"
+        }
+      ]
+    },
+    {
+      "id": "sess_1bb68abb-d49c-4f9f-937c-8f4dee154e05",
+      "title": "Fix Cook Mode Layout Issues P1d",
+      "createdAt": "2026-11-25T15:39:04.737Z",
+      "lastModifiedAt": "2026-11-25T16:23:49.274Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 68,
+        "fs_write": 1,
+        "read_file": 1
+      },
+      "shellWritesUnderSrc": 16,
+      "shellWritesUnderSrcNonTest": 12,
+      "shellWritesToCatalog": 1,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {
+        "fs_write": 1
+      },
+      "hookInvocations": {
+        "catalog-gate": 1,
+        "no-imitation": 1
+      },
+      "commits": [
+        {
+          "hash": "ec16b01",
+          "at": "2026-11-25T15:55:30.000Z",
+          "subject": "[kiro] cook-layout-p1d: bugfix spec and red e2e (bounding boxes for L1 to L6, 20 of 22 fail on the unfixed code)"
+        },
+        {
+          "hash": "187238f",
+          "at": "2026-11-25T16:09:20.000Z",
+          "subject": "[kiro] cook-layout-p1d: fix L1 to L6 (phone bar clears timer/dial/pace, writing label wraps, one attribution line, reading slot reserved and desktop fits 1280x720, timer colour follows a named state, reduced-motion label); 22 of 22 e2e green, tests 1250, typecheck, lint 0 errors, build"
+        },
+        {
+          "hash": "80fb7b8",
+          "at": "2026-11-25T16:23:34.000Z",
+          "subject": "[kiro] cook-layout-p1d: waitWipe lets the 200 ms colour fade end before axe runs (cook-flow contrast flake seen once)"
+        },
+        {
+          "hash": "369b62a",
+          "at": "2026-11-25T16:23:35.000Z",
+          "subject": "[kiro] offline-shell: service worker with build-time precache list from the real dist (O1, O2 properties), versioned cache cleaned on activate, prod-only registration, offline line on the quoted page, vercel.json no-cache for sw.js; tests 1250, typecheck, lint 0 errors, build, verify_offline.py PASS"
+        }
+      ]
+    },
+    {
+      "id": "sess_e73702e8-634d-4c11-b165-2fe39ad72be3",
+      "title": "Fix Steam Reveal Clock Hidden Tab Bug",
+      "createdAt": "2026-11-25T18:29:34.004Z",
+      "lastModifiedAt": "2026-11-25T19:21:54.089Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 118,
+        "fs_write": 2
+      },
+      "shellWritesUnderSrc": 40,
+      "shellWritesUnderSrcNonTest": 18,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {
+        "fs_write": 2
+      },
+      "hookInvocations": {
+        "catalog-gate": 2,
+        "no-imitation": 2
+      },
+      "commits": [
+        {
+          "hash": "75f0b68",
+          "at": "2026-11-25T18:31:52.000Z",
+          "subject": "[kiro] a2a-arch-r05: bugfix spec (B1-B11)"
+        },
+        {
+          "hash": "7501d58",
+          "at": "2026-11-25T18:32:56.000Z",
+          "subject": "[kiro] a2a-arch-r05: red B1 the reveal clock runs through a hidden tab"
+        },
+        {
+          "hash": "0606e46",
+          "at": "2026-11-25T18:33:43.000Z",
+          "subject": "[kiro] a2a-arch-r05: fix B1 the renderer's reveal clock stands still while the tab is hidden"
+        },
+        {
+          "hash": "20fd018",
+          "at": "2026-11-25T18:33:59.000Z",
+          "subject": "[kiro] a2a-arch-r05: red B2 the governor cannot degrade a device slower than 2 fps"
+        },
+        {
+          "hash": "5629544",
+          "at": "2026-11-25T18:34:16.000Z",
+          "subject": "[kiro] a2a-arch-r05: fix B2 three consecutive long visible intervals raise the governor to tier 3"
+        },
+        {
+          "hash": "ee0748a",
+          "at": "2026-11-25T18:35:17.000Z",
+          "subject": "[kiro] a2a-arch-r05: red B3 tier 3 swaps the live canvas mid-stroke"
+        },
+        {
+          "hash": "81624fb",
+          "at": "2026-11-25T18:35:41.000Z",
+          "subject": "[kiro] a2a-arch-r05: fix B3 tier 3 waits for a calm phase before the static pane replaces the canvas"
+        },
+        {
+          "hash": "ec87f9e",
+          "at": "2026-11-25T18:36:24.000Z",
+          "subject": "[kiro] a2a-arch-r05: red B4 the static pane restarts after a fallback that is not a context loss"
+        },
+        {
+          "hash": "1572e55",
+          "at": "2026-11-25T18:36:27.000Z",
+          "subject": "[kiro] a2a-arch-r05: fix B4 the static pane resumes from any live reveal state"
+        },
+        {
+          "hash": "e8b5e49",
+          "at": "2026-11-25T18:37:10.000Z",
+          "subject": "[kiro] a2a-arch-r05: red B5 one transient fetch failure hides the recipe for the visit"
+        },
+        {
+          "hash": "dc37cd0",
+          "at": "2026-11-25T18:37:40.000Z",
+          "subject": "[kiro] a2a-arch-r05: fix B5 the shelf retries transport failures and does not cache them"
+        },
+        {
+          "hash": "435535b",
+          "at": "2026-11-25T18:37:58.000Z",
+          "subject": "[kiro] a2a-arch-r05: red B6 the simmer never ducks when the audio arrives after Cook mounted"
+        },
+        {
+          "hash": "08aa7aa",
+          "at": "2026-11-25T18:38:01.000Z",
+          "subject": "[kiro] a2a-arch-r05: fix B6 the reveal gate reads the current audio through a ref"
+        },
+        {
+          "hash": "a724c68",
+          "at": "2026-11-25T18:38:58.000Z",
+          "subject": "[kiro] a2a-arch-r05: red B7 the wake lock after close, after a browser release, after a refusal"
+        },
+        {
+          "hash": "7cdff7d",
+          "at": "2026-11-25T18:39:11.000Z",
+          "subject": "[kiro] a2a-arch-r05: fix B7 wake lock: late sentinel released, one re-acquire after a browser release, retry on gesture"
+        },
+        {
+          "hash": "a2c780d",
+          "at": "2026-11-25T18:39:33.000Z",
+          "subject": "[kiro] a2a-arch-r05: red B8 pageshow and focus cannot wake a sleeping session"
+        },
+        {
+          "hash": "50cb48b",
+          "at": "2026-11-25T18:39:37.000Z",
+          "subject": "[kiro] a2a-arch-r05: fix B8 pageshow and focus resume a sleeping session when the page is visible"
+        },
+        {
+          "hash": "729513a",
+          "at": "2026-11-25T18:40:36.000Z",
+          "subject": "[kiro] a2a-arch-r05: red B9 the held transcription is hidden from assistive tech"
+        },
+        {
+          "hash": "0b7f8f0",
+          "at": "2026-11-25T18:40:39.000Z",
+          "subject": "[kiro] a2a-arch-r05: fix B9 the held reading is in the accessibility tree"
+        },
+        {
+          "hash": "bc3bde1",
+          "at": "2026-11-25T18:41:17.000Z",
+          "subject": "[kiro] a2a-arch-r05: red B10 Cook Mode's reveal has no verify-at-source link"
+        },
+        {
+          "hash": "ce9f0f5",
+          "at": "2026-11-25T18:44:35.000Z",
+          "subject": "[kiro] a2a-arch-r05: red B11 SteamPane takes note text from fetched JSON without a type check (and e2e for B10)"
+        },
+        {
+          "hash": "ce14cec",
+          "at": "2026-11-25T18:44:43.000Z",
+          "subject": "[kiro] a2a-arch-r05: fix B11 SteamPane uses only string note text from fetched JSON"
+        },
+        {
+          "hash": "a6e4d57",
+          "at": "2026-11-25T18:44:43.000Z",
+          "subject": "[kiro] a2a-arch-r05: fix B10 the compact slip carries a verify-at-source link for the revealed note"
+        },
+        {
+          "hash": "0d5a180",
+          "at": "2026-11-25T18:47:45.000Z",
+          "subject": "[kiro] a2a-arch-r05: evidence notes and DX report"
+        },
+        {
+          "hash": "f963f35",
+          "at": "2026-11-25T18:59:42.000Z",
+          "subject": "[kiro] a2a-arch-r05: fix B10 the slip wraps inside its slot so the verify link moves no control at 1280x720"
+        },
+        {
+          "hash": "53181a1",
+          "at": "2026-11-25T19:18:52.000Z",
+          "subject": "[kiro] a2a-arch-r05: B10 preservation: cook-phone names the licence link now that the slip has two"
+        },
+        {
+          "hash": "7165162",
+          "at": "2026-11-25T19:21:37.000Z",
+          "subject": "[kiro] a2a-arch-r05: final run results in the evidence notes; DX report"
+        }
+      ]
+    },
+    {
+      "id": "sess_6f7ff68b-37ad-4b6e-963b-834f1fbbfc9d",
+      "title": "Implement A2A Architecture R06 Bugfix Tests",
+      "createdAt": "2026-11-25T19:46:28.210Z",
+      "lastModifiedAt": "2026-11-25T20:17:22.314Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "bash_placeholder": 1,
+        "execute_bash": 72,
+        "fs_write": 2
+      },
+      "shellWritesUnderSrc": 24,
+      "shellWritesUnderSrcNonTest": 13,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {
+        "fs_write": 2
+      },
+      "hookInvocations": {
+        "catalog-gate": 2,
+        "no-imitation": 2
+      },
+      "commits": [
+        {
+          "hash": "17c6eca",
+          "at": "2026-11-25T19:48:28.000Z",
+          "subject": "[kiro] a2a-arch-r06: bugfix spec (C1-C7)"
+        },
+        {
+          "hash": "8a14571",
+          "at": "2026-11-25T19:49:42.000Z",
+          "subject": "[kiro] a2a-arch-r06: red C1 a deep link whose load failed on transport stays not-found until a reload"
+        },
+        {
+          "hash": "fb75389",
+          "at": "2026-11-25T19:50:44.000Z",
+          "subject": "[kiro] a2a-arch-r06: fix C1 the not-found screen retries a transport failure (button and online event)"
+        },
+        {
+          "hash": "1ce7647",
+          "at": "2026-11-25T19:54:56.000Z",
+          "subject": "[kiro] a2a-arch-r06: red C2 a request that hangs never settles (API skeleton without the deadline, fake timers fixture)"
+        },
+        {
+          "hash": "09449ab",
+          "at": "2026-11-25T19:55:55.000Z",
+          "subject": "[kiro] a2a-arch-r06: fix C2 one deadline helper: recipe 10 s (transient), note assets 15 s (AssetError), pane JSON 10 s"
+        },
+        {
+          "hash": "a9ad77e",
+          "at": "2026-11-25T19:56:24.000Z",
+          "subject": "[kiro] a2a-arch-r06: red C3 switching reduced motion off returns a revealed note to a fogged live pane"
+        },
+        {
+          "hash": "45ea6d2",
+          "at": "2026-11-25T19:57:01.000Z",
+          "subject": "[kiro] a2a-arch-r06: fix C3 a note that went static stays static"
+        },
+        {
+          "hash": "dbb36a7",
+          "at": "2026-11-25T19:57:30.000Z",
+          "subject": "[kiro] a2a-arch-r06: red C4 a gesture never asks again for a lock the browser released twice"
+        },
+        {
+          "hash": "c204f6c",
+          "at": "2026-11-25T19:58:11.000Z",
+          "subject": "[kiro] a2a-arch-r06: fix C4 a gesture asks again for an idle wake lock"
+        },
+        {
+          "hash": "c4eca09",
+          "at": "2026-11-25T19:58:41.000Z",
+          "subject": "[kiro] a2a-arch-r06: red C5 the renderer clock stays frozen when visibility returns without a visibilitychange"
+        },
+        {
+          "hash": "523f522",
+          "at": "2026-11-25T19:59:23.000Z",
+          "subject": "[kiro] a2a-arch-r06: fix C5 a frame, startReveal or wipe resumes a clock frozen by a hide when the page is visible"
+        },
+        {
+          "hash": "1a1bbd8",
+          "at": "2026-11-25T20:00:45.000Z",
+          "subject": "[kiro] a2a-arch-r06: red C6 the hand-over to The hand, quoted runs on the wall clock through a hidden tab (countdown skeleton)"
+        },
+        {
+          "hash": "c14f363",
+          "at": "2026-11-25T20:01:41.000Z",
+          "subject": "[kiro] a2a-arch-r06: fix C6 the hand-over waits for WIPE_MS of visible time"
+        },
+        {
+          "hash": "0d99afa",
+          "at": "2026-11-25T20:02:03.000Z",
+          "subject": "[kiro] a2a-arch-r06: red C7 the spike page's held reading is hidden from assistive tech"
+        },
+        {
+          "hash": "bd0f829",
+          "at": "2026-11-25T20:02:35.000Z",
+          "subject": "[kiro] a2a-arch-r06: fix C7 SteamPane's held reading is in the accessibility tree"
+        },
+        {
+          "hash": "ed0a740",
+          "at": "2026-11-25T20:15:34.000Z",
+          "subject": "[kiro] a2a-arch-r06: C1 e2e: a deep link that failed on transport recovers without a reload"
+        },
+        {
+          "hash": "5b92542",
+          "at": "2026-11-25T20:17:12.000Z",
+          "subject": "[kiro] a2a-arch-r06: evidence notes and DX report"
+        }
+      ]
+    },
+    {
+      "id": "sess_cc50a90b-1553-4333-8561-d69615fb6666",
+      "title": "Hook Coverage And Bash Writes",
+      "createdAt": "2026-11-25T20:33:15.403Z",
+      "lastModifiedAt": "2026-11-25T20:43:12.421Z",
+      "modelId": "auto",
+      "agentMode": "vibe",
+      "toolCalls": {
+        "execute_bash": 23,
+        "fs_write": 8,
+        "str_replace": 8
+      },
+      "shellWritesUnderSrc": 1,
+      "shellWritesUnderSrcNonTest": 1,
+      "shellWritesToCatalog": 0,
+      "shellWritesSeenByAHook": 0,
+      "writeToolCallsUnderSrc": 0,
+      "writeToolPathsUnderSrc": [],
+      "callsWithHookEvent": {
+        "execute_bash": 2,
+        "fs_write": 8,
+        "str_replace": 8
+      },
+      "hookInvocations": {
+        "catalog-gate": 16,
+        "no-imitation": 16,
+        "zz-record-shell": 2
+      },
+      "commits": [
+        {
+          "hash": "35d2672",
+          "at": "2026-11-25T20:37:41.000Z",
+          "subject": "[kiro] hook-coverage: bugfix.md and the recorded shell hook stdin"
+        },
+        {
+          "hash": "2275b61",
+          "at": "2026-11-25T20:38:49.000Z",
+          "subject": "[kiro] hook-coverage: red H1 the ledger counts no shell write and the analyzer sees none (skeleton)"
+        },
+        {
+          "hash": "63c4763",
+          "at": "2026-11-25T20:42:44.000Z",
+          "subject": "[kiro] hook-coverage: fix H1 the shell-write rule (analyzeShell) and the session ledger"
+        },
+        {
+          "hash": "7524a88",
+          "at": "2026-11-25T20:42:53.000Z",
+          "subject": "[kiro] hook-coverage: red H1 a hook event is attributed to a tool call by timing alone (parallel calls, file-event hooks)"
+        }
+      ]
+    }
+  ]
+}

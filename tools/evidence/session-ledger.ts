@@ -71,12 +71,28 @@ export const RULE: string[] = [
   'A shell write under src/ is an `execute_bash` command with a simple command that redirects (>, >>, tee) into src/, runs sed -i / perl -i on a path in src/, copies or moves into src/, restores a path of src/ with git, applies a diff by heredoc that names one, or runs an interpreter (python, node, ruby, perl, php, deno, bun, tsx) on an inline script or heredoc that calls a file-writing API and names a path under src/. The rule is `analyzeShell` in tools/hooks/shell-writes.ts, the same one the shell-gate hook uses.',
   'Written paths are relative to the workspace root after cd, ./, .. and a leading $VAR/ are resolved. A test file (*.test.ts, *.spec.ts, src/__tests__/) is counted in "under src" and not in "non-test".',
   'Not seen by the rule: a script file run by name, a path built from parts that is not named `src`, find -exec and xargs. The count is a lower bound.',
-  'A call "had a hook event" when a ContextualHookInvoked event with the same executionId is logged between the call and its result. Events are counted by hook name (the name field, else the file name of hookId).',
+  'A call "had a hook event" when a ContextualHookInvoked event with the same executionId is logged between the call and its result and the hook can run for that tool (its matcher: no-imitation and catalog-gate run for fs_write and str_replace, shell-gate and src-scan-after-shell for execute_bash, props-on-save for no tool). Events are counted by hook name (the name field, else the file name of hookId).',
   'The window of a session is createdAt to the later of lastModifiedAt and its last message. A `[kiro]` commit belongs to it when its author time lies in the window, ends included. Parallel sessions can share commits.',
   'Nothing of a prompt, an assistant message, a tool result or a command is copied.',
 ]
 
 const ms = (iso: unknown): number => (typeof iso === 'string' ? Date.parse(iso) : NaN)
+
+/**
+ * The tools a hook of this repository can run for, from its matcher (.kiro/hooks/*.json). Two tool calls issued together
+ * overlap in time, so timing alone attributes a `no-imitation` run to a parallel shell call. A hook that is not listed
+ * here is attributed by timing alone. File-event hooks (props-on-save) run on a saved file, whatever tool saved it.
+ */
+export const HOOK_TOOLS: Record<string, string[]> = {
+  'no-imitation': ['fs_write', 'str_replace'],
+  'catalog-gate': ['fs_write', 'str_replace'],
+  'props-on-save-save': [],
+  'props-on-save-create': [],
+  'tests-after-task': [],
+  'shell-gate': ['execute_bash'],
+  'src-scan-after-shell': ['execute_bash'],
+  'zz-record-shell': ['execute_bash'],
+}
 const str = (v: unknown, d = ''): string => (typeof v === 'string' ? v : d)
 const bump = (m: Record<string, number>, k: string, n = 1): void => {
   m[k] = (m[k] ?? 0) + n
@@ -135,7 +151,7 @@ function rowOf(raw: RawSession, commits: Commit[], workspace: string): SessionRo
   for (const h of hooks) bump(row.hookInvocations, h.name)
   for (const c of calls.values()) {
     bump(row.toolCalls, c.name)
-    const seen = hooks.some((h) => h.exec === c.exec && h.at >= c.start && h.at <= c.end)
+    const seen = hooks.some((h) => h.exec === c.exec && h.at >= c.start && h.at <= c.end && (HOOK_TOOLS[h.name]?.includes(c.name) ?? !(h.name in HOOK_TOOLS)))
     if (seen) bump(row.callsWithHookEvent, c.name)
     if (c.name === 'execute_bash' && typeof c.args.command === 'string') {
       const a = analyzeShell(c.args.command, { root: workspace, cwd: typeof c.args.cwd === 'string' ? c.args.cwd : undefined })
