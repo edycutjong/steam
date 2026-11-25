@@ -6,6 +6,7 @@ import { DEBOUNCE_MS } from '../cook/drag.ts'
 import { paneNoteFor } from '../cook/plan.ts'
 import { createRevealGate } from '../cook/revealGate.ts'
 import { controlFor, noteState, type Control, type Pace, type SchedEffect } from '../cook/scheduler.ts'
+import { createVisibleTimer } from '../cook/visibleTimer.ts'
 import { createWakeLock, type WakeLock, type WakeLockNav, type WakeStatus } from '../cook/wakelock.ts'
 import type { Clock } from '../cook/clock.ts'
 import type { LoadedRecipe } from '../data/catalog.ts'
@@ -70,7 +71,7 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
   const [wake, setWake] = useState<WakeStatus>('idle')
   const pendingArrival = useRef<{ text: string; timer: ReturnType<typeof setTimeout> } | null>(null)
   const finishing = useRef(false)
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([])
+  const timers = useRef<(() => void)[]>([])
   const spanOf = (id: string) => recipe.notes.find((n) => n.id === id)?.span ?? ''
 
   const flushArrival = (withNote?: string) => {
@@ -117,8 +118,8 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
       for (const r of revealedNow) gate.enqueue({ noteId: r.noteId })
       if (fin) {
         finishing.current = true
-        // the last sweep plays out, then "The hand, quoted"
-        timers.current.push(setTimeout(() => (location.hash = formatRoute({ name: 'quoted', id: b.id })), WIPE_MS))
+        // the last sweep plays out, then "The hand, quoted". The sweep stands still while the tab is hidden, so the wait is WIPE_MS of visible time (a2a-arch-r06 C6).
+        timers.current.push(createVisibleTimer(WIPE_MS, () => (location.hash = formatRoute({ name: 'quoted', id: b.id }))).cancel)
       }
       void ctx
     },
@@ -148,7 +149,7 @@ function CookSession({ recipe, route, Glass, wakeNav = typeof navigator === 'und
   useEffect(() => {
     announce(COOK.loading)
     return () => {
-      timers.current.forEach(clearTimeout)
+      timers.current.forEach((cancel) => cancel())
       if (pendingArrival.current) clearTimeout(pendingArrival.current.timer)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
