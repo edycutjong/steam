@@ -133,7 +133,7 @@ judged against `before/`).
 1. AT widths 390 and 393 css px, THE SYSTEM SHALL place the groups so that the block of ink fills at least 55 % of the glass height and its centre lies above the pane's middle (between 2 % and 8 % of the height above it). **unit** (on the hero's metadata)
 2. THE SYSTEM SHALL keep R8.1 and R8.2 (core band at least 16 css px, at least 12 css px of glass to both sides). **e2e**
 3. THE SYSTEM SHALL gather droplets toward the sill less than v1: the boost of the large layer is at most 1.6 and the sill droplets are cooler than the middle's. **unit** (constants), **e2e** (R3.4 re-pinned), **frame**
-4. WHERE the pane is narrower than 640 css px, THE SYSTEM SHALL draw the candle at most 70 % of its desktop height, and SHALL keep it clear of the ink block (no overlap of rectangles). **e2e**
+4. WHERE the pane is narrower than 640 css px, THE SYSTEM SHALL draw the candle at most 70 % of its desktop height (the CSS gives about half), and SHALL keep it clear of the ink block (no overlap of rectangles). **e2e**
 5. THE SYSTEM SHALL keep the phone-fit e2e green at 390 and 393. **e2e**
 
 ## R16. A film with a history (look pass 2)

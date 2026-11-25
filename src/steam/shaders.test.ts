@@ -4,7 +4,16 @@ import {
   DROP_LARGE,
   DROP_MID,
   DROP_TINY,
+  BROAD_AMP,
   FOG_FRAG,
+  HALO_GAIN,
+  LENS_WARM,
+  OLD_WIPES,
+  OLD_WIPE_DENSITY,
+  PRESSURE_DIM,
+  RAIL_DROP_BOOST,
+  RIM_PX,
+  RIM_T_HI,
   HEAD_MAX_LUMA,
   TRAIL_N,
   TRAIL_FALLOFF,
@@ -77,3 +86,40 @@ describe('composite constants (steam-renderer-v1 design §4, §5)', () => {
     expect(COMPOSITE_FRAG).toContain('BREATH_DENSITY * breath * (1.0 - T)')
   })
 })
+
+describe('look pass 2 constants (R13 to R17)', () => {
+  it('draws a thin broken rim, a faint halo and a pressure-dependent fill (R14.1 to R14.3)', () => {
+    expect(RIM_PX).toBeLessThanOrEqual(1)
+    expect(RIM_T_HI).toBeLessThanOrEqual(0.2)
+    expect(COMPOSITE_FRAG).toContain('(0.12 + 0.88 * brk)') // the film height and a fine noise break the rim
+    expect(HALO_GAIN).toBeLessThanOrEqual(0.2)
+    expect(PRESSURE_DIM).toBeLessThan(1)
+    expect(COMPOSITE_FRAG).toContain('smoothstep(PRESSURE_LO, PRESSURE_HI, aInk)')
+  })
+  it('draws the head of a run as a lens bead with one catch-light and no white dot (R13.5)', () => {
+    expect(COMPOSITE_FRAG).toContain('beadColour(headQ')
+    expect(COMPOSITE_FRAG).toContain('exp(-dot(a, a) * 70.0)')
+    expect(COMPOSITE_FRAG).toContain('uniform vec4 uRunC[6]')
+  })
+  it('bends a run by the same path as drips.ts and re-fogs it from the top (R13.3, R13.4)', () => {
+    expect(COMPOSITE_FRAG).toContain('runOff(dyc')
+    expect(COMPOSITE_FRAG).toContain('smoothstep(front, front')
+  })
+  it('keeps sill droplets few, small and cool (R15.3)', () => {
+    expect(RAIL_DROP_BOOST).toBeLessThanOrEqual(1.6)
+    expect(LENS_WARM).toBeLessThan(1)
+    expect(COMPOSITE_FRAG).toContain('RAIL_SHRINK')
+  })
+  it('gives the film a history without reading the note (R16.1, R16.2)', () => {
+    expect(FOG_FRAG).toContain('oldWipes(')
+    expect(OLD_WIPES).toBeGreaterThanOrEqual(2)
+    expect(OLD_WIPE_DENSITY).toBeLessThanOrEqual(0.12)
+    expect(BROAD_AMP).toBeGreaterThan(0)
+    expect(FOG_FRAG).not.toMatch(/uChan|uInkTex/)
+    expect(FOG_FRAG).not.toMatch(/uTime\s*\*[^;]*oldWipes/)
+  })
+  it('has no light streak over the upper film (R17.1)', () => {
+    expect(COMPOSITE_FRAG).not.toMatch(/STREAK|streak/)
+  })
+})
+

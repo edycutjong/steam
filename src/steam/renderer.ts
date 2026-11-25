@@ -56,7 +56,7 @@ const FOG_UNIFORMS = ['uSize', 'uTime', 'uThicken'] as const
 const COMP_UNIFORMS = [
   'uRes', 'uDpr', 'uTime', 'uU', 'uThicken', 'uHead', 'uWipe', 'uRefog',
   'uGroupSrc', 'uGroupDst', 'uGroupCount', 'uNoteSize', 'uHeadPos', 'uHeadGroup',
-  'uTrail', 'uRunA', 'uRunB', 'uRunCount', 'uFogTexel', 'uCandle', 'uBloom', 'uDetail', 'uBg', 'uInk', 'uBefore', 'uAfter', 'uRule', 'uGhost', 'uMoon', 'uNight', 'uPot',
+  'uTrail', 'uRunA', 'uRunB', 'uRunC', 'uRunCount', 'uFogTexel', 'uCandle', 'uBloom', 'uDetail', 'uBg', 'uInk', 'uBefore', 'uAfter', 'uRule', 'uGhost', 'uMoon', 'uNight', 'uPot',
   'uInkTex', 'uChan', 'uFog',
 ] as const
 type Locs<K extends string> = Record<K, WebGLUniformLocation | null>
@@ -186,6 +186,7 @@ export class SteamRenderer {
   private readonly trail = new Float32Array(2 * TRAIL_N)
   private readonly runA = new Float32Array(4 * RUN_MAX)
   private readonly runB = new Float32Array(4 * RUN_MAX)
+  private readonly runC = new Float32Array(4 * RUN_MAX)
   private readonly plan: PlannedRun[]
   private runs: PlacedRun[] = []
   private readonly seed: number
@@ -539,11 +540,12 @@ export class SteamRenderer {
     gl.uniform2f(r.compLoc.uFogTexel, 1 / this.fogW, 1 / this.fogH)
     gl.uniform3f(r.compLoc.uCandle, this.candleU, this.candleV, candleLevel(time, t))
     const nRuns = this.detail > 0 ? this.runs.length : 0
-    for (let k = 0; k < nRuns; k++) writeRunUniforms(this.runs[k], t, this.dpr, this.runA, this.runB, k)
+    for (let k = 0; k < nRuns; k++) writeRunUniforms(this.runs[k], t, this.dpr, this.runA, this.runB, this.runC, k)
     this.writeTrail(bin)
     gl.uniform2fv(r.compLoc.uTrail, this.trail)
     gl.uniform4fv(r.compLoc.uRunA, this.runA)
     gl.uniform4fv(r.compLoc.uRunB, this.runB)
+    gl.uniform4fv(r.compLoc.uRunC, this.runC)
     gl.uniform1i(r.compLoc.uRunCount, nRuns)
     gl.uniform1f(r.compLoc.uBloom, this.opts.bloom === false ? 0 : bloomAt(t))
     gl.uniform1f(r.compLoc.uDetail, this.detail)

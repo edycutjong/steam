@@ -50,6 +50,12 @@ export const MIN_CORE_CSS_PX = 16
 export const PHONE_MAX_W = 640
 export const GROUP_GAP_CSS = 28
 export const S_MAX = 1.25
+/** Phone: cut every line at its ink gap when that makes the hand at least this much larger; smallest gap between parts and vertical pad then. */
+export const GROW_MIN = 1.15
+export const MIN_GAP_CSS = 14
+export const PAD_V_PARTS = 8
+/** Phone: the block sits this fraction of the pane height above the middle (at most). */
+export const LIFT_FRAC = 0.035
 /** Desktop: the core band never exceeds ~1.6x its scan size. */
 export const S_MAX_DESKTOP = 1.6
 /** Desktop: the wider group spans this fraction of the pane width. */
@@ -149,33 +155,53 @@ export function computeLayout(
 
   // Phone: every group on its own line at the largest scale that fits. A line that cannot keep the minimum core band
   // inside the pane is cut at its widest-reaching gap and its two parts are stacked at one shared scale.
-  const items: Array<{ parts: Placeable[]; s: number; forced: boolean }> = order.map((i) => {
-    const g = meta.groups[i]
-    const band = g.coreBand[1] - g.coreBand[0]
-    const fitW = (w: number): number => Math.min((paneW - 2 * PAD_PX) / w, S_MAX)
-    const rectW = g.rect[2] - g.rect[0]
-    let s = fitW(rectW)
-    let parts: Placeable[] = [whole(i)]
-    const cut = splits?.[i]
-    if (band * s < MIN_CORE_CSS_PX && cut) {
-      parts = cut.map((p, k) => ({ index: i, part: k, rect: p.rect, coreBand: p.coreBand, t: p.t, clip: p.clip }))
-      // one scale for both parts, no larger than the whole line would have had: the hand keeps one size down the pane
-      s = Math.min(fitW(Math.max(...parts.map((p) => p.rect[2] - p.rect[0]))), Math.max(s, MIN_CORE_CSS_PX / band))
-    }
-    let forced = false
-    if (band * s < MIN_CORE_CSS_PX) {
-      s = MIN_CORE_CSS_PX / band
-      forced = true
-    }
-    return { parts, s, forced }
-  })
+  const fitW = (w: number): number => Math.min((paneW - 2 * PAD_PX) / w, S_MAX)
+  const asLines = (): Array<{ parts: Placeable[]; s: number; forced: boolean }> =>
+    order.map((i) => {
+      const g = meta.groups[i]
+      const band = g.coreBand[1] - g.coreBand[0]
+      const rectW = g.rect[2] - g.rect[0]
+      let s = fitW(rectW)
+      let parts: Placeable[] = [whole(i)]
+      const cut = splits?.[i]
+      if (band * s < MIN_CORE_CSS_PX && cut) {
+        parts = cut.map((p, k) => ({ index: i, part: k, rect: p.rect, coreBand: p.coreBand, t: p.t, clip: p.clip }))
+        // one scale for both parts, no larger than the whole line would have had: the hand keeps one size down the pane
+        s = Math.min(fitW(Math.max(...parts.map((p) => p.rect[2] - p.rect[0]))), Math.max(s, MIN_CORE_CSS_PX / band))
+      }
+      let forced = false
+      if (band * s < MIN_CORE_CSS_PX) {
+        s = MIN_CORE_CSS_PX / band
+        forced = true
+      }
+      return { parts, s, forced }
+    })
+  // Use the pane (look pass 2): when every line can be cut at an ink gap, the parts stack at one larger scale. It is taken
+  // when the hand grows by at least GROW_MIN and the stack still fits the glass with room to breathe.
+  const asParts = (): Array<{ parts: Placeable[]; s: number; forced: boolean }> | null => {
+    if (!splits || order.some((i) => !splits[i])) return null
+    const lines = order.map((i) => splits[i]!.map((p, k) => ({ index: i, part: k, rect: p.rect, coreBand: p.coreBand, t: p.t, clip: p.clip }) as Placeable))
+    const all = lines.flat()
+    if (all.length > 4) return null
+    const sumH = all.reduce((a, p) => a + (p.rect[3] - p.rect[1]), 0)
+    const minGaps = MIN_GAP_CSS * (all.length - 1)
+    let s = Math.min(fitW(Math.max(...all.map((p) => p.rect[2] - p.rect[0]))), (paneH - 2 * PAD_V_PARTS - minGaps) / sumH)
+    if (all.some((p) => (p.coreBand[1] - p.coreBand[0]) * s < MIN_CORE_CSS_PX)) return null
+    s = Math.max(1e-6, s)
+    return lines.map((parts) => ({ parts, s, forced: false }))
+  }
+  let items = asLines()
+  const grown = asParts()
+  if (grown && grown[0].s >= GROW_MIN * Math.min(...items.map((x) => x.s))) items = grown
   const flat = items.flatMap((it) => it.parts.map((p) => ({ p, s: it.s })))
   const heights = flat.map(({ p, s }) => (p.rect[3] - p.rect[1]) * s)
   const padV = flat.length > 2 ? 8 : PAD_PX
   const total = heights.reduce((a, b) => a + b, 0)
   const gap = flat.length > 1 ? Math.max(6, Math.min(GROUP_GAP_CSS, (paneH - 2 * padV - total) / (flat.length - 1))) : 0
   const block = total + gap * (flat.length - 1)
-  let y = (paneH - block) / 2
+  // centred slightly above the optical middle
+  const lift = Math.max(0, Math.min(LIFT_FRAC * paneH, (paneH - block) / 2 - padV))
+  let y = (paneH - block) / 2 - lift
   const groups = flat.map(({ p, s }, k) => {
     const inkW = (p.rect[2] - p.rect[0]) * s
     const pl = placement(p, meta, s, (paneW - inkW) / 2, y)

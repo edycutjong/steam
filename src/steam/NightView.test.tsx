@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import Candle from './Candle.tsx'
-import NightView, { STAR_COUNT, stars } from './NightView.tsx'
+import NightView, { MOON, STAR_COUNT, nightViewBox, stars } from './NightView.tsx'
 
 const html = (el: React.ReactElement): string => renderToStaticMarkup(el)
 
@@ -53,5 +53,27 @@ describe('Candle (R6.4)', () => {
     const css = readFileSync('src/steam/steam.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
     expect(css).not.toMatch(/\brgba?\(/)
+  })
+})
+
+describe('nightViewBox keeps the moon whole (R18)', () => {
+  const widths = [1024, 1280, 1440, 1920]
+  const heights = [600, 720, 900, 1080]
+  it('shows the whole moon disc on desktop panes 600 to 1080 px tall, and on the Pixel 5', () => {
+    const cases: Array<[number, number]> = []
+    for (const w of widths) for (const h of heights) cases.push([w - 2 * Math.min(22, Math.max(10, w * 0.022)), 0.36 * h])
+    cases.push([393 - 2 * 10, 0.24 * 851])
+    for (const [w, h] of cases) {
+      const [x0, y0, vw, vh] = nightViewBox(w, h)
+      expect(x0).toBeLessThanOrEqual(MOON.x - MOON.r)
+      expect(x0 + vw).toBeGreaterThanOrEqual(MOON.x + MOON.r)
+      expect(y0).toBeLessThanOrEqual(MOON.y - MOON.r)
+      expect(y0 + vh).toBeGreaterThanOrEqual(MOON.y + MOON.r)
+    }
+  })
+  it('is the whole box for the box proportions and anchors low otherwise', () => {
+    expect(nightViewBox(1200, 300)).toEqual([0, 0, 1200, 300])
+    const [, y0, , vh] = nightViewBox(1236, 259)
+    expect(y0 + vh).toBeCloseTo(300, 6)
   })
 })

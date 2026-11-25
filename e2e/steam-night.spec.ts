@@ -72,3 +72,27 @@ test('the governor tier is on window.__steamStats and in the ?fps=1 overlay', as
   expect(stats!.frames).toBeGreaterThan(5)
   await expect(page.locator('.fps')).toContainText('tier 0')
 })
+
+// R18: the whole moon disc stays inside the upper sash, on one side of the muntin, from short desktop panes to the Pixel 5.
+for (const vp of [
+  { width: 1920, height: 600 },
+  { width: 1280, height: 600 },
+  { width: 1024, height: 768 },
+  { width: 1280, height: 720 },
+  { width: 1920, height: 1080 },
+  { width: 393, height: 851 },
+]) {
+  test(`the moon is whole and clear of the muntin at ${vp.width}x${vp.height}`, async ({ page }) => {
+    await page.setViewportSize(vp)
+    await openPane(page, '?t=6500')
+    await page.waitForTimeout(200)
+    const moon = (await page.locator('.sash--upper .moon').boundingBox())!
+    const sash = (await page.locator('.sash--upper .night').boundingBox())!
+    const muntin = (await page.locator('.muntin').boundingBox())!
+    expect(moon.y, 'moon top inside the sash').toBeGreaterThanOrEqual(sash.y - 0.5)
+    expect(moon.y + moon.height, 'moon bottom inside the sash').toBeLessThanOrEqual(sash.y + sash.height + 0.5)
+    expect(moon.x).toBeGreaterThanOrEqual(sash.x - 0.5)
+    expect(moon.x + moon.width).toBeLessThanOrEqual(sash.x + sash.width + 0.5)
+    expect(moon.x, 'moon right of the muntin').toBeGreaterThanOrEqual(muntin.x + muntin.width - 0.5)
+  })
+}

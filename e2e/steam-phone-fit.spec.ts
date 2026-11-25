@@ -30,6 +30,24 @@ for (const [name, viewport] of [
       const bottom = o.y + o.h - Math.max(...pts.map(([, y]) => y))
       expect(top, 'clear glass above the ink').toBeGreaterThanOrEqual(CLEAR_CSS)
       expect(bottom, 'clear glass below the ink').toBeGreaterThanOrEqual(CLEAR_CSS)
+      // R15.1: the hand uses the pane (at least 55 % of its height), centred a little above the middle
+      const span = (o.h - top - bottom) / o.h
+      expect(span, 'the ink block fills the glass').toBeGreaterThanOrEqual(0.55)
+      const above = o.h / 2 - (top + (o.h - top - bottom) / 2)
+      expect(above, 'the block sits above the middle').toBeGreaterThanOrEqual(0.01 * o.h)
+      expect(above).toBeLessThanOrEqual(0.08 * o.h)
+    })
+
+    test('the candle is at most 70 % of the desktop height and clear of the ink (R15.4)', async ({ page }) => {
+      await openPane(page, '?t=6000')
+      const o = await canvasOrigin(page)
+      const pts = await channelPixels(page)
+      const inkBottom = Math.max(...pts.map(([, y]) => y))
+      const candle = (await page.locator('.candle').boundingBox())!
+      const flame = (await page.locator('.candle__flame').boundingBox())!
+      expect(candle.height).toBeLessThanOrEqual(0.7 * 92)
+      expect(flame.y, 'the flame stands clear below the last stroke').toBeGreaterThanOrEqual(inkBottom + 4)
+      expect(candle.y + candle.height).toBeLessThanOrEqual(o.y + o.h + 2)
     })
   })
 }

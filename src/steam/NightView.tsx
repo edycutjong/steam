@@ -1,7 +1,7 @@
 // The upper sash (steam-renderer-v1 design §7.1): the night outside. SVG gradients and filters only, no raster, no simulation.
 // `--night` sky, faint stars, a low full moon with halo and maria, seeded bare branches crossing it, a thin cloud, and a muntin
 // that splits the sash into two panes. `haunt` drives the cue by CSS: the cloud slides over the moon and comes off again.
-import { useMemo } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { branchPaths, NIGHT_H, NIGHT_W, prng } from './branches.ts'
 import type { Haunt } from './haunt.ts'
 
@@ -9,6 +9,25 @@ export type { Haunt } from './haunt.ts'
 
 export const MOON = { x: 760, y: 196, r: 58 }
 export const STAR_COUNT = 22
+/** The moon disc plus a 12 % margin must stay inside the visible part of the night. */
+const MOON_TOP = MOON.y - MOON.r * 1.12
+const MOON_BOTTOM = MOON.y + MOON.r * 1.12
+
+/**
+ * The part of the night's coordinate box that a pane of `w` x `h` css px shows. It fills the pane (slice, anchored low),
+ * except that the top is never lower than the moon's top, so a wide, short pane crops the sky and the branches and never
+ * the moon. Pure; the moon stays inside for any pane whose visible height is at least the moon's.
+ */
+export function nightViewBox(w: number, h: number): [number, number, number, number] {
+  const s = Math.max(w / NIGHT_W, h / NIGHT_H)
+  const vw = w / s
+  const vh = h / s
+  const x0 = (NIGHT_W - vw) / 2
+  let y0 = NIGHT_H - vh
+  if (y0 > MOON_TOP) y0 = MOON_TOP
+  if (y0 + vh < MOON_BOTTOM) y0 = MOON_BOTTOM - vh
+  return [x0, y0, vw, vh]
+}
 const BRANCH_SEED = 1750
 
 export function stars(seed: number): { x: number; y: number; r: number; o: number }[] {
@@ -26,9 +45,30 @@ export function stars(seed: number): { x: number; y: number; r: number; o: numbe
 export default function NightView({ haunt = 'calm' }: { haunt?: Haunt }) {
   const layers = useMemo(() => branchPaths(BRANCH_SEED), [])
   const starList = useMemo(() => stars(BRANCH_SEED + 1), [])
+  const svgRef = useRef<SVGSVGElement>(null)
+  const [box, setBox] = useState<[number, number, number, number] | null>(null)
+  useLayoutEffect(() => {
+    const el = svgRef.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const measure = (): void => {
+      const r = el.getBoundingClientRect()
+      if (r.width > 0 && r.height > 0) setBox(nightViewBox(r.width, r.height))
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
   return (
     <div className="sash sash--upper" data-haunt={haunt}>
-      <svg className="night" viewBox={`0 0 ${NIGHT_W} ${NIGHT_H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+      <svg
+        ref={svgRef}
+        className="night"
+        viewBox={box ? box.map((v) => Math.round(v * 100) / 100).join(' ') : `0 0 ${NIGHT_W} ${NIGHT_H}`}
+        preserveAspectRatio={box ? 'xMidYMid slice' : 'xMidYMax slice'}
+        aria-hidden="true"
+        focusable="false"
+      >
         <defs>
           <linearGradient id="night-sky" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" className="night__sky-top" />

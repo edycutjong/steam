@@ -188,6 +188,15 @@
   pointer-events: none;
 }
 
+/* A smaller candle on a narrow pane: at most half the desktop height, nearer the corner. */
+@media (max-width: 640px) {
+  .candle {
+    right: calc(var(--bar) + 3%);
+    width: 18px;
+    height: clamp(28px, 11%, 44px);
+  }
+}
+
 .candle__wax {
   position: absolute;
   inset: 0;

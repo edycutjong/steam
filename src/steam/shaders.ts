@@ -1,6 +1,7 @@
 // GLSL ES 3.00 sources for the two passes. Both passes share one vertex shader.
 // No colour literals live here: every colour arrives as a token uniform (R14.9).
 
+import { RUN_RAMP_CSS, RUN_WAVE1_CSS, RUN_WAVE2_CSS } from './drips.ts'
 import { TOI_SOFT } from './timeline.ts'
 import { TRANS_GAMMA, TRANS_HI, TRANS_LO } from './transmission.ts'
 
@@ -28,6 +29,12 @@ export const FOG_TOP = 0.58
 export const FOG_BOTTOM = 0.92
 export const FOG_AMP = 0.38
 export const FOG_PRE = 0.82
+/** Old wipes: count, width in pane heights, density they remove (at most 0.12), height they add; broad density variation amplitude. */
+export const OLD_WIPES = 3
+export const OLD_WIPE_W = 0.014
+export const OLD_WIPE_DENSITY = 0.1
+export const OLD_WIPE_HEIGHT = 0.1
+export const BROAD_AMP = 0.16
 
 /**
  * Pass 1: the condensation film at a fraction of the canvas resolution into an RG8 texture.
@@ -62,18 +69,47 @@ float fbm(vec2 p) {
   }
   return s;
 }
+// Old wipes (look pass 2): where someone swept the glass earlier and it has re-fogged. Static and seeded: three swipes of
+// three fingers each, as long arcs of large radius, broken along their length. Returns 0..1, how much thinner the film is there.
+float oldWipes(vec2 p) {
+  float m = 0.0;
+  for (int i = 0; i < ${OLD_WIPES}; i++) {
+    float fi = float(i);
+    float aspect = uSize.x / uSize.y;
+    vec2 c = vec2((0.1 + 0.8 * hash(vec2(fi, 3.1))) * aspect, 0.15 + 0.9 * hash(vec2(fi, 5.7)));
+    float R = 0.7 + 0.9 * hash(vec2(fi, 9.3));
+    vec2 dv = p - c;
+    float a = atan(dv.y, dv.x);
+    float th = 6.2832 * hash(vec2(fi, 13.9));
+    float da = abs(mod(a - th + 3.1416, 6.2832) - 3.1416);
+    float hw = 3.1416 * (0.1 + 0.1 * hash(vec2(fi, 17.3)));
+    float win = 1.0 - smoothstep(hw * 0.5, hw, da);
+    float brokenAlong = smoothstep(0.2, 0.55, vnoise(vec2(a * 5.0 + fi * 7.0, fi * 3.3)));
+    float r = length(dv);
+    for (int k = 0; k < 3; k++) {
+      float e = (r - R - 0.034 * float(k) - 0.01 * sin(a * 3.0 + fi)) / ${OLD_WIPE_W.toFixed(3)};
+      m = max(m, win * brokenAlong * exp(-e * e) * (0.65 + 0.35 * hash(vec2(fi, float(k) + 21.0))));
+    }
+  }
+  return m;
+}
+
 void main() {
   vec2 q = vUv * vec2(uSize.x / uSize.y, 1.0) * ${FOG_SCALE.toFixed(1)};
   vec2 drift = vec2(0.010, -0.006) * uTime;
   float n = fbm(q + drift + 0.35 * vec2(fbm(q * 0.7 - drift), fbm(q * 0.7 + 5.3)));
   float low = smoothstep(0.0, 1.0, vUv.y);
   float base = mix(${FOG_TOP.toFixed(2)}, ${FOG_BOTTOM.toFixed(2)}, low);
-  float d = base + ${FOG_AMP.toFixed(2)} * (n - 0.5);
+  float wipes = oldWipes(vUv * vec2(uSize.x / uSize.y, 1.0));
+  // Larger-scale density variation: patches the eye reads as years of cooking on the one pane.
+  float broad = vnoise(vUv * vec2(uSize.x / uSize.y, 1.0) * 1.15 + 7.7) - 0.5;
+  float d = base + ${FOG_AMP.toFixed(2)} * (n - 0.5) + ${BROAD_AMP.toFixed(2)} * broad - ${OLD_WIPE_DENSITY.toFixed(2)} * wipes;
   d = mix(d * ${FOG_PRE.toFixed(2)}, d, uThicken);
   // Height of the film: two smooth octaves, slower than the density.
   vec2 hq = q * 1.7 + vec2(31.7, 8.3) + drift * 0.5;
   float h = 0.62 * vnoise(hq) + 0.38 * vnoise(hq * 2.1 + 9.1);
-  oFog = vec2(clamp(d, 0.0, 1.0), h);
+  h += ${OLD_WIPE_HEIGHT.toFixed(2)} * wipes;
+  oFog = vec2(clamp(d, 0.0, 1.0), clamp(h, 0.0, 1.0));
 }
 `
 
@@ -100,9 +136,6 @@ export const BREATH_R_CSS = 34.0
 export const BREATH_DENSITY = 0.22
 export const BREATH_COOL = 0.3
 export const SWEEP_SOFT = 0.35
-/** The reflection of the moonlit sash across the top third of the glass: faint, about 16 css px wide, soft. */
-export const STREAK_A = 0.09
-export const STREAK_HALF_CSS = 8.0
 
 /** Room behind the glass (design §4): light of the pot, of the candle, of the floor, and the bokeh. */
 export const POT_GAIN = 0.62
@@ -131,16 +164,27 @@ export const WARM_CANDLE = 0.3
 export const DROP_TINY = { cell: 7.0, rLo: 0.8, rHi: 1.3, prob: 0.16 }
 export const DROP_MID = { cell: 15.0, rLo: 1.8, rHi: 3.4, prob: 0.13 }
 export const DROP_LARGE = { cell: 38.0, rLo: 3.5, rHi: 6.5, prob: 0.07 }
-export const RAIL_DROP_BOOST = 3.0
+/** The sill gathers a few more large droplets, not a row of glowing beads; they are smaller and take less of the room's light. */
+export const RAIL_DROP_BOOST = 1.6
+export const RAIL_SHRINK = 0.3
+export const LENS_WARM = 0.6
 
 /** Wet edge (design §6.1): blur lod of the ink for the lip and the normal, lip density and brightness, cold rim strength, bead size. */
 export const INK_LOD_BLUR = 1.0
-export const LIP_DENSITY = 0.12
-export const LIP_BRIGHT = 0.26
-export const RIM_A = 0.22
+export const LIP_DENSITY = 0.07
+export const LIP_BRIGHT = 0.13
+export const RIM_A = 0.2
+/** The cold rim on the fog side of an edge: designed width in css px at dpr 1 (never more than 1), the band of T it occupies, and how much of it survives where the film is thin. */
+export const RIM_PX = 1.0
+export const RIM_T_LO = 0.02
+export const RIM_T_HI = 0.14
+/** Pen pressure (the scan's own ink darkness): below PRESSURE_LO a stroke is a hairline (dim, cool), above PRESSURE_HI it is a full stroke (clear and warm). */
+export const PRESSURE_LO = 0.3
+export const PRESSURE_HI = 0.95
+export const PRESSURE_DIM = 0.72
 /** Warm light scattered into the film around written strokes: blur lod, strength. */
 export const HALO_LOD = 3.0
-export const HALO_GAIN = 0.4
+export const HALO_GAIN = 0.16
 export const BEAD_SPACING_CSS = 9.0
 export const BEAD_R_CSS = { lo: 1.2, hi: 2.4 }
 
@@ -182,6 +226,7 @@ uniform float uDetail;
 uniform vec2 uTrail[6];
 uniform vec4 uRunA[6];
 uniform vec4 uRunB[6];
+uniform vec4 uRunC[6];
 uniform int uRunCount;
 uniform vec3 uBg;
 uniform vec3 uInk;
@@ -207,8 +252,6 @@ const float STROKE_PEAK_MAX = ${STROKE_PEAK_MAX.toFixed(2)};
 const float GRAIN_A = ${GRAIN_A.toFixed(2)};
 const float HEAD_R = ${HEAD_R.toFixed(1)};
 const float HEAD_A = ${HEAD_A.toFixed(2)};
-const float STREAK_A = ${STREAK_A.toFixed(2)};
-const float STREAK_HALF = ${STREAK_HALF_CSS.toFixed(1)};
 const float SWEEP_SOFT = ${SWEEP_SOFT.toFixed(2)};
 const float POT_GAIN = ${f(POT_GAIN)};
 const float CANDLE_GAIN = ${f(CANDLE_GAIN)};
@@ -230,12 +273,20 @@ const float INK_LOD = ${f(INK_LOD_BLUR)};
 const float LIP_DENSITY = ${f(LIP_DENSITY)};
 const float LIP_BRIGHT = ${f(LIP_BRIGHT)};
 const float RIM_A = ${f(RIM_A)};
+const float RIM_T_LO = ${f(RIM_T_LO)};
+const float RIM_T_HI = ${f(RIM_T_HI)};
+const float PRESSURE_LO = ${f(PRESSURE_LO)};
+const float PRESSURE_HI = ${f(PRESSURE_HI)};
+const float PRESSURE_DIM = ${f(PRESSURE_DIM)};
 const float HALO_LOD = ${f(HALO_LOD)};
 const float HALO_GAIN = ${f(HALO_GAIN)};
 const float BEAD_SPACING = ${f(BEAD_SPACING_CSS)};
 const float BEAD_R_LO = ${f(BEAD_R_CSS.lo)};
 const float BEAD_R_HI = ${f(BEAD_R_CSS.hi)};
 const float RUN_REFOG_S = ${f(RUN_REFOG_S)};
+const float RUN_K1 = ${(2 * Math.PI / RUN_WAVE1_CSS).toFixed(5)};
+const float RUN_K2 = ${(2 * Math.PI / RUN_WAVE2_CSS).toFixed(5)};
+const float RUN_RAMP = ${f(RUN_RAMP_CSS)};
 const vec2 MOON_DIR = vec2(-0.35, -0.94);
 const float HEAD_MAX_LUMA = ${f(HEAD_MAX_LUMA)};
 const float TRAIL_FALLOFF = ${f(TRAIL_FALLOFF)};
@@ -243,6 +294,8 @@ const float BREATH_R = ${f(BREATH_R_CSS)};
 const float BREATH_DENSITY = ${f(BREATH_DENSITY)};
 const float BREATH_COOL = ${f(BREATH_COOL)};
 const float RAIL_BOOST = ${f(RAIL_DROP_BOOST)};
+const float RAIL_SHRINK = ${f(RAIL_SHRINK)};
+const float LENS_WARM = ${f(LENS_WARM)};
 ${NOISE_GLSL}
 
 // How clear the glass is for a scan alpha: monotone and continuous over the whole range (transmission.ts is the twin).
@@ -361,7 +414,7 @@ float roomLight(vec2 uv, vec2 cssPos) {
 // q is the offset from the droplet centre in radius units (y down).
 vec3 lensColour(vec2 q, float Lb, float r2, vec3 filmC) {
   float inv = 0.5 - 0.5 * q.y; // a droplet inverts the scene: the warm light from below shows high in it
-  vec3 c = filmC * 0.82 + uAfter * Lb * (0.25 + 0.9 * inv);
+  vec3 c = filmC * 0.82 + uAfter * Lb * LENS_WARM * (0.25 + 0.9 * inv);
   vec2 a = q - vec2(-0.38, -0.42);
   vec2 b = q - vec2(0.36, 0.4);
   c += uMoon * 0.5 * exp(-dot(a, a) * 26.0);
@@ -403,6 +456,30 @@ float vnoise1(float x) {
   return mix(hash(vec2(i, 7.7)), hash(vec2(i + 1.0, 7.7)), u);
 }
 
+float vnoise2(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+}
+
+// x offset of a run's channel at dyc css px below its start (twin of runOffset in drips.ts), css px.
+float runOff(float dyc, float ampCss, float lean, float seed) {
+  float w = 0.62 * sin(dyc * RUN_K1 + seed) + 0.38 * sin(dyc * RUN_K2 + seed * 2.3);
+  float ramp = clamp(dyc / RUN_RAMP, 0.0, 1.0);
+  return ramp * ramp * (3.0 - 2.0 * ramp) * ampCss * w + lean * dyc;
+}
+
+// The head of a run is a bead of water: a lens with a dark rim, the warm light from below shown high in it (inverted), and
+// one small catch-light. Water is clear, so its body is the dark room, never a white dot.
+vec3 beadColour(vec2 q, float Lb, float r2, vec3 filmC, vec3 dark) {
+  float inv = 0.5 - 0.5 * q.y;
+  vec3 c = filmC * 0.5 + dark * 0.4 + uAfter * (0.1 + 0.9 * Lb) * (0.15 + 0.85 * inv * inv) * 0.7;
+  vec2 a = q - vec2(-0.36, -0.4);
+  c += uMoon * 0.3 * exp(-dot(a, a) * 70.0);
+  return mix(c, filmC * 0.3, smoothstep(0.55, 0.95, r2) * 0.8);
+}
+
 void main() {
   vec2 fragPx = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
   vec2 css = fragPx / uDpr;
@@ -415,6 +492,8 @@ void main() {
   vec2 fgx = texture(uFog, fuv + vec2(uFogTexel.x, 0.0)).rg;
   vec2 fgy = texture(uFog, fuv - vec2(0.0, uFogTexel.y)).rg;
   float fogD = fg.x + (hash(fragPx + uTime) - 0.5) * 0.02;
+  // Surface tension is irregular: the film height breaks every edge feature (lip, rim) into stretches.
+  float brk = smoothstep(0.28, 0.72, mix(vnoise2(css / 4.5 + 13.0), fg.y, 0.3));
   vec2 gradH = vec2(fgx.y - fg.y, fgy.y - fg.y);
   vec2 refr = gradH * REFRACT_GAIN;
   float rl = length(refr);
@@ -450,7 +529,7 @@ void main() {
       scaleDev = (uGroupDst[gi].z - uGroupDst[gi].x) / (uGroupSrc[gi].z - uGroupSrc[gi].x);
       sd = (0.22 - edgeB) / max(gl, 1e-3) * scaleDev; // device px outside the edge, first order
       float near = smoothstep(0.0, 0.05, ch.r);
-      lip = smoothstep(0.03, 0.3, edgeB) * (1.0 - smoothstep(0.08, 0.5, T)) * near * smoothstep(0.0, 0.06, wf);
+      lip = smoothstep(0.03, 0.3, edgeB) * (1.0 - smoothstep(0.08, 0.5, T)) * near * smoothstep(0.0, 0.06, wf) * (0.35 + 0.65 * brk);
     }
   }
 
@@ -463,32 +542,41 @@ void main() {
     halo = smoothstep(0.015, 0.4, hb.r) * hw * hw * (3.0 - 2.0 * hw);
   }
 
-  // Running water: clear trails behind a bead head, from the planned runs (design §6.2).
+  // Running water: a thin clear channel behind a bead, from the planned runs (design §6.2). The path bends (runOff), the
+  // channel is wider at its lip and narrows, and it re-fogs from its top with the age since the stall.
   float trail = 0.0;
-  float trailLip = 0.0;
-  float trailGlint = 0.0;
-  vec4 head = vec4(0.0);
+  float ridge = 0.0;
   vec2 headQ = vec2(0.0);
   float headHit = 0.0;
   for (int i = 0; i < 6; i++) {
     if (i >= uRunCount) break;
     vec4 rA = uRunA[i];
     vec4 rB = uRunB[i];
+    vec4 rC = uRunC[i];
+    if (rB.w < 0.5) continue;
     float dy = fragPx.y - rA.y;
-    float wob = (sin(dy / px * 0.07 + rB.z) * 0.6 + sin(dy / px * 0.17 + rB.z * 2.3) * 0.4) * 0.7 * px * smoothstep(0.0, 30.0 * px, dy);
-    float dx = fragPx.x - rA.x - wob;
-    if (abs(dx) > 12.0 * px) continue;
-    if (dy > -2.0 * px && fragPx.y <= rA.z + rB.x) {
-      float behind = max(rA.z - fragPx.y, 0.0) / px;
-      float agedOut = 1.0 - 0.8 * smoothstep(0.0, RUN_REFOG_S, rB.y);
-      float fresh = (0.4 + 0.6 * exp(-behind / 70.0)) * agedOut;
-      float w = rA.w * mix(0.5, 1.0, smoothstep(0.0, 26.0 * px, dy));
-      float tt = 1.0 - smoothstep(w * 0.45, w * 1.0, abs(dx));
-      trailGlint = max(trailGlint, exp(-pow((dx / max(w, 1e-3) + 0.55) / 0.28, 2.0)) * fresh * smoothstep(0.0, 12.0 * px, dy));
-      trail = max(trail, tt * fresh * smoothstep(-2.0 * px, 2.0 * px, dy));
-      trailLip = max(trailLip, (1.0 - smoothstep(w * 1.0, w * 2.8, abs(dx))) * (1.0 - tt) * fresh);
+    float dyc = dy / px;
+    float offs = runOff(dyc, rC.x / px, rC.y, rB.z) * px;
+    float dx = fragPx.x - rA.x - offs;
+    float hdx = fragPx.x - rA.x - runOff((rA.z - rA.y) / px, rC.x / px, rC.y, rB.z) * px;
+    float reach = rB.x + 5.0 * rA.w + 2.0 * px;
+    if (abs(dx) > reach && abs(hdx) > reach) continue;
+    if (dyc > -2.0 && fragPx.y <= rA.z) {
+      float len = max(rC.w, 1.0);
+      float lipM = 1.0 - smoothstep(0.0, max(rC.z, 1.0), dy);
+      float wn = 0.78 + 0.44 * vnoise1(dyc / 10.0 + rB.z);
+      float w = rA.w * wn * (1.0 + 0.85 * lipM) * (1.0 - 0.15 * clamp(dy / len, 0.0, 1.0));
+      float tt = 1.0 - smoothstep(w * 0.55, w, abs(dx));
+      float front = rB.y / RUN_REFOG_S * len * 1.15;
+      float aged = smoothstep(0.0, 3.0, rB.y);
+      float strength = mix(1.0, smoothstep(front, front + 8.0 * px + 0.2 * len, dy), aged);
+      strength *= (1.0 - 0.4 * smoothstep(0.0, RUN_REFOG_S, rB.y)) * smoothstep(-2.0 * px, 2.0 * px, dy);
+      trail = max(trail, tt * strength);
+      // water pushed aside piles the film up beside the channel: a faint ridge, brighter on the moon side
+      float rd = (1.0 - smoothstep(w, w * 2.4, abs(dx))) * (1.0 - tt) * strength;
+      ridge = max(ridge, rd * (dx < 0.0 ? 1.0 : 0.45));
     }
-    vec2 hq = vec2(dx, fragPx.y - rA.z) / vec2(rB.x * 0.9, rB.x * 1.3);
+    vec2 hq = vec2(hdx, fragPx.y - rA.z) / vec2(rB.x * 0.9, rB.x * 1.3);
     float hn = length(hq);
     if (hn < 1.0 && headHit < 1.0) {
       headQ = hq;
@@ -523,8 +611,8 @@ void main() {
   // 4. What the glass hides and what it shows.
   float opacity = clamp(fogD, 0.0, 1.0) * FOG_MAX;
   opacity = mix(opacity, 1.0, bloomM * 0.35);
-  opacity += LIP_DENSITY * lip * (1.0 - T) + 0.16 * trailLip + BREATH_DENSITY * breath * (1.0 - T);
-  opacity *= (1.0 - 0.96 * T) * (1.0 - 0.5 * trail) * (1.0 - swept);
+  opacity += LIP_DENSITY * lip * (1.0 - T) + 0.12 * ridge + BREATH_DENSITY * breath * (1.0 - T);
+  opacity *= (1.0 - 0.96 * T) * (1.0 - swept);
 
   float Lr = roomLight(vUv + refr / uRes, css + refr / px);
   vec3 seen = uBg + uAfter * Lr;
@@ -533,6 +621,9 @@ void main() {
   float emberX = EMBER_BASE + EMBER_GAIN * Lr;
   float ember = 1.55 * (1.0 - exp(-1.3 * emberX)); // soft shoulder: near the pot the light saturates, it does not wash to white
   seen = mix(seen, uBg + uAfter * ember, glow);
+  // Pen pressure: a thick dark stroke is the clearest and warmest, a hairline dimmer and cooler.
+  float press = smoothstep(PRESSURE_LO, PRESSURE_HI, aInk);
+  seen *= mix(vec3(1.0), mix(vec3(0.74, 0.86, 1.0), vec3(1.04, 1.0, 0.94), press) * mix(PRESSURE_DIM, 1.0, press), glow);
   // The meniscus band, where the clearing is half done, is a little darker.
   seen *= 1.0 - EDGE_SHADE * 4.0 * T * (1.0 - T);
   // Inside the stroke near its edge the glass is a trough: the pot's light from below catches the lower edges and the upper
@@ -550,7 +641,7 @@ void main() {
   float grain = hash(floor(fragPx / max(1.0, 0.8 * px)) + 91.7) - 0.5;
   film *= 1.0 + GRAIN_A * grain;
   // The film piles up at the edge of every stroke and run, brighter on the side the moon lights.
-  film *= 1.0 + LIP_BRIGHT * (lip * (0.35 + 0.65 * lit) + 0.5 * trailLip);
+  film *= 1.0 + LIP_BRIGHT * (lip * (0.35 + 0.65 * lit) + 0.3 * ridge);
   film = mix(film, uGhost * 0.8, bloomM * 0.4);
   film = mix(film, uGhost * 0.85, BREATH_COOL * breath);
   float edgeShade = 1.0 - smoothstep(0.0, 0.08 * min(uRes.x, uRes.y), min(min(fragPx.x, uRes.x - fragPx.x), fragPx.y));
@@ -564,11 +655,12 @@ void main() {
   vec3 col = mix(seen, film, clamp(opacity, 0.0, 1.0));
 
   // Cold rim on the fog side of the edge only (T below one half), brighter where the moon lights it.
-  float rim = smoothstep(0.008, 0.05, T) * (1.0 - smoothstep(0.07, 0.26, T));
-  float trailRim = smoothstep(0.03, 0.2, trail) * (1.0 - smoothstep(0.2, 0.6, trail));
-  col = mix(col, uGhost, RIM_A * clamp(rim * (0.1 + 0.9 * lit * lit) + 0.7 * trailRim, 0.0, 1.0) * (1.0 - swept));
+  float rim = smoothstep(RIM_T_LO * 0.5, RIM_T_LO * 2.0, T) * (1.0 - smoothstep(RIM_T_LO, RIM_T_HI, T)) * (0.12 + 0.88 * brk);
+  col = mix(col, uGhost, RIM_A * clamp(rim * (0.1 + 0.9 * lit * lit), 0.0, 1.0) * (1.0 - swept));
 
-  col += uMoon * 0.2 * trailGlint * (1.0 - swept);
+  // The channel of a run is clear glass: the dark room and the night seen through it, with a little warmth from the pot.
+  vec3 chan = uBg + uNight * 1.5 + uAfter * (0.04 + Lr * 0.5);
+  col = mix(col, chan, 0.72 * trail * (1.0 - swept) * (1.0 - T));
 
   // Beads hang under the lower edges of near-horizontal strokes.
   if (uDetail > 0.5 && edgeB > 0.04 && edgeB < 0.45 && outN.y > 0.55 && sd > 0.0) {
@@ -586,33 +678,22 @@ void main() {
     }
   }
 
-  // A run-down reflection of the moonlit sash across the top third: the width wanders, the opacity breathes, both ends fade.
-  {
-    float sv = vUv.x * 0.8 + vUv.y * 1.2;
-    float dpx = (sv - 0.55) / length(vec2(0.8 / uRes.x, 1.2 / uRes.y));
-    float along = vUv.x * 1.2 - vUv.y * 0.8;
-    float halfW = STREAK_HALF * uDpr * mix(0.55, 1.45, vnoise1(along * 6.0 + 3.0));
-    float streak = exp(-pow(dpx / halfW, 2.0));
-    float ends = smoothstep(0.0, 0.08, vUv.y) * (1.0 - smoothstep(0.2, 0.45, vUv.y)) * smoothstep(0.02, 0.14, vUv.x);
-    col = mix(col, uMoon, STREAK_A * streak * ends * mix(0.55, 1.0, vnoise1(along * 11.0 + 40.0)) * (1.0 - T));
-  }
-
   // 6. Droplets on the glass, three scales, density following the film, none in cleared glass.
   if (uDetail > 0.5) {
     float Lb = roomBase(vUv);
-    float keep = (1.0 - smoothstep(0.0, 0.35, T)) * (1.0 - swept);
+    float keep = (1.0 - smoothstep(0.0, 0.35, T)) * (1.0 - swept) * (1.0 - trail);
     float dens = smoothstep(0.3, 0.9, fogD) * keep;
     float rail = 1.0 + (RAIL_BOOST - 1.0) * smoothstep(0.88, 0.98, vUv.y);
     vec4 dTiny = dropLayer(fragPx, ${f(DROP_TINY.cell)}, ${f(DROP_TINY.rLo)}, ${f(DROP_TINY.rHi)}, ${f(DROP_TINY.prob)} * dens, 5.3, Lb, film);
     vec4 dMid = dropLayer(fragPx, ${f(DROP_MID.cell)}, ${f(DROP_MID.rLo)}, ${f(DROP_MID.rHi)}, ${f(DROP_MID.prob)} * dens, 61.1, Lb, film);
-    vec4 dLarge = dropLayer(fragPx, ${f(DROP_LARGE.cell)}, ${f(DROP_LARGE.rLo)}, ${f(DROP_LARGE.rHi)}, ${f(DROP_LARGE.prob)} * dens * rail, 23.9, Lb, film);
+    vec4 dLarge = dropLayer(fragPx, ${f(DROP_LARGE.cell)}, ${f(DROP_LARGE.rLo)}, ${f(DROP_LARGE.rHi)} * (1.0 - RAIL_SHRINK * smoothstep(0.88, 0.98, vUv.y)), ${f(DROP_LARGE.prob)} * dens * rail, 23.9, Lb, film);
     col = mix(col, dTiny.rgb, dTiny.a);
     col = mix(col, dMid.rgb, dMid.a);
     col = mix(col, dLarge.rgb, dLarge.a);
   }
 
   if (headHit > 0.0 && uDetail > 0.5) {
-    col = mix(col, lensColour(headQ, roomBase(vUv), dot(headQ, headQ), film), 0.95 * headHit);
+    col = mix(col, beadColour(headQ, roomBase(vUv), dot(headQ, headQ), film, chan), 0.95 * headHit * (1.0 - swept));
   }
 
   // 7. Writing head: a cold fingertip glow at the toi frontier, capped, never amber. Fresh strokes carry a short cold wet sheen.
