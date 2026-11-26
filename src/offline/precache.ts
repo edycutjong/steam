@@ -10,7 +10,7 @@ export const CACHE_PREFIX = 'steam-shell-'
 const isMap = (f: string): boolean => f.endsWith('.map')
 
 /**
- * The pages served beside the app: the landing page, the pitch deck and the files they share (landing-deck, autopilot P4).
+ * The pages served beside the app: the landing page, the pitch deck and the files they share.
  * They are not the app: the shell never stores them and never answers a request for them, so a visitor who has opened the app
  * still gets the real page at /landing/ and /deck/, not the cached index.html.
  */
