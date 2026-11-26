@@ -107,17 +107,25 @@ test('an invalid recipe.json shows no card', async ({ page }) => {
   await expect(page.locator('.shelf__item')).toHaveCount(0)
 })
 
-test('a note with an unsupported licence is withheld: the edition says so and the step has no note', async ({ page }) => {
-  const b = JSON.parse(bundleText)
-  b.notes.find((n: { id: string }) => n.id === 'when-tender').provenance.licence.id = 'cc-by-nc'
-  await page.route('**/recipes/quinces-marmalade/recipe.json', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(b) }))
-  await page.goto('/#/r/quinces-marmalade')
-  await expect(page.getByText('1 note withheld: the source of the note could not be checked.')).toBeVisible()
-  await expect(page.locator('[data-line="07"]')).toContainText('the Quince, in that Liquor, & when')
-  await page.goto('/#/r/quinces-marmalade/quoted')
-  await expect(page.locator('.quote')).toHaveCount(2)
-  await page.goto('/#/r/quinces-marmalade/cook?note=when-tender')
-  await page.reload()
-  await expect(cookRoot(page)).toHaveAttribute('data-step', '1')
-  await expect(page.locator('.cook__caption')).toHaveText('That note is not on this page. Started at step 1 of 5.')
+// The page.route mock below cannot reach a page the service worker controls: once the worker has installed (it precaches
+// recipe.json) and claimed the page, the reload is answered from its cache with the real bundle, the note is not withheld and
+// Cook Mode starts at step 4. Whether the worker won that race decided the old intermittent failure (reproduced 3 of 3 by
+// waiting for navigator.serviceWorker.controller before the reload; 3 of 3 pass with the worker blocked). shelf-retry does the same.
+test.describe('a withheld note (service worker blocked so the mocked bundle is the one served)', () => {
+  test.use({ serviceWorkers: 'block' })
+
+  test('a note with an unsupported licence is withheld: the edition says so and the step has no note', async ({ page }) => {
+    const b = JSON.parse(bundleText)
+    b.notes.find((n: { id: string }) => n.id === 'when-tender').provenance.licence.id = 'cc-by-nc'
+    await page.route('**/recipes/quinces-marmalade/recipe.json', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(b) }))
+    await page.goto('/#/r/quinces-marmalade')
+    await expect(page.getByText('1 note withheld: the source of the note could not be checked.')).toBeVisible()
+    await expect(page.locator('[data-line="07"]')).toContainText('the Quince, in that Liquor, & when')
+    await page.goto('/#/r/quinces-marmalade/quoted')
+    await expect(page.locator('.quote')).toHaveCount(2)
+    await page.goto('/#/r/quinces-marmalade/cook?note=when-tender')
+    await page.reload()
+    await expect(cookRoot(page)).toHaveAttribute('data-step', '1')
+    await expect(page.locator('.cook__caption')).toHaveText('That note is not on this page. Started at step 1 of 5.')
+  })
 })
