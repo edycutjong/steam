@@ -4,7 +4,7 @@
   <p><em>A dead writer's hand, still writing in the steam.</em></p>
   <img src="docs/readme-hero.png" alt="Her Hand in the Steam: a steamed window, one candle, and a c. 1750 hand written out of the fog" width="100%">
 
-  Typing up a handwritten recipe keeps the steps and loses the judgement calls: "till it Looks red & smooth". Her Hand in the Steam is Cook Mode for one such page, *Marmalade of Quinces* (Wellcome Collection MS.1810, p.23, c. 1750): at each step where the writer left a judgement, steam condenses on a pane of glass and the writer's own scanned ink is wiped clear of the fog. The browser runs no model; two isolated Kiro agents read the page at build time, and a code gate decides what may be published.
+  A typed copy can keep "till it Looks red & smooth" and still lose the writer's hand, the page it came from, and the moment at the stove when it matters. Her Hand in the Steam is Cook Mode for one such page, *Marmalade of Quinces* (Wellcome Collection MS.1810, p.23, c. 1750): at each step where the writer left a judgement, steam condenses on a pane of glass, the writer's own scanned ink is wiped clear of the fog, and every note links back to its region of the archive's scan. The browser runs no model; two isolated Kiro agents read the page at build time, and a code gate decides what may be published.
 
   <br/>
 
@@ -36,7 +36,7 @@ The recipe is *Marmalade of Quinces* from Wellcome Collection MS.1810, an anonym
 ## 💡 The Problem & Solution
 
 ### The Problem
-Handwritten recipes hold what typed recipes lose: the judgement calls. Typing a recipe up flattens "till it looks red & smooth" into a line of text, and the person who wrote it disappears.
+Handwritten recipes keep the judgement calls in the writer's own hand. Typing a recipe up flattens "till it looks red & smooth" into a line of text, and the person who wrote it disappears.
 
 ### The Solution
 Cook Mode runs the recipe's steps against a pot on a fogged window. At the step where the writer left a judgement, the lamp dips, the simmer drops, and the writer's own ink is wiped clear of the glass. The typed step stays on screen for reading and for screen readers. **The handwriting is never generated:** the ink is the scan's own ink lifted off the paper: its shape and density come from the scan and are drawn in the renderer's colour, a processed render and not a copy of the scan's pixels. `scripts/verify_provenance.py` re-fetches each note's region from the archive and checks that the bundled page crop matches it and that the displayed ink lies inside it (the bounding box of the displayed pixels, check b1). The write-on follows a traced path through that ink, so the order of strokes is ours, not the writer's. "Verify at source" opens the untouched region on the archive's server.
@@ -72,7 +72,7 @@ Experiments, counted by what ran, with "not run" stated for the rest: [`docs/EXP
 
 | Check | Result | Source |
 |---|---|---|
-| Unit and property tests | **1569 passed, 5 expected-fail** (169 files) at d824683 | `npm test` (output: `docs/kiro-evidence/unit-run.txt`) |
+| Unit and property tests | **1569 passed, 5 expected-fail** (169 files) at d824683; the 5 are the crop-overlap bug reproduction, kept red on purpose: the kill test's eye-read crop boxes must keep failing property P4 on steps 1-5 (`it.fails`, `src/ingest/cropOverlap.bug.test.ts`) | `npm test` (output: `docs/kiro-evidence/unit-run.txt`) |
 | End-to-end (Playwright, local) | **113 of 114 passed** in the full run of 2026-11-27 (0b7e471). The one failure, `e2e/cook-session.spec.ts:110` (a deep link to a note withheld for its licence started at step 4, not 1), is intermittent: on 2026-11-26 it failed in a full run and alone, then passed in a later full run; on 2026-11-27 it passed alone; not root-caused (a service-worker race was tested and ruled out). The shipped recipe withholds no note, so the judged path does not reach it | `npm run e2e` (output: `docs/kiro-evidence/e2e-run.txt`) |
 | Ingestion gate P1-P6 on the shelf recipe | pass | `npm run props` |
 | Provenance: the bundled page region each note comes from matches a fresh IIIF fetch (the displayed note is a processed render of those pixels) | 3 of 3 notes match a fresh IIIF fetch, NCC .960 / .976 / .991 (threshold .90 fixed before the first run); a shifted region and a wrong page both fail | `scripts/verify_provenance.py` |
