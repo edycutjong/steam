@@ -27,7 +27,7 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="/site/fonts/im-fell-english-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/site/fonts/im-fell-english-latin-400-italic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" as="image" href="/site/media/window-held-760.webp" imagesrcset="/site/media/window-held-760.webp 760w, /site/media/window-held.webp 1520w" imagesizes="960px" fetchpriority="high">
+<link rel="preload" as="image" href="/site/media/window-held-760.webp" imagesrcset="/site/media/window-held-760.webp 760w, /site/media/window-held.webp 1520w" imagesizes="(max-width: 1000px) 50vw, 960px" fetchpriority="high">
 <style>
 @font-face{font-family:"IM Fell English";src:url(/site/fonts/im-fell-english-latin-400-normal.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
 @font-face{font-family:"IM Fell English";src:url(/site/fonts/im-fell-english-latin-400-italic.woff2) format("woff2");font-weight:400;font-style:italic;font-display:swap}
@@ -72,12 +72,13 @@ img{display:block;max-width:100%}
 h1,h2{font-family:var(--font-display);font-weight:400;margin:0;letter-spacing:-.012em;text-wrap:balance}
 h2{font-size:96px;line-height:1.02}
 p{margin:0}
-.kick{font-family:var(--font-data);font-size:20px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--rule);padding-top:16px;display:inline-block}
+.kick{font:400 26px/1.3 var(--font-body);font-variant:all-small-caps;letter-spacing:.1em;color:var(--muted);border-top:1px solid var(--rule);padding-top:14px;display:inline-block}
 .hand{font-family:var(--font-display);font-style:italic;color:var(--after);text-shadow:0 0 1px color-mix(in srgb,var(--ghost) 90%,transparent),0 0 16px color-mix(in srgb,var(--ghost) 22%,transparent),0 0 40px color-mix(in srgb,var(--after) 30%,transparent)}
 .mono{font-family:var(--font-data)}
 .muted{color:var(--muted)}
 .foot{position:absolute;left:120px;right:120px;bottom:40px;display:flex;justify-content:space-between;gap:420px;font:400 19px/1.2 var(--font-body);font-variant:small-caps;letter-spacing:.05em;color:var(--muted)}
 .foot span{min-width:0}
+.foot .hash{font-family:var(--font-data);font-variant:normal;letter-spacing:.04em}
 .glow-moon::before{content:"";position:absolute;inset:0;background:radial-gradient(40% 50% at 78% 4%,color-mix(in srgb,var(--moon) 10%,transparent),transparent 70%),radial-gradient(45% 45% at 74% 108%,color-mix(in srgb,var(--after) 16%,transparent),transparent 72%);pointer-events:none}
 
 /* the window */
@@ -86,7 +87,7 @@ p{margin:0}
 .stage .steam-root{--upper-h:25%;position:absolute;inset:0;height:100%}
 .stage .poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .6s}
 .stage[data-status="ready"] .poster,.stage[data-status="fallback"] .poster,.stage[data-ever] .poster{opacity:0}
-.livetag{margin-top:18px;font:400 17px/1.4 var(--font-data);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.livetag{margin-top:18px;font:400 22px/1.4 var(--font-body);font-variant:all-small-caps;letter-spacing:.08em;color:var(--muted)}
 .stage[data-status="ready"]+.livetag{color:var(--ghost)}
 
 /* 1 cover */
@@ -110,7 +111,10 @@ p{margin:0}
 .s-problem blockquote{margin:0;font:400 46px/1.32 var(--font-body);color:var(--ink)}
 .s-problem blockquote q{quotes:none}
 .s-problem cite{display:block;margin-top:24px;font:400 18px/1.4 var(--font-data);font-style:normal;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.who{border-left:2px solid var(--rule);padding-left:44px}
+.pair{margin-top:56px;display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:center}
+.typed{font:400 46px/1 var(--font-body);color:var(--muted);text-decoration:line-through;text-decoration-color:var(--fault);text-decoration-thickness:3px}
+.handstrip{background:var(--paper);padding:14px 18px;border-radius:3px}
+.handstrip img{width:100%;height:auto;mix-blend-mode:multiply}
 .who p{font-size:34px;color:var(--muted);line-height:1.45}
 .who b{color:var(--ink);font-weight:600}
 
@@ -126,7 +130,7 @@ p{margin:0}
 
 /* 5 quoted */
 
-.s-quoted .grid{display:grid;grid-template-columns:780px 1fr;gap:70px;margin-top:46px;align-items:start}
+.s-quoted .grid{display:grid;grid-template-columns:900px 1fr;gap:64px;margin-top:46px;align-items:start}
 .s-quoted .plate{background:var(--paper);padding:18px;background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--rule) 5%,transparent) 0 1px,transparent 1px 8px);box-shadow:0 30px 70px -40px rgb(0 0 0 / .5)}
 .s-quoted .plate img{width:100%;height:auto}
 .s-quoted .cap{margin-top:16px;font:400 17px/1.4 var(--font-data);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -163,11 +167,13 @@ p{margin:0}
 .lane{display:grid;grid-template-columns:220px 1fr;gap:30px;align-items:center}
 .lane .lab{font:400 18px/1.3 var(--font-data);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .chain{display:flex;align-items:stretch;gap:0}
-.node{flex:1;background:color-mix(in srgb,var(--rule) 22%,var(--bg));border-top:6px solid var(--rule);border-radius:0 0 4px 4px;padding:30px 28px;min-height:200px;display:flex;flex-direction:column;justify-content:center}
+.node{flex:1;background:color-mix(in srgb,var(--rule) 22%,var(--bg));border-top:6px solid var(--rule);border-radius:0 0 4px 4px;padding:26px 26px;min-height:210px;display:flex;flex-direction:column;justify-content:flex-start}
+.node .kt{display:block;font:400 17px/1 var(--font-data);letter-spacing:.14em;color:var(--ghost);margin-bottom:12px}
+.node .thumb{display:block;width:100%;height:64px;object-fit:cover;border-radius:2px;margin-bottom:14px}
+.node .thumb.paper{background:var(--paper)}
 .node b{display:block;font:400 44px/1.08 var(--font-display);color:var(--ink)}
 .node span{display:block;margin-top:14px;font:italic 400 24px/1.35 var(--font-body);color:var(--muted)}
 .node.kiro{border-top-color:var(--ghost)}
-.node.kiro b::after{content:" · Kiro";font:400 18px/1 var(--font-data);letter-spacing:.1em;color:var(--ghost);vertical-align:middle}
 .arrow{flex:none;align-self:center;width:56px;height:2px;background:var(--rule);position:relative}
 .arrow::after{content:"";position:absolute;right:-1px;top:-6px;border:7px solid transparent;border-left:10px solid var(--rule);border-right:0}
 .down{margin:-10px 0 -10px 250px;font:400 18px/1 var(--font-data);color:var(--muted);letter-spacing:.1em}
@@ -190,7 +196,7 @@ p{margin:0}
 .fix .mono{font-size:24px;color:var(--before)}
 
 /* 9 rigor */
-.s-rigor{display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}
+.s-rigor{display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:start;padding-top:150px}
 .stats{margin-top:50px;display:grid;grid-template-columns:1fr;gap:34px}
 .stat b{display:block;font:600 84px/1 var(--font-body);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.02em}
 .stat span{display:block;margin-top:12px;font-size:24px;color:var(--muted);line-height:1.3}
@@ -203,9 +209,10 @@ p{margin:0}
 /* 10 ask */
 .s-ask{display:grid;grid-template-columns:1fr 470px;gap:100px;align-items:center}
 .s-ask h2{font-size:120px}
+.s-ask .sub{margin-top:20px;font-size:34px;color:var(--muted)}
 .s-ask .urls{margin-top:46px;display:grid;gap:16px;font:400 28px/1.3 var(--font-data);color:var(--ink)}
 .s-ask .urls span{color:var(--muted);font-size:20px;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:4px}
-.qr{background:var(--paper);padding:30px;border-radius:6px;box-shadow:0 0 80px -10px color-mix(in srgb,var(--after) 35%,transparent)}
+.qr{background:var(--paper);padding:30px;border-radius:6px;box-shadow:0 30px 80px -30px rgb(0 0 0 / .75)}
 .qr svg{display:block;width:100%;height:auto}
 .qr p{margin-top:16px;text-align:center;font:400 17px/1.3 var(--font-data);letter-spacing:.1em;text-transform:uppercase;color:var(--bg)}
 .cats{margin-top:40px;display:flex;gap:14px}
@@ -218,6 +225,8 @@ p{margin:0}
 .ctrl button:focus-visible{outline:2px solid var(--ghost)}
 .ctrl .count{padding:0 10px;color:var(--ink);letter-spacing:.08em}
 .rotate{display:none;position:fixed;inset:0;z-index:9;flex-direction:column;justify-content:center;gap:18px;padding:32px;background:var(--bg);font:400 20px/1.5 var(--font-body);color:var(--ink)}
+.rotate img{width:100%;height:auto;border-radius:4px}
+.rotate .rt{font:400 32px/1.1 var(--font-display);margin:0}
 .rotate a,.rotate button{all:unset;cursor:pointer;text-align:center;padding:14px 18px;border:1px solid var(--rule);border-radius:3px;font-weight:600}
 .rotate a{background:var(--paper);color:var(--bg)}
 @media (max-width:700px) and (orientation:portrait){.rotate{display:flex}}
@@ -256,11 +265,11 @@ body.presenter.idle{cursor:none}
     <span class="badge">Cook Mode for handwritten recipes · built with Kiro</span>
   </div>
   <div>
-    <div class="stage" data-glass="live"><img class="poster" src="/site/media/window-held-760.webp" srcset="/site/media/window-held-760.webp 760w, /site/media/window-held.webp 1520w" sizes="1200px" alt="The steamed window with the note till it Looks red &amp; smooth written in ember out of the fog, the moon in the upper sash, a candle on the sill."><div class="mount"></div></div>
-    <p class="livetag">The product's own pane, live · Wellcome MS.1810 · p.23 · c. 1750</p>
+    <div class="stage" data-glass="live"><img class="poster" src="/site/media/window-held-760.webp" srcset="/site/media/window-held-760.webp 760w, /site/media/window-held.webp 1520w" sizes="(max-width: 1000px) 50vw, 960px" alt="The steamed window with the note till it Looks red &amp; smooth written in ember out of the fog, the moon in the upper sash, a candle on the sill."><div class="mount"></div></div>
+    <p class="livetag" id="livetag">The product's own pane · Wellcome MS.1810 · p.23 · c. 1750</p>
   </div>
-  <div class="foot"><span>steam.edycu.dev</span><span>built from bfdb67f</span></div>
-</div><aside class="speaker-notes">This is the product's own steamed window running live in the deck, not a video. The note is a real hand, c. 1750, from the Wellcome Collection. Let it write before you speak.</aside></section>
+  <div class="foot"><span>steam.edycu.dev</span><span>app build <span class="hash">020ea08</span></span></div>
+</div><aside class="speaker-notes">This is the product's own steamed window, running live in the deck where the browser draws WebGL (a captured frame otherwise), not a video. The note is a real hand, c. 1750, from the Wellcome Collection. Let it write before you speak.</aside></section>
 
 <section class="frame" aria-label="Slide 2: hook"><div class="slide s-hook">
   <p class="kick">The writer's own words</p>
@@ -277,14 +286,14 @@ body.presenter.idle{cursor:none}
   </div>
   <div>
     <blockquote><q>Typing a recipe up flattens “till it looks red &amp; smooth” into a line of text, and the person who wrote it disappears.</q></blockquote>
-    <div class="who" style="margin-top:60px"><p><b>Who cooks from it:</b> the inheritor, at a stove at night, hands wet.</p></div>
+    <div class="pair"><p class="typed">red &amp; smooth</p><div class="handstrip"><img src="/site/media/p23-redsmooth.webp" width="540" height="95" alt="The writer's ink for red &amp; smooth, from the scan of p.23."></div></div>
   </div>
-  <div class="foot"><span>03 · quoted from the README</span><span>Her Hand in the Steam</span></div>
-</div><aside class="speaker-notes">We build for the person who inherits a handwritten recipe and cooks from it in the evening, hands wet, glancing at a phone. A typed copy keeps the words and loses the voice.</aside></section>
+  <div class="foot"><span>03 · the quote is from the README</span><span>Her Hand in the Steam</span></div>
+</div><aside class="speaker-notes">A typed copy keeps the words and loses the voice: the struck line is what typing leaves; the strip beside it is what the writer left.</aside></section>
 
 <section class="frame" aria-label="Slide 4: the renderer on its own clock" data-steps="4"><div class="slide s-clock">
   <div>
-    <div class="stage" data-glass="clock"><img class="poster" src="/site/media/window-held-760.webp" srcset="/site/media/window-held-760.webp 760w, /site/media/window-held.webp 1520w" sizes="1200px" alt="The note held clear on the glass."><div class="mount"></div></div>
+    <div class="stage" data-glass="clock"><img class="poster" src="/site/media/window-held-760.webp" srcset="/site/media/window-held-760.webp 760w, /site/media/window-held.webp 1520w" sizes="(max-width: 1000px) 50vw, 960px" alt="The note held clear on the glass."><div class="mount"></div></div>
   </div>
   <div>
     <p class="kick">The moment</p>
@@ -295,7 +304,7 @@ body.presenter.idle{cursor:none}
       <li data-t="3800"><span class="t">3.8 s</span><span>halfway through the second line</span></li>
       <li data-t="6000" class="last"><span class="t">6.0 s</span><span>the note holds</span></li>
     </ol>
-    <p class="harness">The product's own renderer, its clock frozen at each time with the harness parameter t.</p>
+    <p class="harness" id="harness">The product's own renderer, its clock frozen at each time with the harness parameter t.</p>
   </div>
   <div class="foot"><span>04 · solution</span><span>press → to step</span></div>
 </div><aside class="speaker-notes">Each press freezes the product's renderer at one moment of its own timeline: the writing head starts at once, writes the first line, then the second, and the note holds clear until the cook wipes. Same code as the app.</aside></section>
@@ -316,9 +325,9 @@ body.presenter.idle{cursor:none}
 </div><aside class="speaker-notes">The ink you see is lifted from the scan, not drawn by a model. A script re-fetches each region from Wellcome's server and correlates it with our crop. Moved or wrong-page crops fail.</aside></section>
 
 <section class="frame" aria-label="Slide 6: live demo"><div class="slide s-demo">
-  <div class="shot"><img src="/site/media/cook-held-note-1600.webp" width="1600" height="1067" alt="Cook Mode at 3:12: the note held in the glass, the archive slip, the typed step, the timer."><span class="pin" style="left:25%;top:27%">1</span><span class="pin" style="left:4.2%;top:56.3%">2</span><span class="pin" style="left:4.2%;top:69%">3</span><span class="pin" style="left:77.6%;top:65%">4</span></div>
+  <div class="shot"><img src="/site/media/cook-held-note-1600.webp" width="1600" height="1067" alt="Cook Mode at 3:12: the note held in the glass, the archive slip, the typed step, the timer."><span class="pin" style="left:16.6%;top:30%">1</span><span class="pin" style="left:4.2%;top:56.3%">2</span><span class="pin" style="left:4.2%;top:69%">3</span><span class="pin" style="left:77.6%;top:65%">4</span></div>
   <div>
-    <p class="kick">Live demo</p>
+    <p class="kick">Captured from the live app</p>
     <h2 style="font-size:78px;margin-top:22px">What the cook sees.</h2>
     <ol class="legend">
       <li><span class="n">1</span><span><b>The writer's ink</b>, wiped out of the fog</span></li>
@@ -328,21 +337,21 @@ body.presenter.idle{cursor:none}
     </ol>
   </div>
   <div class="foot"><span>06 · captured at steam.edycu.dev</span><span>Her Hand in the Steam</span></div>
-</div><aside class="speaker-notes">This is the live app at the held moment. The slip links the note's bounding box on Wellcome's server. Where our two readers disagreed, the step shows both readings instead of guessing.</aside></section>
+</div><aside class="speaker-notes">This is a capture of the live app at the held moment. The slip links the note's bounding box on Wellcome's server. Where our two readers disagreed, the step shows both readings instead of guessing.</aside></section>
 
 <section class="frame" aria-label="Slide 7: how it works"><div class="slide s-flow">
   <h2>Kiro reads. Code gates.</h2>
   <div class="lanes">
     <div class="lane"><span class="lab">Build time</span><div class="chain">
-      <div class="node"><b>Wellcome IIIF</b><span>licence first</span></div><i class="arrow"></i>
-      <div class="node kiro"><b>Two readers</b><span>scribe, second-reader</span></div><i class="arrow"></i>
-      <div class="node"><b>Gate P1–P6</b><span>merge + check</span></div><i class="arrow"></i>
-      <div class="node kiro"><b>Publish</b><span>behind the catalog-gate hook</span></div>
+      <div class="node"><img class="thumb paper" src="/site/media/p23-lines45.webp" alt=""><b>The archive</b><span>Wellcome IIIF, licence first</span></div><i class="arrow"></i>
+      <div class="node kiro"><span class="kt">KIRO</span><b>Two readers</b><span>scribe, second-reader</span></div><i class="arrow"></i>
+      <div class="node"><b>Six checks</b><span>P1–P6</span></div><i class="arrow"></i>
+      <div class="node kiro"><span class="kt">KIRO</span><b>Publish</b><span>behind the catalog-gate hook</span></div>
     </div></div>
     <div class="lane"><span class="lab">Runtime</span><div class="chain">
       <div class="node"><b>Static files</b><span>Vercel</span></div><i class="arrow"></i>
       <div class="node"><b>Cook Mode</b><span>React 19</span></div><i class="arrow"></i>
-      <div class="node"><b>Steam pane</b><span>WebGL2</span></div>
+      <div class="node"><img class="thumb" src="/site/media/window-held-760.webp" alt=""><b>Steam pane</b><span>WebGL2</span></div>
     </div></div>
   </div>
   <div class="kirobar"><span>15 specs</span><span>6 hooks</span><span>5 steering files</span><span>304 [kiro] commits</span><span class="plain">the browser runs no model</span></div>
@@ -354,7 +363,7 @@ body.presenter.idle{cursor:none}
     <p class="kick">Kiro, measured</p>
     <h2 style="margin-top:22px">The hooks saw 5%.</h2>
     <div class="fix">
-      <p><b>543 shell writes</b> under src/, <b>0 hook events</b>.</p>
+      <p><b>543 shell writes</b> under src/ (a heuristic count), <b>0 hook events</b>.</p>
       <p>Bugfix spec <b>hook-coverage</b> added shell-gate and src-scan-after-shell.</p>
       <p>Probes after the fix: <b>2 blocked, 1 caught</b> after the write.</p>
     </div>
@@ -370,20 +379,19 @@ body.presenter.idle{cursor:none}
     <div class="stats">
       <div class="stat"><b>1,544</b><span>tests pass at 8045c5e</span></div>
       <div class="stat"><b>3/3</b><span>page crops match the archive</span></div>
-      <div class="stat"><b>113/114</b><span>end-to-end, 1 open</span></div>
     </div>
   </div>
   <div class="limits">
-    <blockquote><p>The renderer's look gate (7/10) was <strong>not met</strong> at look pass 2 …</p></blockquote>
-    <blockquote><p>The manuscript gives no cooking times, so none is invented …</p></blockquote>
+    <blockquote><p>The renderer's look gate (7/10) was <strong>not met</strong> at look pass 2: a frame review scored it 6.5 on desktop and 6.5 on phone.</p></blockquote>
   </div>
   <div class="foot"><span>09 · quotes from the README, Honest limits</span><span>Her Hand in the Steam</span></div>
-</div><aside class="speaker-notes">Every number here has a file in the repo. We publish what failed too: the look gate, the open end-to-end test, one recipe so far, and a human review still owed.</aside></section>
+</div><aside class="speaker-notes">Every number here has a file in the repo. We publish what failed too: the look gate, one open end-to-end test, one recipe so far, and a human review still owed.</aside></section>
 
 <section class="frame" aria-label="Slide 10: the ask"><div class="slide s-ask glow-moon">
   <div>
     <p class="kick">The ask</p>
-    <h2 style="margin-top:22px">Open it. Wait six seconds.</h2>
+    <h2 style="margin-top:22px">Open it. Wait for the hand.</h2>
+    <p class="sub">It arrives after a six-second lead-in.</p>
     <div class="urls">
       <div><span>Landing</span>steam.edycu.dev/landing/</div>
       <div><span>Source</span>github.com/edycutjong/steam</div>
@@ -392,13 +400,13 @@ body.presenter.idle{cursor:none}
   </div>
   <div class="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 41 41" role="img" aria-label="QR code for the hero deep link: https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&amp;pace=12&amp;lead=6"><path class="qrline" stroke="#0e0a0a" d="M0 0.5h7m2 0h1m1 0h1m1 0h1m1 0h1m1 0h2m3 0h1m3 0h1m2 0h1m4 0h7m-41 1h1m5 0h1m1 0h1m1 0h1m1 0h1m3 0h1m1 0h1m1 0h3m3 0h1m1 0h2m2 0h1m1 0h1m5 0h1m-41 1h1m1 0h3m1 0h1m1 0h2m1 0h1m2 0h1m1 0h1m2 0h2m5 0h1m1 0h1m1 0h1m3 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m1 0h1m2 0h5m2 0h2m4 0h6m1 0h2m1 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m3 0h1m4 0h1m1 0h1m1 0h1m1 0h1m1 0h4m1 0h1m1 0h2m2 0h1m1 0h3m1 0h1m-41 1h1m5 0h1m2 0h1m2 0h3m2 0h1m2 0h1m1 0h1m2 0h2m1 0h3m1 0h1m1 0h1m5 0h1m-41 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-33 1h1m1 0h2m1 0h4m2 0h1m2 0h1m5 0h1m2 0h1m-32 1h1m5 0h1m1 0h2m3 0h1m2 0h4m5 0h2m2 0h1m2 0h3m2 0h3m-39 1h3m4 0h1m8 0h7m2 0h4m1 0h1m3 0h2m2 0h1m-40 1h1m2 0h1m1 0h3m5 0h1m3 0h1m4 0h1m4 0h2m3 0h1m2 0h2m-37 1h1m3 0h1m2 0h4m1 0h5m2 0h2m1 0h3m1 0h1m1 0h1m2 0h3m3 0h1m2 0h1m-40 1h2m1 0h4m1 0h1m5 0h1m3 0h2m2 0h1m8 0h4m4 0h1m-39 1h4m2 0h1m1 0h2m3 0h4m1 0h1m3 0h2m1 0h1m2 0h2m1 0h6m1 0h1m-41 1h3m1 0h4m2 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m5 0h1m1 0h4m-39 1h1m2 0h1m3 0h1m1 0h1m1 0h6m2 0h1m2 0h1m1 0h1m5 0h4m3 0h2m1 0h1m-41 1h1m3 0h1m1 0h7m2 0h3m1 0h1m4 0h4m1 0h2m2 0h1m1 0h1m1 0h2m-39 1h1m1 0h1m4 0h2m1 0h3m3 0h2m1 0h2m2 0h1m2 0h12m2 0h1m-39 1h1m2 0h4m3 0h5m2 0h1m1 0h4m2 0h1m1 0h1m1 0h1m3 0h2m1 0h3m-41 1h1m1 0h1m1 0h1m3 0h1m6 0h4m1 0h1m1 0h3m2 0h2m1 0h1m1 0h1m1 0h1m1 0h1m3 0h1m-38 1h1m2 0h1m2 0h1m1 0h1m1 0h4m2 0h1m1 0h1m2 0h1m4 0h1m1 0h2m4 0h3m-40 1h3m4 0h2m1 0h1m1 0h5m1 0h2m1 0h1m1 0h1m2 0h2m2 0h2m3 0h2m1 0h1m-36 1h2m1 0h2m2 0h4m2 0h3m1 0h1m1 0h1m1 0h1m1 0h2m4 0h1m1 0h2m-32 1h2m1 0h1m3 0h1m1 0h4m2 0h2m5 0h2m2 0h1m1 0h1m3 0h2m1 0h2m-41 1h4m2 0h6m1 0h4m1 0h1m4 0h2m2 0h2m2 0h2m1 0h2m1 0h1m-37 1h2m2 0h1m1 0h1m2 0h1m2 0h2m2 0h4m2 0h1m1 0h1m1 0h5m2 0h4m2 0h1m-40 1h1m4 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m5 0h3m3 0h1m1 0h1m1 0h1m2 0h1m-40 1h4m1 0h1m1 0h1m1 0h2m2 0h2m3 0h1m5 0h1m1 0h1m1 0h1m2 0h1m1 0h6m1 0h1m-41 1h1m1 0h1m1 0h3m4 0h2m2 0h3m2 0h1m1 0h6m1 0h1m1 0h3m3 0h4m-41 1h1m2 0h1m1 0h1m4 0h2m1 0h2m3 0h1m2 0h1m5 0h5m1 0h4m2 0h2m-41 1h2m2 0h3m1 0h1m2 0h4m1 0h2m1 0h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1m-41 1h1m1 0h1m1 0h1m2 0h1m1 0h2m2 0h2m3 0h1m3 0h2m2 0h1m7 0h4m1 0h2m-41 1h1m1 0h1m1 0h3m6 0h2m2 0h1m4 0h2m1 0h1m1 0h1m1 0h1m2 0h7m1 0h1m-33 1h3m2 0h4m1 0h2m1 0h1m1 0h1m2 0h2m2 0h1m1 0h1m3 0h2m1 0h1m-40 1h7m2 0h5m1 0h1m2 0h1m1 0h1m1 0h1m4 0h1m3 0h2m1 0h1m1 0h2m-38 1h1m5 0h1m4 0h1m2 0h1m1 0h1m2 0h1m1 0h1m6 0h1m3 0h1m3 0h2m1 0h2m-41 1h1m1 0h3m1 0h1m2 0h1m4 0h2m1 0h5m2 0h3m4 0h6m-37 1h1m1 0h3m1 0h1m2 0h1m3 0h2m4 0h2m2 0h1m3 0h2m1 0h1m4 0h1m3 0h1m-40 1h1m1 0h3m1 0h1m3 0h3m2 0h1m4 0h3m3 0h3m2 0h7m-38 1h1m5 0h1m7 0h3m1 0h2m2 0h1m1 0h1m1 0h1m1 0h1m5 0h1m1 0h3m1 0h1m-41 1h7m1 0h1m5 0h2m3 0h1m2 0h1m2 0h3m1 0h1m1 0h1m2 0h3m1 0h1"/></svg>
 <p>Scan: the hero moment</p></div>
-  <div class="foot"><span>10 · the ask</span><span>built from bfdb67f</span></div>
+  <div class="foot"><span>10 · the ask</span><span>app build <span class="hash">020ea08</span></span></div>
 </div><aside class="speaker-notes">Scan the code on a phone, ideally at night. After a six-second lead-in the writer's hand appears in the steam. That is the whole pitch.</aside></section>
 
 </main></div>
 <nav class="ctrl" aria-label="Deck controls"><button id="prev" type="button" aria-label="Previous slide">←</button><span class="count" id="count" aria-live="polite">01 / 10</span><button id="next" type="button" aria-label="Next slide">→</button></nav>
 <div class="notes" id="notes" hidden></div>
-<div class="rotate" id="rotate" role="dialog" aria-label="This deck is 16:9"><p>This deck is 16:9. Turn the phone sideways, or read the same story as a page.</p><a href="/landing/">Open the landing page</a><button type="button" id="rotate-ok">Show the deck anyway</button></div>
+<div class="rotate" id="rotate" role="dialog" aria-label="This deck is 16:9"><img src="/site/media/window-held-760.webp" alt="The steamed window with the note written in ember." width="760" height="570"><h1 class="rt">Her Hand in the Steam</h1><p>This deck is 16:9. Turn the phone sideways, or read the same story as a page.</p><a href="/landing/">Open the landing page</a><button type="button" id="rotate-ok">Show the deck anyway</button></div>
 
 <script>
 (function(){
@@ -420,7 +428,7 @@ body.presenter.idle{cursor:none}
     handles[i] = steamGlass.mount(st.querySelector('.mount'), {
       recipe: 'quinces-marmalade', note: 'till-it-looks-red-smooth', lead: 1200,
       t: clock ? +ol.children[step[i] || 0].dataset.t : null,
-      onStatus: function(s){ st.dataset.status = s; if (s === 'ready' || s === 'fallback') st.dataset.ever = '1' }
+      onStatus: function(s){ st.dataset.status = s; if (s === 'ready' || s === 'fallback') st.dataset.ever = '1'; var lt = document.getElementById('livetag'); if (lt && !clock) lt.textContent = s === 'ready' ? 'The product\u2019s own pane, live · Wellcome MS.1810 · p.23 · c. 1750' : 'The product\u2019s own pane · Wellcome MS.1810 · p.23 · c. 1750' }
     });
   }
   function dropGlass(except){ Object.keys(handles).forEach(function(k){ if (+k !== except) { handles[k].unmount(); delete handles[k]; var st = frames[k].querySelector('.stage[data-glass]'); if (st) st.dataset.status = 'poster' } }) }
@@ -469,7 +477,7 @@ body.presenter.idle{cursor:none}
   function later(f){ (window.requestIdleCallback || function(cb){ return setTimeout(cb, 200) })(f, { timeout: 1500 }) }
   var glassReady = false;
   var start = parseInt(location.hash.slice(1), 10);
-  function boot(){ go(start >= 1 && start <= N ? start - 1 : 0); later(function(){ loadGlass(function(){ glassReady = true; glassFor(cur); drawSteps(cur) }, function(){}) }) }
+  function boot(){ go(start >= 1 && start <= N ? start - 1 : 0); later(function(){ loadGlass(function(){ glassReady = true; glassFor(cur); drawSteps(cur) }, function(why){ var lt = document.getElementById('livetag'), hn = document.getElementById('harness'); if (lt) lt.textContent = 'A captured frame of the product\u2019s pane (this browser has ' + why + ') · Wellcome MS.1810 · p.23 · c. 1750'; if (hn) hn.textContent = 'This browser has ' + why + ', so the deck shows a captured frame here instead of the four times.' }) }) }
   if (document.readyState === 'complete') boot(); else addEventListener('load', boot);
 })();
 </script>

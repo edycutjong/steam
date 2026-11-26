@@ -19,7 +19,7 @@ Other deep links: `?note=when-tender` and `?note=full-ripe` (the other two notes
 Reduced motion: with the operating system's reduced-motion setting on, the canvas is replaced by a static pane and the held note fades in (`e2e/cook-a11y.spec.ts`); nothing is written.
 
 ## The landing page and the deck
-https://steam.edycu.dev/landing/ and https://steam.edycu.dev/deck/ are static pages beside the app (`public/landing/`, `public/deck/`). Their steamed window is the app's own `SteamGlass` component, mounted by `site/glass.tsx` and built into `dist/site/glass.js` by `tools/site/vite-plugin.ts`. On a browser that draws WebGL in software, the pages show a still frame instead and say so. That frame was captured from the landing page's live pane with Playwright on 2026-11-27. The three Cook Mode stills were captured from steam.edycu.dev with Playwright on 2026-11-26. The pages sit outside the offline shell (`SITE_PREFIXES` in `src/offline/precache.ts`), so they always load fresh.
+https://steam.edycu.dev/landing/ and https://steam.edycu.dev/deck/ are static pages beside the app (`public/landing/`, `public/deck/`). Their steamed window is the app's own `SteamGlass` component, mounted by `site/glass.tsx` and built into `dist/site/glass.js` by `tools/site/vite-plugin.ts`. On a browser that draws WebGL in software (or has no WebGL2), both pages keep a still frame and say so under the pane. That frame is from the landing page's running pane (a local build), captured with Playwright on a GPU on 2026-11-26 (UTC+7). The three Cook Mode stills were captured from steam.edycu.dev with Playwright on 2026-11-26 (UTC+7), on Chromium's software GL. The capture scripts are not published. The pages sit outside the offline shell (`SITE_PREFIXES` in `src/offline/precache.ts`), so the service worker never serves them from its cache. The entry is in the Costume Contest category.
 
 ## What is real and what is ours
 
@@ -32,7 +32,7 @@ https://steam.edycu.dev/landing/ and https://steam.edycu.dev/deck/ are static pa
 
 | Claim | Number | Reproduce |
 |---|---|---|
-| Unit and property tests | 1544 passed, 5 expected-fail (169 files) | `npm ci && npm test` |
+| Unit and property tests | 1544 passed, 5 expected-fail (169 files) at 8045c5e; four tests added later are not in that count | `npm ci && npm test` |
 | Ingestion gate | P1-P6 pass on the shelf recipe | `npm run props` |
 | Frame rate, four budget profiles (Apple M1 Max, ANGLE Metal, machine not idle) | 60 fps average, 0 frames under 55 fps in each | `BENCH_ANGLE=metal npm run bench` → `bench/results.json` (measured at renderer commit 553c771, since changed; second of two back-to-back runs; the first had 2 frames under 55 fps on desktop 1280×720) |
 | Software GL, recorded, not a budget row | 34.96 fps average, 182 frames under 55 fps, quality governor at tier 3 (static pane) | same run |
