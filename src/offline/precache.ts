@@ -9,6 +9,16 @@ export const CACHE_PREFIX = 'steam-shell-'
 
 const isMap = (f: string): boolean => f.endsWith('.map')
 
+/**
+ * The pages served beside the app: the landing page, the pitch deck and the files they share (landing-deck, autopilot P4).
+ * They are not the app: the shell never stores them and never answers a request for them, so a visitor who has opened the app
+ * still gets the real page at /landing/ and /deck/, not the cached index.html.
+ */
+export const SITE_PREFIXES = ['/landing/', '/deck/', '/site/'] as const
+
+/** True for `/landing`, `/landing/` and anything under it (same for /deck and /site). */
+export const isSitePath = (pathname: string): boolean => SITE_PREFIXES.some((p) => pathname === p.slice(0, -1) || pathname.startsWith(p))
+
 /** `assets/a.js` -> `/assets/a.js`; Windows separators and a leading `./` are normalised. */
 export const urlOf = (file: string): string => '/' + file.replace(/\\/g, '/').replace(/^\.?\/+/, '')
 
@@ -16,7 +26,7 @@ export const urlOf = (file: string): string => '/' + file.replace(/\\/g, '/').re
 export const recipeJsonUrl = (id: string): string => `/recipes/${id}/recipe.json`
 
 /**
- * Every file of dist/ except the worker and source maps, as a URL, sorted and without duplicates, plus `/` (the navigation
+ * Every file of dist/ except the worker, source maps and the pages beside the app (SITE_PREFIXES), as a URL, sorted and without duplicates, plus `/` (the navigation
  * target, served from the cached index.html). Throws when a recipe the shelf lists has no recipe.json in dist: the build must
  * not ship an offline shell that cannot open its own shelf (property O2).
  */
@@ -24,7 +34,7 @@ export function buildPrecacheList(distFiles: readonly string[], recipeIds: reado
   const urls = new Set<string>()
   for (const f of distFiles) {
     const u = urlOf(f)
-    if (u === '/' + SW_FILE || isMap(u)) continue
+    if (u === '/' + SW_FILE || isMap(u) || isSitePath(u)) continue
     urls.add(u)
   }
   if (!urls.has('/index.html')) throw new Error('offline-shell: dist/ has no index.html')

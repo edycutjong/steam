@@ -1,5 +1,5 @@
 // The service worker's logic with its environment injected, so that unit tests drive it without a browser (offline-shell, design.md).
-import { CACHE_PREFIX } from './precache.ts'
+import { CACHE_PREFIX, isSitePath } from './precache.ts'
 
 export interface CacheLike {
   addAll(requests: Request[]): Promise<void>
@@ -54,9 +54,11 @@ export function createShell(d: SwDeps): Shell {
       const url = new URL(req.url)
       // The IIIF "verify at source" images and every other foreign origin need the network: they are never stored, never faked.
       if (url.origin !== d.origin) return null
+      // The landing page, the deck and their files are not the app: left to the browser, never answered with index.html.
+      if (isSitePath(url.pathname)) return null
       return (async () => {
         const cache = await d.caches.open(d.cacheName)
-        // A navigation is always the single-page app: the hash router decides the screen, so `/` and any other path serve index.html.
+        // Any other navigation is the single-page app: the hash router decides the screen, so `/` and any other path serve index.html.
         const key = req.mode === 'navigate' ? '/index.html' : known.has(url.pathname) ? url.pathname : null
         if (key !== null) {
           const hit = await cache.match(new URL(key, d.origin).href)

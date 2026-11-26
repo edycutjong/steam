@@ -1,6 +1,6 @@
 import fc from 'fast-check'
 import { describe, expect, it } from 'vitest'
-import { buildPrecacheList, cacheNameFor, CACHE_PREFIX, recipeJsonUrl, SW_FILE, urlOf } from './precache.ts'
+import { buildPrecacheList, cacheNameFor, CACHE_PREFIX, isSitePath, recipeJsonUrl, SITE_PREFIXES, SW_FILE, urlOf } from './precache.ts'
 
 const seg = fc.stringMatching(/^[a-z0-9][a-z0-9-]{0,7}$/)
 const id = seg
@@ -11,6 +11,17 @@ const dist = fc
   .map(([files, ids, withSw]) => ({ ids, files: [...new Set([...files, 'index.html', ...ids.map((i) => recipeJsonUrl(i).slice(1)), ...(withSw ? [SW_FILE, 'assets/x.js.map'] : [])])] }))
 
 describe('buildPrecacheList', () => {
+  // The pages beside the app (landing, deck, their shared files) are never stored, wherever they sit in a generated dist/
+  it('stores nothing under /landing/, /deck/ or /site/', () => {
+    const sitePage = fc.tuple(fc.constantFrom(...SITE_PREFIXES), file).map(([pre, f]) => pre.slice(1) + f)
+    fc.assert(
+      fc.property(dist, fc.array(sitePage, { maxLength: 6 }), ({ files, ids }, site) => {
+        const list = buildPrecacheList([...files, ...site, 'landing/index.html', 'deck/index.html'], ids)
+        expect(list.filter(isSitePath)).toEqual([])
+        expect(list).toEqual(buildPrecacheList(files, ids))
+      }),
+    )
+  })
   // O1: every URL in the list is a file of dist (or "/", which is served from index.html)
   it('O1: every URL in the list exists in dist', () => {
     fc.assert(
