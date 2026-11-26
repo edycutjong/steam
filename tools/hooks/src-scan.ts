@@ -18,7 +18,7 @@
 
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import { closeSync, existsSync, fstatSync, mkdirSync, openSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { verifyCatalogText } from './catalog-gate.ts'
 import { catalogUse } from './catalog-rule.ts'
@@ -108,12 +108,17 @@ interface Finding {
 
 function readable(root: string, rel: string): string | undefined {
   const p = join(root, rel)
+  let fd: number | undefined
   try {
-    if (statSync(p).size > MAX_BYTES) return undefined
-    const buf = readFileSync(p)
+    // size and bytes come from the same open file, so a file swapped between the check and the read is not read (CodeQL js/file-system-race)
+    fd = openSync(p, 'r')
+    if (fstatSync(fd).size > MAX_BYTES) return undefined
+    const buf = readFileSync(fd)
     return buf.subarray(0, 8000).includes(0) ? undefined : buf.toString('utf8')
   } catch {
     return undefined
+  } finally {
+    if (fd !== undefined) closeSync(fd)
   }
 }
 

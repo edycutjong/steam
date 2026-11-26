@@ -60,7 +60,7 @@ test.describe('Q5 Pixel 5 Cook Mode, held note at the last step', () => {
     expect(again.height).toBeGreaterThanOrEqual(44)
     // the provenance link is still there and the Wipe control still 48 px
     // a2a-arch-r05 B10: the slip now has two links, the licence and "verify at source", so the licence link is named by its href
-    await expect(page.locator('.cook__under .slip a:not(.slip__verify)')).toHaveAttribute('href', /creativecommons\.org/)
+    await expect(page.locator('.cook__under .slip a:not(.slip__verify)')).toHaveAttribute('href', /^https:\/\/creativecommons\.org\//)
     await expect(page.locator('.cook__under .slip a.slip__verify')).toHaveAttribute('href', /\/full\/0\/default\.jpg$/)
     const w = await wipe(page).boundingBox()
     expect(w!.height).toBeGreaterThanOrEqual(48)

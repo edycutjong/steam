@@ -41,7 +41,7 @@ describe('the hero note on the committed real folder (R40.4)', { timeout: 60_000
     const r = gateCmd(id, { root, noLog: true })
     const reviewer = JSON.parse(readFileSync(join(real, 'ownership-review.json'), 'utf8')).decisions[0].reviewer
     expect(r.gate.results!.P3.pass).toBe(true)
-    expect(r.gate.results!.P3.detail).toMatch(new RegExp(`looks-red-smooth reviewed \\(\\d+ components, by ${reviewer.replace(/[()]/g, '\\$&')}\\)`))
+    expect(r.gate.results!.P3.detail).toMatch(new RegExp(`looks-red-smooth reviewed \\(\\d+ components, by ${reviewer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\)`))
     expect(r.gate.splits!.notes.find((n) => n.noteId === 'looks-red-smooth')!.status).toBe('reviewed')
     expect(r.gate.ownership!.reviewedPass).toBeGreaterThan(0)
     // The committed gate.json is the agent-reading run (below); this fallback run is checked by state, not by bytes.

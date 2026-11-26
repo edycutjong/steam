@@ -31,9 +31,12 @@ export type MergeState = 'missing' | 'current' | 'regenerated' | 'revised'
 export function mergeCmd(dir: string): { wrote: boolean; equal: boolean; state: MergeState } {
   const fresh = freshTranscription(dir)
   const p = join(dir, 'transcription.md')
-  if (!existsSync(p)) {
-    writeFileSync(p, fresh)
+  try {
+    // 'wx' creates the file only when it is absent, in one step (no exists-then-write race, CodeQL js/file-system-race)
+    writeFileSync(p, fresh, { flag: 'wx' })
     return { wrote: true, equal: true, state: 'missing' }
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw e
   }
   const have = readFileSync(p, 'utf8')
   const f = parseTranscription(fresh)
