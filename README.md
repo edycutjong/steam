@@ -72,7 +72,7 @@ Experiments, counted by what ran, with "not run" stated for the rest: [`docs/EXP
 
 | Check | Result | Source |
 |---|---|---|
-| Unit and property tests | **1569 passed, 5 expected-fail** (169 files) at d824683; the 5 are the crop-overlap bug reproduction, kept red on purpose: the kill test's eye-read crop boxes must keep failing property P4 on steps 1-5 (`it.fails`, `src/ingest/cropOverlap.bug.test.ts`) | `npm test` (output: `docs/kiro-evidence/unit-run.txt`) |
+| Unit and property tests | **1571 passed, 5 expected-fail** (170 files) at 7318dcc; the 5 are the crop-overlap bug reproduction, kept red on purpose: the kill test's eye-read crop boxes must keep failing property P4 on steps 1-5 (`it.fails`, `src/ingest/cropOverlap.bug.test.ts`) | `npm test` (output: `docs/kiro-evidence/unit-run.txt`) |
 | End-to-end (Playwright, local) | **113 of 114 passed** in the full run of 2026-11-27 (0b7e471). The one failure, `e2e/cook-session.spec.ts:110` (a deep link to a note withheld for its licence started at step 4, not 1), is intermittent: on 2026-11-26 it failed in a full run and alone, then passed in a later full run; on 2026-11-27 it passed alone; not root-caused (a service-worker race was tested and ruled out). The shipped recipe withholds no note, so the judged path does not reach it | `npm run e2e` (output: `docs/kiro-evidence/e2e-run.txt`) |
 | Ingestion gate P1-P6 on the shelf recipe | pass | `npm run props` |
 | Provenance: the bundled page region each note comes from matches a fresh IIIF fetch (the displayed note is a processed render of those pixels) | 3 of 3 notes match a fresh IIIF fetch, NCC .960 / .976 / .991 (threshold .90 fixed before the first run); a shifted region and a wrong page both fail | `scripts/verify_provenance.py` |
