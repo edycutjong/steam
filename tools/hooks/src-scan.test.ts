@@ -86,6 +86,7 @@ describe('src-scan: a file a script wrote that the command text did not name (ho
     writeFileSync(join(root, 'src/bin.ts'), Buffer.from([0, 1, 2, 0x73, 0x70, 0x65, 0x65, 0x63, 0x68]))
     put('src/big.ts', `${'// padding\n'.repeat(120_000)}const x = speechSynthesis\n`)
     expect(scan().exit).toBe(0)
+    expect(lines().at(-1)).toMatch(/src-scan · src\/ · pass \(0 files; not judged, binary or over 1 MB: src\/big\.ts, src\/bin\.ts\)$/)
   })
   it('judges nothing outside src/', () => {
     put('docs/a.md', 'speechSynthesis\n')

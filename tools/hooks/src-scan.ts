@@ -140,6 +140,7 @@ export function run(raw: string, deps: Deps = {}): HookResult {
   }
 
   let judged = 0
+  const skipped: string[] = [] // binary or over 1 MB: named in the line, never a silent pass (a2a r07)
   const findings: Finding[] = []
   let catalogChanged = false
   try {
@@ -151,7 +152,10 @@ export function run(raw: string, deps: Deps = {}): HookResult {
     for (const [file, lines] of [...files].sort(([a], [b]) => a.localeCompare(b))) {
       if (!file.startsWith('src/') || isTestFile(file)) continue
       const text = readable(root, file)
-      if (text === undefined) continue
+      if (text === undefined) {
+        skipped.push(file)
+        continue
+      }
       judged++
       for (const f of findViolations(text)) if (lines === 'all' || lines.has(f.line)) findings.push({ file, line: f.line, what: f.what, kind: f.kind })
     }
@@ -184,7 +188,8 @@ export function run(raw: string, deps: Deps = {}): HookResult {
     }
   }
 
-  if (!findings.length) return finish(0, 'src/', `pass (${judged} files)`, `pass:${judged}`)
+  const notJudged = skipped.length ? `; not judged, binary or over 1 MB: ${skipped.slice(0, 3).join(', ')}${skipped.length > 3 ? ` (+${skipped.length - 3})` : ''}` : ''
+  if (!findings.length) return finish(0, 'src/', `pass (${judged} files${notJudged})`, `pass:${judged}${notJudged}`)
 
   const at = (f: Finding): string => (f.commit ? `, committed in ${f.commit}` : '')
   const label = (f: Finding): string => (f.kind === 'catalog' ? `${f.what} (${f.file})` : `${f.what} (${f.file}:${f.line}${at(f)})`)
