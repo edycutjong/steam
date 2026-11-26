@@ -19,7 +19,6 @@
   ![WebGL2](https://img.shields.io/badge/WebGL2-990000?style=flat&logo=webgl&logoColor=white)
   ![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)
   [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
-  [![CI](https://github.com/edycutjong/steam/actions/workflows/ci.yml/badge.svg)](https://github.com/edycutjong/steam/actions/workflows/ci.yml)
 
 </div>
 
@@ -116,7 +115,7 @@ npm run props      # ingestion gate over every recipe
 npm run e2e        # Playwright (installs Chromium: npx playwright install chromium)
 npm run bench      # frame-rate profiles → bench/results.json
 ```
-CI is defined in `.github/workflows/ci.yml` (typecheck, tests, the gate, build, the dist check, e2e). **It has not run yet:** every GitHub Actions run so far was refused before the job started (account billing), so the badge above is red and the figures in this README come from local runs.
+CI is defined in `.github/workflows/ci.yml` (typecheck, tests, the gate, build, the dist check, e2e). **It has not run yet:** every GitHub Actions run so far was refused before the job started (account billing), so there is no CI badge and the figures in this README come from local runs.
 
 ## 📁 Project Structure
 
