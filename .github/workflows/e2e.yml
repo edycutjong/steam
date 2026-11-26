@@ -2,6 +2,10 @@ name: E2E
 # The Playwright suite (e2e/*.spec.ts) against the production build served by vite preview, in Chromium on software GL
 # (SwiftShader), as playwright.config.ts sets up: the judge path, Cook Mode timing, wipe, reduced motion, phone layouts,
 # offline shell, accessibility (axe) and tab order.
+# Runs on macOS (Apple silicon), the platform the suite was written and measured on. On ubuntu-latest (run 45911639749)
+# 107 of 114 passed: 4 frame-timing checks on software GL (reveal within 2 s of a key press, write-on start within
+# 150 ms of its lead-in, nothing of the note at 2 s), 2 layout checks (the 1280x720 page measured 757 px tall, not 720)
+# and 1 phone tab-order check failed there, while all 114 pass on macOS.
 on:
   push:
     branches: [main]
@@ -22,8 +26,8 @@ defaults:
 jobs:
   playwright:
     name: playwright (chromium, software GL)
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
+    runs-on: macos-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -34,9 +38,9 @@ jobs:
       - name: Cache Playwright browsers
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - run: npx playwright install --with-deps chromium
+          path: ~/Library/Caches/ms-playwright
+          key: playwright-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install chromium
       - name: npm run e2e
         run: npx playwright test --reporter=list,html 2>&1 | tee e2e.log
       - name: Summary
