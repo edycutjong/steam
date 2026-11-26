@@ -1,0 +1,45 @@
+name: Bug report
+description: Something in Cook Mode, the renderer, the edition view or the ingestion CLI does not work as described.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time. Security problems go to a private advisory instead (Security tab → Report a vulnerability), never a public issue.
+  - type: input
+    id: url
+    attributes:
+      label: URL
+      description: The exact address, including everything after `#` (e.g. `https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=6`).
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+      description: DEMO.md lists what each judge step should show.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the URL above
+        2. Press "Show the note"
+        3. …
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser, OS and device
+      description: e.g. Chrome 150 on macOS 27, Pixel 8 Chrome. Say if the operating system's reduced-motion setting is on.
+    validations:
+      required: true
+  - type: textarea
+    id: console
+    attributes:
+      label: Console output (optional)
+      description: Anything from the browser console; `?fps=1` on a Cook Mode link adds a frame-rate overlay.
+      render: text

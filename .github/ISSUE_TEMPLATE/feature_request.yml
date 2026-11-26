@@ -1,0 +1,23 @@
+name: Suggestion
+description: An idea for Cook Mode, another manuscript recipe, or the ingestion pipeline.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What it would let a cook (or a reader of the archive) do.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source (for a new recipe)
+      description: The archive, shelfmark and page, and its licence. Only openly licensed scans can be ingested (the licence allow-list is pdm, cc0, cc-by).
+  - type: checkboxes
+    id: rule
+    attributes:
+      label: Quoted, not generated
+      options:
+        - label: The idea keeps the hand quoted from the scan (no generated handwriting, no handwriting font, no synthetic voice).
+          required: true

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/edycutjong/steam/security/advisories/new
+    about: Please report security problems privately, not as a public issue (SECURITY.md).
+  - name: How to see it in 60 seconds
+    url: https://github.com/edycutjong/steam/blob/main/DEMO.md
+    about: The judge steps, the deep links and what to expect at each one.

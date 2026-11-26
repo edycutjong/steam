@@ -1,24 +1,105 @@
 name: CI
+# Lint, typecheck, the unit + property suite with the ingestion gate, and the production build with its dist checks.
+# A green CI run on a push to main is what lets the Deploy workflow ship that commit.
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  check:
+  lint:
+    name: lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: oxlint (errors fail the job; warnings are reported)
+        run: npm run lint
+      - name: actionlint (pinned release, checksum verified before it is extracted)
+        run: |
+          curl -sSfL -o actionlint.tar.gz https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  actionlint.tar.gz" | sha256sum -c -
+          tar xzf actionlint.tar.gz actionlint
+          ./actionlint -color
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      - run: npm test
-      - run: npm run props
+
+  test:
+    name: unit + property tests (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      # scripts/check-dist.test.ts checks the built site and skips itself without dist/, so build first: the run then
+      # covers every test file, the same suite and count as docs/kiro-evidence/unit-run.txt.
       - run: npm run build
-      - run: npm run check:dist
-      - run: npx playwright install --with-deps chromium
-      - run: npm run e2e
+      # The 5 expected-fail tests are it.fails on purpose (src/ingest/cropOverlap.bug.test.ts, README "Engineering Rigor"):
+      # vitest counts them as "expected fail" and fails the run if one of them ever starts passing.
+      - name: npm test
+        run: npm test 2>&1 | tee vitest.log
+      - name: Ingestion gate P1-P6 over every recipe
+        run: npm run props
+      - name: Test summary
+        if: always()
+        run: |
+          {
+            echo "### Unit + property tests (node ${{ matrix.node }})"
+            echo '```'
+            sed -E 's/\x1b\[[0-9;]*m//g' vitest.log | grep -E '^ *(Test Files|Tests|Duration) ' || echo "no summary line (the run did not finish)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  build:
+    name: build + dist checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: tsc -b + vite build
+        run: npm run build
+      - name: dist holds only the static app, the offline shell and the pages beside it (no speech synthesis, no server entry)
+        run: npm run check:dist
+      - name: App bundle name
+        run: echo "App bundle $(grep -o 'index-[A-Za-z0-9_-]*\.js' dist/index.html)" | tee -a "$GITHUB_STEP_SUMMARY"

@@ -18,3 +18,4 @@ test-results/
 playwright-report/
 # docs/kiro-evidence/hooks.log is evidence (structure.md): keep it tracked despite *.log
 !docs/kiro-evidence/hooks.log
+.lighthouseci/

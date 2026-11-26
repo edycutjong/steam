@@ -20,6 +20,8 @@
     "steam-ingest": "tsx tools/steam-ingest/cli.ts",
     "measure:ingest": "tsx scripts/measure-ingest.ts",
     "check:dist": "vitest run scripts/check-dist.test.ts",
+    "budget": "node scripts/bundle-budget.ts dist",
+    "smoke:live": "node scripts/live-smoke.ts",
     "bench:cook": "npm run build && node scripts/measure-cook.ts"
   },
   "dependencies": {

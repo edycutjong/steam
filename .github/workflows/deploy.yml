@@ -1,0 +1,78 @@
+name: Deploy
+# Production deploy of main to the Vercel project `steam` (https://steam.edycu.dev), only after CI passed on that commit
+# (or by hand from main), then a smoke test of the live site: the three pages, the README's hero deep link in a real
+# browser, and the files it loads. The build runs here (vercel build) and the prebuilt output is what ships, so the
+# deploy is exactly the commit CI checked. The Vercel project has no Git integration: this workflow is the only path
+# from a push to production.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    name: deploy to production
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: https://steam.edycu.dev
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install the Vercel CLI (pinned)
+        run: npm install --global vercel@67.0.0
+      - name: vercel pull (production settings)
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - name: vercel build --prod
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+      - name: The output is the static app, its offline shell and the two pages
+        id: out
+        run: |
+          out=.vercel/output/static
+          for f in index.html sw.js favicon.svg landing/index.html deck/index.html site/glass.js recipes/quinces-marmalade/recipe.json; do
+            test -s "$out/$f" || { echo "missing $out/$f"; exit 1; }
+          done
+          bundle=$(grep -o 'index-[A-Za-z0-9_-]*\.js' "$out/index.html")
+          test -s "$out/assets/$bundle"
+          echo "bundle=$bundle" >> "$GITHUB_OUTPUT"
+          echo "Built app bundle: \`$bundle\` from \`${{ github.event.workflow_run.head_sha || github.sha }}\`" >> "$GITHUB_STEP_SUMMARY"
+      - name: vercel deploy --prebuilt --prod
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" | tee deploy-url.txt
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Smoke test the live site (pages, deep link in a browser, the files it loads)
+        env:
+          EXPECT_BUNDLE: ${{ steps.out.outputs.bundle }}
+        run: npm run smoke:live -- https://steam.edycu.dev

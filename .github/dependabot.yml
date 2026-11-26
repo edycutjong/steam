@@ -4,7 +4,28 @@ updates:
     directory: /
     schedule:
       interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: deps
+      prefix-development: deps-dev
+    groups:
+      # minor + patch updates land as one PR per dependency type; majors stay separate PRs so each is reviewed alone
+      production:
+        dependency-type: production
+        update-types: [minor, patch]
+      development:
+        dependency-type: development
+        update-types: [minor, patch]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+      day: monday
+    commit-message:
+      prefix: ci
+    groups:
+      # every action is pinned to a commit SHA with its version in a comment; Dependabot moves both together
+      actions:
+        patterns: ["*"]
