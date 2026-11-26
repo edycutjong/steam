@@ -471,6 +471,9 @@ body.presenter.idle{cursor:none}
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     var k = e.key;
     if (deck.classList.contains('ov')) { if (k === 'Escape') { deck.classList.remove('ov'); go(cur) } return }
+    // a focused link or button keeps its own Enter and Space (a field its Backspace): Enter on "Previous slide" goes back, Enter on a link opens it
+    var t = e.target, ctl = t && t.closest ? t.closest('a[href],button,summary,input,select,textarea,[contenteditable=""],[contenteditable="true"]') : null;
+    if (ctl && (k === 'Enter' || k === ' ' || k === 'Backspace')) return;
     if (k === 'ArrowRight' || k === ' ' || k === 'PageDown' || k === 'Enter') { e.preventDefault(); next() }
     else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); prev() }
     else if (k === 'Home') go(0); else if (k === 'End') go(N - 1);
@@ -480,7 +483,10 @@ body.presenter.idle{cursor:none}
   frames.forEach(function(f, j){ f.addEventListener('click', function(){ if (deck.classList.contains('ov')) { deck.classList.remove('ov'); go(j) } }) });
   var idle; addEventListener('mousemove', function(){ document.body.classList.remove('idle'); clearTimeout(idle); if (document.body.classList.contains('presenter')) idle = setTimeout(function(){ document.body.classList.add('idle') }, 2000) });
   addEventListener('hashchange', function(){ var n = parseInt(location.hash.slice(1), 10); if (n >= 1 && n <= N && n - 1 !== cur) go(n - 1) });
-  addEventListener('beforeprint', function(){ dropGlass(-1); frames.forEach(function(f, j){ if (steps(j)) { step[j] = steps(j) - 1; var ol = f.querySelector('#clock-steps'); if (ol) [].forEach.call(ol.children, function(li, x){ li.classList.toggle('on', x === step[j]) }) } }) });
+  // print shows every slide as a still with each clock at its last step; afterprint puts the steps and the current slide's glass back
+  var printed = null;
+  addEventListener('afterprint', function(){ if (!printed) return; var was = printed; printed = null; frames.forEach(function(f, j){ if (steps(j)) { step[j] = was[j] || 0; drawSteps(j) } }); glassFor(cur); drawSteps(cur) });
+  addEventListener('beforeprint', function(){ printed = {}; frames.forEach(function(f, j){ printed[j] = step[j] || 0 }); dropGlass(-1); frames.forEach(function(f, j){ if (steps(j)) { step[j] = steps(j) - 1; var ol = f.querySelector('#clock-steps'); if (ol) [].forEach.call(ol.children, function(li, x){ li.classList.toggle('on', x === step[j]) }) } }) });
   var ro = document.getElementById('rotate-ok'); if (ro) ro.addEventListener('click', function(){ document.body.classList.add('rotate-ok') });
 
   // the glass (the product's SteamGlass) loads after the page: it never competes with the first paint. A browser that draws WebGL in
@@ -494,12 +500,12 @@ body.presenter.idle{cursor:none}
   function loadGlass(done, skipped){
     var why = softwareGL(); if (why) { skipped(why); return }
     var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '/site/glass.css'; document.head.appendChild(css);
-    var js = document.createElement('script'); js.src = '/site/glass.js'; js.onload = done; document.body.appendChild(js);
+    var js = document.createElement('script'); js.src = '/site/glass.js'; js.onload = done; js.onerror = function(){ skipped('no renderer: it did not load') }; document.body.appendChild(js);
   }
   function later(f){ (window.requestIdleCallback || function(cb){ return setTimeout(cb, 200) })(f, { timeout: 1500 }) }
   var glassReady = false;
   var start = parseInt(location.hash.slice(1), 10);
-  function boot(){ go(start >= 1 && start <= N ? start - 1 : 0); later(function(){ loadGlass(function(){ glassReady = true; glassFor(cur); drawSteps(cur) }, function(why){ var lt = document.getElementById('livetag'), hn = document.getElementById('harness'); if (lt) lt.textContent = 'A captured frame of the product\u2019s pane (this browser has ' + why + ') · Wellcome MS.1810 · p.23 · c. 1750'; if (hn) hn.textContent = 'This browser has ' + why + ': one captured frame instead.' }) }) }
+  function boot(){ go(start >= 1 && start <= N ? start - 1 : 0); later(function(){ loadGlass(function(){ glassReady = true; glassFor(cur); drawSteps(cur) }, function(why){ var lt = document.getElementById('livetag'), hn = document.getElementById('harness'); var has = why.indexOf('no renderer') === 0 ? why : 'this browser has ' + why; if (lt) lt.textContent = 'A captured frame of the product\u2019s pane (' + has + ') · Wellcome MS.1810 · p.23 · c. 1750'; if (hn) hn.textContent = has.charAt(0).toUpperCase() + has.slice(1) + ': one captured frame instead.' }) }) }
   if (document.readyState === 'complete') boot(); else addEventListener('load', boot);
 })();
 </script>

@@ -616,10 +616,11 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
   function loadGlass(done, skipped){
     var why = softwareGL(); if (why) { skipped(why); return }
     var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '/site/glass.css'; document.head.appendChild(css);
-    var js = document.createElement('script'); js.src = '/site/glass.js'; js.onload = done; document.body.appendChild(js);
+    var js = document.createElement('script'); js.src = '/site/glass.js'; js.onload = done; js.onerror = function(){ skipped('the renderer did not load') }; document.body.appendChild(js);
   }
   function later(f){ (window.requestIdleCallback || function(cb){ return setTimeout(cb, 200) })(f, { timeout: 1500 }) }
   var TAGS = { loading: 'Loading the note · the product’s own renderer', ready: 'Live · the product’s SteamGlass, running in this page', fallback: 'Static pane · the product’s own images (reduced motion, no WebGL2, a lost context or the renderer stepping down)', error: 'Still · the note could not be loaded here' };
+  var STILL = tag.textContent; // the markup's caption for the captured frame, shown again whenever the renderer is not mounted
   var h = null, written = false, visible = true;
   function mount(){
     if (h || !window.steamGlass) return;
@@ -642,11 +643,11 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
     // off screen the renderer is unmounted (no WebGL frames for a page nobody sees); back on screen a written note is still written
     if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ es.forEach(function(e){
       visible = e.isIntersecting;
-      if (!visible && h) { setTimeout(function(){ if (!visible && h) { h.unmount(); h = null; stage.dataset.status = 'poster' } }, 1500) }
+      if (!visible && h) { setTimeout(function(){ if (!visible && h) { h.unmount(); h = null; stage.dataset.status = 'poster'; tag.textContent = STILL } }, 1500) }
       else if (visible && !h) mount();
     }) }, { threshold: .05 }).observe(stage);
   }
-  function start(){ later(function(){ loadGlass(boot, function(why){ tag.textContent = 'Still · a frame of this pane from the live renderer (this browser has ' + why + '; the app shows its static pane here too)' }) }) }
+  function start(){ later(function(){ loadGlass(boot, function(why){ tag.textContent = why === 'the renderer did not load' ? STILL + ' (' + why + ')' : 'Still · a frame of this pane from the live renderer (this browser has ' + why + '; the app shows its static pane here too)' }) }) }
   if (document.readyState === 'complete') start(); else addEventListener('load', start);
 })();
 </script>
