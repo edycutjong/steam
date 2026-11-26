@@ -10,8 +10,8 @@ if (!have) console.log('check-dist: skipped, dist/ is absent (run npm run build 
 const walk = (d: string): string[] => readdirSync(d).flatMap((e) => { const p = join(d, e); return statSync(p).isDirectory() ? walk(p) : [p] })
 
 describe.skipIf(!have)('the built site', () => {
-  it('has only index.html, sw.js, assets/, recipes/ and favicon.svg at its top: sw.js is the offline shell (client code), no server entry', () => {
-    expect(readdirSync(DIST).sort()).toEqual(['assets', 'favicon.svg', 'index.html', 'recipes', 'sw.js'])
+  it('has only index.html, sw.js, assets/, recipes/, favicon.svg and the pages beside the app (landing/, deck/, site/) at its top: sw.js is the offline shell (client code), no server entry', () => {
+    expect(readdirSync(DIST).sort()).toEqual(['assets', 'deck', 'favicon.svg', 'index.html', 'landing', 'recipes', 'site', 'sw.js'])
   })
   it('contains no speech synthesis', () => {
     for (const f of walk(DIST).filter((x) => /\.(js|html|css)$/.test(x))) expect(readFileSync(f, 'utf8'), f).not.toMatch(/speechSynthesis|SpeechSynthesisUtterance/)
@@ -56,6 +56,10 @@ describe.skipIf(!have)('the built site', () => {
       const files = new Set(walk(DIST).map((f) => '/' + f.slice(DIST.length + 1).replace(/\\/g, '/')))
       for (const u of files) if (u.startsWith('/recipes/') || u.startsWith('/assets/') || u === '/index.html' || u === '/favicon.svg') expect(added, u).toContain(u)
       expect(added.filter((u) => /\/panes\/.*\.webp$/.test(u)).length).toBe(18)
+    })
+    it('stores none of the pages beside the app (landing/, deck/, site/): the browser fetches them, the shell never answers for them', async () => {
+      const { added } = await run()
+      expect(added.filter((u) => /^\/(landing|deck|site)(\/|$)/.test(u))).toEqual([])
     })
     it('names its cache after the build: steam-shell- and 12 hex digits', async () => {
       const { names } = await run()

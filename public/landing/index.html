@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Her Hand in the Steam · a dead writer's hand, still writing in the steam</title>
+<meta name="description" content="Cook Mode for handwritten recipes: at the step where the writer left a judgement, steam condenses on the window and their own scanned hand, from a c. 1750 receipt book, is wiped clear out of the fog.">
+<meta name="author" content="Edy Cu">
+<meta name="theme-color" content="#0E0A0A">
+<link rel="canonical" href="https://steam.edycu.dev/landing/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Her Hand in the Steam">
+<meta property="og:title" content="Her Hand in the Steam · a dead writer's hand, still writing in the steam">
+<meta property="og:description" content="At the step where the writer left a judgement, their own scanned hand is wiped clear out of the fog on the window over the pot. Kiroween 2026, Costume Contest.">
+<meta property="og:url" content="https://steam.edycu.dev/landing/">
+<meta property="og:image" content="https://steam.edycu.dev/site/media/og.jpg?v=3cce62416a">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A steamed sash window at night: a full moon through bare branches above, the words till it Looks red &amp; smooth wiped out of the fog in ember below, one candle on the sill.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://steam.edycu.dev/site/media/og.jpg?v=3cce62416a">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/site/fonts/im-fell-english-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/site/fonts/literata-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/site/media/window-held.webp" as="image" fetchpriority="high">
+<link rel="stylesheet" href="/site/glass.css">
+<script>document.documentElement.classList.add('js')</script>
+<style>
+@font-face{font-family:"IM Fell English";src:url(/site/fonts/im-fell-english-latin-400-normal.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"IM Fell English";src:url(/site/fonts/im-fell-english-latin-400-italic.woff2) format("woff2");font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:"Literata";src:url(/site/fonts/literata-latin-400-normal.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Literata";src:url(/site/fonts/literata-latin-400-italic.woff2) format("woff2");font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:"Literata";src:url(/site/fonts/literata-latin-600-normal.woff2) format("woff2");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"DM Mono";src:url(/site/fonts/dm-mono-latin-400-normal.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+
+/* design.md §4, pasted verbatim: every colour and face below is one of these */
+:root {
+  --bg:      #0E0A0A;  /* the kitchen at midnight on All Hallows': soot black with a trace of ember; red > blue, so it sits outside the blue-black #0B0E14 cluster (P0b: #130E0B) */
+  --ink:     #EFE7DA;  /* steam white with tallow warmth: step text, wet rims on the glass */
+  --muted:   #9A8F82;  /* pewter: captions, archive slips, the timer at rest */
+  --before:  #7F909C;  /* state: fogged — breath-grey condensation hiding the note, cooled by the moon above it; the pane's resting colour (P0b: #7D8B94) */
+  --after:   #F2A65A;  /* state: revealed — hob ember: dim on the pot flame at rest, on the timer in the 10 s before a note, and at full strength only in the light through strokes wiped out of the fog */
+  --fault:   #D9654E;  /* upload gate failures only (a scorched-pan red); never in Cook Mode */
+  --rule:    #3A2D24;  /* sash-bar wood: pane frame, dividers, the hairline over each archive slip */
+  --paper:   #E8DCC2;  /* facsimile mat behind scans on the shelf and edition view (never behind the steam pane) */
+  --glass-hi: rgba(239, 231, 218, 0.55);  /* specular highlight on the sash glass, derived from --ink */
+  --ghost:   #BCD3E4;  /* cold breath: the blue-white rim at the edge of every stroke the dead hand wipes, the cold bloom, and the cold writing-head glow */
+  --moon:    #E4E9EC;  /* the full moon through the upper sash: bone white, cold; also the moonlit edge of the fog's top */
+  --night:   #121A24;  /* the sky beyond the upper sash: the only blue surface, and only ever seen through glass */
+  --font-display: "IM Fell English", "IM Fell DW Pica", Georgia, serif;  /* Fell types, cut in the late 1600s and cast for English presses: the printed voice of the receipt book's own century. Titles and the 'The hand, quoted' page only */
+  --font-body:    "Literata", Georgia, serif;  /* the edition voice: a screen-reading book face for step text and transcriptions; tabular lining figures for the timer */
+  --font-data:    "DM Mono", ui-monospace, monospace;  /* ONLY shelfmarks, IIIF region coordinates, the pace multiplier (×12) and the ?fps=1 overlay */
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{overflow-x:clip;scroll-behavior:smooth;background:var(--bg);color-scheme:dark;scrollbar-color:var(--rule) var(--bg)}
+body{margin:0;font:400 18px/1.62 var(--font-body);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+img{max-width:100%;display:block}
+a{color:inherit}
+::selection{background:color-mix(in srgb,var(--after) 38%,transparent);color:var(--ink)}
+:focus-visible{outline:2px solid var(--ghost);outline-offset:3px;border-radius:2px}
+.skip{position:absolute;left:12px;top:-60px;background:var(--paper);color:var(--bg);padding:10px 14px;z-index:20;font-weight:600}
+.skip:focus{top:12px}
+.wrap{width:min(1240px,100% - 10vw);margin-inline:auto}
+.slip,.eyebrow,.chip,.src,.tag,.term,.mono{font-family:var(--font-data)}
+.eyebrow{display:inline-block;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--rule);padding-top:12px;margin:0}
+h1,h2,h3{font-family:var(--font-display);font-weight:400;margin:0;text-wrap:balance}
+h2{font-size:clamp(36px,4vw,56px);line-height:1.06;letter-spacing:-.01em;margin:18px 0 18px}
+h3{font-size:clamp(24px,2.1vw,30px);line-height:1.12}
+p{margin:0}
+.lede{color:var(--muted);max-width:62ch;font-size:19px}
+.lede b,.sub b{color:var(--ink);font-weight:600}
+.hand{font-family:var(--font-display);font-style:italic;color:var(--after);text-shadow:0 0 1px color-mix(in srgb,var(--ghost) 90%,transparent),0 0 12px color-mix(in srgb,var(--ghost) 22%,transparent),0 0 30px color-mix(in srgb,var(--after) 30%,transparent)}
+
+/* top bar */
+.top{position:relative;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:18px 5vw}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-family:var(--font-display);font-size:22px;letter-spacing:.005em}
+.brand img{width:36px;height:36px;border-radius:7px}
+.nav{display:flex;align-items:center;gap:28px;font-size:15px}
+.nav a{text-decoration:none;color:var(--muted);transition:color .2s}
+.nav a:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:46px;padding:12px 18px;font:600 15px/1 var(--font-body);text-decoration:none;color:var(--ink);border:1px solid var(--rule);border-radius:2px;background:color-mix(in srgb,var(--rule) 22%,transparent);transition:background .2s,border-color .2s,transform .2s,color .2s}
+.btn:hover{border-color:var(--muted);background:color-mix(in srgb,var(--rule) 55%,transparent);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn--paper{background:var(--paper);color:var(--bg);border-color:var(--paper);box-shadow:0 0 0 1px color-mix(in srgb,var(--ghost) 40%,transparent),0 10px 40px -12px color-mix(in srgb,var(--after) 45%,transparent)}
+.btn--paper:hover{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.btn .arr{font-family:var(--font-body);font-weight:400;opacity:.8}
+.nav .btn{min-height:40px;padding:10px 14px;font-size:14px;color:var(--ink)}
+
+/* hero */
+.hero{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,4.5vw,72px);align-items:center;padding:clamp(20px,3vh,44px) 5vw clamp(48px,7vh,88px);min-height:min(calc(100svh - 82px),940px)}
+.hero::before{content:"";position:absolute;inset:-82px 0 0;z-index:-2;background:
+  radial-gradient(42% 46% at 76% 6%,color-mix(in srgb,var(--moon) 11%,transparent),transparent 72%),
+  radial-gradient(46% 42% at 72% 104%,color-mix(in srgb,var(--after) 17%,transparent),transparent 74%),
+  radial-gradient(70% 80% at 18% 60%,color-mix(in srgb,var(--rule) 22%,transparent),transparent 70%)}
+.hero::after{content:"";position:absolute;inset:-82px 0 0;z-index:3;pointer-events:none;background:var(--bg);opacity:0}
+.hero.dip::after{animation:dip 1.2s ease-in-out}
+@keyframes dip{0%{opacity:0}35%{opacity:.22}100%{opacity:0}}
+h1{font-size:clamp(46px,5.3vw,86px);line-height:1.02;letter-spacing:-.012em;margin:26px 0 24px}
+h1 .hand{white-space:nowrap}
+.sub{color:var(--muted);font-size:clamp(17px,1.35vw,19.5px);line-height:1.62;max-width:36em}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.proof{margin-top:22px;display:flex;flex-wrap:wrap;gap:6px 20px;font-family:var(--font-data);font-size:12.5px;letter-spacing:.03em;color:var(--before);line-height:1.5}
+.proof span{display:inline-flex;align-items:center;gap:8px}
+.proof span::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ghost);opacity:.75}
+
+.window{margin:0;position:relative}
+.window::before{content:"";position:absolute;left:8%;right:8%;bottom:-6%;height:38%;z-index:-1;background:radial-gradient(closest-side,color-mix(in srgb,var(--after) 26%,transparent),transparent);filter:blur(18px)}
+.stage{position:relative;aspect-ratio:4/3;width:100%;overflow:hidden;background:var(--bg);border-radius:3px;box-shadow:0 50px 120px -40px rgb(0 0 0 / .85),0 0 0 1px color-mix(in srgb,var(--rule) 60%,transparent)}
+.stage .mount{position:absolute;inset:0}
+.stage .steam-root{--upper-h:25%;position:absolute;inset:0;height:100%}
+.stage .poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .7s ease}
+.stage[data-status="ready"] .poster,.stage[data-status="fallback"] .poster{opacity:0;pointer-events:none}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:14px;flex-wrap:wrap}
+.tag{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:inline-flex;align-items:center;gap:10px}
+.tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none}
+.stage[data-status="ready"]~.bar .tag{color:var(--ghost)}
+.stage[data-status="ready"]~.bar .tag::before{background:var(--ghost);box-shadow:0 0 10px var(--ghost);animation:breathe 2.4s ease-in-out infinite}
+@keyframes breathe{50%{opacity:.35}}
+.ctls{display:flex;gap:8px}
+.ctl{font:600 14px/1 var(--font-body);color:var(--ink);background:color-mix(in srgb,var(--rule) 40%,transparent);border:1px solid var(--rule);padding:11px 14px;border-radius:2px;cursor:pointer;min-height:42px;transition:background .2s,border-color .2s,color .2s}
+.ctl:hover{border-color:var(--muted);background:color-mix(in srgb,var(--rule) 70%,transparent)}
+.ctl[aria-disabled="true"]{color:var(--muted);cursor:default}
+.ctl[aria-disabled="true"]:hover{border-color:var(--rule);background:color-mix(in srgb,var(--rule) 40%,transparent)}
+.slip{margin-top:12px;padding-top:9px;border-top:1px solid var(--rule);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);line-height:1.6}
+
+/* receipts */
+.receipts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-block:1px solid var(--rule)}
+.rc{padding:34px 26px 30px;border-left:1px solid var(--rule)}
+.rc:first-child{border-left:0;padding-left:0}
+.rc__n{font:600 clamp(42px,4.2vw,62px)/1 var(--font-body);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.02em;color:var(--ink)}
+.rc__n small{font-size:.42em;font-weight:400;color:var(--muted);letter-spacing:0;margin-left:.2em}
+.rc__l{margin-top:12px;color:var(--muted);font-size:15.5px;line-height:1.5}
+.src{display:block;margin-top:12px;font-size:11.5px;line-height:1.5;color:var(--before);word-break:break-word}
+
+section{scroll-margin-top:24px}
+.sec{padding:clamp(80px,11vh,128px) 0}
+
+/* the moment */
+.viewer{display:grid;grid-template-columns:minmax(0,8fr) minmax(0,4fr);gap:clamp(24px,3vw,44px);margin-top:46px;align-items:center}
+.viewer__img{position:relative;aspect-ratio:3/2;border-radius:3px;overflow:hidden;box-shadow:0 40px 90px -40px rgb(0 0 0 / .9),0 0 0 1px color-mix(in srgb,var(--rule) 70%,transparent)}
+.viewer__img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease}
+.viewer__img img.on{opacity:1}
+.viewer__steps{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.viewer__steps button{all:unset;box-sizing:border-box;width:100%;cursor:pointer;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 18px;align-items:baseline;padding:18px 16px 18px 18px;border-left:2px solid var(--rule);color:var(--muted);transition:background .25s,border-color .25s,color .25s}
+.viewer__steps button:hover{background:color-mix(in srgb,var(--rule) 30%,transparent);color:var(--ink)}
+.viewer__steps button:focus-visible{outline:2px solid var(--ghost);outline-offset:2px}
+.viewer__steps button[aria-pressed="true"]{border-left-color:var(--ghost);background:color-mix(in srgb,var(--rule) 34%,transparent);color:var(--ink)}
+.viewer__steps .t{grid-row:span 2;font:600 34px/1 var(--font-body);font-variant-numeric:lining-nums tabular-nums;color:var(--ink)}
+.viewer__steps .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--before);margin-right:9px;vertical-align:1px}
+.viewer__steps .held .dot{background:var(--after);box-shadow:0 0 12px var(--after)}
+.viewer__steps .what{font-size:16.5px;color:inherit}
+.viewer__steps .meta{font-size:13.5px;color:var(--muted)}
+.capnote{margin-top:22px;font-size:14px;color:var(--muted)}
+.stepline{margin-top:54px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:end;border-top:1px solid var(--rule);padding-top:26px}
+.stepline q{font:400 clamp(22px,2.2vw,30px)/1.4 var(--font-body);quotes:none;color:var(--ink)}
+.stepline .dag{color:var(--muted)}
+.stepline .why{font-size:14px;color:var(--muted);max-width:24ch;text-align:right}
+
+/* the hand, quoted: the facsimile mat */
+.paper{background:var(--paper);color:var(--bg);background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--rule) 5%,transparent) 0 1px,transparent 1px 8px);box-shadow:inset 0 30px 60px -40px rgb(0 0 0 / .5)}
+.paper .eyebrow{color:var(--rule);border-color:color-mix(in srgb,var(--rule) 45%,transparent)}
+.paper .lede{color:var(--rule)}
+.paper .lede b{color:var(--bg)}
+.spread{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,6fr);gap:clamp(28px,4vw,60px);margin-top:46px;align-items:start}
+.verso .plate{background:color-mix(in srgb,var(--paper) 70%,var(--ink));padding:14px;box-shadow:0 1px 0 color-mix(in srgb,var(--rule) 30%,transparent),0 24px 50px -30px rgb(0 0 0 / .45)}
+.verso img{width:100%;height:auto;aspect-ratio:1400/379;object-fit:cover;background:color-mix(in srgb,var(--paper) 80%,var(--rule))}
+.verso .slip{color:var(--rule);border-color:color-mix(in srgb,var(--rule) 40%,transparent)}
+.verso .order{margin-top:26px;font:italic 400 22px/1.45 var(--font-display);color:var(--bg);max-width:30ch}
+.verso .order cite{display:block;margin-top:8px;font:400 11px/1.4 var(--font-data);font-style:normal;letter-spacing:.12em;text-transform:uppercase;color:var(--rule)}
+.term{background:var(--bg);color:var(--ink);border-radius:4px;box-shadow:0 30px 70px -30px rgb(0 0 0 / .6);overflow:hidden;font-size:13px;line-height:1.65}
+.term__head{display:flex;justify-content:space-between;gap:12px;padding:11px 16px;border-bottom:1px solid var(--rule);color:var(--muted);font-size:11.5px;letter-spacing:.08em}
+.term__body{padding:16px 18px 18px;font-variant-ligatures:none}
+.ln{display:block;padding-left:2ch;text-indent:-2ch;white-space:pre-wrap;word-break:break-word}
+.ln.cmd{color:var(--ink)}
+.ln.cmd::before{content:"$ ";color:var(--after)}
+.ln.dim{color:var(--muted)}
+.ln.ok{color:var(--ghost)}
+.note-row{margin:14px 0 4px}
+.note-row .nm{color:var(--ink)}
+.bars{display:grid;grid-template-columns:11.5ch minmax(0,1fr) 6.5ch;gap:5px 12px;align-items:center;margin-top:6px}
+.bars .k{color:var(--muted);font-size:11.5px}
+.bars .v{text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
+.bars .track{position:relative;height:9px;background:color-mix(in srgb,var(--rule) 55%,transparent);border-radius:1px}
+.bars .track i{position:absolute;left:0;top:0;bottom:0;border-radius:1px;background:var(--before);width:var(--w);transition:width 1s cubic-bezier(.2,.7,.2,1)}
+.bars .track.real i{background:var(--after);box-shadow:0 0 10px color-mix(in srgb,var(--after) 45%,transparent)}
+.bars .track.neg i{width:0}
+.bars .track::after{content:"";position:absolute;top:-4px;bottom:-4px;left:90%;width:1px;background:var(--ghost);opacity:.7}
+.term__foot{padding:11px 18px;border-top:1px solid var(--rule);color:var(--muted);font-size:11.5px;line-height:1.55}
+
+/* kiro */
+.bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:minmax(0,auto);gap:18px;margin-top:46px}
+.cell{background:color-mix(in srgb,var(--rule) 24%,var(--bg));border-radius:4px;padding:28px 28px 26px;position:relative;overflow:hidden}
+.cell p{color:var(--muted);font-size:16px;margin-top:12px;max-width:60ch}
+.cell p b{color:var(--ink);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{font-size:11.5px;line-height:1;padding:7px 9px;border-radius:2px;color:var(--ink);background:color-mix(in srgb,var(--rule) 70%,var(--bg))}
+.c-read{grid-column:1/5;grid-row:1/3;display:flex;flex-direction:column}
+.c-specs{grid-column:5/7}
+.c-commits{grid-column:5/7}
+.c-ledger{grid-column:1/4}
+.c-hooks{grid-column:4/7}
+.cell .big{font:600 clamp(48px,5vw,72px)/1 var(--font-body);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.02em;color:var(--ink);margin-top:6px}
+.glyph{width:34px;height:34px;margin-bottom:16px;color:var(--after)}
+.readers{margin-top:auto;padding-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.reader{border-top:1px solid var(--rule);padding-top:12px}
+.reader b{display:block;font:400 20px/1.2 var(--font-display);color:var(--ink)}
+.reader span{font-family:var(--font-data);font-size:12px;color:var(--before)}
+.cell .disagree{margin-top:14px;font:400 clamp(20px,1.9vw,26px)/1.4 var(--font-body);color:var(--ink)}
+.scanword{margin-top:22px;background:var(--paper);padding:10px 12px;border-radius:2px;max-width:560px}
+.scanword img{width:100%;height:auto;aspect-ratio:740/98;mix-blend-mode:multiply}
+.scanword+.slip{margin-top:8px;max-width:560px}
+.disagree .dag{color:var(--after)}
+.dots{display:block;width:100%;height:auto;margin-top:22px}
+.dots .s{fill:var(--after)}
+.dots .u{fill:color-mix(in srgb,var(--before) 55%,var(--bg))}
+.legend{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:14px;font-size:14px;color:var(--muted)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;vertical-align:0}
+.legend .s i{background:var(--after)}
+.legend .u i{background:color-mix(in srgb,var(--before) 55%,var(--bg))}
+.c-hooks .term{margin-top:18px;box-shadow:none;background:color-mix(in srgb,var(--bg) 70%,black)}
+.c-hooks .ln{color:var(--muted);margin-bottom:8px}
+.c-hooks .ln em{font-style:normal;color:var(--ink)}
+.c-hooks .ln .no{color:var(--fault)}
+
+/* honest by design: the sill */
+.sill{position:relative;background:color-mix(in srgb,var(--rule) 30%,var(--bg))}
+.sill::before,.sill::after{content:"";position:absolute;left:0;right:0;height:14px;background:linear-gradient(180deg,color-mix(in srgb,var(--rule) 78%,var(--muted)),color-mix(in srgb,var(--rule) 82%,var(--bg)) 60%,color-mix(in srgb,var(--rule) 60%,var(--bg)));box-shadow:0 2px 0 color-mix(in srgb,var(--bg) 60%,transparent)}
+.sill::before{top:0}
+.sill::after{bottom:0;transform:scaleY(-1)}
+.quotes{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,4fr) minmax(0,3fr);gap:clamp(24px,3.4vw,52px);margin-top:44px}
+.quotes blockquote{margin:0;border-top:1px solid var(--rule);padding-top:18px}
+.quotes blockquote p{font:italic 400 clamp(21px,1.8vw,26px)/1.38 var(--font-display);color:var(--ink)}
+.quotes blockquote p strong{font-style:italic;color:var(--after);font-weight:400}
+.quotes cite{display:block;margin-top:16px;font:400 11px/1.4 var(--font-data);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* faq */
+.faq{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:clamp(28px,5vw,80px);align-items:start}
+.faq__head{position:sticky;top:32px}
+details{border-top:1px solid var(--rule)}
+details:last-child{border-bottom:1px solid var(--rule)}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:20px;align-items:baseline;padding:22px 0;font:400 clamp(21px,1.8vw,25px)/1.25 var(--font-display);transition:color .2s}
+summary::-webkit-details-marker{display:none}
+summary:hover{color:var(--after)}
+summary::after{content:"";flex:none;width:12px;height:12px;margin-top:6px;background:linear-gradient(currentColor,currentColor) 50%/100% 1.5px no-repeat,linear-gradient(currentColor,currentColor) 50%/1.5px 100% no-repeat;transition:transform .25s;color:var(--muted)}
+details[open] summary::after{transform:rotate(45deg)}
+details .ans{padding:0 0 24px;color:var(--muted);max-width:64ch;font-size:17px}
+details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
+
+/* closing */
+.close{position:relative;text-align:center;padding:clamp(96px,14vh,150px) 5vw 64px;overflow:hidden}
+.close::before{content:"";position:absolute;left:50%;bottom:-30%;width:min(900px,110vw);aspect-ratio:2/1;transform:translateX(-50%);background:radial-gradient(closest-side,color-mix(in srgb,var(--after) 20%,transparent),transparent);z-index:-1}
+.close h2{font-size:clamp(56px,8vw,120px);margin:0 0 30px}
+.close .cta{justify-content:center}
+.fine{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px 28px;font-size:13.5px;color:var(--muted);text-align:left}
+.fine a{color:var(--ink)}
+
+/* one orchestrated load (from a visible default: no-JS, print and captures see everything) */
+@media (prefers-reduced-motion:no-preference){
+  html.js:not(.settled) .hero .eyebrow,html.js:not(.settled) .hero h1 .l1,html.js:not(.settled) .hero h1 .l2,html.js:not(.settled) .hero .sub,html.js:not(.settled) .hero .cta,html.js:not(.settled) .hero .proof,html.js:not(.settled) .hero .window{animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
+  html.js:not(.settled) .hero h1 .l1{animation-delay:.08s}
+  html.js:not(.settled) .hero h1 .l2{animation-delay:.2s}
+  html.js:not(.settled) .hero .sub{animation-delay:.34s}
+  html.js:not(.settled) .hero .cta{animation-delay:.46s}
+  html.js:not(.settled) .hero .proof{animation-delay:.56s}
+  html.js:not(.settled) .hero .window{animation:fogin 1.4s ease both .1s}
+  html.js:not(.settled) .hero h1 .hand{-webkit-mask-image:linear-gradient(90deg,#000 46%,transparent 54%);mask-image:linear-gradient(90deg,#000 46%,transparent 54%);-webkit-mask-size:240% 100%;mask-size:240% 100%;animation:write 1.9s cubic-bezier(.45,.05,.3,1) both .75s}
+}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fogin{from{opacity:0;filter:blur(6px)}to{opacity:1;filter:none}}
+@keyframes write{from{-webkit-mask-position:100% 0;mask-position:100% 0}to{-webkit-mask-position:0 0;mask-position:0 0}}
+
+/* responsive */
+@media (max-width:1100px){
+  .nav .hide-m{display:none}
+  .bento{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .c-read{grid-column:1/3;grid-row:auto}
+  .c-specs,.c-commits{grid-column:auto}
+  .c-ledger,.c-hooks{grid-column:1/3}
+}
+@media (max-width:900px){
+  .hero{grid-template-columns:minmax(0,1fr);min-height:0;padding-top:12px;gap:0}
+  .hero__copy{display:contents}
+  .hero .eyebrow{order:1;justify-self:start}
+  .hero h1{order:2;margin:20px 0 22px}
+  .hero .window{order:3;margin:0 0 30px}
+  .hero .sub{order:4}
+  .hero .cta{order:5}
+  .hero .proof{order:6}
+  .receipts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rc{padding:26px 18px}
+  .rc:nth-child(odd){border-left:0;padding-left:0}
+  .rc:nth-child(n+3){border-top:1px solid var(--rule)}
+  .viewer{grid-template-columns:minmax(0,1fr)}
+  .spread{grid-template-columns:minmax(0,1fr)}
+  .quotes{grid-template-columns:minmax(0,1fr)}
+  .faq{grid-template-columns:minmax(0,1fr)}
+  .faq__head{position:static}
+  .stepline{grid-template-columns:minmax(0,1fr)}
+  .stepline .why{text-align:left;max-width:none}
+}
+@media (max-width:640px){
+  body{font-size:17px}
+  .top{padding:14px 5vw}
+  .nav{gap:10px}
+  .nav a:not(.btn){display:none}
+  .brand{font-size:18px;gap:10px;white-space:nowrap}
+  .brand img{width:30px;height:30px}
+  .nav .btn{min-height:38px;padding:9px 12px;font-size:13.5px;white-space:nowrap}
+  .stage{aspect-ratio:4/5}
+  .stage .steam-root{--upper-h:20%}
+  .bento{grid-template-columns:minmax(0,1fr)}
+  .c-read,.c-specs,.c-commits,.c-ledger,.c-hooks{grid-column:1}
+  .readers{grid-template-columns:minmax(0,1fr)}
+  .cell{padding:22px 20px}
+  .bars{grid-template-columns:10.5ch minmax(0,1fr) 6ch;gap:5px 8px}
+  .term{font-size:12px}
+  .btn{width:100%;justify-content:center}
+  .nav .btn{width:auto}
+  .fine{flex-direction:column}
+}
+@media (max-height:820px) and (min-width:901px){
+  .hero{min-height:0;padding-top:8px;padding-bottom:48px}
+  h1{font-size:clamp(44px,4.6vw,70px);margin:18px 0 18px}
+  .stage{aspect-ratio:3/2}
+}
+@media print{
+  .top .nav,.ctls,.skip{display:none}
+  .hero{min-height:0}
+  details .ans{display:block}
+  *{animation:none!important;transition:none!important}
+  html,body,.paper,.sill{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the page</a>
+<div class="top">
+  <a class="brand" href="/landing/"><img src="/site/media/mark.png" alt="" width="36" height="36"><span>Her Hand in the Steam</span></a>
+  <nav class="nav" aria-label="Sections">
+    <a class="hide-m" href="#moment">The moment</a>
+    <a class="hide-m" href="#quoted">The hand, quoted</a>
+    <a class="hide-m" href="#kiro">Kiro</a>
+    <a class="hide-m" href="#faq">FAQ</a>
+    <a class="btn" href="/deck/">Pitch deck</a>
+  </nav>
+</div>
+
+<main id="main">
+<header class="hero" id="top">
+  <div class="hero__copy">
+    <p class="eyebrow">Kiroween 2026 · Costume Contest · All Hallows' night</p>
+    <h1><span class="l1">A dead writer's hand, </span><span class="l2"><em class="hand">still writing</em> in the steam.</span></h1>
+    <p class="sub">Cook Mode for handwritten recipes. At the step where the writer left a judgement in their own words, steam condenses on the window over the pot and their scanned hand is wiped clear out of the fog. The hand is real: a <b>c. 1750</b> receipt book in the Wellcome Collection, and <b>3 of 3</b> notes match a fresh fetch of their region from the archive.</p>
+    <div class="cta">
+      <a class="btn" href="https://github.com/edycutjong/steam">GitHub <span class="arr" aria-hidden="true">↗</span></a>
+      <a class="btn" href="/deck/">Pitch deck</a>
+      <a class="btn btn--paper" href="https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&amp;pace=12&amp;lead=6">Open the hero moment <span class="arr" aria-hidden="true">↗</span></a>
+    </div>
+    <p class="proof"><span>the browser runs no model</span><span>works offline after the first visit</span><span>every note links to its archive region</span></p>
+  </div>
+  <figure class="window">
+    <div class="stage" id="glass" data-status="poster">
+      <img class="poster" src="/site/media/window-held.webp" width="1520" height="1140" alt="The steamed window: a full moon through bare branches in the upper sash, and below, in the fog, the words till it Looks red &amp; smooth wiped clear in ember, one candle on the sill." fetchpriority="high">
+      <div class="mount"></div>
+    </div>
+    <div class="bar">
+      <span class="tag" id="glass-tag" aria-live="polite">Still · a frame of this pane, captured from the live renderer</span>
+      <span class="ctls"><button class="ctl" id="glass-act" type="button" hidden>Show the note</button><button class="ctl" id="glass-replay" type="button" hidden>Write it again</button></span>
+    </div>
+    <figcaption class="slip">The writer's note, handwritten: “till it Looks red &amp; smooth” · Wellcome MS.1810 · p.23 · c. 1750 · Public Domain Mark</figcaption>
+  </figure>
+</header>
+
+<div class="wrap">
+  <section class="receipts" aria-label="Receipts">
+    <div class="rc"><p class="rc__n"><span data-count="3">3</span><small>of 3</small></p><p class="rc__l">notes match a fresh fetch of their region from the archive (NCC .960 / .976 / .991, pass at .90)</p><span class="src">docs/kiro-evidence/provenance/run-4.txt</span></div>
+    <div class="rc"><p class="rc__n"><span data-count="15">15</span></p><p class="rc__l">Kiro specs: 5 feature, 10 bugfix</p><span class="src">.kiro/specs/</span></div>
+    <div class="rc"><p class="rc__n"><span data-count="304">304</span></p><p class="rc__l">commits labelled [kiro]</p><span class="src">git log --format=%s | grep -c '^\[kiro\]'</span></div>
+    <div class="rc"><p class="rc__n"><span data-count="1544">1,544</span></p><p class="rc__l">unit and property tests pass, 5 expected-fail (npm test at 8045c5e)</p><span class="src">docs/kiro-evidence/unit-run.txt</span></div>
+  </section>
+</div>
+
+<section class="sec" id="moment">
+  <div class="wrap">
+    <p class="eyebrow">Step 5 of 5 · the judgement</p>
+    <h2>The pot reaches the step. The hand arrives.</h2>
+    <p class="lede">Cook Mode runs the recipe's steps against a pot on a fogged window. At the step where the writer left a judgement, the lamp dips, the simmer drops, and the writer's own ink is wiped clear of the glass. The typed step stays on screen for reading and for screen readers.</p>
+    <div class="viewer" id="viewer">
+      <div class="viewer__img">
+        <img data-i="0" src="/site/media/cook-before-reveal-1200.webp" srcset="/site/media/cook-before-reveal-800.webp 800w, /site/media/cook-before-reveal-1200.webp 1200w" sizes="(max-width:900px) 92vw, 780px" width="1200" height="800" loading="lazy" alt="Cook Mode at step 5 of 5: the steamed window under the moon, the fog thick over the pot, the timer at 1:33.">
+        <img data-i="1" src="/site/media/cook-mid-wipe-1200.webp" srcset="/site/media/cook-mid-wipe-800.webp 800w, /site/media/cook-mid-wipe-1200.webp 1200w" sizes="(max-width:900px) 92vw, 780px" width="1200" height="800" loading="lazy" alt="The first strokes of the note appear in ember out of the fog, the timer at 1:54, the button reads The hand is writing.">
+        <img data-i="2" class="on" src="/site/media/cook-held-note-1200.webp" srcset="/site/media/cook-held-note-800.webp 800w, /site/media/cook-held-note-1200.webp 1200w" sizes="(max-width:900px) 92vw, 780px" width="1200" height="800" loading="lazy" alt="The note till it Looks red &amp; smooth held clear in ember on the glass, the typed step below it, the timer at 3:12.">
+      </div>
+      <ol class="viewer__steps">
+        <li><button type="button" data-i="0" aria-pressed="false"><span class="t">1:33</span><span class="what"><span class="dot" aria-hidden="true"></span>The fog thickens over the pot.</span><span class="meta">step 5 of 5, before the note</span></button></li>
+        <li><button type="button" data-i="1" aria-pressed="false"><span class="t">1:54</span><span class="what"><span class="dot" aria-hidden="true"></span>The writing head starts the first line.</span><span class="meta">the button reads “The hand is writing…”</span></button></li>
+        <li><button type="button" data-i="2" aria-pressed="true" class="held"><span class="t">3:12</span><span class="what"><span class="dot" aria-hidden="true"></span>The note holds until the cook wipes.</span><span class="meta">the typed step stays below for reading</span></button></li>
+      </ol>
+    </div>
+    <p class="capnote">Captured from the live app at steam.edycu.dev; the timer shows cooking time at ×12.</p>
+    <div class="stepline">
+      <q>to the Quinces, &amp; boil it till it Looks red &amp; smooth, keeping it <span class="dag">†[stir'd | stirred]</span> all The time it Boils</q>
+      <p class="why">† the two readers differ here, and the edition keeps both readings.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec paper" id="quoted">
+  <div class="wrap">
+    <p class="eyebrow">Wellcome MS.1810 · p.23 · the source</p>
+    <h2>Quoted, not generated.</h2>
+    <p class="lede">The ink in the steam is the scan's own ink, lifted off the paper and drawn in the renderer's colour. It is a processed render, not a copy of the scan's pixels, so <b>a script re-fetches each note's region from the archive</b> and checks that the bundled crop matches it.</p>
+    <div class="spread">
+      <div class="verso">
+        <div class="plate"><img id="archive" src="https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/610,3366,2982,805/1400,/0/default.jpg" data-fallback="/site/media/p23-region.jpg" width="1400" height="379" loading="lazy" alt="The archive's own scan of MS.1810 p.23, the lines with when Tender and till it Looks red &amp; smooth, in the writer's brown ink."></div>
+        <p class="slip" id="archive-slip">Fetched from iiif.wellcomecollection.org as this page loads · canvas 33 · region 610,3366,2982,805 · Public Domain Mark</p>
+        <p class="order">The write-on follows a traced path through that ink, so the order of strokes is ours, not the writer's.<cite>README · The Solution</cite></p>
+      </div>
+      <div class="recto">
+        <div class="term" id="prov">
+          <div class="term__head"><span>verify_provenance.py · run 4 of 4</span><span>exit 0</span></div>
+          <div class="term__body">
+            <span class="ln cmd">python3 scripts/verify_provenance.py</span>
+            <div class="note-row"><span class="ln nm">full-ripe · region 1927,2486,936,387 · PASS</span><div class="bars"><span class="k">real region</span><span class="track real"><i style="--w:96.0%"></i></span><span class="v"> .960</span><span class="k">moved 150</span><span class="track "><i style="--w:11.4%"></i></span><span class="v"> .114</span><span class="k">other page</span><span class="track "><i style="--w:1.2%"></i></span><span class="v"> .013</span></div></div>
+            <div class="note-row"><span class="ln nm">till-it-looks-red-smooth · region 641,3660,2897,511 · PASS</span><div class="bars"><span class="k">real region</span><span class="track real"><i style="--w:97.6%"></i></span><span class="v"> .976</span><span class="k">moved 150</span><span class="track "><i style="--w:27.6%"></i></span><span class="v"> .276</span><span class="k">other page</span><span class="track  neg"><i style="--w:0.0%"></i></span><span class="v">−.043</span></div></div>
+            <div class="note-row"><span class="ln nm">when-tender · region 610,3366,2982,513 · PASS</span><div class="bars"><span class="k">real region</span><span class="track real"><i style="--w:99.1%"></i></span><span class="v"> .991</span><span class="k">moved 150</span><span class="track "><i style="--w:53.4%"></i></span><span class="v"> .534</span><span class="k">other page</span><span class="track  neg"><i style="--w:0.0%"></i></span><span class="v">−.095</span></div></div>
+            <span class="ln ok">notes 3 · all_pass true · NCC_MIN .90 · SHIFT_CANVAS_PX 150</span>
+          </div>
+          <div class="term__foot">Re-set from docs/kiro-evidence/provenance/run-4.txt (its JSON lines, our layout). Each bar is a normalised cross-correlation (NCC) with the fresh archive crop: the real region, the region moved 150 px, and another page. The line marks the pass mark .90, fixed before the first run; runs 1 to 3 are published beside it.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="kiro">
+  <div class="wrap">
+    <p class="eyebrow">Built with Kiro · the engine</p>
+    <h2>Kiro read the page. Its hooks kept us honest.</h2>
+    <div class="bento">
+      <article class="cell c-read">
+        <svg class="glyph" viewBox="0 0 34 34" aria-hidden="true"><path d="M5 26c4-9 8-14 12-14s4 6 8 6 4-4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M9 30c3-3 6-4 9-4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".55"/></svg>
+        <h3>Two readers who cannot see each other</h3>
+        <p>Two Kiro custom agents read the manuscript page. Kiro enforces that neither can read the other's file, and neither has shell, web or MCP. Where they differ, the edition keeps both readings:</p>
+        <div class="scanword"><img src="/site/media/p23-stird.webp" width="740" height="98" loading="lazy" alt="The writer's ink for keeping it stir'd all, from the scan of p.23."></div>
+        <p class="slip">The scan: keeping it stir'd all · from the IIIF region below</p>
+        <p class="disagree">keeping it <span class="dag">†[stir'd | stirred]</span> all The time it Boils</p>
+        <div class="readers">
+          <div class="reader"><b>scribe</b><span>claude-opus-5.5 · .kiro/agents/scribe.json</span></div>
+          <div class="reader"><b>second-reader</b><span>claude-sonnet-5.5 · .kiro/agents/second-reader.json</span></div>
+        </div>
+        <div class="chips"><span class="chip">.kiro/workflows/ingest-recipe.workflow.json</span><span class="chip">5 steering files</span></div>
+      </article>
+      <article class="cell c-specs">
+        <h3>Specs first</h3>
+        <p class="big">15</p>
+        <p>5 feature specs (renderer v0 and v1, ingestion, Cook Mode, offline shell) and 10 bugfix specs. 8 of the 10 bugfix specs committed a failing test before the fix.</p>
+        <div class="chips"><span class="chip">.kiro/specs/</span></div>
+      </article>
+      <article class="cell c-commits">
+        <h3>Every commit says who wrote it</h3>
+        <p class="big">304</p>
+        <p>commits are labelled <b>[kiro]</b>; the rest say <b>[claude-direct]</b>, including the commits that made this page.</p>
+      </article>
+      <article class="cell c-ledger">
+        <h3>Then we measured what the hooks saw: about 5%.</h3>
+        <p>Kiro wrote code mostly through its shell tool: <b>543 shell commands</b> wrote under src/ against <b>30 write-tool calls</b>, and none of the 543 had a hook event. A Kiro bugfix spec, hook-coverage, added shell-gate and src-scan-after-shell.</p>
+        <svg class="dots" viewBox="0 0 432 108" role="img" aria-label="573 writes under src/: 30 through write tools, 543 through the shell"><circle class="s" cx="4.5" cy="4.5" r="3.0"/><circle class="s" cx="13.5" cy="4.5" r="3.0"/><circle class="s" cx="22.5" cy="4.5" r="3.0"/><circle class="s" cx="31.5" cy="4.5" r="3.0"/><circle class="s" cx="40.5" cy="4.5" r="3.0"/><circle class="s" cx="49.5" cy="4.5" r="3.0"/><circle class="s" cx="58.5" cy="4.5" r="3.0"/><circle class="s" cx="67.5" cy="4.5" r="3.0"/><circle class="s" cx="76.5" cy="4.5" r="3.0"/><circle class="s" cx="85.5" cy="4.5" r="3.0"/><circle class="s" cx="94.5" cy="4.5" r="3.0"/><circle class="s" cx="103.5" cy="4.5" r="3.0"/><circle class="s" cx="112.5" cy="4.5" r="3.0"/><circle class="s" cx="121.5" cy="4.5" r="3.0"/><circle class="s" cx="130.5" cy="4.5" r="3.0"/><circle class="s" cx="139.5" cy="4.5" r="3.0"/><circle class="s" cx="148.5" cy="4.5" r="3.0"/><circle class="s" cx="157.5" cy="4.5" r="3.0"/><circle class="s" cx="166.5" cy="4.5" r="3.0"/><circle class="s" cx="175.5" cy="4.5" r="3.0"/><circle class="s" cx="184.5" cy="4.5" r="3.0"/><circle class="s" cx="193.5" cy="4.5" r="3.0"/><circle class="s" cx="202.5" cy="4.5" r="3.0"/><circle class="s" cx="211.5" cy="4.5" r="3.0"/><circle class="s" cx="220.5" cy="4.5" r="3.0"/><circle class="s" cx="229.5" cy="4.5" r="3.0"/><circle class="s" cx="238.5" cy="4.5" r="3.0"/><circle class="s" cx="247.5" cy="4.5" r="3.0"/><circle class="s" cx="256.5" cy="4.5" r="3.0"/><circle class="s" cx="265.5" cy="4.5" r="3.0"/><circle class="u" cx="274.5" cy="4.5" r="3.0"/><circle class="u" cx="283.5" cy="4.5" r="3.0"/><circle class="u" cx="292.5" cy="4.5" r="3.0"/><circle class="u" cx="301.5" cy="4.5" r="3.0"/><circle class="u" cx="310.5" cy="4.5" r="3.0"/><circle class="u" cx="319.5" cy="4.5" r="3.0"/><circle class="u" cx="328.5" cy="4.5" r="3.0"/><circle class="u" cx="337.5" cy="4.5" r="3.0"/><circle class="u" cx="346.5" cy="4.5" r="3.0"/><circle class="u" cx="355.5" cy="4.5" r="3.0"/><circle class="u" cx="364.5" cy="4.5" r="3.0"/><circle class="u" cx="373.5" cy="4.5" r="3.0"/><circle class="u" cx="382.5" cy="4.5" r="3.0"/><circle class="u" cx="391.5" cy="4.5" r="3.0"/><circle class="u" cx="400.5" cy="4.5" r="3.0"/><circle class="u" cx="409.5" cy="4.5" r="3.0"/><circle class="u" cx="418.5" cy="4.5" r="3.0"/><circle class="u" cx="427.5" cy="4.5" r="3.0"/><circle class="u" cx="4.5" cy="13.5" r="3.0"/><circle class="u" cx="13.5" cy="13.5" r="3.0"/><circle class="u" cx="22.5" cy="13.5" r="3.0"/><circle class="u" cx="31.5" cy="13.5" r="3.0"/><circle class="u" cx="40.5" cy="13.5" r="3.0"/><circle class="u" cx="49.5" cy="13.5" r="3.0"/><circle class="u" cx="58.5" cy="13.5" r="3.0"/><circle class="u" cx="67.5" cy="13.5" r="3.0"/><circle class="u" cx="76.5" cy="13.5" r="3.0"/><circle class="u" cx="85.5" cy="13.5" r="3.0"/><circle class="u" cx="94.5" cy="13.5" r="3.0"/><circle class="u" cx="103.5" cy="13.5" r="3.0"/><circle class="u" cx="112.5" cy="13.5" r="3.0"/><circle class="u" cx="121.5" cy="13.5" r="3.0"/><circle class="u" cx="130.5" cy="13.5" r="3.0"/><circle class="u" cx="139.5" cy="13.5" r="3.0"/><circle class="u" cx="148.5" cy="13.5" r="3.0"/><circle class="u" cx="157.5" cy="13.5" r="3.0"/><circle class="u" cx="166.5" cy="13.5" r="3.0"/><circle class="u" cx="175.5" cy="13.5" r="3.0"/><circle class="u" cx="184.5" cy="13.5" r="3.0"/><circle class="u" cx="193.5" cy="13.5" r="3.0"/><circle class="u" cx="202.5" cy="13.5" r="3.0"/><circle class="u" cx="211.5" cy="13.5" r="3.0"/><circle class="u" cx="220.5" cy="13.5" r="3.0"/><circle class="u" cx="229.5" cy="13.5" r="3.0"/><circle class="u" cx="238.5" cy="13.5" r="3.0"/><circle class="u" cx="247.5" cy="13.5" r="3.0"/><circle class="u" cx="256.5" cy="13.5" r="3.0"/><circle class="u" cx="265.5" cy="13.5" r="3.0"/><circle class="u" cx="274.5" cy="13.5" r="3.0"/><circle class="u" cx="283.5" cy="13.5" r="3.0"/><circle class="u" cx="292.5" cy="13.5" r="3.0"/><circle class="u" cx="301.5" cy="13.5" r="3.0"/><circle class="u" cx="310.5" cy="13.5" r="3.0"/><circle class="u" cx="319.5" cy="13.5" r="3.0"/><circle class="u" cx="328.5" cy="13.5" r="3.0"/><circle class="u" cx="337.5" cy="13.5" r="3.0"/><circle class="u" cx="346.5" cy="13.5" r="3.0"/><circle class="u" cx="355.5" cy="13.5" r="3.0"/><circle class="u" cx="364.5" cy="13.5" r="3.0"/><circle class="u" cx="373.5" cy="13.5" r="3.0"/><circle class="u" cx="382.5" cy="13.5" r="3.0"/><circle class="u" cx="391.5" cy="13.5" r="3.0"/><circle class="u" cx="400.5" cy="13.5" r="3.0"/><circle class="u" cx="409.5" cy="13.5" r="3.0"/><circle class="u" cx="418.5" cy="13.5" r="3.0"/><circle class="u" cx="427.5" cy="13.5" r="3.0"/><circle class="u" cx="4.5" cy="22.5" r="3.0"/><circle class="u" cx="13.5" cy="22.5" r="3.0"/><circle class="u" cx="22.5" cy="22.5" r="3.0"/><circle class="u" cx="31.5" cy="22.5" r="3.0"/><circle class="u" cx="40.5" cy="22.5" r="3.0"/><circle class="u" cx="49.5" cy="22.5" r="3.0"/><circle class="u" cx="58.5" cy="22.5" r="3.0"/><circle class="u" cx="67.5" cy="22.5" r="3.0"/><circle class="u" cx="76.5" cy="22.5" r="3.0"/><circle class="u" cx="85.5" cy="22.5" r="3.0"/><circle class="u" cx="94.5" cy="22.5" r="3.0"/><circle class="u" cx="103.5" cy="22.5" r="3.0"/><circle class="u" cx="112.5" cy="22.5" r="3.0"/><circle class="u" cx="121.5" cy="22.5" r="3.0"/><circle class="u" cx="130.5" cy="22.5" r="3.0"/><circle class="u" cx="139.5" cy="22.5" r="3.0"/><circle class="u" cx="148.5" cy="22.5" r="3.0"/><circle class="u" cx="157.5" cy="22.5" r="3.0"/><circle class="u" cx="166.5" cy="22.5" r="3.0"/><circle class="u" cx="175.5" cy="22.5" r="3.0"/><circle class="u" cx="184.5" cy="22.5" r="3.0"/><circle class="u" cx="193.5" cy="22.5" r="3.0"/><circle class="u" cx="202.5" cy="22.5" r="3.0"/><circle class="u" cx="211.5" cy="22.5" r="3.0"/><circle class="u" cx="220.5" cy="22.5" r="3.0"/><circle class="u" cx="229.5" cy="22.5" r="3.0"/><circle class="u" cx="238.5" cy="22.5" r="3.0"/><circle class="u" cx="247.5" cy="22.5" r="3.0"/><circle class="u" cx="256.5" cy="22.5" r="3.0"/><circle class="u" cx="265.5" cy="22.5" r="3.0"/><circle class="u" cx="274.5" cy="22.5" r="3.0"/><circle class="u" cx="283.5" cy="22.5" r="3.0"/><circle class="u" cx="292.5" cy="22.5" r="3.0"/><circle class="u" cx="301.5" cy="22.5" r="3.0"/><circle class="u" cx="310.5" cy="22.5" r="3.0"/><circle class="u" cx="319.5" cy="22.5" r="3.0"/><circle class="u" cx="328.5" cy="22.5" r="3.0"/><circle class="u" cx="337.5" cy="22.5" r="3.0"/><circle class="u" cx="346.5" cy="22.5" r="3.0"/><circle class="u" cx="355.5" cy="22.5" r="3.0"/><circle class="u" cx="364.5" cy="22.5" r="3.0"/><circle class="u" cx="373.5" cy="22.5" r="3.0"/><circle class="u" cx="382.5" cy="22.5" r="3.0"/><circle class="u" cx="391.5" cy="22.5" r="3.0"/><circle class="u" cx="400.5" cy="22.5" r="3.0"/><circle class="u" cx="409.5" cy="22.5" r="3.0"/><circle class="u" cx="418.5" cy="22.5" r="3.0"/><circle class="u" cx="427.5" cy="22.5" r="3.0"/><circle class="u" cx="4.5" cy="31.5" r="3.0"/><circle class="u" cx="13.5" cy="31.5" r="3.0"/><circle class="u" cx="22.5" cy="31.5" r="3.0"/><circle class="u" cx="31.5" cy="31.5" r="3.0"/><circle class="u" cx="40.5" cy="31.5" r="3.0"/><circle class="u" cx="49.5" cy="31.5" r="3.0"/><circle class="u" cx="58.5" cy="31.5" r="3.0"/><circle class="u" cx="67.5" cy="31.5" r="3.0"/><circle class="u" cx="76.5" cy="31.5" r="3.0"/><circle class="u" cx="85.5" cy="31.5" r="3.0"/><circle class="u" cx="94.5" cy="31.5" r="3.0"/><circle class="u" cx="103.5" cy="31.5" r="3.0"/><circle class="u" cx="112.5" cy="31.5" r="3.0"/><circle class="u" cx="121.5" cy="31.5" r="3.0"/><circle class="u" cx="130.5" cy="31.5" r="3.0"/><circle class="u" cx="139.5" cy="31.5" r="3.0"/><circle class="u" cx="148.5" cy="31.5" r="3.0"/><circle class="u" cx="157.5" cy="31.5" r="3.0"/><circle class="u" cx="166.5" cy="31.5" r="3.0"/><circle class="u" cx="175.5" cy="31.5" r="3.0"/><circle class="u" cx="184.5" cy="31.5" r="3.0"/><circle class="u" cx="193.5" cy="31.5" r="3.0"/><circle class="u" cx="202.5" cy="31.5" r="3.0"/><circle class="u" cx="211.5" cy="31.5" r="3.0"/><circle class="u" cx="220.5" cy="31.5" r="3.0"/><circle class="u" cx="229.5" cy="31.5" r="3.0"/><circle class="u" cx="238.5" cy="31.5" r="3.0"/><circle class="u" cx="247.5" cy="31.5" r="3.0"/><circle class="u" cx="256.5" cy="31.5" r="3.0"/><circle class="u" cx="265.5" cy="31.5" r="3.0"/><circle class="u" cx="274.5" cy="31.5" r="3.0"/><circle class="u" cx="283.5" cy="31.5" r="3.0"/><circle class="u" cx="292.5" cy="31.5" r="3.0"/><circle class="u" cx="301.5" cy="31.5" r="3.0"/><circle class="u" cx="310.5" cy="31.5" r="3.0"/><circle class="u" cx="319.5" cy="31.5" r="3.0"/><circle class="u" cx="328.5" cy="31.5" r="3.0"/><circle class="u" cx="337.5" cy="31.5" r="3.0"/><circle class="u" cx="346.5" cy="31.5" r="3.0"/><circle class="u" cx="355.5" cy="31.5" r="3.0"/><circle class="u" cx="364.5" cy="31.5" r="3.0"/><circle class="u" cx="373.5" cy="31.5" r="3.0"/><circle class="u" cx="382.5" cy="31.5" r="3.0"/><circle class="u" cx="391.5" cy="31.5" r="3.0"/><circle class="u" cx="400.5" cy="31.5" r="3.0"/><circle class="u" cx="409.5" cy="31.5" r="3.0"/><circle class="u" cx="418.5" cy="31.5" r="3.0"/><circle class="u" cx="427.5" cy="31.5" r="3.0"/><circle class="u" cx="4.5" cy="40.5" r="3.0"/><circle class="u" cx="13.5" cy="40.5" r="3.0"/><circle class="u" cx="22.5" cy="40.5" r="3.0"/><circle class="u" cx="31.5" cy="40.5" r="3.0"/><circle class="u" cx="40.5" cy="40.5" r="3.0"/><circle class="u" cx="49.5" cy="40.5" r="3.0"/><circle class="u" cx="58.5" cy="40.5" r="3.0"/><circle class="u" cx="67.5" cy="40.5" r="3.0"/><circle class="u" cx="76.5" cy="40.5" r="3.0"/><circle class="u" cx="85.5" cy="40.5" r="3.0"/><circle class="u" cx="94.5" cy="40.5" r="3.0"/><circle class="u" cx="103.5" cy="40.5" r="3.0"/><circle class="u" cx="112.5" cy="40.5" r="3.0"/><circle class="u" cx="121.5" cy="40.5" r="3.0"/><circle class="u" cx="130.5" cy="40.5" r="3.0"/><circle class="u" cx="139.5" cy="40.5" r="3.0"/><circle class="u" cx="148.5" cy="40.5" r="3.0"/><circle class="u" cx="157.5" cy="40.5" r="3.0"/><circle class="u" cx="166.5" cy="40.5" r="3.0"/><circle class="u" cx="175.5" cy="40.5" r="3.0"/><circle class="u" cx="184.5" cy="40.5" r="3.0"/><circle class="u" cx="193.5" cy="40.5" r="3.0"/><circle class="u" cx="202.5" cy="40.5" r="3.0"/><circle class="u" cx="211.5" cy="40.5" r="3.0"/><circle class="u" cx="220.5" cy="40.5" r="3.0"/><circle class="u" cx="229.5" cy="40.5" r="3.0"/><circle class="u" cx="238.5" cy="40.5" r="3.0"/><circle class="u" cx="247.5" cy="40.5" r="3.0"/><circle class="u" cx="256.5" cy="40.5" r="3.0"/><circle class="u" cx="265.5" cy="40.5" r="3.0"/><circle class="u" cx="274.5" cy="40.5" r="3.0"/><circle class="u" cx="283.5" cy="40.5" r="3.0"/><circle class="u" cx="292.5" cy="40.5" r="3.0"/><circle class="u" cx="301.5" cy="40.5" r="3.0"/><circle class="u" cx="310.5" cy="40.5" r="3.0"/><circle class="u" cx="319.5" cy="40.5" r="3.0"/><circle class="u" cx="328.5" cy="40.5" r="3.0"/><circle class="u" cx="337.5" cy="40.5" r="3.0"/><circle class="u" cx="346.5" cy="40.5" r="3.0"/><circle class="u" cx="355.5" cy="40.5" r="3.0"/><circle class="u" cx="364.5" cy="40.5" r="3.0"/><circle class="u" cx="373.5" cy="40.5" r="3.0"/><circle class="u" cx="382.5" cy="40.5" r="3.0"/><circle class="u" cx="391.5" cy="40.5" r="3.0"/><circle class="u" cx="400.5" cy="40.5" r="3.0"/><circle class="u" cx="409.5" cy="40.5" r="3.0"/><circle class="u" cx="418.5" cy="40.5" r="3.0"/><circle class="u" cx="427.5" cy="40.5" r="3.0"/><circle class="u" cx="4.5" cy="49.5" r="3.0"/><circle class="u" cx="13.5" cy="49.5" r="3.0"/><circle class="u" cx="22.5" cy="49.5" r="3.0"/><circle class="u" cx="31.5" cy="49.5" r="3.0"/><circle class="u" cx="40.5" cy="49.5" r="3.0"/><circle class="u" cx="49.5" cy="49.5" r="3.0"/><circle class="u" cx="58.5" cy="49.5" r="3.0"/><circle class="u" cx="67.5" cy="49.5" r="3.0"/><circle class="u" cx="76.5" cy="49.5" r="3.0"/><circle class="u" cx="85.5" cy="49.5" r="3.0"/><circle class="u" cx="94.5" cy="49.5" r="3.0"/><circle class="u" cx="103.5" cy="49.5" r="3.0"/><circle class="u" cx="112.5" cy="49.5" r="3.0"/><circle class="u" cx="121.5" cy="49.5" r="3.0"/><circle class="u" cx="130.5" cy="49.5" r="3.0"/><circle class="u" cx="139.5" cy="49.5" r="3.0"/><circle class="u" cx="148.5" cy="49.5" r="3.0"/><circle class="u" cx="157.5" cy="49.5" r="3.0"/><circle class="u" cx="166.5" cy="49.5" r="3.0"/><circle class="u" cx="175.5" cy="49.5" r="3.0"/><circle class="u" cx="184.5" cy="49.5" r="3.0"/><circle class="u" cx="193.5" cy="49.5" r="3.0"/><circle class="u" cx="202.5" cy="49.5" r="3.0"/><circle class="u" cx="211.5" cy="49.5" r="3.0"/><circle class="u" cx="220.5" cy="49.5" r="3.0"/><circle class="u" cx="229.5" cy="49.5" r="3.0"/><circle class="u" cx="238.5" cy="49.5" r="3.0"/><circle class="u" cx="247.5" cy="49.5" r="3.0"/><circle class="u" cx="256.5" cy="49.5" r="3.0"/><circle class="u" cx="265.5" cy="49.5" r="3.0"/><circle class="u" cx="274.5" cy="49.5" r="3.0"/><circle class="u" cx="283.5" cy="49.5" r="3.0"/><circle class="u" cx="292.5" cy="49.5" r="3.0"/><circle class="u" cx="301.5" cy="49.5" r="3.0"/><circle class="u" cx="310.5" cy="49.5" r="3.0"/><circle class="u" cx="319.5" cy="49.5" r="3.0"/><circle class="u" cx="328.5" cy="49.5" r="3.0"/><circle class="u" cx="337.5" cy="49.5" r="3.0"/><circle class="u" cx="346.5" cy="49.5" r="3.0"/><circle class="u" cx="355.5" cy="49.5" r="3.0"/><circle class="u" cx="364.5" cy="49.5" r="3.0"/><circle class="u" cx="373.5" cy="49.5" r="3.0"/><circle class="u" cx="382.5" cy="49.5" r="3.0"/><circle class="u" cx="391.5" cy="49.5" r="3.0"/><circle class="u" cx="400.5" cy="49.5" r="3.0"/><circle class="u" cx="409.5" cy="49.5" r="3.0"/><circle class="u" cx="418.5" cy="49.5" r="3.0"/><circle class="u" cx="427.5" cy="49.5" r="3.0"/><circle class="u" cx="4.5" cy="58.5" r="3.0"/><circle class="u" cx="13.5" cy="58.5" r="3.0"/><circle class="u" cx="22.5" cy="58.5" r="3.0"/><circle class="u" cx="31.5" cy="58.5" r="3.0"/><circle class="u" cx="40.5" cy="58.5" r="3.0"/><circle class="u" cx="49.5" cy="58.5" r="3.0"/><circle class="u" cx="58.5" cy="58.5" r="3.0"/><circle class="u" cx="67.5" cy="58.5" r="3.0"/><circle class="u" cx="76.5" cy="58.5" r="3.0"/><circle class="u" cx="85.5" cy="58.5" r="3.0"/><circle class="u" cx="94.5" cy="58.5" r="3.0"/><circle class="u" cx="103.5" cy="58.5" r="3.0"/><circle class="u" cx="112.5" cy="58.5" r="3.0"/><circle class="u" cx="121.5" cy="58.5" r="3.0"/><circle class="u" cx="130.5" cy="58.5" r="3.0"/><circle class="u" cx="139.5" cy="58.5" r="3.0"/><circle class="u" cx="148.5" cy="58.5" r="3.0"/><circle class="u" cx="157.5" cy="58.5" r="3.0"/><circle class="u" cx="166.5" cy="58.5" r="3.0"/><circle class="u" cx="175.5" cy="58.5" r="3.0"/><circle class="u" cx="184.5" cy="58.5" r="3.0"/><circle class="u" cx="193.5" cy="58.5" r="3.0"/><circle class="u" cx="202.5" cy="58.5" r="3.0"/><circle class="u" cx="211.5" cy="58.5" r="3.0"/><circle class="u" cx="220.5" cy="58.5" r="3.0"/><circle class="u" cx="229.5" cy="58.5" r="3.0"/><circle class="u" cx="238.5" cy="58.5" r="3.0"/><circle class="u" cx="247.5" cy="58.5" r="3.0"/><circle class="u" cx="256.5" cy="58.5" r="3.0"/><circle class="u" cx="265.5" cy="58.5" r="3.0"/><circle class="u" cx="274.5" cy="58.5" r="3.0"/><circle class="u" cx="283.5" cy="58.5" r="3.0"/><circle class="u" cx="292.5" cy="58.5" r="3.0"/><circle class="u" cx="301.5" cy="58.5" r="3.0"/><circle class="u" cx="310.5" cy="58.5" r="3.0"/><circle class="u" cx="319.5" cy="58.5" r="3.0"/><circle class="u" cx="328.5" cy="58.5" r="3.0"/><circle class="u" cx="337.5" cy="58.5" r="3.0"/><circle class="u" cx="346.5" cy="58.5" r="3.0"/><circle class="u" cx="355.5" cy="58.5" r="3.0"/><circle class="u" cx="364.5" cy="58.5" r="3.0"/><circle class="u" cx="373.5" cy="58.5" r="3.0"/><circle class="u" cx="382.5" cy="58.5" r="3.0"/><circle class="u" cx="391.5" cy="58.5" r="3.0"/><circle class="u" cx="400.5" cy="58.5" r="3.0"/><circle class="u" cx="409.5" cy="58.5" r="3.0"/><circle class="u" cx="418.5" cy="58.5" r="3.0"/><circle class="u" cx="427.5" cy="58.5" r="3.0"/><circle class="u" cx="4.5" cy="67.5" r="3.0"/><circle class="u" cx="13.5" cy="67.5" r="3.0"/><circle class="u" cx="22.5" cy="67.5" r="3.0"/><circle class="u" cx="31.5" cy="67.5" r="3.0"/><circle class="u" cx="40.5" cy="67.5" r="3.0"/><circle class="u" cx="49.5" cy="67.5" r="3.0"/><circle class="u" cx="58.5" cy="67.5" r="3.0"/><circle class="u" cx="67.5" cy="67.5" r="3.0"/><circle class="u" cx="76.5" cy="67.5" r="3.0"/><circle class="u" cx="85.5" cy="67.5" r="3.0"/><circle class="u" cx="94.5" cy="67.5" r="3.0"/><circle class="u" cx="103.5" cy="67.5" r="3.0"/><circle class="u" cx="112.5" cy="67.5" r="3.0"/><circle class="u" cx="121.5" cy="67.5" r="3.0"/><circle class="u" cx="130.5" cy="67.5" r="3.0"/><circle class="u" cx="139.5" cy="67.5" r="3.0"/><circle class="u" cx="148.5" cy="67.5" r="3.0"/><circle class="u" cx="157.5" cy="67.5" r="3.0"/><circle class="u" cx="166.5" cy="67.5" r="3.0"/><circle class="u" cx="175.5" cy="67.5" r="3.0"/><circle class="u" cx="184.5" cy="67.5" r="3.0"/><circle class="u" cx="193.5" cy="67.5" r="3.0"/><circle class="u" cx="202.5" cy="67.5" r="3.0"/><circle class="u" cx="211.5" cy="67.5" r="3.0"/><circle class="u" cx="220.5" cy="67.5" r="3.0"/><circle class="u" cx="229.5" cy="67.5" r="3.0"/><circle class="u" cx="238.5" cy="67.5" r="3.0"/><circle class="u" cx="247.5" cy="67.5" r="3.0"/><circle class="u" cx="256.5" cy="67.5" r="3.0"/><circle class="u" cx="265.5" cy="67.5" r="3.0"/><circle class="u" cx="274.5" cy="67.5" r="3.0"/><circle class="u" cx="283.5" cy="67.5" r="3.0"/><circle class="u" cx="292.5" cy="67.5" r="3.0"/><circle class="u" cx="301.5" cy="67.5" r="3.0"/><circle class="u" cx="310.5" cy="67.5" r="3.0"/><circle class="u" cx="319.5" cy="67.5" r="3.0"/><circle class="u" cx="328.5" cy="67.5" r="3.0"/><circle class="u" cx="337.5" cy="67.5" r="3.0"/><circle class="u" cx="346.5" cy="67.5" r="3.0"/><circle class="u" cx="355.5" cy="67.5" r="3.0"/><circle class="u" cx="364.5" cy="67.5" r="3.0"/><circle class="u" cx="373.5" cy="67.5" r="3.0"/><circle class="u" cx="382.5" cy="67.5" r="3.0"/><circle class="u" cx="391.5" cy="67.5" r="3.0"/><circle class="u" cx="400.5" cy="67.5" r="3.0"/><circle class="u" cx="409.5" cy="67.5" r="3.0"/><circle class="u" cx="418.5" cy="67.5" r="3.0"/><circle class="u" cx="427.5" cy="67.5" r="3.0"/><circle class="u" cx="4.5" cy="76.5" r="3.0"/><circle class="u" cx="13.5" cy="76.5" r="3.0"/><circle class="u" cx="22.5" cy="76.5" r="3.0"/><circle class="u" cx="31.5" cy="76.5" r="3.0"/><circle class="u" cx="40.5" cy="76.5" r="3.0"/><circle class="u" cx="49.5" cy="76.5" r="3.0"/><circle class="u" cx="58.5" cy="76.5" r="3.0"/><circle class="u" cx="67.5" cy="76.5" r="3.0"/><circle class="u" cx="76.5" cy="76.5" r="3.0"/><circle class="u" cx="85.5" cy="76.5" r="3.0"/><circle class="u" cx="94.5" cy="76.5" r="3.0"/><circle class="u" cx="103.5" cy="76.5" r="3.0"/><circle class="u" cx="112.5" cy="76.5" r="3.0"/><circle class="u" cx="121.5" cy="76.5" r="3.0"/><circle class="u" cx="130.5" cy="76.5" r="3.0"/><circle class="u" cx="139.5" cy="76.5" r="3.0"/><circle class="u" cx="148.5" cy="76.5" r="3.0"/><circle class="u" cx="157.5" cy="76.5" r="3.0"/><circle class="u" cx="166.5" cy="76.5" r="3.0"/><circle class="u" cx="175.5" cy="76.5" r="3.0"/><circle class="u" cx="184.5" cy="76.5" r="3.0"/><circle class="u" cx="193.5" cy="76.5" r="3.0"/><circle class="u" cx="202.5" cy="76.5" r="3.0"/><circle class="u" cx="211.5" cy="76.5" r="3.0"/><circle class="u" cx="220.5" cy="76.5" r="3.0"/><circle class="u" cx="229.5" cy="76.5" r="3.0"/><circle class="u" cx="238.5" cy="76.5" r="3.0"/><circle class="u" cx="247.5" cy="76.5" r="3.0"/><circle class="u" cx="256.5" cy="76.5" r="3.0"/><circle class="u" cx="265.5" cy="76.5" r="3.0"/><circle class="u" cx="274.5" cy="76.5" r="3.0"/><circle class="u" cx="283.5" cy="76.5" r="3.0"/><circle class="u" cx="292.5" cy="76.5" r="3.0"/><circle class="u" cx="301.5" cy="76.5" r="3.0"/><circle class="u" cx="310.5" cy="76.5" r="3.0"/><circle class="u" cx="319.5" cy="76.5" r="3.0"/><circle class="u" cx="328.5" cy="76.5" r="3.0"/><circle class="u" cx="337.5" cy="76.5" r="3.0"/><circle class="u" cx="346.5" cy="76.5" r="3.0"/><circle class="u" cx="355.5" cy="76.5" r="3.0"/><circle class="u" cx="364.5" cy="76.5" r="3.0"/><circle class="u" cx="373.5" cy="76.5" r="3.0"/><circle class="u" cx="382.5" cy="76.5" r="3.0"/><circle class="u" cx="391.5" cy="76.5" r="3.0"/><circle class="u" cx="400.5" cy="76.5" r="3.0"/><circle class="u" cx="409.5" cy="76.5" r="3.0"/><circle class="u" cx="418.5" cy="76.5" r="3.0"/><circle class="u" cx="427.5" cy="76.5" r="3.0"/><circle class="u" cx="4.5" cy="85.5" r="3.0"/><circle class="u" cx="13.5" cy="85.5" r="3.0"/><circle class="u" cx="22.5" cy="85.5" r="3.0"/><circle class="u" cx="31.5" cy="85.5" r="3.0"/><circle class="u" cx="40.5" cy="85.5" r="3.0"/><circle class="u" cx="49.5" cy="85.5" r="3.0"/><circle class="u" cx="58.5" cy="85.5" r="3.0"/><circle class="u" cx="67.5" cy="85.5" r="3.0"/><circle class="u" cx="76.5" cy="85.5" r="3.0"/><circle class="u" cx="85.5" cy="85.5" r="3.0"/><circle class="u" cx="94.5" cy="85.5" r="3.0"/><circle class="u" cx="103.5" cy="85.5" r="3.0"/><circle class="u" cx="112.5" cy="85.5" r="3.0"/><circle class="u" cx="121.5" cy="85.5" r="3.0"/><circle class="u" cx="130.5" cy="85.5" r="3.0"/><circle class="u" cx="139.5" cy="85.5" r="3.0"/><circle class="u" cx="148.5" cy="85.5" r="3.0"/><circle class="u" cx="157.5" cy="85.5" r="3.0"/><circle class="u" cx="166.5" cy="85.5" r="3.0"/><circle class="u" cx="175.5" cy="85.5" r="3.0"/><circle class="u" cx="184.5" cy="85.5" r="3.0"/><circle class="u" cx="193.5" cy="85.5" r="3.0"/><circle class="u" cx="202.5" cy="85.5" r="3.0"/><circle class="u" cx="211.5" cy="85.5" r="3.0"/><circle class="u" cx="220.5" cy="85.5" r="3.0"/><circle class="u" cx="229.5" cy="85.5" r="3.0"/><circle class="u" cx="238.5" cy="85.5" r="3.0"/><circle class="u" cx="247.5" cy="85.5" r="3.0"/><circle class="u" cx="256.5" cy="85.5" r="3.0"/><circle class="u" cx="265.5" cy="85.5" r="3.0"/><circle class="u" cx="274.5" cy="85.5" r="3.0"/><circle class="u" cx="283.5" cy="85.5" r="3.0"/><circle class="u" cx="292.5" cy="85.5" r="3.0"/><circle class="u" cx="301.5" cy="85.5" r="3.0"/><circle class="u" cx="310.5" cy="85.5" r="3.0"/><circle class="u" cx="319.5" cy="85.5" r="3.0"/><circle class="u" cx="328.5" cy="85.5" r="3.0"/><circle class="u" cx="337.5" cy="85.5" r="3.0"/><circle class="u" cx="346.5" cy="85.5" r="3.0"/><circle class="u" cx="355.5" cy="85.5" r="3.0"/><circle class="u" cx="364.5" cy="85.5" r="3.0"/><circle class="u" cx="373.5" cy="85.5" r="3.0"/><circle class="u" cx="382.5" cy="85.5" r="3.0"/><circle class="u" cx="391.5" cy="85.5" r="3.0"/><circle class="u" cx="400.5" cy="85.5" r="3.0"/><circle class="u" cx="409.5" cy="85.5" r="3.0"/><circle class="u" cx="418.5" cy="85.5" r="3.0"/><circle class="u" cx="427.5" cy="85.5" r="3.0"/><circle class="u" cx="4.5" cy="94.5" r="3.0"/><circle class="u" cx="13.5" cy="94.5" r="3.0"/><circle class="u" cx="22.5" cy="94.5" r="3.0"/><circle class="u" cx="31.5" cy="94.5" r="3.0"/><circle class="u" cx="40.5" cy="94.5" r="3.0"/><circle class="u" cx="49.5" cy="94.5" r="3.0"/><circle class="u" cx="58.5" cy="94.5" r="3.0"/><circle class="u" cx="67.5" cy="94.5" r="3.0"/><circle class="u" cx="76.5" cy="94.5" r="3.0"/><circle class="u" cx="85.5" cy="94.5" r="3.0"/><circle class="u" cx="94.5" cy="94.5" r="3.0"/><circle class="u" cx="103.5" cy="94.5" r="3.0"/><circle class="u" cx="112.5" cy="94.5" r="3.0"/><circle class="u" cx="121.5" cy="94.5" r="3.0"/><circle class="u" cx="130.5" cy="94.5" r="3.0"/><circle class="u" cx="139.5" cy="94.5" r="3.0"/><circle class="u" cx="148.5" cy="94.5" r="3.0"/><circle class="u" cx="157.5" cy="94.5" r="3.0"/><circle class="u" cx="166.5" cy="94.5" r="3.0"/><circle class="u" cx="175.5" cy="94.5" r="3.0"/><circle class="u" cx="184.5" cy="94.5" r="3.0"/><circle class="u" cx="193.5" cy="94.5" r="3.0"/><circle class="u" cx="202.5" cy="94.5" r="3.0"/><circle class="u" cx="211.5" cy="94.5" r="3.0"/><circle class="u" cx="220.5" cy="94.5" r="3.0"/><circle class="u" cx="229.5" cy="94.5" r="3.0"/><circle class="u" cx="238.5" cy="94.5" r="3.0"/><circle class="u" cx="247.5" cy="94.5" r="3.0"/><circle class="u" cx="256.5" cy="94.5" r="3.0"/><circle class="u" cx="265.5" cy="94.5" r="3.0"/><circle class="u" cx="274.5" cy="94.5" r="3.0"/><circle class="u" cx="283.5" cy="94.5" r="3.0"/><circle class="u" cx="292.5" cy="94.5" r="3.0"/><circle class="u" cx="301.5" cy="94.5" r="3.0"/><circle class="u" cx="310.5" cy="94.5" r="3.0"/><circle class="u" cx="319.5" cy="94.5" r="3.0"/><circle class="u" cx="328.5" cy="94.5" r="3.0"/><circle class="u" cx="337.5" cy="94.5" r="3.0"/><circle class="u" cx="346.5" cy="94.5" r="3.0"/><circle class="u" cx="355.5" cy="94.5" r="3.0"/><circle class="u" cx="364.5" cy="94.5" r="3.0"/><circle class="u" cx="373.5" cy="94.5" r="3.0"/><circle class="u" cx="382.5" cy="94.5" r="3.0"/><circle class="u" cx="391.5" cy="94.5" r="3.0"/><circle class="u" cx="400.5" cy="94.5" r="3.0"/><circle class="u" cx="409.5" cy="94.5" r="3.0"/><circle class="u" cx="418.5" cy="94.5" r="3.0"/><circle class="u" cx="427.5" cy="94.5" r="3.0"/><circle class="u" cx="4.5" cy="103.5" r="3.0"/><circle class="u" cx="13.5" cy="103.5" r="3.0"/><circle class="u" cx="22.5" cy="103.5" r="3.0"/><circle class="u" cx="31.5" cy="103.5" r="3.0"/><circle class="u" cx="40.5" cy="103.5" r="3.0"/><circle class="u" cx="49.5" cy="103.5" r="3.0"/><circle class="u" cx="58.5" cy="103.5" r="3.0"/><circle class="u" cx="67.5" cy="103.5" r="3.0"/><circle class="u" cx="76.5" cy="103.5" r="3.0"/><circle class="u" cx="85.5" cy="103.5" r="3.0"/><circle class="u" cx="94.5" cy="103.5" r="3.0"/><circle class="u" cx="103.5" cy="103.5" r="3.0"/><circle class="u" cx="112.5" cy="103.5" r="3.0"/><circle class="u" cx="121.5" cy="103.5" r="3.0"/><circle class="u" cx="130.5" cy="103.5" r="3.0"/><circle class="u" cx="139.5" cy="103.5" r="3.0"/><circle class="u" cx="148.5" cy="103.5" r="3.0"/><circle class="u" cx="157.5" cy="103.5" r="3.0"/><circle class="u" cx="166.5" cy="103.5" r="3.0"/><circle class="u" cx="175.5" cy="103.5" r="3.0"/><circle class="u" cx="184.5" cy="103.5" r="3.0"/><circle class="u" cx="193.5" cy="103.5" r="3.0"/><circle class="u" cx="202.5" cy="103.5" r="3.0"/><circle class="u" cx="211.5" cy="103.5" r="3.0"/><circle class="u" cx="220.5" cy="103.5" r="3.0"/><circle class="u" cx="229.5" cy="103.5" r="3.0"/><circle class="u" cx="238.5" cy="103.5" r="3.0"/><circle class="u" cx="247.5" cy="103.5" r="3.0"/><circle class="u" cx="256.5" cy="103.5" r="3.0"/><circle class="u" cx="265.5" cy="103.5" r="3.0"/><circle class="u" cx="274.5" cy="103.5" r="3.0"/><circle class="u" cx="283.5" cy="103.5" r="3.0"/><circle class="u" cx="292.5" cy="103.5" r="3.0"/><circle class="u" cx="301.5" cy="103.5" r="3.0"/><circle class="u" cx="310.5" cy="103.5" r="3.0"/><circle class="u" cx="319.5" cy="103.5" r="3.0"/><circle class="u" cx="328.5" cy="103.5" r="3.0"/><circle class="u" cx="337.5" cy="103.5" r="3.0"/><circle class="u" cx="346.5" cy="103.5" r="3.0"/><circle class="u" cx="355.5" cy="103.5" r="3.0"/><circle class="u" cx="364.5" cy="103.5" r="3.0"/><circle class="u" cx="373.5" cy="103.5" r="3.0"/><circle class="u" cx="382.5" cy="103.5" r="3.0"/><circle class="u" cx="391.5" cy="103.5" r="3.0"/><circle class="u" cx="400.5" cy="103.5" r="3.0"/></svg>
+        <p class="legend"><span class="s"><i></i>30 write-tool calls, the kind the hooks matched</span><span class="u"><i></i>543 shell writes, no hook event</span></p>
+        <div class="chips"><span class="chip">docs/kiro-evidence/sessions/before/ledger.md</span></div>
+      </article>
+      <article class="cell c-hooks">
+        <h3>Hooks that say no</h3>
+        <div class="term" id="hooks"><div class="term__body">
+          <span class="ln">2026-11-24T20:07:21Z · <em>catalog-gate</em> · content/catalog.json · <span class="no">blocked:</span> quinces-marmalade: no valid review.json with a reviewedBy (a person reviews a recipe; an agent does not write it)</span>
+          <span class="ln">2026-11-24T20:33:24Z · <em>catalog-gate</em> · content/catalog.json · <span class="no">blocked:</span> quinces-marmalade: gate.json pass=false (till-it-looks-red-smooth: line 8: quote splits a disagreement)</span>
+          <span class="ln">2026-11-25T20:50:06Z · <em>shell-gate</em> · content/catalog.json · <span class="no">blocked:</span> a shell command writes the catalog; only npm run catalog writes it</span>
+        </div></div>
+        <p>Verbatim from docs/kiro-evidence/hooks.log; lines 1 and 3 are probes we ran to test the hooks (docs/KIRO.md §2). Beside the catalog gate, no-imitation refuses a src/ write that speaks or fakes handwriting: 6 hooks in .kiro/hooks/.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="sec sill" id="honest">
+  <div class="wrap">
+    <p class="eyebrow">Disclosed in the README</p>
+    <h2>Honest by design.</h2>
+    <p class="lede">A project about not faking a hand should not fake its results either. These lines are quoted from the README's own limits.</p>
+    <div class="quotes">
+      <blockquote><p>The renderer's look gate (7/10) was <strong>not met</strong> at look pass 2: a frame review scored it 6.5 on desktop and 6.5 on phone.</p><cite>README · Honest limits</cite></blockquote>
+      <blockquote><p>Only one recipe is on the shelf, and the reading was done by two Kiro agents.</p><cite>README · Honest limits</cite></blockquote>
+      <blockquote><p>The manuscript gives no cooking times, so none is invented.</p><cite>README · Honest limits</cite></blockquote>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="faq">
+  <div class="wrap faq">
+    <div class="faq__head">
+      <p class="eyebrow">For the judges</p>
+      <h2>Questions a judge would ask</h2>
+    </div>
+    <div class="faq__list">
+      <details><summary>Is the handwriting generated?</summary><div class="ans"><p>No. The ink is the scan's own ink lifted off the paper: its shape and density come from the scan and are drawn in the renderer's colour. <code>scripts/verify_provenance.py</code> re-fetches each note's region from the archive and checks that the bundled page crop matches it and that the displayed ink lies inside it.</p></div></details>
+      <details><summary>Is that the writer&#x27;s stroke order?</summary><div class="ans"><p>No. The write-on follows a traced path through that ink, so the order of strokes is ours, not the writer's. The README says so in its first section.</p></div></details>
+      <details><summary>Does it work on a phone?</summary><div class="ans"><p>Yes, in a portrait layout that shows only the note, split into groups at the gaps in its ink so each group stays legible. The frame-rate runs used an emulated Pixel 5 with a 4× CPU throttle; no physical Android run was made.</p></div></details>
+      <details><summary>What did Kiro actually do?</summary><div class="ans"><p>304 of the commits come from Kiro sessions working through a spec's tasks, a bugfix spec or an agent workflow. Its two custom agents read the page; its hooks refused writes that would add a synthetic voice or a handwriting font, or publish a recipe without a person's review. <code>docs/KIRO.md</code> lists each feature with the files and commits behind it, and what was planned and not built.</p></div></details>
+      <details><summary>Where do the cooking times come from?</summary><div class="ans"><p>The manuscript gives no cooking times, so none is invented: each note is placed at its step or at a cited modern check time, and each time is labelled.</p></div></details>
+      <details><summary>What is not real yet?</summary><div class="ans"><p>One recipe is on the shelf, and its sign-off came from the builder's agent, not a person; a human sign-off is still owed. The renderer missed its look gate at the last scored pass, 1 end-to-end test fails (113 of 114 pass), and no build-wide Kiro credit total was kept.</p></div></details>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="close">
+  <h2><em class="hand">Still writing.</em></h2>
+  <div class="cta">
+    <a class="btn" href="https://github.com/edycutjong/steam">GitHub <span class="arr" aria-hidden="true">↗</span></a>
+    <a class="btn" href="/deck/">Pitch deck</a>
+    <a class="btn btn--paper" href="https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&amp;pace=12&amp;lead=6">Open the hero moment <span class="arr" aria-hidden="true">↗</span></a>
+  </div>
+  <div class="wrap fine">
+    <span>Built for Kiroween 2026 · Costume Contest. Code: MIT. The scan: Wellcome Collection MS.1810, Public Domain Mark. Faces: IM Fell English, Literata, DM Mono (SIL Open Font License).</span>
+    <span>This page is hand-built ([claude-direct]); the window in it is the product's own component, <a href="https://github.com/edycutjong/steam/blob/main/src/steam/SteamGlass.tsx">src/steam/SteamGlass.tsx</a>.</span>
+  </div>
+</footer>
+
+<script src="/site/glass.js" defer></script>
+<script>
+(function(){
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var root = document.documentElement;
+  // the load animation plays once, then is dropped so captures, print and re-renders see the settled page
+  setTimeout(function(){ root.classList.add('settled') }, 3200);
+  addEventListener('beforeprint', function(){ root.classList.add('settled'); document.querySelectorAll('details').forEach(function(d){ d.open = true }) });
+
+  // count-ups: the markup holds the real value; JS only replays the count when a receipt comes into view
+  var fmt = function(n){ return n.toLocaleString('en-US') };
+  var counts = document.querySelectorAll('[data-count]');
+  if (!reduce && 'IntersectionObserver' in window) {
+    var cio = new IntersectionObserver(function(es){ es.forEach(function(e){
+      if (!e.isIntersecting) return; cio.unobserve(e.target);
+      var el = e.target, end = +el.dataset.count, t0 = performance.now(), d = 1100;
+      (function step(t){ var k = Math.min(1, (t - t0) / d); el.textContent = fmt(Math.round(end * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(step) })(t0);
+    }) }, { threshold: .6 });
+    counts.forEach(function(c){ cio.observe(c) });
+  }
+
+  // terminal replays: every line is in the markup; JS hides them and writes them back in order when the card is in view
+  function replay(id, gap){
+    var box = document.getElementById(id); if (!box || reduce || !('IntersectionObserver' in window)) return;
+    var lines = box.querySelectorAll('.ln, .note-row'); var bars = box.querySelectorAll('.track i');
+    var tio = new IntersectionObserver(function(es){ es.forEach(function(e){
+      if (!e.isIntersecting) return; tio.disconnect();
+      lines.forEach(function(l){ l.style.visibility = 'hidden' }); bars.forEach(function(b){ b.style.width = '0' });
+      lines.forEach(function(l, i){ setTimeout(function(){ l.style.visibility = ''; l.querySelectorAll('.track i').forEach(function(b){ requestAnimationFrame(function(){ b.style.width = '' }) }) }, 250 + i * gap) });
+    }) }, { threshold: .35 });
+    tio.observe(box);
+  }
+  replay('prov', 360); replay('hooks', 520);
+
+  // the moment: three captures of one session; a button shows each, and the strip plays through once when it comes into view
+  var viewer = document.getElementById('viewer');
+  if (viewer) {
+    var imgs = viewer.querySelectorAll('.viewer__img img'), btns = viewer.querySelectorAll('.viewer__steps button'), auto = null;
+    var show = function(i){ imgs.forEach(function(m){ m.classList.toggle('on', +m.dataset.i === i) }); btns.forEach(function(b){ b.setAttribute('aria-pressed', String(+b.dataset.i === i)) }) };
+    btns.forEach(function(b){ b.addEventListener('click', function(){ if (auto) { clearTimeout(auto); auto = null } show(+b.dataset.i) }) });
+    if (!reduce && 'IntersectionObserver' in window) {
+      var vio = new IntersectionObserver(function(es){ es.forEach(function(e){
+        if (!e.isIntersecting) return; vio.disconnect();
+        show(0); auto = setTimeout(function(){ show(1); auto = setTimeout(function(){ show(2); auto = null }, 2000) }, 1800);
+      }) }, { threshold: .5 });
+      vio.observe(viewer);
+    }
+  }
+
+  // the archive's own pixels, live; a copy fetched from the same URL if the archive does not answer
+  var arc = document.getElementById('archive');
+  if (arc) arc.addEventListener('error', function(){ if (arc.dataset.fallback && arc.src.indexOf(arc.dataset.fallback) < 0) { arc.src = arc.dataset.fallback; var s = document.getElementById('archive-slip'); if (s) s.textContent = 'The archive did not answer; this is a copy fetched from the same IIIF URL on 2026-11-26 · canvas 33 · region 610,3366,2982,805 · Public Domain Mark' } });
+
+  // the window: the product's SteamGlass, mounted while the hero is on screen
+  var stage = document.getElementById('glass'), hero = document.getElementById('top');
+  var tag = document.getElementById('glass-tag'), act = document.getElementById('glass-act'), again = document.getElementById('glass-replay');
+  var TAGS = { loading: 'Loading the note · the product’s own renderer', ready: 'Live · the product’s SteamGlass, running in this page', fallback: 'Static pane · the product’s own images (reduced motion or no WebGL2)', error: 'Still · the note could not be loaded here' };
+  var h = null, written = false, visible = true;
+  function mount(){
+    if (h || !window.steamGlass) return;
+    h = steamGlass.mount(stage.querySelector('.mount'), {
+      recipe: 'quinces-marmalade', note: 'till-it-looks-red-smooth', lead: 1600, initial: written ? 'held' : 'fogged',
+      onStatus: function(s){ stage.dataset.status = s; tag.textContent = TAGS[s] || s; if (s === 'ready' || s === 'fallback') { act.hidden = false; again.hidden = false } },
+      onPhase: function(p){
+        stage.dataset.phase = p; act.textContent = steamGlass.buttonLabel(p);
+        act.setAttribute('aria-disabled', (p === 'writing' || p === 'thickening') ? 'true' : 'false');
+        if (p === 'holding') written = true;
+        if (p === 'thickening' && !reduce) { hero.classList.remove('dip'); void hero.offsetWidth; hero.classList.add('dip') }
+      }
+    });
+  }
+  act.addEventListener('click', function(){ if (h) h.act() });
+  again.addEventListener('click', function(){ if (!h) return mount(); written = false; h.replay() });
+  function boot(){
+    if (!window.steamGlass) return;
+    mount();
+    // off screen the renderer is unmounted (no WebGL frames for a page nobody sees); back on screen a written note is still written
+    if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ es.forEach(function(e){
+      visible = e.isIntersecting;
+      if (!visible && h) { setTimeout(function(){ if (!visible && h) { h.unmount(); h = null; stage.dataset.status = 'poster' } }, 1500) }
+      else if (visible && !h) mount();
+    }) }, { threshold: .05 }).observe(stage);
+  }
+  if (document.readyState === 'complete') boot(); else addEventListener('load', boot);
+})();
+</script>
+</body>
+</html>
