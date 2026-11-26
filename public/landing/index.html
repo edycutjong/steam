@@ -13,17 +13,16 @@
 <meta property="og:title" content="Her Hand in the Steam · a dead writer's hand, still writing in the steam">
 <meta property="og:description" content="At the step where the writer left a judgement, their own scanned hand is wiped clear out of the fog on the window over the pot. Kiroween 2026, Costume Contest.">
 <meta property="og:url" content="https://steam.edycu.dev/landing/">
-<meta property="og:image" content="https://steam.edycu.dev/site/media/og.jpg?v=3cce62416a">
+<meta property="og:image" content="https://steam.edycu.dev/site/media/og.jpg?v=b6bb29c5e7">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="A steamed sash window at night: a full moon through bare branches above, the words till it Looks red &amp; smooth wiped out of the fog in ember below, one candle on the sill.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://steam.edycu.dev/site/media/og.jpg?v=3cce62416a">
+<meta name="twitter:image" content="https://steam.edycu.dev/site/media/og.jpg?v=b6bb29c5e7">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="/site/fonts/im-fell-english-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/site/fonts/literata-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/site/media/window-held.webp" as="image" fetchpriority="high">
-<link rel="stylesheet" href="/site/glass.css">
+<link rel="preload" as="image" href="/site/media/window-held-760.webp" imagesrcset="/site/media/window-held-760.webp 760w, /site/media/window-held.webp 1520w" imagesizes="(max-width:900px) 92vw, 720px" fetchpriority="high">
 <script>document.documentElement.classList.add('js')</script>
 <style>
 @font-face{font-family:"IM Fell English";src:url(/site/fonts/im-fell-english-latin-400-normal.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
@@ -33,12 +32,12 @@
 @font-face{font-family:"Literata";src:url(/site/fonts/literata-latin-600-normal.woff2) format("woff2");font-weight:600;font-style:normal;font-display:swap}
 @font-face{font-family:"DM Mono";src:url(/site/fonts/dm-mono-latin-400-normal.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
 
-/* design.md §4, pasted verbatim: every colour and face below is one of these */
+/* the design tokens: every colour and face on this page is one of these */
 :root {
-  --bg:      #0E0A0A;  /* the kitchen at midnight on All Hallows': soot black with a trace of ember; red > blue, so it sits outside the blue-black #0B0E14 cluster (P0b: #130E0B) */
+  --bg:      #0E0A0A;  /* the kitchen at midnight on All Hallows': soot black with a trace of ember; red > blue, so it sits outside the blue-black #0B0E14 cluster (earlier value: #130E0B) */
   --ink:     #EFE7DA;  /* steam white with tallow warmth: step text, wet rims on the glass */
   --muted:   #9A8F82;  /* pewter: captions, archive slips, the timer at rest */
-  --before:  #7F909C;  /* state: fogged — breath-grey condensation hiding the note, cooled by the moon above it; the pane's resting colour (P0b: #7D8B94) */
+  --before:  #7F909C;  /* state: fogged — breath-grey condensation hiding the note, cooled by the moon above it; the pane's resting colour (earlier value: #7D8B94) */
   --after:   #F2A65A;  /* state: revealed — hob ember: dim on the pot flame at rest, on the timer in the 10 s before a note, and at full strength only in the light through strokes wiped out of the fog */
   --fault:   #D9654E;  /* upload gate failures only (a scorched-pan red); never in Cook Mode */
   --rule:    #3A2D24;  /* sash-bar wood: pane frame, dividers, the hairline over each archive slip */
@@ -62,7 +61,7 @@ a{color:inherit}
 .skip{position:absolute;left:12px;top:-60px;background:var(--paper);color:var(--bg);padding:10px 14px;z-index:20;font-weight:600}
 .skip:focus{top:12px}
 .wrap{width:min(1240px,100% - 10vw);margin-inline:auto}
-.slip,.eyebrow,.chip,.src,.tag,.term,.mono{font-family:var(--font-data)}
+.slip,.eyebrow,.chip,.src,.term,.mono{font-family:var(--font-data)}
 .eyebrow{display:inline-block;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--rule);padding-top:12px;margin:0}
 h1,h2,h3{font-family:var(--font-display);font-weight:400;margin:0;text-wrap:balance}
 h2{font-size:clamp(36px,4vw,56px);line-height:1.06;letter-spacing:-.01em;margin:18px 0 18px}
@@ -89,7 +88,7 @@ p{margin:0}
 
 /* hero */
 .hero{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,4.5vw,72px);align-items:center;padding:clamp(20px,3vh,44px) 5vw clamp(48px,7vh,88px);min-height:min(calc(100svh - 82px),940px)}
-.hero::before{content:"";position:absolute;inset:-82px 0 0;z-index:-2;background:
+.hero::before{content:"";position:absolute;inset:-82px 0 -120px;z-index:-2;-webkit-mask-image:linear-gradient(#000 72%,transparent);mask-image:linear-gradient(#000 72%,transparent);background:
   radial-gradient(42% 46% at 76% 6%,color-mix(in srgb,var(--moon) 11%,transparent),transparent 72%),
   radial-gradient(46% 42% at 72% 104%,color-mix(in srgb,var(--after) 17%,transparent),transparent 74%),
   radial-gradient(70% 80% at 18% 60%,color-mix(in srgb,var(--rule) 22%,transparent),transparent 70%)}
@@ -100,19 +99,20 @@ h1{font-size:clamp(46px,5.3vw,86px);line-height:1.02;letter-spacing:-.012em;marg
 h1 .hand{white-space:nowrap}
 .sub{color:var(--muted);font-size:clamp(17px,1.35vw,19.5px);line-height:1.62;max-width:36em}
 .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-.proof{margin-top:22px;display:flex;flex-wrap:wrap;gap:6px 20px;font-family:var(--font-data);font-size:12.5px;letter-spacing:.03em;color:var(--before);line-height:1.5}
+.proof{margin-top:22px;display:flex;flex-wrap:wrap;gap:6px 22px;font-size:15px;color:var(--muted);line-height:1.5}
 .proof span{display:inline-flex;align-items:center;gap:8px}
 .proof span::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ghost);opacity:.75}
 
 .window{margin:0;position:relative}
-.window::before{content:"";position:absolute;left:8%;right:8%;bottom:-6%;height:38%;z-index:-1;background:radial-gradient(closest-side,color-mix(in srgb,var(--after) 26%,transparent),transparent);filter:blur(18px)}
+.window::before{content:"";position:absolute;left:12%;right:12%;top:52%;height:34%;z-index:-1;background:radial-gradient(closest-side,color-mix(in srgb,var(--after) 20%,transparent),transparent);filter:blur(22px)}
 .stage{position:relative;aspect-ratio:4/3;width:100%;overflow:hidden;background:var(--bg);border-radius:3px;box-shadow:0 50px 120px -40px rgb(0 0 0 / .85),0 0 0 1px color-mix(in srgb,var(--rule) 60%,transparent)}
 .stage .mount{position:absolute;inset:0}
 .stage .steam-root{--upper-h:25%;position:absolute;inset:0;height:100%}
+.stage::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;box-shadow:inset 0 0 70px 6px color-mix(in srgb,var(--bg) 55%,transparent)}
 .stage .poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .7s ease}
 .stage[data-status="ready"] .poster,.stage[data-status="fallback"] .poster{opacity:0;pointer-events:none}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:14px;flex-wrap:wrap}
-.tag{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:inline-flex;align-items:center;gap:10px}
+.tag{font-size:14px;font-variant:small-caps;letter-spacing:.06em;color:var(--muted);display:inline-flex;align-items:center;gap:10px}
 .tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none}
 .stage[data-status="ready"]~.bar .tag{color:var(--ghost)}
 .stage[data-status="ready"]~.bar .tag::before{background:var(--ghost);box-shadow:0 0 10px var(--ghost);animation:breathe 2.4s ease-in-out infinite}
@@ -122,6 +122,8 @@ h1 .hand{white-space:nowrap}
 .ctl:hover{border-color:var(--muted);background:color-mix(in srgb,var(--rule) 70%,transparent)}
 .ctl[aria-disabled="true"]{color:var(--muted);cursor:default}
 .ctl[aria-disabled="true"]:hover{border-color:var(--rule);background:color-mix(in srgb,var(--rule) 40%,transparent)}
+.gloss{margin-top:16px;font:italic 400 clamp(22px,1.9vw,28px)/1.3 var(--font-display);color:var(--ink)}
+.gloss span{display:block;margin-top:4px;font:400 14.5px/1.5 var(--font-body);font-style:normal;color:var(--muted)}
 .slip{margin-top:12px;padding-top:9px;border-top:1px solid var(--rule);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);line-height:1.6}
 
 /* receipts */
@@ -137,8 +139,8 @@ section{scroll-margin-top:24px}
 .sec{padding:clamp(80px,11vh,128px) 0}
 
 /* the moment */
-.viewer{display:grid;grid-template-columns:minmax(0,8fr) minmax(0,4fr);gap:clamp(24px,3vw,44px);margin-top:46px;align-items:center}
-.viewer__img{position:relative;aspect-ratio:3/2;border-radius:3px;overflow:hidden;box-shadow:0 40px 90px -40px rgb(0 0 0 / .9),0 0 0 1px color-mix(in srgb,var(--rule) 70%,transparent)}
+.viewer{display:grid;grid-template-columns:minmax(0,8fr) minmax(0,4fr);gap:clamp(24px,3vw,44px);margin-top:46px;align-items:start}
+.viewer__img{position:relative;aspect-ratio:3/2;border-radius:3px;overflow:hidden;box-shadow:0 40px 90px -40px rgb(0 0 0 / .9)}
 .viewer__img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease}
 .viewer__img img.on{opacity:1}
 .viewer__steps{list-style:none;margin:0;padding:0;display:grid;gap:4px}
@@ -146,6 +148,7 @@ section{scroll-margin-top:24px}
 .viewer__steps button:hover{background:color-mix(in srgb,var(--rule) 30%,transparent);color:var(--ink)}
 .viewer__steps button:focus-visible{outline:2px solid var(--ghost);outline-offset:2px}
 .viewer__steps button[aria-pressed="true"]{border-left-color:var(--ghost);background:color-mix(in srgb,var(--rule) 34%,transparent);color:var(--ink)}
+.viewer__steps button:hover .what{text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:4px}
 .viewer__steps .t{grid-row:span 2;font:600 34px/1 var(--font-body);font-variant-numeric:lining-nums tabular-nums;color:var(--ink)}
 .viewer__steps .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--before);margin-right:9px;vertical-align:1px}
 .viewer__steps .held .dot{background:var(--after);box-shadow:0 0 12px var(--after)}
@@ -157,18 +160,16 @@ section{scroll-margin-top:24px}
 .stepline .dag{color:var(--muted)}
 .stepline .why{font-size:14px;color:var(--muted);max-width:24ch;text-align:right}
 
-/* the hand, quoted: the facsimile mat */
-.paper{background:var(--paper);color:var(--bg);background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--rule) 5%,transparent) 0 1px,transparent 1px 8px);box-shadow:inset 0 30px 60px -40px rgb(0 0 0 / .5)}
-.paper .eyebrow{color:var(--rule);border-color:color-mix(in srgb,var(--rule) 45%,transparent)}
-.paper .lede{color:var(--rule)}
-.paper .lede b{color:var(--bg)}
+/* the hand, quoted: paper only as the mat behind the scan (design.md §4) */
+.quoted{position:relative}
+.quoted::before{content:"";position:absolute;left:0;right:0;top:0;height:14px;background:linear-gradient(180deg,color-mix(in srgb,var(--rule) 78%,var(--muted)),color-mix(in srgb,var(--rule) 82%,var(--bg)) 60%,color-mix(in srgb,var(--rule) 60%,var(--bg)))}
 .spread{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,6fr);gap:clamp(28px,4vw,60px);margin-top:46px;align-items:start}
-.verso .plate{background:color-mix(in srgb,var(--paper) 70%,var(--ink));padding:14px;box-shadow:0 1px 0 color-mix(in srgb,var(--rule) 30%,transparent),0 24px 50px -30px rgb(0 0 0 / .45)}
+.verso .plate{background:var(--paper);padding:16px;background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--rule) 5%,transparent) 0 1px,transparent 1px 8px);box-shadow:0 1px 0 color-mix(in srgb,var(--rule) 30%,transparent),0 24px 50px -30px rgb(0 0 0 / .45)}
 .verso img{width:100%;height:auto;aspect-ratio:1400/379;object-fit:cover;background:color-mix(in srgb,var(--paper) 80%,var(--rule))}
-.verso .slip{color:var(--rule);border-color:color-mix(in srgb,var(--rule) 40%,transparent)}
-.verso .order{margin-top:26px;font:italic 400 22px/1.45 var(--font-display);color:var(--bg);max-width:30ch}
-.verso .order cite{display:block;margin-top:8px;font:400 11px/1.4 var(--font-data);font-style:normal;letter-spacing:.12em;text-transform:uppercase;color:var(--rule)}
-.term{background:var(--bg);color:var(--ink);border-radius:4px;box-shadow:0 30px 70px -30px rgb(0 0 0 / .6);overflow:hidden;font-size:13px;line-height:1.65}
+
+.verso .order{margin-top:28px;font:italic 400 24px/1.42 var(--font-display);color:var(--ink);max-width:30ch}
+.verso .order cite{display:block;margin-top:10px;font:400 11px/1.4 var(--font-data);font-style:normal;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.term{background:color-mix(in srgb,var(--rule) 24%,var(--bg));color:var(--ink);border-radius:4px;box-shadow:0 30px 70px -30px rgb(0 0 0 / .7);overflow:hidden;font-size:13.5px;line-height:1.65}
 .term__head{display:flex;justify-content:space-between;gap:12px;padding:11px 16px;border-bottom:1px solid var(--rule);color:var(--muted);font-size:11.5px;letter-spacing:.08em}
 .term__body{padding:16px 18px 18px;font-variant-ligatures:none}
 .ln{display:block;padding-left:2ch;text-indent:-2ch;white-space:pre-wrap;word-break:break-word}
@@ -186,7 +187,7 @@ section{scroll-margin-top:24px}
 .bars .track.real i{background:var(--after);box-shadow:0 0 10px color-mix(in srgb,var(--after) 45%,transparent)}
 .bars .track.neg i{width:0}
 .bars .track::after{content:"";position:absolute;top:-4px;bottom:-4px;left:90%;width:1px;background:var(--ghost);opacity:.7}
-.term__foot{padding:11px 18px;border-top:1px solid var(--rule);color:var(--muted);font-size:11.5px;line-height:1.55}
+.term__foot{padding:12px 18px;border-top:1px solid var(--rule);color:var(--muted);font:400 13.5px/1.55 var(--font-body)}
 
 /* kiro */
 .bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:minmax(0,auto);gap:18px;margin-top:46px}
@@ -202,6 +203,7 @@ section{scroll-margin-top:24px}
 .c-hooks{grid-column:4/7}
 .cell .big{font:600 clamp(48px,5vw,72px)/1 var(--font-body);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.02em;color:var(--ink);margin-top:6px}
 .glyph{width:34px;height:34px;margin-bottom:16px;color:var(--after)}
+.glyph.g2{color:var(--muted)}
 .readers{margin-top:auto;padding-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .reader{border-top:1px solid var(--rule);padding-top:12px}
 .reader b{display:block;font:400 20px/1.2 var(--font-display);color:var(--ink)}
@@ -212,11 +214,11 @@ section{scroll-margin-top:24px}
 .scanword+.slip{margin-top:8px;max-width:560px}
 .disagree .dag{color:var(--after)}
 .dots{display:block;width:100%;height:auto;margin-top:22px}
-.dots .s{fill:var(--after)}
+.dots .s{fill:var(--ghost)}
 .dots .u{fill:color-mix(in srgb,var(--before) 55%,var(--bg))}
 .legend{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:14px;font-size:14px;color:var(--muted)}
 .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;vertical-align:0}
-.legend .s i{background:var(--after)}
+.legend .s i{background:var(--ghost)}
 .legend .u i{background:color-mix(in srgb,var(--before) 55%,var(--bg))}
 .c-hooks .term{margin-top:18px;box-shadow:none;background:color-mix(in srgb,var(--bg) 70%,black)}
 .c-hooks .ln{color:var(--muted);margin-bottom:8px}
@@ -231,7 +233,7 @@ section{scroll-margin-top:24px}
 .quotes{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,4fr) minmax(0,3fr);gap:clamp(24px,3.4vw,52px);margin-top:44px}
 .quotes blockquote{margin:0;border-top:1px solid var(--rule);padding-top:18px}
 .quotes blockquote p{font:italic 400 clamp(21px,1.8vw,26px)/1.38 var(--font-display);color:var(--ink)}
-.quotes blockquote p strong{font-style:italic;color:var(--after);font-weight:400}
+.quotes blockquote p strong{font-style:italic;color:var(--fault);font-weight:400}
 .quotes cite{display:block;margin-top:16px;font:400 11px/1.4 var(--font-data);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 
 /* faq */
@@ -253,7 +255,11 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
 .close h2{font-size:clamp(56px,8vw,120px);margin:0 0 30px}
 .close .cta{justify-content:center}
 .fine{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px 28px;font-size:13.5px;color:var(--muted);text-align:left}
-.fine a{color:var(--ink)}
+.fine a{color:var(--ink);text-underline-offset:3px;transition:color .2s}
+.fine a:hover{color:var(--after)}
+.brand{transition:opacity .2s}
+.brand:hover{opacity:.82}
+.brand:hover span{text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:5px}
 
 /* one orchestrated load (from a visible default: no-JS, print and captures see everything) */
 @media (prefers-reduced-motion:no-preference){
@@ -307,14 +313,16 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
   .brand{font-size:18px;gap:10px;white-space:nowrap}
   .brand img{width:30px;height:30px}
   .nav .btn{min-height:38px;padding:9px 12px;font-size:13.5px;white-space:nowrap}
-  .stage{aspect-ratio:4/5}
+  .stage{aspect-ratio:5/6}
   .stage .steam-root{--upper-h:20%}
   .bento{grid-template-columns:minmax(0,1fr)}
   .c-read,.c-specs,.c-commits,.c-ledger,.c-hooks{grid-column:1}
   .readers{grid-template-columns:minmax(0,1fr)}
   .cell{padding:22px 20px}
-  .bars{grid-template-columns:10.5ch minmax(0,1fr) 6ch;gap:5px 8px}
-  .term{font-size:12px}
+  .bars{grid-template-columns:minmax(0,1fr) 6ch;gap:2px 10px}
+  .bars .k{grid-column:1/-1;margin-top:6px}
+  .term{font-size:12.5px}
+  .hero .eyebrow .hallows{display:none}
   .btn{width:100%;justify-content:center}
   .nav .btn{width:auto}
   .fine{flex-direction:column}
@@ -349,32 +357,32 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
 <main id="main">
 <header class="hero" id="top">
   <div class="hero__copy">
-    <p class="eyebrow">Kiroween 2026 · Costume Contest · All Hallows' night</p>
+    <p class="eyebrow">Kiroween 2026 · Costume Contest<span class="hallows"> · All Hallows' night</span></p>
     <h1><span class="l1">A dead writer's hand, </span><span class="l2"><em class="hand">still writing</em> in the steam.</span></h1>
-    <p class="sub">Cook Mode for handwritten recipes. At the step where the writer left a judgement in their own words, steam condenses on the window over the pot and their scanned hand is wiped clear out of the fog. The hand is real: a <b>c. 1750</b> receipt book in the Wellcome Collection, and <b>3 of 3</b> notes match a fresh fetch of their region from the archive.</p>
+    <p class="sub">Cook Mode for handwritten recipes. At the step where the writer left a judgement in their own words, steam condenses on the window over the pot and their scanned hand is wiped clear out of the fog. The hand is real: a <b>c. 1750</b> receipt book in the Wellcome Collection, and the page crop behind <b>each of its 3 notes</b> matches a fresh fetch of the same region from the archive.</p>
     <div class="cta">
       <a class="btn" href="https://github.com/edycutjong/steam">GitHub <span class="arr" aria-hidden="true">↗</span></a>
       <a class="btn" href="/deck/">Pitch deck</a>
       <a class="btn btn--paper" href="https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&amp;pace=12&amp;lead=6">Open the hero moment <span class="arr" aria-hidden="true">↗</span></a>
     </div>
-    <p class="proof"><span>the browser runs no model</span><span>works offline after the first visit</span><span>every note links to its archive region</span></p>
+    <p class="proof"><span>the browser runs no model</span><span>the app works offline after one visit online</span><span>every note links to its archive region</span></p>
   </div>
   <figure class="window">
     <div class="stage" id="glass" data-status="poster">
-      <img class="poster" src="/site/media/window-held.webp" width="1520" height="1140" alt="The steamed window: a full moon through bare branches in the upper sash, and below, in the fog, the words till it Looks red &amp; smooth wiped clear in ember, one candle on the sill." fetchpriority="high">
+      <img class="poster" src="/site/media/window-held-760.webp" srcset="/site/media/window-held-760.webp 760w, /site/media/window-held.webp 1520w" sizes="(max-width:900px) 92vw, 720px" width="1520" height="1140" alt="The steamed window: a full moon through bare branches in the upper sash, and below, in the fog, the words till it Looks red &amp; smooth wiped clear in ember, one candle on the sill." fetchpriority="high">
       <div class="mount"></div>
     </div>
     <div class="bar">
       <span class="tag" id="glass-tag" aria-live="polite">Still · a frame of this pane, captured from the live renderer</span>
       <span class="ctls"><button class="ctl" id="glass-act" type="button" hidden>Show the note</button><button class="ctl" id="glass-replay" type="button" hidden>Write it again</button></span>
     </div>
-    <figcaption class="slip">The writer's note, handwritten: “till it Looks red &amp; smooth” · Wellcome MS.1810 · p.23 · c. 1750 · Public Domain Mark</figcaption>
+    <figcaption><p class="gloss">“till it Looks red &amp; smooth” <span>the writer's note, handwritten, at the step where the quinces boil</span></p><p class="slip">Wellcome MS.1810 · p.23 · c. 1750 · Public Domain Mark</p></figcaption>
   </figure>
 </header>
 
 <div class="wrap">
   <section class="receipts" aria-label="Receipts">
-    <div class="rc"><p class="rc__n"><span data-count="3">3</span><small>of 3</small></p><p class="rc__l">notes match a fresh fetch of their region from the archive (NCC .960 / .976 / .991, pass at .90)</p><span class="src">docs/kiro-evidence/provenance/run-4.txt</span></div>
+    <div class="rc"><p class="rc__n"><span data-count="3">3</span><small>of 3</small></p><p class="rc__l">bundled page crops match a fresh fetch of their region from the archive (NCC .960 / .976 / .991, pass at .90)</p><span class="src">docs/kiro-evidence/provenance/run-4.txt</span></div>
     <div class="rc"><p class="rc__n"><span data-count="15">15</span></p><p class="rc__l">Kiro specs: 5 feature, 10 bugfix</p><span class="src">.kiro/specs/</span></div>
     <div class="rc"><p class="rc__n"><span data-count="304">304</span></p><p class="rc__l">commits labelled [kiro]</p><span class="src">git log --format=%s | grep -c '^\[kiro\]'</span></div>
     <div class="rc"><p class="rc__n"><span data-count="1544">1,544</span></p><p class="rc__l">unit and property tests pass, 5 expected-fail (npm test at 8045c5e)</p><span class="src">docs/kiro-evidence/unit-run.txt</span></div>
@@ -388,12 +396,12 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
     <p class="lede">Cook Mode runs the recipe's steps against a pot on a fogged window. At the step where the writer left a judgement, the lamp dips, the simmer drops, and the writer's own ink is wiped clear of the glass. The typed step stays on screen for reading and for screen readers.</p>
     <div class="viewer" id="viewer">
       <div class="viewer__img">
-        <img data-i="0" src="/site/media/cook-before-reveal-1200.webp" srcset="/site/media/cook-before-reveal-800.webp 800w, /site/media/cook-before-reveal-1200.webp 1200w" sizes="(max-width:900px) 92vw, 780px" width="1200" height="800" loading="lazy" alt="Cook Mode at step 5 of 5: the steamed window under the moon, the fog thick over the pot, the timer at 1:33.">
+        <img data-i="0" src="/site/media/cook-before-reveal-1200.webp" srcset="/site/media/cook-before-reveal-800.webp 800w, /site/media/cook-before-reveal-1200.webp 1200w" sizes="(max-width:900px) 92vw, 780px" width="1200" height="800" loading="lazy" alt="Cook Mode at step 5 of 5: the steamed window under the moon, the fog thick on the glass, the timer at 1:33.">
         <img data-i="1" src="/site/media/cook-mid-wipe-1200.webp" srcset="/site/media/cook-mid-wipe-800.webp 800w, /site/media/cook-mid-wipe-1200.webp 1200w" sizes="(max-width:900px) 92vw, 780px" width="1200" height="800" loading="lazy" alt="The first strokes of the note appear in ember out of the fog, the timer at 1:54, the button reads The hand is writing.">
         <img data-i="2" class="on" src="/site/media/cook-held-note-1200.webp" srcset="/site/media/cook-held-note-800.webp 800w, /site/media/cook-held-note-1200.webp 1200w" sizes="(max-width:900px) 92vw, 780px" width="1200" height="800" loading="lazy" alt="The note till it Looks red &amp; smooth held clear in ember on the glass, the typed step below it, the timer at 3:12.">
       </div>
       <ol class="viewer__steps">
-        <li><button type="button" data-i="0" aria-pressed="false"><span class="t">1:33</span><span class="what"><span class="dot" aria-hidden="true"></span>The fog thickens over the pot.</span><span class="meta">step 5 of 5, before the note</span></button></li>
+        <li><button type="button" data-i="0" aria-pressed="false"><span class="t">1:33</span><span class="what"><span class="dot" aria-hidden="true"></span>The fog thickens on the glass.</span><span class="meta">step 5 of 5, before the note</span></button></li>
         <li><button type="button" data-i="1" aria-pressed="false"><span class="t">1:54</span><span class="what"><span class="dot" aria-hidden="true"></span>The writing head starts the first line.</span><span class="meta">the button reads “The hand is writing…”</span></button></li>
         <li><button type="button" data-i="2" aria-pressed="true" class="held"><span class="t">3:12</span><span class="what"><span class="dot" aria-hidden="true"></span>The note holds until the cook wipes.</span><span class="meta">the typed step stays below for reading</span></button></li>
       </ol>
@@ -406,7 +414,7 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
   </div>
 </section>
 
-<section class="sec paper" id="quoted">
+<section class="sec quoted" id="quoted">
   <div class="wrap">
     <p class="eyebrow">Wellcome MS.1810 · p.23 · the source</p>
     <h2>Quoted, not generated.</h2>
@@ -414,7 +422,7 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
     <div class="spread">
       <div class="verso">
         <div class="plate"><img id="archive" src="https://iiif.wellcomecollection.org/image/b18419665_MS_1810_0033.JP2/610,3366,2982,805/1400,/0/default.jpg" data-fallback="/site/media/p23-region.jpg" width="1400" height="379" loading="lazy" alt="The archive's own scan of MS.1810 p.23, the lines with when Tender and till it Looks red &amp; smooth, in the writer's brown ink."></div>
-        <p class="slip" id="archive-slip">Fetched from iiif.wellcomecollection.org as this page loads · canvas 33 · region 610,3366,2982,805 · Public Domain Mark</p>
+        <p class="slip" id="archive-slip">Fetched from iiif.wellcomecollection.org when this section scrolls into view · canvas 33 · region 610,3366,2982,805, spanning the when-tender and till-it-looks-red-smooth regions · Public Domain Mark</p>
         <p class="order">The write-on follows a traced path through that ink, so the order of strokes is ours, not the writer's.<cite>README · The Solution</cite></p>
       </div>
       <div class="recto">
@@ -437,7 +445,7 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
 <section class="sec" id="kiro">
   <div class="wrap">
     <p class="eyebrow">Built with Kiro · the engine</p>
-    <h2>Kiro read the page. Its hooks kept us honest.</h2>
+    <h2>Kiro read the page. We tested its hooks, and measured where they missed.</h2>
     <div class="bento">
       <article class="cell c-read">
         <svg class="glyph" viewBox="0 0 34 34" aria-hidden="true"><path d="M5 26c4-9 8-14 12-14s4 6 8 6 4-4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M9 30c3-3 6-4 9-4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".55"/></svg>
@@ -453,17 +461,20 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
         <div class="chips"><span class="chip">.kiro/workflows/ingest-recipe.workflow.json</span><span class="chip">5 steering files</span></div>
       </article>
       <article class="cell c-specs">
+        <svg class="glyph g2" viewBox="0 0 34 34" aria-hidden="true"><path d="M8 5h14l5 5v19H8z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 14h11M12 18h11M12 22h7" stroke="currentColor" stroke-width="1.2"/></svg>
         <h3>Specs first</h3>
         <p class="big">15</p>
         <p>5 feature specs (renderer v0 and v1, ingestion, Cook Mode, offline shell) and 10 bugfix specs. 8 of the 10 bugfix specs committed a failing test before the fix.</p>
         <div class="chips"><span class="chip">.kiro/specs/</span></div>
       </article>
       <article class="cell c-commits">
+        <svg class="glyph g2" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 4l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M12 27h10" stroke="currentColor" stroke-width="1.2"/></svg>
         <h3>Every commit says who wrote it</h3>
         <p class="big">304</p>
         <p>commits are labelled <b>[kiro]</b>; the rest say <b>[claude-direct]</b>, including the commits that made this page.</p>
       </article>
       <article class="cell c-ledger">
+        <svg class="glyph g2" viewBox="0 0 34 34" aria-hidden="true"><path d="M6 27h22M9 27V15M15 27V9M21 27v-6M27 27V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         <h3>Then we measured what the hooks saw: about 5%.</h3>
         <p>Kiro wrote code mostly through its shell tool: <b>543 shell commands</b> wrote under src/ against <b>30 write-tool calls</b>, and none of the 543 had a hook event. A Kiro bugfix spec, hook-coverage, added shell-gate and src-scan-after-shell.</p>
         <svg class="dots" viewBox="0 0 432 108" role="img" aria-label="573 writes under src/: 30 through write tools, 543 through the shell"><circle class="s" cx="4.5" cy="4.5" r="3.0"/><circle class="s" cx="13.5" cy="4.5" r="3.0"/><circle class="s" cx="22.5" cy="4.5" r="3.0"/><circle class="s" cx="31.5" cy="4.5" r="3.0"/><circle class="s" cx="40.5" cy="4.5" r="3.0"/><circle class="s" cx="49.5" cy="4.5" r="3.0"/><circle class="s" cx="58.5" cy="4.5" r="3.0"/><circle class="s" cx="67.5" cy="4.5" r="3.0"/><circle class="s" cx="76.5" cy="4.5" r="3.0"/><circle class="s" cx="85.5" cy="4.5" r="3.0"/><circle class="s" cx="94.5" cy="4.5" r="3.0"/><circle class="s" cx="103.5" cy="4.5" r="3.0"/><circle class="s" cx="112.5" cy="4.5" r="3.0"/><circle class="s" cx="121.5" cy="4.5" r="3.0"/><circle class="s" cx="130.5" cy="4.5" r="3.0"/><circle class="s" cx="139.5" cy="4.5" r="3.0"/><circle class="s" cx="148.5" cy="4.5" r="3.0"/><circle class="s" cx="157.5" cy="4.5" r="3.0"/><circle class="s" cx="166.5" cy="4.5" r="3.0"/><circle class="s" cx="175.5" cy="4.5" r="3.0"/><circle class="s" cx="184.5" cy="4.5" r="3.0"/><circle class="s" cx="193.5" cy="4.5" r="3.0"/><circle class="s" cx="202.5" cy="4.5" r="3.0"/><circle class="s" cx="211.5" cy="4.5" r="3.0"/><circle class="s" cx="220.5" cy="4.5" r="3.0"/><circle class="s" cx="229.5" cy="4.5" r="3.0"/><circle class="s" cx="238.5" cy="4.5" r="3.0"/><circle class="s" cx="247.5" cy="4.5" r="3.0"/><circle class="s" cx="256.5" cy="4.5" r="3.0"/><circle class="s" cx="265.5" cy="4.5" r="3.0"/><circle class="u" cx="274.5" cy="4.5" r="3.0"/><circle class="u" cx="283.5" cy="4.5" r="3.0"/><circle class="u" cx="292.5" cy="4.5" r="3.0"/><circle class="u" cx="301.5" cy="4.5" r="3.0"/><circle class="u" cx="310.5" cy="4.5" r="3.0"/><circle class="u" cx="319.5" cy="4.5" r="3.0"/><circle class="u" cx="328.5" cy="4.5" r="3.0"/><circle class="u" cx="337.5" cy="4.5" r="3.0"/><circle class="u" cx="346.5" cy="4.5" r="3.0"/><circle class="u" cx="355.5" cy="4.5" r="3.0"/><circle class="u" cx="364.5" cy="4.5" r="3.0"/><circle class="u" cx="373.5" cy="4.5" r="3.0"/><circle class="u" cx="382.5" cy="4.5" r="3.0"/><circle class="u" cx="391.5" cy="4.5" r="3.0"/><circle class="u" cx="400.5" cy="4.5" r="3.0"/><circle class="u" cx="409.5" cy="4.5" r="3.0"/><circle class="u" cx="418.5" cy="4.5" r="3.0"/><circle class="u" cx="427.5" cy="4.5" r="3.0"/><circle class="u" cx="4.5" cy="13.5" r="3.0"/><circle class="u" cx="13.5" cy="13.5" r="3.0"/><circle class="u" cx="22.5" cy="13.5" r="3.0"/><circle class="u" cx="31.5" cy="13.5" r="3.0"/><circle class="u" cx="40.5" cy="13.5" r="3.0"/><circle class="u" cx="49.5" cy="13.5" r="3.0"/><circle class="u" cx="58.5" cy="13.5" r="3.0"/><circle class="u" cx="67.5" cy="13.5" r="3.0"/><circle class="u" cx="76.5" cy="13.5" r="3.0"/><circle class="u" cx="85.5" cy="13.5" r="3.0"/><circle class="u" cx="94.5" cy="13.5" r="3.0"/><circle class="u" cx="103.5" cy="13.5" r="3.0"/><circle class="u" cx="112.5" cy="13.5" r="3.0"/><circle class="u" cx="121.5" cy="13.5" r="3.0"/><circle class="u" cx="130.5" cy="13.5" r="3.0"/><circle class="u" cx="139.5" cy="13.5" r="3.0"/><circle class="u" cx="148.5" cy="13.5" r="3.0"/><circle class="u" cx="157.5" cy="13.5" r="3.0"/><circle class="u" cx="166.5" cy="13.5" r="3.0"/><circle class="u" cx="175.5" cy="13.5" r="3.0"/><circle class="u" cx="184.5" cy="13.5" r="3.0"/><circle class="u" cx="193.5" cy="13.5" r="3.0"/><circle class="u" cx="202.5" cy="13.5" r="3.0"/><circle class="u" cx="211.5" cy="13.5" r="3.0"/><circle class="u" cx="220.5" cy="13.5" r="3.0"/><circle class="u" cx="229.5" cy="13.5" r="3.0"/><circle class="u" cx="238.5" cy="13.5" r="3.0"/><circle class="u" cx="247.5" cy="13.5" r="3.0"/><circle class="u" cx="256.5" cy="13.5" r="3.0"/><circle class="u" cx="265.5" cy="13.5" r="3.0"/><circle class="u" cx="274.5" cy="13.5" r="3.0"/><circle class="u" cx="283.5" cy="13.5" r="3.0"/><circle class="u" cx="292.5" cy="13.5" r="3.0"/><circle class="u" cx="301.5" cy="13.5" r="3.0"/><circle class="u" cx="310.5" cy="13.5" r="3.0"/><circle class="u" cx="319.5" cy="13.5" r="3.0"/><circle class="u" cx="328.5" cy="13.5" r="3.0"/><circle class="u" cx="337.5" cy="13.5" r="3.0"/><circle class="u" cx="346.5" cy="13.5" r="3.0"/><circle class="u" cx="355.5" cy="13.5" r="3.0"/><circle class="u" cx="364.5" cy="13.5" r="3.0"/><circle class="u" cx="373.5" cy="13.5" r="3.0"/><circle class="u" cx="382.5" cy="13.5" r="3.0"/><circle class="u" cx="391.5" cy="13.5" r="3.0"/><circle class="u" cx="400.5" cy="13.5" r="3.0"/><circle class="u" cx="409.5" cy="13.5" r="3.0"/><circle class="u" cx="418.5" cy="13.5" r="3.0"/><circle class="u" cx="427.5" cy="13.5" r="3.0"/><circle class="u" cx="4.5" cy="22.5" r="3.0"/><circle class="u" cx="13.5" cy="22.5" r="3.0"/><circle class="u" cx="22.5" cy="22.5" r="3.0"/><circle class="u" cx="31.5" cy="22.5" r="3.0"/><circle class="u" cx="40.5" cy="22.5" r="3.0"/><circle class="u" cx="49.5" cy="22.5" r="3.0"/><circle class="u" cx="58.5" cy="22.5" r="3.0"/><circle class="u" cx="67.5" cy="22.5" r="3.0"/><circle class="u" cx="76.5" cy="22.5" r="3.0"/><circle class="u" cx="85.5" cy="22.5" r="3.0"/><circle class="u" cx="94.5" cy="22.5" r="3.0"/><circle class="u" cx="103.5" cy="22.5" r="3.0"/><circle class="u" cx="112.5" cy="22.5" r="3.0"/><circle class="u" cx="121.5" cy="22.5" r="3.0"/><circle class="u" cx="130.5" cy="22.5" r="3.0"/><circle class="u" cx="139.5" cy="22.5" r="3.0"/><circle class="u" cx="148.5" cy="22.5" r="3.0"/><circle class="u" cx="157.5" cy="22.5" r="3.0"/><circle class="u" cx="166.5" cy="22.5" r="3.0"/><circle class="u" cx="175.5" cy="22.5" r="3.0"/><circle class="u" cx="184.5" cy="22.5" r="3.0"/><circle class="u" cx="193.5" cy="22.5" r="3.0"/><circle class="u" cx="202.5" cy="22.5" r="3.0"/><circle class="u" cx="211.5" cy="22.5" r="3.0"/><circle class="u" cx="220.5" cy="22.5" r="3.0"/><circle class="u" cx="229.5" cy="22.5" r="3.0"/><circle class="u" cx="238.5" cy="22.5" r="3.0"/><circle class="u" cx="247.5" cy="22.5" r="3.0"/><circle class="u" cx="256.5" cy="22.5" r="3.0"/><circle class="u" cx="265.5" cy="22.5" r="3.0"/><circle class="u" cx="274.5" cy="22.5" r="3.0"/><circle class="u" cx="283.5" cy="22.5" r="3.0"/><circle class="u" cx="292.5" cy="22.5" r="3.0"/><circle class="u" cx="301.5" cy="22.5" r="3.0"/><circle class="u" cx="310.5" cy="22.5" r="3.0"/><circle class="u" cx="319.5" cy="22.5" r="3.0"/><circle class="u" cx="328.5" cy="22.5" r="3.0"/><circle class="u" cx="337.5" cy="22.5" r="3.0"/><circle class="u" cx="346.5" cy="22.5" r="3.0"/><circle class="u" cx="355.5" cy="22.5" r="3.0"/><circle class="u" cx="364.5" cy="22.5" r="3.0"/><circle class="u" cx="373.5" cy="22.5" r="3.0"/><circle class="u" cx="382.5" cy="22.5" r="3.0"/><circle class="u" cx="391.5" cy="22.5" r="3.0"/><circle class="u" cx="400.5" cy="22.5" r="3.0"/><circle class="u" cx="409.5" cy="22.5" r="3.0"/><circle class="u" cx="418.5" cy="22.5" r="3.0"/><circle class="u" cx="427.5" cy="22.5" r="3.0"/><circle class="u" cx="4.5" cy="31.5" r="3.0"/><circle class="u" cx="13.5" cy="31.5" r="3.0"/><circle class="u" cx="22.5" cy="31.5" r="3.0"/><circle class="u" cx="31.5" cy="31.5" r="3.0"/><circle class="u" cx="40.5" cy="31.5" r="3.0"/><circle class="u" cx="49.5" cy="31.5" r="3.0"/><circle class="u" cx="58.5" cy="31.5" r="3.0"/><circle class="u" cx="67.5" cy="31.5" r="3.0"/><circle class="u" cx="76.5" cy="31.5" r="3.0"/><circle class="u" cx="85.5" cy="31.5" r="3.0"/><circle class="u" cx="94.5" cy="31.5" r="3.0"/><circle class="u" cx="103.5" cy="31.5" r="3.0"/><circle class="u" cx="112.5" cy="31.5" r="3.0"/><circle class="u" cx="121.5" cy="31.5" r="3.0"/><circle class="u" cx="130.5" cy="31.5" r="3.0"/><circle class="u" cx="139.5" cy="31.5" r="3.0"/><circle class="u" cx="148.5" cy="31.5" r="3.0"/><circle class="u" cx="157.5" cy="31.5" r="3.0"/><circle class="u" cx="166.5" cy="31.5" r="3.0"/><circle class="u" cx="175.5" cy="31.5" r="3.0"/><circle class="u" cx="184.5" cy="31.5" r="3.0"/><circle class="u" cx="193.5" cy="31.5" r="3.0"/><circle class="u" cx="202.5" cy="31.5" r="3.0"/><circle class="u" cx="211.5" cy="31.5" r="3.0"/><circle class="u" cx="220.5" cy="31.5" r="3.0"/><circle class="u" cx="229.5" cy="31.5" r="3.0"/><circle class="u" cx="238.5" cy="31.5" r="3.0"/><circle class="u" cx="247.5" cy="31.5" r="3.0"/><circle class="u" cx="256.5" cy="31.5" r="3.0"/><circle class="u" cx="265.5" cy="31.5" r="3.0"/><circle class="u" cx="274.5" cy="31.5" r="3.0"/><circle class="u" cx="283.5" cy="31.5" r="3.0"/><circle class="u" cx="292.5" cy="31.5" r="3.0"/><circle class="u" cx="301.5" cy="31.5" r="3.0"/><circle class="u" cx="310.5" cy="31.5" r="3.0"/><circle class="u" cx="319.5" cy="31.5" r="3.0"/><circle class="u" cx="328.5" cy="31.5" r="3.0"/><circle class="u" cx="337.5" cy="31.5" r="3.0"/><circle class="u" cx="346.5" cy="31.5" r="3.0"/><circle class="u" cx="355.5" cy="31.5" r="3.0"/><circle class="u" cx="364.5" cy="31.5" r="3.0"/><circle class="u" cx="373.5" cy="31.5" r="3.0"/><circle class="u" cx="382.5" cy="31.5" r="3.0"/><circle class="u" cx="391.5" cy="31.5" r="3.0"/><circle class="u" cx="400.5" cy="31.5" r="3.0"/><circle class="u" cx="409.5" cy="31.5" r="3.0"/><circle class="u" cx="418.5" cy="31.5" r="3.0"/><circle class="u" cx="427.5" cy="31.5" r="3.0"/><circle class="u" cx="4.5" cy="40.5" r="3.0"/><circle class="u" cx="13.5" cy="40.5" r="3.0"/><circle class="u" cx="22.5" cy="40.5" r="3.0"/><circle class="u" cx="31.5" cy="40.5" r="3.0"/><circle class="u" cx="40.5" cy="40.5" r="3.0"/><circle class="u" cx="49.5" cy="40.5" r="3.0"/><circle class="u" cx="58.5" cy="40.5" r="3.0"/><circle class="u" cx="67.5" cy="40.5" r="3.0"/><circle class="u" cx="76.5" cy="40.5" r="3.0"/><circle class="u" cx="85.5" cy="40.5" r="3.0"/><circle class="u" cx="94.5" cy="40.5" r="3.0"/><circle class="u" cx="103.5" cy="40.5" r="3.0"/><circle class="u" cx="112.5" cy="40.5" r="3.0"/><circle class="u" cx="121.5" cy="40.5" r="3.0"/><circle class="u" cx="130.5" cy="40.5" r="3.0"/><circle class="u" cx="139.5" cy="40.5" r="3.0"/><circle class="u" cx="148.5" cy="40.5" r="3.0"/><circle class="u" cx="157.5" cy="40.5" r="3.0"/><circle class="u" cx="166.5" cy="40.5" r="3.0"/><circle class="u" cx="175.5" cy="40.5" r="3.0"/><circle class="u" cx="184.5" cy="40.5" r="3.0"/><circle class="u" cx="193.5" cy="40.5" r="3.0"/><circle class="u" cx="202.5" cy="40.5" r="3.0"/><circle class="u" cx="211.5" cy="40.5" r="3.0"/><circle class="u" cx="220.5" cy="40.5" r="3.0"/><circle class="u" cx="229.5" cy="40.5" r="3.0"/><circle class="u" cx="238.5" cy="40.5" r="3.0"/><circle class="u" cx="247.5" cy="40.5" r="3.0"/><circle class="u" cx="256.5" cy="40.5" r="3.0"/><circle class="u" cx="265.5" cy="40.5" r="3.0"/><circle class="u" cx="274.5" cy="40.5" r="3.0"/><circle class="u" cx="283.5" cy="40.5" r="3.0"/><circle class="u" cx="292.5" cy="40.5" r="3.0"/><circle class="u" cx="301.5" cy="40.5" r="3.0"/><circle class="u" cx="310.5" cy="40.5" r="3.0"/><circle class="u" cx="319.5" cy="40.5" r="3.0"/><circle class="u" cx="328.5" cy="40.5" r="3.0"/><circle class="u" cx="337.5" cy="40.5" r="3.0"/><circle class="u" cx="346.5" cy="40.5" r="3.0"/><circle class="u" cx="355.5" cy="40.5" r="3.0"/><circle class="u" cx="364.5" cy="40.5" r="3.0"/><circle class="u" cx="373.5" cy="40.5" r="3.0"/><circle class="u" cx="382.5" cy="40.5" r="3.0"/><circle class="u" cx="391.5" cy="40.5" r="3.0"/><circle class="u" cx="400.5" cy="40.5" r="3.0"/><circle class="u" cx="409.5" cy="40.5" r="3.0"/><circle class="u" cx="418.5" cy="40.5" r="3.0"/><circle class="u" cx="427.5" cy="40.5" r="3.0"/><circle class="u" cx="4.5" cy="49.5" r="3.0"/><circle class="u" cx="13.5" cy="49.5" r="3.0"/><circle class="u" cx="22.5" cy="49.5" r="3.0"/><circle class="u" cx="31.5" cy="49.5" r="3.0"/><circle class="u" cx="40.5" cy="49.5" r="3.0"/><circle class="u" cx="49.5" cy="49.5" r="3.0"/><circle class="u" cx="58.5" cy="49.5" r="3.0"/><circle class="u" cx="67.5" cy="49.5" r="3.0"/><circle class="u" cx="76.5" cy="49.5" r="3.0"/><circle class="u" cx="85.5" cy="49.5" r="3.0"/><circle class="u" cx="94.5" cy="49.5" r="3.0"/><circle class="u" cx="103.5" cy="49.5" r="3.0"/><circle class="u" cx="112.5" cy="49.5" r="3.0"/><circle class="u" cx="121.5" cy="49.5" r="3.0"/><circle class="u" cx="130.5" cy="49.5" r="3.0"/><circle class="u" cx="139.5" cy="49.5" r="3.0"/><circle class="u" cx="148.5" cy="49.5" r="3.0"/><circle class="u" cx="157.5" cy="49.5" r="3.0"/><circle class="u" cx="166.5" cy="49.5" r="3.0"/><circle class="u" cx="175.5" cy="49.5" r="3.0"/><circle class="u" cx="184.5" cy="49.5" r="3.0"/><circle class="u" cx="193.5" cy="49.5" r="3.0"/><circle class="u" cx="202.5" cy="49.5" r="3.0"/><circle class="u" cx="211.5" cy="49.5" r="3.0"/><circle class="u" cx="220.5" cy="49.5" r="3.0"/><circle class="u" cx="229.5" cy="49.5" r="3.0"/><circle class="u" cx="238.5" cy="49.5" r="3.0"/><circle class="u" cx="247.5" cy="49.5" r="3.0"/><circle class="u" cx="256.5" cy="49.5" r="3.0"/><circle class="u" cx="265.5" cy="49.5" r="3.0"/><circle class="u" cx="274.5" cy="49.5" r="3.0"/><circle class="u" cx="283.5" cy="49.5" r="3.0"/><circle class="u" cx="292.5" cy="49.5" r="3.0"/><circle class="u" cx="301.5" cy="49.5" r="3.0"/><circle class="u" cx="310.5" cy="49.5" r="3.0"/><circle class="u" cx="319.5" cy="49.5" r="3.0"/><circle class="u" cx="328.5" cy="49.5" r="3.0"/><circle class="u" cx="337.5" cy="49.5" r="3.0"/><circle class="u" cx="346.5" cy="49.5" r="3.0"/><circle class="u" cx="355.5" cy="49.5" r="3.0"/><circle class="u" cx="364.5" cy="49.5" r="3.0"/><circle class="u" cx="373.5" cy="49.5" r="3.0"/><circle class="u" cx="382.5" cy="49.5" r="3.0"/><circle class="u" cx="391.5" cy="49.5" r="3.0"/><circle class="u" cx="400.5" cy="49.5" r="3.0"/><circle class="u" cx="409.5" cy="49.5" r="3.0"/><circle class="u" cx="418.5" cy="49.5" r="3.0"/><circle class="u" cx="427.5" cy="49.5" r="3.0"/><circle class="u" cx="4.5" cy="58.5" r="3.0"/><circle class="u" cx="13.5" cy="58.5" r="3.0"/><circle class="u" cx="22.5" cy="58.5" r="3.0"/><circle class="u" cx="31.5" cy="58.5" r="3.0"/><circle class="u" cx="40.5" cy="58.5" r="3.0"/><circle class="u" cx="49.5" cy="58.5" r="3.0"/><circle class="u" cx="58.5" cy="58.5" r="3.0"/><circle class="u" cx="67.5" cy="58.5" r="3.0"/><circle class="u" cx="76.5" cy="58.5" r="3.0"/><circle class="u" cx="85.5" cy="58.5" r="3.0"/><circle class="u" cx="94.5" cy="58.5" r="3.0"/><circle class="u" cx="103.5" cy="58.5" r="3.0"/><circle class="u" cx="112.5" cy="58.5" r="3.0"/><circle class="u" cx="121.5" cy="58.5" r="3.0"/><circle class="u" cx="130.5" cy="58.5" r="3.0"/><circle class="u" cx="139.5" cy="58.5" r="3.0"/><circle class="u" cx="148.5" cy="58.5" r="3.0"/><circle class="u" cx="157.5" cy="58.5" r="3.0"/><circle class="u" cx="166.5" cy="58.5" r="3.0"/><circle class="u" cx="175.5" cy="58.5" r="3.0"/><circle class="u" cx="184.5" cy="58.5" r="3.0"/><circle class="u" cx="193.5" cy="58.5" r="3.0"/><circle class="u" cx="202.5" cy="58.5" r="3.0"/><circle class="u" cx="211.5" cy="58.5" r="3.0"/><circle class="u" cx="220.5" cy="58.5" r="3.0"/><circle class="u" cx="229.5" cy="58.5" r="3.0"/><circle class="u" cx="238.5" cy="58.5" r="3.0"/><circle class="u" cx="247.5" cy="58.5" r="3.0"/><circle class="u" cx="256.5" cy="58.5" r="3.0"/><circle class="u" cx="265.5" cy="58.5" r="3.0"/><circle class="u" cx="274.5" cy="58.5" r="3.0"/><circle class="u" cx="283.5" cy="58.5" r="3.0"/><circle class="u" cx="292.5" cy="58.5" r="3.0"/><circle class="u" cx="301.5" cy="58.5" r="3.0"/><circle class="u" cx="310.5" cy="58.5" r="3.0"/><circle class="u" cx="319.5" cy="58.5" r="3.0"/><circle class="u" cx="328.5" cy="58.5" r="3.0"/><circle class="u" cx="337.5" cy="58.5" r="3.0"/><circle class="u" cx="346.5" cy="58.5" r="3.0"/><circle class="u" cx="355.5" cy="58.5" r="3.0"/><circle class="u" cx="364.5" cy="58.5" r="3.0"/><circle class="u" cx="373.5" cy="58.5" r="3.0"/><circle class="u" cx="382.5" cy="58.5" r="3.0"/><circle class="u" cx="391.5" cy="58.5" r="3.0"/><circle class="u" cx="400.5" cy="58.5" r="3.0"/><circle class="u" cx="409.5" cy="58.5" r="3.0"/><circle class="u" cx="418.5" cy="58.5" r="3.0"/><circle class="u" cx="427.5" cy="58.5" r="3.0"/><circle class="u" cx="4.5" cy="67.5" r="3.0"/><circle class="u" cx="13.5" cy="67.5" r="3.0"/><circle class="u" cx="22.5" cy="67.5" r="3.0"/><circle class="u" cx="31.5" cy="67.5" r="3.0"/><circle class="u" cx="40.5" cy="67.5" r="3.0"/><circle class="u" cx="49.5" cy="67.5" r="3.0"/><circle class="u" cx="58.5" cy="67.5" r="3.0"/><circle class="u" cx="67.5" cy="67.5" r="3.0"/><circle class="u" cx="76.5" cy="67.5" r="3.0"/><circle class="u" cx="85.5" cy="67.5" r="3.0"/><circle class="u" cx="94.5" cy="67.5" r="3.0"/><circle class="u" cx="103.5" cy="67.5" r="3.0"/><circle class="u" cx="112.5" cy="67.5" r="3.0"/><circle class="u" cx="121.5" cy="67.5" r="3.0"/><circle class="u" cx="130.5" cy="67.5" r="3.0"/><circle class="u" cx="139.5" cy="67.5" r="3.0"/><circle class="u" cx="148.5" cy="67.5" r="3.0"/><circle class="u" cx="157.5" cy="67.5" r="3.0"/><circle class="u" cx="166.5" cy="67.5" r="3.0"/><circle class="u" cx="175.5" cy="67.5" r="3.0"/><circle class="u" cx="184.5" cy="67.5" r="3.0"/><circle class="u" cx="193.5" cy="67.5" r="3.0"/><circle class="u" cx="202.5" cy="67.5" r="3.0"/><circle class="u" cx="211.5" cy="67.5" r="3.0"/><circle class="u" cx="220.5" cy="67.5" r="3.0"/><circle class="u" cx="229.5" cy="67.5" r="3.0"/><circle class="u" cx="238.5" cy="67.5" r="3.0"/><circle class="u" cx="247.5" cy="67.5" r="3.0"/><circle class="u" cx="256.5" cy="67.5" r="3.0"/><circle class="u" cx="265.5" cy="67.5" r="3.0"/><circle class="u" cx="274.5" cy="67.5" r="3.0"/><circle class="u" cx="283.5" cy="67.5" r="3.0"/><circle class="u" cx="292.5" cy="67.5" r="3.0"/><circle class="u" cx="301.5" cy="67.5" r="3.0"/><circle class="u" cx="310.5" cy="67.5" r="3.0"/><circle class="u" cx="319.5" cy="67.5" r="3.0"/><circle class="u" cx="328.5" cy="67.5" r="3.0"/><circle class="u" cx="337.5" cy="67.5" r="3.0"/><circle class="u" cx="346.5" cy="67.5" r="3.0"/><circle class="u" cx="355.5" cy="67.5" r="3.0"/><circle class="u" cx="364.5" cy="67.5" r="3.0"/><circle class="u" cx="373.5" cy="67.5" r="3.0"/><circle class="u" cx="382.5" cy="67.5" r="3.0"/><circle class="u" cx="391.5" cy="67.5" r="3.0"/><circle class="u" cx="400.5" cy="67.5" r="3.0"/><circle class="u" cx="409.5" cy="67.5" r="3.0"/><circle class="u" cx="418.5" cy="67.5" r="3.0"/><circle class="u" cx="427.5" cy="67.5" r="3.0"/><circle class="u" cx="4.5" cy="76.5" r="3.0"/><circle class="u" cx="13.5" cy="76.5" r="3.0"/><circle class="u" cx="22.5" cy="76.5" r="3.0"/><circle class="u" cx="31.5" cy="76.5" r="3.0"/><circle class="u" cx="40.5" cy="76.5" r="3.0"/><circle class="u" cx="49.5" cy="76.5" r="3.0"/><circle class="u" cx="58.5" cy="76.5" r="3.0"/><circle class="u" cx="67.5" cy="76.5" r="3.0"/><circle class="u" cx="76.5" cy="76.5" r="3.0"/><circle class="u" cx="85.5" cy="76.5" r="3.0"/><circle class="u" cx="94.5" cy="76.5" r="3.0"/><circle class="u" cx="103.5" cy="76.5" r="3.0"/><circle class="u" cx="112.5" cy="76.5" r="3.0"/><circle class="u" cx="121.5" cy="76.5" r="3.0"/><circle class="u" cx="130.5" cy="76.5" r="3.0"/><circle class="u" cx="139.5" cy="76.5" r="3.0"/><circle class="u" cx="148.5" cy="76.5" r="3.0"/><circle class="u" cx="157.5" cy="76.5" r="3.0"/><circle class="u" cx="166.5" cy="76.5" r="3.0"/><circle class="u" cx="175.5" cy="76.5" r="3.0"/><circle class="u" cx="184.5" cy="76.5" r="3.0"/><circle class="u" cx="193.5" cy="76.5" r="3.0"/><circle class="u" cx="202.5" cy="76.5" r="3.0"/><circle class="u" cx="211.5" cy="76.5" r="3.0"/><circle class="u" cx="220.5" cy="76.5" r="3.0"/><circle class="u" cx="229.5" cy="76.5" r="3.0"/><circle class="u" cx="238.5" cy="76.5" r="3.0"/><circle class="u" cx="247.5" cy="76.5" r="3.0"/><circle class="u" cx="256.5" cy="76.5" r="3.0"/><circle class="u" cx="265.5" cy="76.5" r="3.0"/><circle class="u" cx="274.5" cy="76.5" r="3.0"/><circle class="u" cx="283.5" cy="76.5" r="3.0"/><circle class="u" cx="292.5" cy="76.5" r="3.0"/><circle class="u" cx="301.5" cy="76.5" r="3.0"/><circle class="u" cx="310.5" cy="76.5" r="3.0"/><circle class="u" cx="319.5" cy="76.5" r="3.0"/><circle class="u" cx="328.5" cy="76.5" r="3.0"/><circle class="u" cx="337.5" cy="76.5" r="3.0"/><circle class="u" cx="346.5" cy="76.5" r="3.0"/><circle class="u" cx="355.5" cy="76.5" r="3.0"/><circle class="u" cx="364.5" cy="76.5" r="3.0"/><circle class="u" cx="373.5" cy="76.5" r="3.0"/><circle class="u" cx="382.5" cy="76.5" r="3.0"/><circle class="u" cx="391.5" cy="76.5" r="3.0"/><circle class="u" cx="400.5" cy="76.5" r="3.0"/><circle class="u" cx="409.5" cy="76.5" r="3.0"/><circle class="u" cx="418.5" cy="76.5" r="3.0"/><circle class="u" cx="427.5" cy="76.5" r="3.0"/><circle class="u" cx="4.5" cy="85.5" r="3.0"/><circle class="u" cx="13.5" cy="85.5" r="3.0"/><circle class="u" cx="22.5" cy="85.5" r="3.0"/><circle class="u" cx="31.5" cy="85.5" r="3.0"/><circle class="u" cx="40.5" cy="85.5" r="3.0"/><circle class="u" cx="49.5" cy="85.5" r="3.0"/><circle class="u" cx="58.5" cy="85.5" r="3.0"/><circle class="u" cx="67.5" cy="85.5" r="3.0"/><circle class="u" cx="76.5" cy="85.5" r="3.0"/><circle class="u" cx="85.5" cy="85.5" r="3.0"/><circle class="u" cx="94.5" cy="85.5" r="3.0"/><circle class="u" cx="103.5" cy="85.5" r="3.0"/><circle class="u" cx="112.5" cy="85.5" r="3.0"/><circle class="u" cx="121.5" cy="85.5" r="3.0"/><circle class="u" cx="130.5" cy="85.5" r="3.0"/><circle class="u" cx="139.5" cy="85.5" r="3.0"/><circle class="u" cx="148.5" cy="85.5" r="3.0"/><circle class="u" cx="157.5" cy="85.5" r="3.0"/><circle class="u" cx="166.5" cy="85.5" r="3.0"/><circle class="u" cx="175.5" cy="85.5" r="3.0"/><circle class="u" cx="184.5" cy="85.5" r="3.0"/><circle class="u" cx="193.5" cy="85.5" r="3.0"/><circle class="u" cx="202.5" cy="85.5" r="3.0"/><circle class="u" cx="211.5" cy="85.5" r="3.0"/><circle class="u" cx="220.5" cy="85.5" r="3.0"/><circle class="u" cx="229.5" cy="85.5" r="3.0"/><circle class="u" cx="238.5" cy="85.5" r="3.0"/><circle class="u" cx="247.5" cy="85.5" r="3.0"/><circle class="u" cx="256.5" cy="85.5" r="3.0"/><circle class="u" cx="265.5" cy="85.5" r="3.0"/><circle class="u" cx="274.5" cy="85.5" r="3.0"/><circle class="u" cx="283.5" cy="85.5" r="3.0"/><circle class="u" cx="292.5" cy="85.5" r="3.0"/><circle class="u" cx="301.5" cy="85.5" r="3.0"/><circle class="u" cx="310.5" cy="85.5" r="3.0"/><circle class="u" cx="319.5" cy="85.5" r="3.0"/><circle class="u" cx="328.5" cy="85.5" r="3.0"/><circle class="u" cx="337.5" cy="85.5" r="3.0"/><circle class="u" cx="346.5" cy="85.5" r="3.0"/><circle class="u" cx="355.5" cy="85.5" r="3.0"/><circle class="u" cx="364.5" cy="85.5" r="3.0"/><circle class="u" cx="373.5" cy="85.5" r="3.0"/><circle class="u" cx="382.5" cy="85.5" r="3.0"/><circle class="u" cx="391.5" cy="85.5" r="3.0"/><circle class="u" cx="400.5" cy="85.5" r="3.0"/><circle class="u" cx="409.5" cy="85.5" r="3.0"/><circle class="u" cx="418.5" cy="85.5" r="3.0"/><circle class="u" cx="427.5" cy="85.5" r="3.0"/><circle class="u" cx="4.5" cy="94.5" r="3.0"/><circle class="u" cx="13.5" cy="94.5" r="3.0"/><circle class="u" cx="22.5" cy="94.5" r="3.0"/><circle class="u" cx="31.5" cy="94.5" r="3.0"/><circle class="u" cx="40.5" cy="94.5" r="3.0"/><circle class="u" cx="49.5" cy="94.5" r="3.0"/><circle class="u" cx="58.5" cy="94.5" r="3.0"/><circle class="u" cx="67.5" cy="94.5" r="3.0"/><circle class="u" cx="76.5" cy="94.5" r="3.0"/><circle class="u" cx="85.5" cy="94.5" r="3.0"/><circle class="u" cx="94.5" cy="94.5" r="3.0"/><circle class="u" cx="103.5" cy="94.5" r="3.0"/><circle class="u" cx="112.5" cy="94.5" r="3.0"/><circle class="u" cx="121.5" cy="94.5" r="3.0"/><circle class="u" cx="130.5" cy="94.5" r="3.0"/><circle class="u" cx="139.5" cy="94.5" r="3.0"/><circle class="u" cx="148.5" cy="94.5" r="3.0"/><circle class="u" cx="157.5" cy="94.5" r="3.0"/><circle class="u" cx="166.5" cy="94.5" r="3.0"/><circle class="u" cx="175.5" cy="94.5" r="3.0"/><circle class="u" cx="184.5" cy="94.5" r="3.0"/><circle class="u" cx="193.5" cy="94.5" r="3.0"/><circle class="u" cx="202.5" cy="94.5" r="3.0"/><circle class="u" cx="211.5" cy="94.5" r="3.0"/><circle class="u" cx="220.5" cy="94.5" r="3.0"/><circle class="u" cx="229.5" cy="94.5" r="3.0"/><circle class="u" cx="238.5" cy="94.5" r="3.0"/><circle class="u" cx="247.5" cy="94.5" r="3.0"/><circle class="u" cx="256.5" cy="94.5" r="3.0"/><circle class="u" cx="265.5" cy="94.5" r="3.0"/><circle class="u" cx="274.5" cy="94.5" r="3.0"/><circle class="u" cx="283.5" cy="94.5" r="3.0"/><circle class="u" cx="292.5" cy="94.5" r="3.0"/><circle class="u" cx="301.5" cy="94.5" r="3.0"/><circle class="u" cx="310.5" cy="94.5" r="3.0"/><circle class="u" cx="319.5" cy="94.5" r="3.0"/><circle class="u" cx="328.5" cy="94.5" r="3.0"/><circle class="u" cx="337.5" cy="94.5" r="3.0"/><circle class="u" cx="346.5" cy="94.5" r="3.0"/><circle class="u" cx="355.5" cy="94.5" r="3.0"/><circle class="u" cx="364.5" cy="94.5" r="3.0"/><circle class="u" cx="373.5" cy="94.5" r="3.0"/><circle class="u" cx="382.5" cy="94.5" r="3.0"/><circle class="u" cx="391.5" cy="94.5" r="3.0"/><circle class="u" cx="400.5" cy="94.5" r="3.0"/><circle class="u" cx="409.5" cy="94.5" r="3.0"/><circle class="u" cx="418.5" cy="94.5" r="3.0"/><circle class="u" cx="427.5" cy="94.5" r="3.0"/><circle class="u" cx="4.5" cy="103.5" r="3.0"/><circle class="u" cx="13.5" cy="103.5" r="3.0"/><circle class="u" cx="22.5" cy="103.5" r="3.0"/><circle class="u" cx="31.5" cy="103.5" r="3.0"/><circle class="u" cx="40.5" cy="103.5" r="3.0"/><circle class="u" cx="49.5" cy="103.5" r="3.0"/><circle class="u" cx="58.5" cy="103.5" r="3.0"/><circle class="u" cx="67.5" cy="103.5" r="3.0"/><circle class="u" cx="76.5" cy="103.5" r="3.0"/><circle class="u" cx="85.5" cy="103.5" r="3.0"/><circle class="u" cx="94.5" cy="103.5" r="3.0"/><circle class="u" cx="103.5" cy="103.5" r="3.0"/><circle class="u" cx="112.5" cy="103.5" r="3.0"/><circle class="u" cx="121.5" cy="103.5" r="3.0"/><circle class="u" cx="130.5" cy="103.5" r="3.0"/><circle class="u" cx="139.5" cy="103.5" r="3.0"/><circle class="u" cx="148.5" cy="103.5" r="3.0"/><circle class="u" cx="157.5" cy="103.5" r="3.0"/><circle class="u" cx="166.5" cy="103.5" r="3.0"/><circle class="u" cx="175.5" cy="103.5" r="3.0"/><circle class="u" cx="184.5" cy="103.5" r="3.0"/><circle class="u" cx="193.5" cy="103.5" r="3.0"/><circle class="u" cx="202.5" cy="103.5" r="3.0"/><circle class="u" cx="211.5" cy="103.5" r="3.0"/><circle class="u" cx="220.5" cy="103.5" r="3.0"/><circle class="u" cx="229.5" cy="103.5" r="3.0"/><circle class="u" cx="238.5" cy="103.5" r="3.0"/><circle class="u" cx="247.5" cy="103.5" r="3.0"/><circle class="u" cx="256.5" cy="103.5" r="3.0"/><circle class="u" cx="265.5" cy="103.5" r="3.0"/><circle class="u" cx="274.5" cy="103.5" r="3.0"/><circle class="u" cx="283.5" cy="103.5" r="3.0"/><circle class="u" cx="292.5" cy="103.5" r="3.0"/><circle class="u" cx="301.5" cy="103.5" r="3.0"/><circle class="u" cx="310.5" cy="103.5" r="3.0"/><circle class="u" cx="319.5" cy="103.5" r="3.0"/><circle class="u" cx="328.5" cy="103.5" r="3.0"/><circle class="u" cx="337.5" cy="103.5" r="3.0"/><circle class="u" cx="346.5" cy="103.5" r="3.0"/><circle class="u" cx="355.5" cy="103.5" r="3.0"/><circle class="u" cx="364.5" cy="103.5" r="3.0"/><circle class="u" cx="373.5" cy="103.5" r="3.0"/><circle class="u" cx="382.5" cy="103.5" r="3.0"/><circle class="u" cx="391.5" cy="103.5" r="3.0"/><circle class="u" cx="400.5" cy="103.5" r="3.0"/></svg>
@@ -471,13 +482,14 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
         <div class="chips"><span class="chip">docs/kiro-evidence/sessions/before/ledger.md</span></div>
       </article>
       <article class="cell c-hooks">
+        <svg class="glyph g2" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 4v14a6 6 0 1 1-6-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M22 23l6 6M28 23l-6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         <h3>Hooks that say no</h3>
         <div class="term" id="hooks"><div class="term__body">
           <span class="ln">2026-11-24T20:07:21Z · <em>catalog-gate</em> · content/catalog.json · <span class="no">blocked:</span> quinces-marmalade: no valid review.json with a reviewedBy (a person reviews a recipe; an agent does not write it)</span>
           <span class="ln">2026-11-24T20:33:24Z · <em>catalog-gate</em> · content/catalog.json · <span class="no">blocked:</span> quinces-marmalade: gate.json pass=false (till-it-looks-red-smooth: line 8: quote splits a disagreement)</span>
           <span class="ln">2026-11-25T20:50:06Z · <em>shell-gate</em> · content/catalog.json · <span class="no">blocked:</span> a shell command writes the catalog; only npm run catalog writes it</span>
         </div></div>
-        <p>Verbatim from docs/kiro-evidence/hooks.log; lines 1 and 3 are probes we ran to test the hooks (docs/KIRO.md §2). Beside the catalog gate, no-imitation refuses a src/ write that speaks or fakes handwriting: 6 hooks in .kiro/hooks/.</p>
+        <p>Lines from docs/kiro-evidence/hooks.log, timestamps trimmed to the second. All three are refusals we provoked to test the hooks (docs/KIRO.md §2). The catalog gate now asks for a named reviewer; the shipped recipe's is the builder's agent. No-imitation refuses a src/ write that speaks or fakes handwriting: 6 hooks in .kiro/hooks/.</p>
       </article>
     </div>
   </div>
@@ -491,7 +503,7 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
     <div class="quotes">
       <blockquote><p>The renderer's look gate (7/10) was <strong>not met</strong> at look pass 2: a frame review scored it 6.5 on desktop and 6.5 on phone.</p><cite>README · Honest limits</cite></blockquote>
       <blockquote><p>Only one recipe is on the shelf, and the reading was done by two Kiro agents.</p><cite>README · Honest limits</cite></blockquote>
-      <blockquote><p>The manuscript gives no cooking times, so none is invented.</p><cite>README · Honest limits</cite></blockquote>
+      <blockquote><p>The manuscript gives no cooking times, so none is invented: each note is placed at its step or at a cited modern check time, and each time is labelled.</p><cite>README · Honest limits</cite></blockquote>
     </div>
   </div>
 </section>
@@ -504,9 +516,9 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
     </div>
     <div class="faq__list">
       <details><summary>Is the handwriting generated?</summary><div class="ans"><p>No. The ink is the scan's own ink lifted off the paper: its shape and density come from the scan and are drawn in the renderer's colour. <code>scripts/verify_provenance.py</code> re-fetches each note's region from the archive and checks that the bundled page crop matches it and that the displayed ink lies inside it.</p></div></details>
-      <details><summary>Is that the writer&#x27;s stroke order?</summary><div class="ans"><p>No. The write-on follows a traced path through that ink, so the order of strokes is ours, not the writer's. The README says so in its first section.</p></div></details>
-      <details><summary>Does it work on a phone?</summary><div class="ans"><p>Yes, in a portrait layout that shows only the note, split into groups at the gaps in its ink so each group stays legible. The frame-rate runs used an emulated Pixel 5 with a 4× CPU throttle; no physical Android run was made.</p></div></details>
-      <details><summary>What did Kiro actually do?</summary><div class="ans"><p>304 of the commits come from Kiro sessions working through a spec's tasks, a bugfix spec or an agent workflow. Its two custom agents read the page; its hooks refused writes that would add a synthetic voice or a handwriting font, or publish a recipe without a person's review. <code>docs/KIRO.md</code> lists each feature with the files and commits behind it, and what was planned and not built.</p></div></details>
+      <details><summary>Is that the writer&#x27;s stroke order?</summary><div class="ans"><p>No. The write-on follows a traced path through that ink, so the order of strokes is ours, not the writer's. The README says so in its Solution section.</p></div></details>
+      <details><summary>Does it work on a phone?</summary><div class="ans"><p>Yes, in emulation. A narrow screen gets a portrait layout that shows only the note; a line is cut at a gap in its ink when that keeps the hand readable or lets it grow, and the parts stack. The frame-rate runs used an emulated Pixel 5 with a 4× CPU throttle; no physical phone has been tried.</p></div></details>
+      <details><summary>What did Kiro actually do?</summary><div class="ans"><p>304 commits are labelled [kiro] (301 of them fall inside a recorded Kiro session's time window), made working through a spec's tasks, a bugfix spec or an agent workflow. Its two custom agents read the page. In our tests its hooks refused a write that adds a synthetic voice and a catalog write with no named reviewer; refusing a handwriting font is unit-tested. The shipped recipe's reviewer is the builder's agent. <code>docs/KIRO.md</code> lists each feature with the files and commits behind it, and what was planned and not built.</p></div></details>
       <details><summary>Where do the cooking times come from?</summary><div class="ans"><p>The manuscript gives no cooking times, so none is invented: each note is placed at its step or at a cited modern check time, and each time is labelled.</p></div></details>
       <details><summary>What is not real yet?</summary><div class="ans"><p>One recipe is on the shelf, and its sign-off came from the builder's agent, not a person; a human sign-off is still owed. The renderer missed its look gate at the last scored pass, 1 end-to-end test fails (113 of 114 pass), and no build-wide Kiro credit total was kept.</p></div></details>
     </div>
@@ -523,11 +535,10 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
   </div>
   <div class="wrap fine">
     <span>Built for Kiroween 2026 · Costume Contest. Code: MIT. The scan: Wellcome Collection MS.1810, Public Domain Mark. Faces: IM Fell English, Literata, DM Mono (SIL Open Font License).</span>
-    <span>This page is hand-built ([claude-direct]); the window in it is the product's own component, <a href="https://github.com/edycutjong/steam/blob/main/src/steam/SteamGlass.tsx">src/steam/SteamGlass.tsx</a>.</span>
+    <span>This page was written by a Claude agent outside Kiro ([claude-direct]); the window in it is the product's own component, <a href="https://github.com/edycutjong/steam/blob/main/src/steam/SteamGlass.tsx">src/steam/SteamGlass.tsx</a>. The writer is unnamed: “Her” in the title is the family scenario this is built for, not a fact from the manuscript.</span>
   </div>
 </footer>
 
-<script src="/site/glass.js" defer></script>
 <script>
 (function(){
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -583,6 +594,21 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
   // the window: the product's SteamGlass, mounted while the hero is on screen
   var stage = document.getElementById('glass'), hero = document.getElementById('top');
   var tag = document.getElementById('glass-tag'), act = document.getElementById('glass-act'), again = document.getElementById('glass-replay');
+
+  // the glass (the product's SteamGlass) loads after the page: it never competes with the first paint. A browser that draws WebGL in
+  // software gets the captured frame instead, the same outcome as the product's own governor (quality tier 3 shows its static pane).
+  function softwareGL(){
+    try { var c = document.createElement('canvas'), gl = c.getContext('webgl2'); if (!gl) return 'no WebGL2';
+      var e = gl.getExtension('WEBGL_debug_renderer_info'), r = e ? String(gl.getParameter(e.UNMASKED_RENDERER_WEBGL)) : '';
+      var lose = gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext();
+      return /swiftshader|llvmpipe|softpipe|software|basic render/i.test(r) ? 'software WebGL' : '' } catch (err) { return 'no WebGL2' }
+  }
+  function loadGlass(done, skipped){
+    var why = softwareGL(); if (why) { skipped(why); return }
+    var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '/site/glass.css'; document.head.appendChild(css);
+    var js = document.createElement('script'); js.src = '/site/glass.js'; js.onload = done; document.body.appendChild(js);
+  }
+  function later(f){ (window.requestIdleCallback || function(cb){ return setTimeout(cb, 200) })(f, { timeout: 1500 }) }
   var TAGS = { loading: 'Loading the note · the product’s own renderer', ready: 'Live · the product’s SteamGlass, running in this page', fallback: 'Static pane · the product’s own images (reduced motion or no WebGL2)', error: 'Still · the note could not be loaded here' };
   var h = null, written = false, visible = true;
   function mount(){
@@ -610,7 +636,8 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
       else if (visible && !h) mount();
     }) }, { threshold: .05 }).observe(stage);
   }
-  if (document.readyState === 'complete') boot(); else addEventListener('load', boot);
+  function start(){ later(function(){ loadGlass(boot, function(why){ tag.textContent = 'Still · a frame of this pane from the live renderer (this browser has ' + why + '; the app shows its static pane here too)' }) }) }
+  if (document.readyState === 'complete') start(); else addEventListener('load', start);
 })();
 </script>
 </body>

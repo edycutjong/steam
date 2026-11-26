@@ -133,6 +133,7 @@ bench/          frame-rate runs          docs/        KIRO, EXPERIMENTS, DX-REPO
 - Live: https://steam.edycu.dev
 - Judge steps: [`DEMO.md`](DEMO.md)
 - Architecture, box by box: [`ARCHITECTURE.md`](ARCHITECTURE.md)
+- Landing page: https://steam.edycu.dev/landing/ and pitch deck: https://steam.edycu.dev/deck/ (both mount the app's own `SteamGlass` through `site/glass.tsx`)
 - Demo video: not published yet.
 
 ## 📄 License

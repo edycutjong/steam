@@ -18,6 +18,9 @@ Other deep links: `?note=when-tender` and `?note=full-ripe` (the other two notes
 
 Reduced motion: with the operating system's reduced-motion setting on, the canvas is replaced by a static pane and the held note fades in (`e2e/cook-a11y.spec.ts`); nothing is written.
 
+## The landing page and the deck
+https://steam.edycu.dev/landing/ and https://steam.edycu.dev/deck/ are static pages beside the app (`public/landing/`, `public/deck/`). Their steamed window is the app's own `SteamGlass` component, mounted by `site/glass.tsx` and built into `dist/site/glass.js` by `tools/site/vite-plugin.ts`. On a browser that draws WebGL in software, the pages show a still frame instead and say so. That frame was captured from the landing page's live pane with Playwright on 2026-11-27. The three Cook Mode stills were captured from steam.edycu.dev with Playwright on 2026-11-26. The pages sit outside the offline shell (`SITE_PREFIXES` in `src/offline/precache.ts`), so they always load fresh.
+
 ## What is real and what is ours
 
 - The ink is the scan's own ink lifted off the paper: its shape and density come from the scan and are drawn in the renderer's colour (a processed render, not a copy of its pixels). No handwriting font, no generated hand, no synthetic voice.
