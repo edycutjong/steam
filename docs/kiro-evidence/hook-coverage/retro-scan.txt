@@ -1,0 +1,5 @@
+# tools/evidence/rule-scan.ts at 718b682, 2026-11-26 (UTC) — no-imitation rules (speech synthesis, handwriting-style font, handwriting package) over src/, test files skipped
+1. HEAD tree: 106 non-test text files under src/, whole file: 0 finding(s)
+2. History: 223 commits touched src/; 16967 added lines in non-test text files, each judged in its file at that commit: 0 finding(s)
+control: the same rules over the 149 skipped test files under src/ and tools/hooks/ (they quote the forbidden words on purpose): 116 finding(s) — the rules fire on real repo text
+RESULT: no finding
