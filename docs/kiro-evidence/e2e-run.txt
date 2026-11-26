@@ -1,8 +1,8 @@
-# npm run e2e (Playwright), 2026-11-26, HEAD 90c4e6f+docs; the failure re-ran alone with the same result
+# npm run e2e (Playwright), 2026-11-27, at 0b7e471 (later commits change only tools, docs and the /landing/ and /deck/ pages, which no e2e test opens); the failing test passed alone the same day (5/5 in e2e/cook-session.spec.ts) and in a full run on 2026-11-26; a service-worker race was tested and ruled out; not root-caused
 [44/114] e2e/cook-session.spec.ts:110:1 › a note with an unsupported licence is withheld: the edition says so and the step has no note
   1) e2e/cook-session.spec.ts:110:1 › a note with an unsupported licence is withheld: the edition says so and the step has no note 
-    Expected: "That note is not on this page. Started at step 1 of 5."
-    Received: "Started at step 4 of 5Start again"
+    Expected: "1"
+    Received: "4"
   1 failed
     e2e/cook-session.spec.ts:110:1 › a note with an unsupported licence is withheld: the edition says so and the step has no note 
   113 passed (15.3m)

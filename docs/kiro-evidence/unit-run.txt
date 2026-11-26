@@ -1,4 +1,4 @@
-# npm test at 8045c5e, 2026-11-26 (summary lines)
+# npm test at d824683, 2026-11-27 (summary lines)
  Test Files  169 passed (169)
-      Tests  1544 passed | 5 expected fail (1549)
-   Duration  24.39s (tests 62%, import 33%, environment 4%, transform 1%)
+      Tests  1569 passed | 5 expected fail (1574)
+   Duration  22.44s (tests 62%, import 33%, environment 3%, transform 1%)
