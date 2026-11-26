@@ -26,7 +26,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="/site/fonts/im-fell-english-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/site/fonts/im-fell-english-latin-400-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/site/fonts/im-fell-english-latin-400-italic.woff2" as="font" type="font/woff2" crossorigin media="(min-width: 701px), (orientation: landscape)">
 <link rel="preload" as="image" href="/site/media/window-held-760.webp" imagesrcset="/site/media/window-held-760.webp 760w, /site/media/window-held.webp 1520w" imagesizes="(max-width: 1000px) 50vw, 960px" fetchpriority="high">
 <style>
 @font-face{font-family:"IM Fell English";src:url(/site/fonts/im-fell-english-latin-400-normal.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
@@ -38,21 +38,21 @@
 
 /* the design tokens (the same :root as /landing/) */
 :root {
-  --bg:      #0E0A0A;  /* the kitchen at midnight on All Hallows': soot black with a trace of ember; red > blue, so it sits outside the blue-black #0B0E14 cluster (earlier value: #130E0B) */
-  --ink:     #EFE7DA;  /* steam white with tallow warmth: step text, wet rims on the glass */
-  --muted:   #9A8F82;  /* pewter: captions, archive slips, the timer at rest */
-  --before:  #7F909C;  /* state: fogged — breath-grey condensation hiding the note, cooled by the moon above it; the pane's resting colour (earlier value: #7D8B94) */
-  --after:   #F2A65A;  /* state: revealed — hob ember: dim on the pot flame at rest, on the timer in the 10 s before a note, and at full strength only in the light through strokes wiped out of the fog */
-  --fault:   #D9654E;  /* upload gate failures only (a scorched-pan red); never in Cook Mode */
-  --rule:    #3A2D24;  /* sash-bar wood: pane frame, dividers, the hairline over each archive slip */
-  --paper:   #E8DCC2;  /* facsimile mat behind scans on the shelf and edition view (never behind the steam pane) */
-  --glass-hi: rgba(239, 231, 218, 0.55);  /* specular highlight on the sash glass, derived from --ink */
-  --ghost:   #BCD3E4;  /* cold breath: the blue-white rim at the edge of every stroke the dead hand wipes, the cold bloom, and the cold writing-head glow */
-  --moon:    #E4E9EC;  /* the full moon through the upper sash: bone white, cold; also the moonlit edge of the fog's top */
-  --night:   #121A24;  /* the sky beyond the upper sash: the only blue surface, and only ever seen through glass */
-  --font-display: "IM Fell English", "IM Fell DW Pica", Georgia, serif;  /* Fell types, cut in the late 1600s and cast for English presses: the printed voice of the receipt book's own century. Titles and the 'The hand, quoted' page only */
-  --font-body:    "Literata", Georgia, serif;  /* the edition voice: a screen-reading book face for step text and transcriptions; tabular lining figures for the timer */
-  --font-data:    "DM Mono", ui-monospace, monospace;  /* ONLY shelfmarks, IIIF region coordinates, the pace multiplier (×12) and the ?fps=1 overlay */
+  --bg:      #0E0A0A;
+  --ink:     #EFE7DA;
+  --muted:   #9A8F82;
+  --before:  #7F909C;
+  --after:   #F2A65A;
+  --fault:   #D9654E;
+  --rule:    #3A2D24;
+  --paper:   #E8DCC2;
+  --glass-hi: rgba(239, 231, 218, 0.55);
+  --ghost:   #BCD3E4;
+  --moon:    #E4E9EC;
+  --night:   #121A24;
+  --font-display: "IM Fell English", "IM Fell DW Pica", Georgia, serif;
+  --font-body:    "Literata", Georgia, serif;
+  --font-data:    "DM Mono", ui-monospace, monospace;
 }
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);color-scheme:dark;overflow:hidden}
@@ -91,11 +91,12 @@ p{margin:0}
 .stage[data-status="ready"]+.livetag{color:var(--ghost)}
 
 /* 1 cover */
-.s-cover{display:grid;grid-template-columns:760px 1fr;gap:72px;align-items:center}
+.s-cover{display:grid;grid-template-columns:620px 1fr;gap:64px;align-items:center}
+.s-cover h1 .hand{text-shadow:0 0 1px color-mix(in srgb,var(--ghost) 70%,transparent),0 0 22px color-mix(in srgb,var(--after) 14%,transparent)}
 .s-cover h1{font-size:172px;line-height:.92;margin:34px 0 52px}
 .s-cover .title{font:400 46px/1.15 var(--font-display);color:var(--ink)}
 .s-cover .line{margin-top:22px;font-size:30px;color:var(--muted);max-width:24ch}
-.badge{display:inline-flex;margin-top:46px;font:600 22px/1 var(--font-body);padding:16px 20px;border:1px solid var(--rule);border-radius:3px;color:var(--ink);background:color-mix(in srgb,var(--rule) 30%,transparent)}
+.badge{display:inline-flex;margin-top:46px;font:600 20px/1 var(--font-body);padding:16px 20px;border:1px solid var(--rule);border-radius:3px;color:var(--ink);background:color-mix(in srgb,var(--rule) 30%,transparent)}
 .s-cover .stage{width:100%;aspect-ratio:4/3}
 .brandmark{position:absolute;top:56px;right:120px;width:64px;height:64px;filter:drop-shadow(0 0 18px color-mix(in srgb,var(--after) 40%,transparent))}
 
@@ -130,16 +131,28 @@ p{margin:0}
 
 /* 5 quoted */
 
-.s-quoted .grid{display:grid;grid-template-columns:900px 1fr;gap:64px;margin-top:46px;align-items:start}
+.s-quoted{display:flex;flex-direction:column}
+.s-quoted .grid{display:grid;grid-template-columns:900px 1fr;gap:70px;margin-block:auto 40px;align-items:center}
+.s-quoted .term{padding:40px 44px;font-size:24px}
+.s-quoted .verdict{margin-top:44px;display:flex;align-items:baseline;gap:26px}
+.s-quoted .verdict b{font:600 112px/1 var(--font-body);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.02em;color:var(--ink)}
+.s-quoted .verdict span{font-size:32px;line-height:1.25;color:var(--muted);max-width:12ch}
 .s-quoted .plate{background:var(--paper);padding:18px;background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--rule) 5%,transparent) 0 1px,transparent 1px 8px);box-shadow:0 30px 70px -40px rgb(0 0 0 / .5)}
 .s-quoted .plate img{width:100%;height:auto}
-.s-quoted .cap{margin-top:16px;font:400 17px/1.4 var(--font-data);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.s-quoted .cap{margin-top:16px;font:400 22px/1.4 var(--font-body);font-variant:all-small-caps;letter-spacing:.08em;color:var(--muted)}
 .term{background:color-mix(in srgb,var(--rule) 26%,var(--bg));color:var(--ink);border-radius:5px;padding:30px 34px;font:400 21px/1.55 var(--font-data);box-shadow:0 40px 90px -40px rgb(0 0 0 / .7);font-variant-ligatures:none}
 .term .nm{color:var(--ink);margin-top:16px;display:block}
 .term .nm:first-child{margin-top:0}
-.ptab{display:grid;grid-template-columns:250px repeat(3,1fr);gap:18px 26px;align-items:center}
-.ptab .h{color:var(--muted);font-size:17px;letter-spacing:.06em}
-.ptab .cellb{display:grid;grid-template-columns:1fr 78px;gap:12px;align-items:center}
+.ptab{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 30px;align-items:center}
+.ptab .nm{grid-column:1/-1;margin-top:26px}
+.ptab .h{color:var(--muted);font-size:19px;letter-spacing:.06em}
+.ptab .cellb{display:grid;grid-template-columns:minmax(0,1fr) 84px;gap:14px;align-items:center}
+.ptab .cellb .v{text-align:right;font-variant-numeric:tabular-nums}
+.ptab .track{position:relative;height:18px;background:color-mix(in srgb,var(--rule) 55%,transparent)}
+.ptab .track i{position:absolute;left:0;top:0;bottom:0;background:var(--before);width:var(--w)}
+.ptab .track.real i{background:var(--after);box-shadow:0 0 14px color-mix(in srgb,var(--after) 45%,transparent)}
+.ptab .track.neg i{width:0}
+.ptab .track::after{content:"";position:absolute;top:-6px;bottom:-6px;left:90%;width:2px;background:var(--ghost);opacity:.75}
 .bars{display:grid;grid-template-columns:190px 1fr 100px;gap:8px 18px;align-items:center;margin-top:8px}
 .bars .k{color:var(--muted);font-size:17px}
 .bars .v{text-align:right;font-variant-numeric:tabular-nums}
@@ -153,9 +166,9 @@ p{margin:0}
 
 /* 6 live demo */
 .s-demo{display:grid;grid-template-columns:1230px 1fr;gap:60px;align-items:center}
-.shot{position:relative;border-radius:5px;overflow:hidden;box-shadow:0 50px 120px -50px rgb(0 0 0 / .9)}
+.shot{position:relative;border-radius:5px;overflow:hidden;box-shadow:0 50px 120px -50px rgb(0 0 0 / .9),0 0 0 1px color-mix(in srgb,var(--rule) 75%,transparent)}
 .shot img{width:100%;height:auto}
-.pin{position:absolute;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;display:grid;place-items:center;font:600 24px/1 var(--font-body);color:var(--bg);background:var(--ghost);box-shadow:0 0 0 6px color-mix(in srgb,var(--ghost) 25%,transparent),0 6px 20px rgb(0 0 0 / .6)}
+.pin{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;display:grid;place-items:center;font:600 19px/1 var(--font-body);color:var(--bg);background:var(--ghost);box-shadow:0 0 0 4px color-mix(in srgb,var(--ghost) 22%,transparent),0 6px 20px rgb(0 0 0 / .6)}
 .legend{list-style:none;margin:30px 0 0;padding:0;display:grid;gap:22px}
 .legend li{display:grid;grid-template-columns:52px 1fr;gap:18px;align-items:start;font-size:26px;line-height:1.3;color:var(--muted)}
 .legend li b{color:var(--ink);font-weight:600}
@@ -163,18 +176,19 @@ p{margin:0}
 
 /* 7 flow */
 .s-flow{display:flex;flex-direction:column}
-.lanes{margin-top:70px;display:grid;gap:70px}
+.lanes{margin-block:auto;display:grid;gap:84px}
 .lane{display:grid;grid-template-columns:220px 1fr;gap:30px;align-items:center}
 .lane .lab{font:400 18px/1.3 var(--font-data);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.chain{display:flex;align-items:stretch;gap:0}
-.node{flex:1;background:color-mix(in srgb,var(--rule) 22%,var(--bg));border-top:6px solid var(--rule);border-radius:0 0 4px 4px;padding:26px 26px;min-height:210px;display:flex;flex-direction:column;justify-content:flex-start}
+.chain{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:56px;align-items:stretch}
+.node{position:relative;background:color-mix(in srgb,var(--rule) 22%,var(--bg));border-top:6px solid var(--rule);border-radius:0 0 4px 4px;padding:26px 28px 30px;min-height:250px;display:flex;flex-direction:column;justify-content:flex-end}
+.node .kt,.node .thumb{margin-bottom:auto!important}
 .node .kt{display:block;font:400 17px/1 var(--font-data);letter-spacing:.14em;color:var(--ghost);margin-bottom:12px}
-.node .thumb{display:block;width:100%;height:64px;object-fit:cover;border-radius:2px;margin-bottom:14px}
+.node .thumb{display:block;width:100%;height:84px;object-fit:cover;border-radius:2px;margin-bottom:14px}
 .node .thumb.paper{background:var(--paper)}
 .node b{display:block;font:400 44px/1.08 var(--font-display);color:var(--ink)}
 .node span{display:block;margin-top:14px;font:italic 400 24px/1.35 var(--font-body);color:var(--muted)}
 .node.kiro{border-top-color:var(--ghost)}
-.arrow{flex:none;align-self:center;width:56px;height:2px;background:var(--rule);position:relative}
+.arrow{position:absolute;left:100%;top:50%;width:56px;height:2px;background:var(--rule)}
 .arrow::after{content:"";position:absolute;right:-1px;top:-6px;border:7px solid transparent;border-left:10px solid var(--rule);border-right:0}
 .down{margin:-10px 0 -10px 250px;font:400 18px/1 var(--font-data);color:var(--muted);letter-spacing:.1em}
 .kirobar{margin-top:auto;margin-bottom:10px;display:flex;gap:16px;flex-wrap:wrap}
@@ -196,13 +210,13 @@ p{margin:0}
 .fix .mono{font-size:24px;color:var(--before)}
 
 /* 9 rigor */
-.s-rigor{display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:start;padding-top:150px}
+.s-rigor{display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}
 .stats{margin-top:50px;display:grid;grid-template-columns:1fr;gap:34px}
 .stat b{display:block;font:600 84px/1 var(--font-body);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.02em}
 .stat span{display:block;margin-top:12px;font-size:24px;color:var(--muted);line-height:1.3}
-.limits{border-left:2px solid var(--rule);padding-left:50px;display:grid;gap:44px;margin-top:20px}
+.limits{border-left:2px solid var(--rule);padding:14px 0 14px 54px;display:grid;gap:44px}
 .limits blockquote{margin:0}
-.limits p{font:italic 400 40px/1.3 var(--font-display);color:var(--ink)}
+.limits p{font:italic 400 58px/1.24 var(--font-display);color:var(--ink);margin:0}
 .limits strong{color:var(--fault);font-weight:400}
 .limits cite{display:block;margin-top:14px;font:400 17px/1.3 var(--font-data);font-style:normal;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 
@@ -211,10 +225,13 @@ p{margin:0}
 .s-ask h2{font-size:120px}
 .s-ask .sub{margin-top:20px;font-size:34px;color:var(--muted)}
 .s-ask .urls{margin-top:46px;display:grid;gap:16px;font:400 28px/1.3 var(--font-data);color:var(--ink)}
-.s-ask .urls span{color:var(--muted);font-size:20px;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:4px}
+.s-ask .urls span{color:var(--muted);font:400 22px/1.3 var(--font-body);font-variant:all-small-caps;letter-spacing:.1em;display:block;margin-bottom:4px}
+.s-ask .urls a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule);transition:color .2s,border-color .2s}
+.s-ask .urls a:hover{color:var(--after);border-bottom-color:var(--after)}
+.s-ask .urls a:focus-visible{outline:2px solid var(--ghost);outline-offset:4px}
 .qr{background:var(--paper);padding:30px;border-radius:6px;box-shadow:0 30px 80px -30px rgb(0 0 0 / .75)}
 .qr svg{display:block;width:100%;height:auto}
-.qr p{margin-top:16px;text-align:center;font:400 17px/1.3 var(--font-data);letter-spacing:.1em;text-transform:uppercase;color:var(--bg)}
+.qr p{margin-top:16px;text-align:center;font:400 21px/1.3 var(--font-body);font-variant:all-small-caps;letter-spacing:.1em;color:var(--bg)}
 .cats{margin-top:40px;display:flex;gap:14px}
 .cats span{font:600 22px/1 var(--font-body);padding:14px 18px;border:1px solid var(--rule);border-radius:3px}
 
@@ -229,7 +246,7 @@ p{margin:0}
 .rotate .rt{font:400 32px/1.1 var(--font-display);margin:0}
 .rotate a,.rotate button{all:unset;cursor:pointer;text-align:center;padding:14px 18px;border:1px solid var(--rule);border-radius:3px;font-weight:600}
 .rotate a{background:var(--paper);color:var(--bg)}
-@media (max-width:700px) and (orientation:portrait){.rotate{display:flex}}
+@media (max-width:700px) and (orientation:portrait){.rotate{display:flex}body:not(.rotate-ok) .viewport{display:none}}
 body.rotate-ok .rotate{display:none}
 .notes{position:fixed;left:0;right:0;bottom:0;height:20vh;z-index:4;background:color-mix(in srgb,var(--bg) 92%,black);border-top:1px solid var(--rule);padding:18px 28px;font:400 18px/1.55 var(--font-body);color:var(--ink);overflow:auto}
 body.presenter{cursor:auto}
@@ -261,7 +278,6 @@ body.presenter.idle{cursor:none}
     <p class="kick">Kiroween 2026 · Costume Contest</p>
     <h1><em class="hand">Still writing.</em></h1>
     <p class="title">Her Hand in the Steam</p>
-    <p class="line">A dead writer's hand, still writing in the steam.</p>
     <span class="badge">Cook Mode for handwritten recipes · built with Kiro</span>
   </div>
   <div>
@@ -273,10 +289,10 @@ body.presenter.idle{cursor:none}
 
 <section class="frame" aria-label="Slide 2: hook"><div class="slide s-hook">
   <p class="kick">The writer's own words</p>
-  <h2>No timer says <em class="hand">this.</em></h2>
-  <div class="scan"><img src="/site/media/p23-lines45.webp" width="1400" height="168" alt="The writer's ink: to the Quinces, &amp; boil it till it Looks red &amp; smooth, keeping it stir'd all."></div>
+  <h2>No timer says <em class="hand">“red &amp; smooth.”</em></h2>
+  <div class="scan"><img loading="lazy" src="/site/media/p23-lines45.webp" width="1400" height="168" alt="The writer's ink: to the Quinces, &amp; boil it till it Looks red &amp; smooth, keeping it stir'd all."></div>
   <p class="cap">Wellcome MS.1810 · p.23 · c. 1750 · the archive's IIIF image · Public Domain Mark</p>
-  <p class="say">“till it Looks red &amp; smooth.” A writer did, c. 1750.</p>
+  <p class="say">A writer did: the cook's test for when the quinces are done.</p>
   <div class="foot"><span>02 · hook</span><span>Her Hand in the Steam</span></div>
 </div><aside class="speaker-notes">Handwritten recipes keep the judgement calls a timer cannot. This line is the cook's real test for when the quinces are done. We bring that judgement back at the moment it matters.</aside></section>
 
@@ -286,25 +302,25 @@ body.presenter.idle{cursor:none}
   </div>
   <div>
     <blockquote><q>Typing a recipe up flattens “till it looks red &amp; smooth” into a line of text, and the person who wrote it disappears.</q></blockquote>
-    <div class="pair"><p class="typed">red &amp; smooth</p><div class="handstrip"><img src="/site/media/p23-redsmooth.webp" width="540" height="95" alt="The writer's ink for red &amp; smooth, from the scan of p.23."></div></div>
+    <div class="pair"><p class="typed">red &amp; smooth</p><div class="handstrip"><img loading="lazy" src="/site/media/p23-redsmooth.webp" width="540" height="95" alt="The writer's ink for red &amp; smooth, from the scan of p.23."></div></div>
   </div>
   <div class="foot"><span>03 · the quote is from the README</span><span>Her Hand in the Steam</span></div>
 </div><aside class="speaker-notes">A typed copy keeps the words and loses the voice: the struck line is what typing leaves; the strip beside it is what the writer left.</aside></section>
 
 <section class="frame" aria-label="Slide 4: the renderer on its own clock" data-steps="4"><div class="slide s-clock">
   <div>
-    <div class="stage" data-glass="clock"><img class="poster" src="/site/media/window-held-760.webp" srcset="/site/media/window-held-760.webp 760w, /site/media/window-held.webp 1520w" sizes="(max-width: 1000px) 50vw, 960px" alt="The note held clear on the glass."><div class="mount"></div></div>
+    <div class="stage" data-glass="clock"><img loading="lazy" class="poster" src="/site/media/window-held-760.webp" srcset="/site/media/window-held-760.webp 760w, /site/media/window-held.webp 1520w" sizes="(max-width: 1000px) 50vw, 960px" alt="The note held clear on the glass."><div class="mount"></div></div>
   </div>
   <div>
     <p class="kick">The moment</p>
     <h2 style="font-size:84px;margin-top:22px">Watch the hand <em class="hand">arrive.</em></h2>
     <ol class="steps" id="clock-steps">
-      <li data-t="800"><span class="t">0.8 s</span><span>the first word</span></li>
-      <li data-t="2200"><span class="t">2.2 s</span><span>finishing the first line</span></li>
-      <li data-t="3800"><span class="t">3.8 s</span><span>halfway through the second line</span></li>
+      <li data-t="800"><span class="t">0.8 s</span><span>first strokes</span></li>
+      <li data-t="2200"><span class="t">2.2 s</span><span>the first line</span></li>
+      <li data-t="3800"><span class="t">3.8 s</span><span>into the second line</span></li>
       <li data-t="6000" class="last"><span class="t">6.0 s</span><span>the note holds</span></li>
     </ol>
-    <p class="harness" id="harness">The product's own renderer, its clock frozen at each time with the harness parameter t.</p>
+    <p class="harness" id="harness">The product's own renderer, its clock frozen at each t.</p>
   </div>
   <div class="foot"><span>04 · solution</span><span>press → to step</span></div>
 </div><aside class="speaker-notes">Each press freezes the product's renderer at one moment of its own timeline: the writing head starts at once, writes the first line, then the second, and the note holds clear until the cook wipes. Same code as the app.</aside></section>
@@ -313,27 +329,29 @@ body.presenter.idle{cursor:none}
   <p class="kick">Wellcome MS.1810 · p.23 · the source</p>
   <h2 style="margin-top:22px">Quoted, not generated.</h2>
   <div class="grid">
-    <div><div class="plate"><img src="/site/media/p23-region.jpg" width="1400" height="379" alt="The archive's scan of p.23: when Tender and till it Looks red &amp; smooth."></div><p class="cap">The archive's pixels, spanning two notes</p></div>
+    <div><div class="plate"><img loading="lazy" src="/site/media/p23-plate.webp" width="1348" height="288" alt="The archive's scan of p.23: when Tender and till it Looks red &amp; smooth."></div><p class="cap">The archive's pixels, spanning two notes</p>
+      <p class="verdict"><b>3 of 3</b><span>page crops pass</span></p></div>
     <div class="term">
-      <span class="nm">full-ripe</span><div class="bars"><span class="k">real region</span><span class="track real"><i style="--w:96.0%"></i></span><span class="v"> .960</span><span class="k">moved 150</span><span class="track "><i style="--w:11.4%"></i></span><span class="v"> .114</span><span class="k">other page</span><span class="track "><i style="--w:1.2%"></i></span><span class="v"> .013</span></div>
-      <span class="nm">till-it-looks-red-smooth</span><div class="bars"><span class="k">real region</span><span class="track real"><i style="--w:97.6%"></i></span><span class="v"> .976</span><span class="k">moved 150</span><span class="track "><i style="--w:27.6%"></i></span><span class="v"> .276</span><span class="k">other page</span><span class="track  neg"><i style="--w:0.0%"></i></span><span class="v">−.043</span></div>
-      <span class="nm">when-tender</span><div class="bars"><span class="k">real region</span><span class="track real"><i style="--w:99.1%"></i></span><span class="v"> .991</span><span class="k">moved 150</span><span class="track "><i style="--w:53.4%"></i></span><span class="v"> .534</span><span class="k">other page</span><span class="track  neg"><i style="--w:0.0%"></i></span><span class="v">−.095</span></div>
-      <span class="sum">3 of 3 page crops pass</span>
+      <div class="ptab"><span class="h">real region</span><span class="h">moved 150</span><span class="h">other page</span>
+      <span class="nm">full-ripe</span><span class="cellb"><span class="track real"><i style="--w:96.0%"></i></span><span class="v">.960</span></span><span class="cellb"><span class="track "><i style="--w:11.4%"></i></span><span class="v">.114</span></span><span class="cellb"><span class="track "><i style="--w:1.2%"></i></span><span class="v">.013</span></span>
+      <span class="nm">till-it-looks-red-smooth</span><span class="cellb"><span class="track real"><i style="--w:97.6%"></i></span><span class="v">.976</span></span><span class="cellb"><span class="track "><i style="--w:27.6%"></i></span><span class="v">.276</span></span><span class="cellb"><span class="track  neg"><i style="--w:0.0%"></i></span><span class="v">−.043</span></span>
+      <span class="nm">when-tender</span><span class="cellb"><span class="track real"><i style="--w:99.1%"></i></span><span class="v">.991</span></span><span class="cellb"><span class="track "><i style="--w:53.4%"></i></span><span class="v">.534</span></span><span class="cellb"><span class="track  neg"><i style="--w:0.0%"></i></span><span class="v">−.095</span></span>
+      </div>
     </div>
   </div>
   <div class="foot"><span>05 · re-set from provenance/run-4.txt</span><span>NCC against a fresh IIIF fetch</span></div>
 </div><aside class="speaker-notes">The ink you see is lifted from the scan, not drawn by a model. A script re-fetches each region from Wellcome's server and correlates it with our crop. Moved or wrong-page crops fail.</aside></section>
 
-<section class="frame" aria-label="Slide 6: live demo"><div class="slide s-demo">
-  <div class="shot"><img src="/site/media/cook-held-note-1600.webp" width="1600" height="1067" alt="Cook Mode at 3:12: the note held in the glass, the archive slip, the typed step, the timer."><span class="pin" style="left:16.6%;top:30%">1</span><span class="pin" style="left:4.2%;top:56.3%">2</span><span class="pin" style="left:4.2%;top:69%">3</span><span class="pin" style="left:77.6%;top:65%">4</span></div>
+<section class="frame" aria-label="Slide 6: what the cook sees, captured from the live app"><div class="slide s-demo">
+  <div class="shot"><img loading="lazy" src="/site/media/cook-held-note-1600.webp" width="1600" height="1067" alt="Cook Mode at 3:12: the note held in the glass, the archive slip, the typed step, the timer."><span class="pin" style="left:16.6%;top:30%">1</span><span class="pin" style="left:4.2%;top:56.3%">2</span><span class="pin" style="left:4.2%;top:69%">3</span><span class="pin" style="left:77.6%;top:65%">4</span></div>
   <div>
     <p class="kick">Captured from the live app</p>
     <h2 style="font-size:78px;margin-top:22px">What the cook sees.</h2>
     <ol class="legend">
-      <li><span class="n">1</span><span><b>The writer's ink</b>, wiped out of the fog</span></li>
+      <li><span class="n">1</span><span><b>The writer's ink</b>, from the fog</span></li>
       <li><span class="n">2</span><span><b>The archive slip</b>, verify at source</span></li>
-      <li><span class="n">3</span><span><b>The typed step</b>, both readings kept</span></li>
-      <li><span class="n">4</span><span><b>The pot's timer</b>, at ×12 pace</span></li>
+      <li><span class="n">3</span><span><b>The typed step</b>, both readings</span></li>
+      <li><span class="n">4</span><span><b>The pot's timer</b> at ×12</span></li>
     </ol>
   </div>
   <div class="foot"><span>06 · captured at steam.edycu.dev</span><span>Her Hand in the Steam</span></div>
@@ -343,20 +361,19 @@ body.presenter.idle{cursor:none}
   <h2>Kiro reads. Code gates.</h2>
   <div class="lanes">
     <div class="lane"><span class="lab">Build time</span><div class="chain">
-      <div class="node"><img class="thumb paper" src="/site/media/p23-lines45.webp" alt=""><b>The archive</b><span>Wellcome IIIF, licence first</span></div><i class="arrow"></i>
-      <div class="node kiro"><span class="kt">KIRO</span><b>Two readers</b><span>scribe, second-reader</span></div><i class="arrow"></i>
-      <div class="node"><b>Six checks</b><span>P1–P6</span></div><i class="arrow"></i>
-      <div class="node kiro"><span class="kt">KIRO</span><b>Publish</b><span>behind the catalog-gate hook</span></div>
+      <div class="node"><img loading="lazy" class="thumb paper" src="/site/media/p23-lines45.webp" alt=""><b>The archive</b><span>IIIF, licence first</span><i class="arrow"></i></div>
+      <div class="node kiro"><span class="kt">KIRO</span><b>Two readers</b><span>scribe, second-reader</span><i class="arrow"></i></div>
+      <div class="node"><b>Six checks</b><span>every note, before publish</span><i class="arrow"></i></div>
+      <div class="node"><b>Publish</b><span>a Kiro hook guards it</span></div>
     </div></div>
     <div class="lane"><span class="lab">Runtime</span><div class="chain">
-      <div class="node"><b>Static files</b><span>Vercel</span></div><i class="arrow"></i>
-      <div class="node"><b>Cook Mode</b><span>React 19</span></div><i class="arrow"></i>
-      <div class="node"><img class="thumb" src="/site/media/window-held-760.webp" alt=""><b>Steam pane</b><span>WebGL2</span></div>
+      <div class="node"><b>Static files</b><span>Vercel</span><i class="arrow"></i></div>
+      <div class="node"><b>Cook Mode</b><span>React 19</span><i class="arrow"></i></div>
+      <div class="node"><img loading="lazy" class="thumb" src="/site/media/window-held-760.webp" alt=""><b>Steam pane</b><span>WebGL2</span></div>
     </div></div>
   </div>
-  <div class="kirobar"><span>15 specs</span><span>6 hooks</span><span>5 steering files</span><span>304 [kiro] commits</span><span class="plain">the browser runs no model</span></div>
-  <div class="foot"><span>07 · a condensed view of ARCHITECTURE.md</span><span>Her Hand in the Steam</span></div>
-</div><aside class="speaker-notes">Kiro did the reading at build time with two agents that cannot see each other. Code gates what is published; a Kiro agent supplied the word cuts and stroke review the gate checks, and the review record is signed by the builder's agent. The browser plays back the bundle.</aside></section>
+  <div class="foot"><span>07 · a condensed view of ARCHITECTURE.md</span><span>15 specs · 6 hooks · 5 steering files · 304 [kiro] commits</span></div>
+</div><aside class="speaker-notes">Kiro did the reading at build time with two agents that cannot see each other. Code gates what is published: six checks on every note (structure, in the page, ownership, note fidelity, contrast, time-of-ink), and the catalog-gate Kiro hook refuses an unverified write. A Kiro agent supplied the word cuts and stroke review the gate checks; the review record is signed by the builder's agent. The browser plays back the bundle and runs no model.</aside></section>
 
 <section class="frame" aria-label="Slide 8: the hooks saw five percent"><div class="slide s-five">
   <div>
@@ -365,7 +382,7 @@ body.presenter.idle{cursor:none}
     <div class="fix">
       <p><b>543 shell writes</b> under src/ (a heuristic count), <b>0 hook events</b>.</p>
       <p>Bugfix spec <b>hook-coverage</b> added shell-gate and src-scan-after-shell.</p>
-      <p>Probes after the fix: <b>2 blocked, 1 caught</b> after the write.</p>
+      <p>Re-probed: <b>2 blocked, 1 caught</b> after the write.</p>
     </div>
   </div>
   <div><svg class="dots" viewBox="0 0 432 108" role="img" aria-label="573 writes under src/: 30 through write tools, 543 through the shell"><circle class="s" cx="4.5" cy="4.5" r="3.0"/><circle class="s" cx="13.5" cy="4.5" r="3.0"/><circle class="s" cx="22.5" cy="4.5" r="3.0"/><circle class="s" cx="31.5" cy="4.5" r="3.0"/><circle class="s" cx="40.5" cy="4.5" r="3.0"/><circle class="s" cx="49.5" cy="4.5" r="3.0"/><circle class="s" cx="58.5" cy="4.5" r="3.0"/><circle class="s" cx="67.5" cy="4.5" r="3.0"/><circle class="s" cx="76.5" cy="4.5" r="3.0"/><circle class="s" cx="85.5" cy="4.5" r="3.0"/><circle class="s" cx="94.5" cy="4.5" r="3.0"/><circle class="s" cx="103.5" cy="4.5" r="3.0"/><circle class="s" cx="112.5" cy="4.5" r="3.0"/><circle class="s" cx="121.5" cy="4.5" r="3.0"/><circle class="s" cx="130.5" cy="4.5" r="3.0"/><circle class="s" cx="139.5" cy="4.5" r="3.0"/><circle class="s" cx="148.5" cy="4.5" r="3.0"/><circle class="s" cx="157.5" cy="4.5" r="3.0"/><circle class="s" cx="166.5" cy="4.5" r="3.0"/><circle class="s" cx="175.5" cy="4.5" r="3.0"/><circle class="s" cx="184.5" cy="4.5" r="3.0"/><circle class="s" cx="193.5" cy="4.5" r="3.0"/><circle class="s" cx="202.5" cy="4.5" r="3.0"/><circle class="s" cx="211.5" cy="4.5" r="3.0"/><circle class="s" cx="220.5" cy="4.5" r="3.0"/><circle class="s" cx="229.5" cy="4.5" r="3.0"/><circle class="s" cx="238.5" cy="4.5" r="3.0"/><circle class="s" cx="247.5" cy="4.5" r="3.0"/><circle class="s" cx="256.5" cy="4.5" r="3.0"/><circle class="s" cx="265.5" cy="4.5" r="3.0"/><circle class="u" cx="274.5" cy="4.5" r="3.0"/><circle class="u" cx="283.5" cy="4.5" r="3.0"/><circle class="u" cx="292.5" cy="4.5" r="3.0"/><circle class="u" cx="301.5" cy="4.5" r="3.0"/><circle class="u" cx="310.5" cy="4.5" r="3.0"/><circle class="u" cx="319.5" cy="4.5" r="3.0"/><circle class="u" cx="328.5" cy="4.5" r="3.0"/><circle class="u" cx="337.5" cy="4.5" r="3.0"/><circle class="u" cx="346.5" cy="4.5" r="3.0"/><circle class="u" cx="355.5" cy="4.5" r="3.0"/><circle class="u" cx="364.5" cy="4.5" r="3.0"/><circle class="u" cx="373.5" cy="4.5" r="3.0"/><circle class="u" cx="382.5" cy="4.5" r="3.0"/><circle class="u" cx="391.5" cy="4.5" r="3.0"/><circle class="u" cx="400.5" cy="4.5" r="3.0"/><circle class="u" cx="409.5" cy="4.5" r="3.0"/><circle class="u" cx="418.5" cy="4.5" r="3.0"/><circle class="u" cx="427.5" cy="4.5" r="3.0"/><circle class="u" cx="4.5" cy="13.5" r="3.0"/><circle class="u" cx="13.5" cy="13.5" r="3.0"/><circle class="u" cx="22.5" cy="13.5" r="3.0"/><circle class="u" cx="31.5" cy="13.5" r="3.0"/><circle class="u" cx="40.5" cy="13.5" r="3.0"/><circle class="u" cx="49.5" cy="13.5" r="3.0"/><circle class="u" cx="58.5" cy="13.5" r="3.0"/><circle class="u" cx="67.5" cy="13.5" r="3.0"/><circle class="u" cx="76.5" cy="13.5" r="3.0"/><circle class="u" cx="85.5" cy="13.5" r="3.0"/><circle class="u" cx="94.5" cy="13.5" r="3.0"/><circle class="u" cx="103.5" cy="13.5" r="3.0"/><circle class="u" cx="112.5" cy="13.5" r="3.0"/><circle class="u" cx="121.5" cy="13.5" r="3.0"/><circle class="u" cx="130.5" cy="13.5" r="3.0"/><circle class="u" cx="139.5" cy="13.5" r="3.0"/><circle class="u" cx="148.5" cy="13.5" r="3.0"/><circle class="u" cx="157.5" cy="13.5" r="3.0"/><circle class="u" cx="166.5" cy="13.5" r="3.0"/><circle class="u" cx="175.5" cy="13.5" r="3.0"/><circle class="u" cx="184.5" cy="13.5" r="3.0"/><circle class="u" cx="193.5" cy="13.5" r="3.0"/><circle class="u" cx="202.5" cy="13.5" r="3.0"/><circle class="u" cx="211.5" cy="13.5" r="3.0"/><circle class="u" cx="220.5" cy="13.5" r="3.0"/><circle class="u" cx="229.5" cy="13.5" r="3.0"/><circle class="u" cx="238.5" cy="13.5" r="3.0"/><circle class="u" cx="247.5" cy="13.5" r="3.0"/><circle class="u" cx="256.5" cy="13.5" r="3.0"/><circle class="u" cx="265.5" cy="13.5" r="3.0"/><circle class="u" cx="274.5" cy="13.5" r="3.0"/><circle class="u" cx="283.5" cy="13.5" r="3.0"/><circle class="u" cx="292.5" cy="13.5" r="3.0"/><circle class="u" cx="301.5" cy="13.5" r="3.0"/><circle class="u" cx="310.5" cy="13.5" r="3.0"/><circle class="u" cx="319.5" cy="13.5" r="3.0"/><circle class="u" cx="328.5" cy="13.5" r="3.0"/><circle class="u" cx="337.5" cy="13.5" r="3.0"/><circle class="u" cx="346.5" cy="13.5" r="3.0"/><circle class="u" cx="355.5" cy="13.5" r="3.0"/><circle class="u" cx="364.5" cy="13.5" r="3.0"/><circle class="u" cx="373.5" cy="13.5" r="3.0"/><circle class="u" cx="382.5" cy="13.5" r="3.0"/><circle class="u" cx="391.5" cy="13.5" r="3.0"/><circle class="u" cx="400.5" cy="13.5" r="3.0"/><circle class="u" cx="409.5" cy="13.5" r="3.0"/><circle class="u" cx="418.5" cy="13.5" r="3.0"/><circle class="u" cx="427.5" cy="13.5" r="3.0"/><circle class="u" cx="4.5" cy="22.5" r="3.0"/><circle class="u" cx="13.5" cy="22.5" r="3.0"/><circle class="u" cx="22.5" cy="22.5" r="3.0"/><circle class="u" cx="31.5" cy="22.5" r="3.0"/><circle class="u" cx="40.5" cy="22.5" r="3.0"/><circle class="u" cx="49.5" cy="22.5" r="3.0"/><circle class="u" cx="58.5" cy="22.5" r="3.0"/><circle class="u" cx="67.5" cy="22.5" r="3.0"/><circle class="u" cx="76.5" cy="22.5" r="3.0"/><circle class="u" cx="85.5" cy="22.5" r="3.0"/><circle class="u" cx="94.5" cy="22.5" r="3.0"/><circle class="u" cx="103.5" cy="22.5" r="3.0"/><circle class="u" cx="112.5" cy="22.5" r="3.0"/><circle class="u" cx="121.5" cy="22.5" r="3.0"/><circle class="u" cx="130.5" cy="22.5" r="3.0"/><circle class="u" cx="139.5" cy="22.5" r="3.0"/><circle class="u" cx="148.5" cy="22.5" r="3.0"/><circle class="u" cx="157.5" cy="22.5" r="3.0"/><circle class="u" cx="166.5" cy="22.5" r="3.0"/><circle class="u" cx="175.5" cy="22.5" r="3.0"/><circle class="u" cx="184.5" cy="22.5" r="3.0"/><circle class="u" cx="193.5" cy="22.5" r="3.0"/><circle class="u" cx="202.5" cy="22.5" r="3.0"/><circle class="u" cx="211.5" cy="22.5" r="3.0"/><circle class="u" cx="220.5" cy="22.5" r="3.0"/><circle class="u" cx="229.5" cy="22.5" r="3.0"/><circle class="u" cx="238.5" cy="22.5" r="3.0"/><circle class="u" cx="247.5" cy="22.5" r="3.0"/><circle class="u" cx="256.5" cy="22.5" r="3.0"/><circle class="u" cx="265.5" cy="22.5" r="3.0"/><circle class="u" cx="274.5" cy="22.5" r="3.0"/><circle class="u" cx="283.5" cy="22.5" r="3.0"/><circle class="u" cx="292.5" cy="22.5" r="3.0"/><circle class="u" cx="301.5" cy="22.5" r="3.0"/><circle class="u" cx="310.5" cy="22.5" r="3.0"/><circle class="u" cx="319.5" cy="22.5" r="3.0"/><circle class="u" cx="328.5" cy="22.5" r="3.0"/><circle class="u" cx="337.5" cy="22.5" r="3.0"/><circle class="u" cx="346.5" cy="22.5" r="3.0"/><circle class="u" cx="355.5" cy="22.5" r="3.0"/><circle class="u" cx="364.5" cy="22.5" r="3.0"/><circle class="u" cx="373.5" cy="22.5" r="3.0"/><circle class="u" cx="382.5" cy="22.5" r="3.0"/><circle class="u" cx="391.5" cy="22.5" r="3.0"/><circle class="u" cx="400.5" cy="22.5" r="3.0"/><circle class="u" cx="409.5" cy="22.5" r="3.0"/><circle class="u" cx="418.5" cy="22.5" r="3.0"/><circle class="u" cx="427.5" cy="22.5" r="3.0"/><circle class="u" cx="4.5" cy="31.5" r="3.0"/><circle class="u" cx="13.5" cy="31.5" r="3.0"/><circle class="u" cx="22.5" cy="31.5" r="3.0"/><circle class="u" cx="31.5" cy="31.5" r="3.0"/><circle class="u" cx="40.5" cy="31.5" r="3.0"/><circle class="u" cx="49.5" cy="31.5" r="3.0"/><circle class="u" cx="58.5" cy="31.5" r="3.0"/><circle class="u" cx="67.5" cy="31.5" r="3.0"/><circle class="u" cx="76.5" cy="31.5" r="3.0"/><circle class="u" cx="85.5" cy="31.5" r="3.0"/><circle class="u" cx="94.5" cy="31.5" r="3.0"/><circle class="u" cx="103.5" cy="31.5" r="3.0"/><circle class="u" cx="112.5" cy="31.5" r="3.0"/><circle class="u" cx="121.5" cy="31.5" r="3.0"/><circle class="u" cx="130.5" cy="31.5" r="3.0"/><circle class="u" cx="139.5" cy="31.5" r="3.0"/><circle class="u" cx="148.5" cy="31.5" r="3.0"/><circle class="u" cx="157.5" cy="31.5" r="3.0"/><circle class="u" cx="166.5" cy="31.5" r="3.0"/><circle class="u" cx="175.5" cy="31.5" r="3.0"/><circle class="u" cx="184.5" cy="31.5" r="3.0"/><circle class="u" cx="193.5" cy="31.5" r="3.0"/><circle class="u" cx="202.5" cy="31.5" r="3.0"/><circle class="u" cx="211.5" cy="31.5" r="3.0"/><circle class="u" cx="220.5" cy="31.5" r="3.0"/><circle class="u" cx="229.5" cy="31.5" r="3.0"/><circle class="u" cx="238.5" cy="31.5" r="3.0"/><circle class="u" cx="247.5" cy="31.5" r="3.0"/><circle class="u" cx="256.5" cy="31.5" r="3.0"/><circle class="u" cx="265.5" cy="31.5" r="3.0"/><circle class="u" cx="274.5" cy="31.5" r="3.0"/><circle class="u" cx="283.5" cy="31.5" r="3.0"/><circle class="u" cx="292.5" cy="31.5" r="3.0"/><circle class="u" cx="301.5" cy="31.5" r="3.0"/><circle class="u" cx="310.5" cy="31.5" r="3.0"/><circle class="u" cx="319.5" cy="31.5" r="3.0"/><circle class="u" cx="328.5" cy="31.5" r="3.0"/><circle class="u" cx="337.5" cy="31.5" r="3.0"/><circle class="u" cx="346.5" cy="31.5" r="3.0"/><circle class="u" cx="355.5" cy="31.5" r="3.0"/><circle class="u" cx="364.5" cy="31.5" r="3.0"/><circle class="u" cx="373.5" cy="31.5" r="3.0"/><circle class="u" cx="382.5" cy="31.5" r="3.0"/><circle class="u" cx="391.5" cy="31.5" r="3.0"/><circle class="u" cx="400.5" cy="31.5" r="3.0"/><circle class="u" cx="409.5" cy="31.5" r="3.0"/><circle class="u" cx="418.5" cy="31.5" r="3.0"/><circle class="u" cx="427.5" cy="31.5" r="3.0"/><circle class="u" cx="4.5" cy="40.5" r="3.0"/><circle class="u" cx="13.5" cy="40.5" r="3.0"/><circle class="u" cx="22.5" cy="40.5" r="3.0"/><circle class="u" cx="31.5" cy="40.5" r="3.0"/><circle class="u" cx="40.5" cy="40.5" r="3.0"/><circle class="u" cx="49.5" cy="40.5" r="3.0"/><circle class="u" cx="58.5" cy="40.5" r="3.0"/><circle class="u" cx="67.5" cy="40.5" r="3.0"/><circle class="u" cx="76.5" cy="40.5" r="3.0"/><circle class="u" cx="85.5" cy="40.5" r="3.0"/><circle class="u" cx="94.5" cy="40.5" r="3.0"/><circle class="u" cx="103.5" cy="40.5" r="3.0"/><circle class="u" cx="112.5" cy="40.5" r="3.0"/><circle class="u" cx="121.5" cy="40.5" r="3.0"/><circle class="u" cx="130.5" cy="40.5" r="3.0"/><circle class="u" cx="139.5" cy="40.5" r="3.0"/><circle class="u" cx="148.5" cy="40.5" r="3.0"/><circle class="u" cx="157.5" cy="40.5" r="3.0"/><circle class="u" cx="166.5" cy="40.5" r="3.0"/><circle class="u" cx="175.5" cy="40.5" r="3.0"/><circle class="u" cx="184.5" cy="40.5" r="3.0"/><circle class="u" cx="193.5" cy="40.5" r="3.0"/><circle class="u" cx="202.5" cy="40.5" r="3.0"/><circle class="u" cx="211.5" cy="40.5" r="3.0"/><circle class="u" cx="220.5" cy="40.5" r="3.0"/><circle class="u" cx="229.5" cy="40.5" r="3.0"/><circle class="u" cx="238.5" cy="40.5" r="3.0"/><circle class="u" cx="247.5" cy="40.5" r="3.0"/><circle class="u" cx="256.5" cy="40.5" r="3.0"/><circle class="u" cx="265.5" cy="40.5" r="3.0"/><circle class="u" cx="274.5" cy="40.5" r="3.0"/><circle class="u" cx="283.5" cy="40.5" r="3.0"/><circle class="u" cx="292.5" cy="40.5" r="3.0"/><circle class="u" cx="301.5" cy="40.5" r="3.0"/><circle class="u" cx="310.5" cy="40.5" r="3.0"/><circle class="u" cx="319.5" cy="40.5" r="3.0"/><circle class="u" cx="328.5" cy="40.5" r="3.0"/><circle class="u" cx="337.5" cy="40.5" r="3.0"/><circle class="u" cx="346.5" cy="40.5" r="3.0"/><circle class="u" cx="355.5" cy="40.5" r="3.0"/><circle class="u" cx="364.5" cy="40.5" r="3.0"/><circle class="u" cx="373.5" cy="40.5" r="3.0"/><circle class="u" cx="382.5" cy="40.5" r="3.0"/><circle class="u" cx="391.5" cy="40.5" r="3.0"/><circle class="u" cx="400.5" cy="40.5" r="3.0"/><circle class="u" cx="409.5" cy="40.5" r="3.0"/><circle class="u" cx="418.5" cy="40.5" r="3.0"/><circle class="u" cx="427.5" cy="40.5" r="3.0"/><circle class="u" cx="4.5" cy="49.5" r="3.0"/><circle class="u" cx="13.5" cy="49.5" r="3.0"/><circle class="u" cx="22.5" cy="49.5" r="3.0"/><circle class="u" cx="31.5" cy="49.5" r="3.0"/><circle class="u" cx="40.5" cy="49.5" r="3.0"/><circle class="u" cx="49.5" cy="49.5" r="3.0"/><circle class="u" cx="58.5" cy="49.5" r="3.0"/><circle class="u" cx="67.5" cy="49.5" r="3.0"/><circle class="u" cx="76.5" cy="49.5" r="3.0"/><circle class="u" cx="85.5" cy="49.5" r="3.0"/><circle class="u" cx="94.5" cy="49.5" r="3.0"/><circle class="u" cx="103.5" cy="49.5" r="3.0"/><circle class="u" cx="112.5" cy="49.5" r="3.0"/><circle class="u" cx="121.5" cy="49.5" r="3.0"/><circle class="u" cx="130.5" cy="49.5" r="3.0"/><circle class="u" cx="139.5" cy="49.5" r="3.0"/><circle class="u" cx="148.5" cy="49.5" r="3.0"/><circle class="u" cx="157.5" cy="49.5" r="3.0"/><circle class="u" cx="166.5" cy="49.5" r="3.0"/><circle class="u" cx="175.5" cy="49.5" r="3.0"/><circle class="u" cx="184.5" cy="49.5" r="3.0"/><circle class="u" cx="193.5" cy="49.5" r="3.0"/><circle class="u" cx="202.5" cy="49.5" r="3.0"/><circle class="u" cx="211.5" cy="49.5" r="3.0"/><circle class="u" cx="220.5" cy="49.5" r="3.0"/><circle class="u" cx="229.5" cy="49.5" r="3.0"/><circle class="u" cx="238.5" cy="49.5" r="3.0"/><circle class="u" cx="247.5" cy="49.5" r="3.0"/><circle class="u" cx="256.5" cy="49.5" r="3.0"/><circle class="u" cx="265.5" cy="49.5" r="3.0"/><circle class="u" cx="274.5" cy="49.5" r="3.0"/><circle class="u" cx="283.5" cy="49.5" r="3.0"/><circle class="u" cx="292.5" cy="49.5" r="3.0"/><circle class="u" cx="301.5" cy="49.5" r="3.0"/><circle class="u" cx="310.5" cy="49.5" r="3.0"/><circle class="u" cx="319.5" cy="49.5" r="3.0"/><circle class="u" cx="328.5" cy="49.5" r="3.0"/><circle class="u" cx="337.5" cy="49.5" r="3.0"/><circle class="u" cx="346.5" cy="49.5" r="3.0"/><circle class="u" cx="355.5" cy="49.5" r="3.0"/><circle class="u" cx="364.5" cy="49.5" r="3.0"/><circle class="u" cx="373.5" cy="49.5" r="3.0"/><circle class="u" cx="382.5" cy="49.5" r="3.0"/><circle class="u" cx="391.5" cy="49.5" r="3.0"/><circle class="u" cx="400.5" cy="49.5" r="3.0"/><circle class="u" cx="409.5" cy="49.5" r="3.0"/><circle class="u" cx="418.5" cy="49.5" r="3.0"/><circle class="u" cx="427.5" cy="49.5" r="3.0"/><circle class="u" cx="4.5" cy="58.5" r="3.0"/><circle class="u" cx="13.5" cy="58.5" r="3.0"/><circle class="u" cx="22.5" cy="58.5" r="3.0"/><circle class="u" cx="31.5" cy="58.5" r="3.0"/><circle class="u" cx="40.5" cy="58.5" r="3.0"/><circle class="u" cx="49.5" cy="58.5" r="3.0"/><circle class="u" cx="58.5" cy="58.5" r="3.0"/><circle class="u" cx="67.5" cy="58.5" r="3.0"/><circle class="u" cx="76.5" cy="58.5" r="3.0"/><circle class="u" cx="85.5" cy="58.5" r="3.0"/><circle class="u" cx="94.5" cy="58.5" r="3.0"/><circle class="u" cx="103.5" cy="58.5" r="3.0"/><circle class="u" cx="112.5" cy="58.5" r="3.0"/><circle class="u" cx="121.5" cy="58.5" r="3.0"/><circle class="u" cx="130.5" cy="58.5" r="3.0"/><circle class="u" cx="139.5" cy="58.5" r="3.0"/><circle class="u" cx="148.5" cy="58.5" r="3.0"/><circle class="u" cx="157.5" cy="58.5" r="3.0"/><circle class="u" cx="166.5" cy="58.5" r="3.0"/><circle class="u" cx="175.5" cy="58.5" r="3.0"/><circle class="u" cx="184.5" cy="58.5" r="3.0"/><circle class="u" cx="193.5" cy="58.5" r="3.0"/><circle class="u" cx="202.5" cy="58.5" r="3.0"/><circle class="u" cx="211.5" cy="58.5" r="3.0"/><circle class="u" cx="220.5" cy="58.5" r="3.0"/><circle class="u" cx="229.5" cy="58.5" r="3.0"/><circle class="u" cx="238.5" cy="58.5" r="3.0"/><circle class="u" cx="247.5" cy="58.5" r="3.0"/><circle class="u" cx="256.5" cy="58.5" r="3.0"/><circle class="u" cx="265.5" cy="58.5" r="3.0"/><circle class="u" cx="274.5" cy="58.5" r="3.0"/><circle class="u" cx="283.5" cy="58.5" r="3.0"/><circle class="u" cx="292.5" cy="58.5" r="3.0"/><circle class="u" cx="301.5" cy="58.5" r="3.0"/><circle class="u" cx="310.5" cy="58.5" r="3.0"/><circle class="u" cx="319.5" cy="58.5" r="3.0"/><circle class="u" cx="328.5" cy="58.5" r="3.0"/><circle class="u" cx="337.5" cy="58.5" r="3.0"/><circle class="u" cx="346.5" cy="58.5" r="3.0"/><circle class="u" cx="355.5" cy="58.5" r="3.0"/><circle class="u" cx="364.5" cy="58.5" r="3.0"/><circle class="u" cx="373.5" cy="58.5" r="3.0"/><circle class="u" cx="382.5" cy="58.5" r="3.0"/><circle class="u" cx="391.5" cy="58.5" r="3.0"/><circle class="u" cx="400.5" cy="58.5" r="3.0"/><circle class="u" cx="409.5" cy="58.5" r="3.0"/><circle class="u" cx="418.5" cy="58.5" r="3.0"/><circle class="u" cx="427.5" cy="58.5" r="3.0"/><circle class="u" cx="4.5" cy="67.5" r="3.0"/><circle class="u" cx="13.5" cy="67.5" r="3.0"/><circle class="u" cx="22.5" cy="67.5" r="3.0"/><circle class="u" cx="31.5" cy="67.5" r="3.0"/><circle class="u" cx="40.5" cy="67.5" r="3.0"/><circle class="u" cx="49.5" cy="67.5" r="3.0"/><circle class="u" cx="58.5" cy="67.5" r="3.0"/><circle class="u" cx="67.5" cy="67.5" r="3.0"/><circle class="u" cx="76.5" cy="67.5" r="3.0"/><circle class="u" cx="85.5" cy="67.5" r="3.0"/><circle class="u" cx="94.5" cy="67.5" r="3.0"/><circle class="u" cx="103.5" cy="67.5" r="3.0"/><circle class="u" cx="112.5" cy="67.5" r="3.0"/><circle class="u" cx="121.5" cy="67.5" r="3.0"/><circle class="u" cx="130.5" cy="67.5" r="3.0"/><circle class="u" cx="139.5" cy="67.5" r="3.0"/><circle class="u" cx="148.5" cy="67.5" r="3.0"/><circle class="u" cx="157.5" cy="67.5" r="3.0"/><circle class="u" cx="166.5" cy="67.5" r="3.0"/><circle class="u" cx="175.5" cy="67.5" r="3.0"/><circle class="u" cx="184.5" cy="67.5" r="3.0"/><circle class="u" cx="193.5" cy="67.5" r="3.0"/><circle class="u" cx="202.5" cy="67.5" r="3.0"/><circle class="u" cx="211.5" cy="67.5" r="3.0"/><circle class="u" cx="220.5" cy="67.5" r="3.0"/><circle class="u" cx="229.5" cy="67.5" r="3.0"/><circle class="u" cx="238.5" cy="67.5" r="3.0"/><circle class="u" cx="247.5" cy="67.5" r="3.0"/><circle class="u" cx="256.5" cy="67.5" r="3.0"/><circle class="u" cx="265.5" cy="67.5" r="3.0"/><circle class="u" cx="274.5" cy="67.5" r="3.0"/><circle class="u" cx="283.5" cy="67.5" r="3.0"/><circle class="u" cx="292.5" cy="67.5" r="3.0"/><circle class="u" cx="301.5" cy="67.5" r="3.0"/><circle class="u" cx="310.5" cy="67.5" r="3.0"/><circle class="u" cx="319.5" cy="67.5" r="3.0"/><circle class="u" cx="328.5" cy="67.5" r="3.0"/><circle class="u" cx="337.5" cy="67.5" r="3.0"/><circle class="u" cx="346.5" cy="67.5" r="3.0"/><circle class="u" cx="355.5" cy="67.5" r="3.0"/><circle class="u" cx="364.5" cy="67.5" r="3.0"/><circle class="u" cx="373.5" cy="67.5" r="3.0"/><circle class="u" cx="382.5" cy="67.5" r="3.0"/><circle class="u" cx="391.5" cy="67.5" r="3.0"/><circle class="u" cx="400.5" cy="67.5" r="3.0"/><circle class="u" cx="409.5" cy="67.5" r="3.0"/><circle class="u" cx="418.5" cy="67.5" r="3.0"/><circle class="u" cx="427.5" cy="67.5" r="3.0"/><circle class="u" cx="4.5" cy="76.5" r="3.0"/><circle class="u" cx="13.5" cy="76.5" r="3.0"/><circle class="u" cx="22.5" cy="76.5" r="3.0"/><circle class="u" cx="31.5" cy="76.5" r="3.0"/><circle class="u" cx="40.5" cy="76.5" r="3.0"/><circle class="u" cx="49.5" cy="76.5" r="3.0"/><circle class="u" cx="58.5" cy="76.5" r="3.0"/><circle class="u" cx="67.5" cy="76.5" r="3.0"/><circle class="u" cx="76.5" cy="76.5" r="3.0"/><circle class="u" cx="85.5" cy="76.5" r="3.0"/><circle class="u" cx="94.5" cy="76.5" r="3.0"/><circle class="u" cx="103.5" cy="76.5" r="3.0"/><circle class="u" cx="112.5" cy="76.5" r="3.0"/><circle class="u" cx="121.5" cy="76.5" r="3.0"/><circle class="u" cx="130.5" cy="76.5" r="3.0"/><circle class="u" cx="139.5" cy="76.5" r="3.0"/><circle class="u" cx="148.5" cy="76.5" r="3.0"/><circle class="u" cx="157.5" cy="76.5" r="3.0"/><circle class="u" cx="166.5" cy="76.5" r="3.0"/><circle class="u" cx="175.5" cy="76.5" r="3.0"/><circle class="u" cx="184.5" cy="76.5" r="3.0"/><circle class="u" cx="193.5" cy="76.5" r="3.0"/><circle class="u" cx="202.5" cy="76.5" r="3.0"/><circle class="u" cx="211.5" cy="76.5" r="3.0"/><circle class="u" cx="220.5" cy="76.5" r="3.0"/><circle class="u" cx="229.5" cy="76.5" r="3.0"/><circle class="u" cx="238.5" cy="76.5" r="3.0"/><circle class="u" cx="247.5" cy="76.5" r="3.0"/><circle class="u" cx="256.5" cy="76.5" r="3.0"/><circle class="u" cx="265.5" cy="76.5" r="3.0"/><circle class="u" cx="274.5" cy="76.5" r="3.0"/><circle class="u" cx="283.5" cy="76.5" r="3.0"/><circle class="u" cx="292.5" cy="76.5" r="3.0"/><circle class="u" cx="301.5" cy="76.5" r="3.0"/><circle class="u" cx="310.5" cy="76.5" r="3.0"/><circle class="u" cx="319.5" cy="76.5" r="3.0"/><circle class="u" cx="328.5" cy="76.5" r="3.0"/><circle class="u" cx="337.5" cy="76.5" r="3.0"/><circle class="u" cx="346.5" cy="76.5" r="3.0"/><circle class="u" cx="355.5" cy="76.5" r="3.0"/><circle class="u" cx="364.5" cy="76.5" r="3.0"/><circle class="u" cx="373.5" cy="76.5" r="3.0"/><circle class="u" cx="382.5" cy="76.5" r="3.0"/><circle class="u" cx="391.5" cy="76.5" r="3.0"/><circle class="u" cx="400.5" cy="76.5" r="3.0"/><circle class="u" cx="409.5" cy="76.5" r="3.0"/><circle class="u" cx="418.5" cy="76.5" r="3.0"/><circle class="u" cx="427.5" cy="76.5" r="3.0"/><circle class="u" cx="4.5" cy="85.5" r="3.0"/><circle class="u" cx="13.5" cy="85.5" r="3.0"/><circle class="u" cx="22.5" cy="85.5" r="3.0"/><circle class="u" cx="31.5" cy="85.5" r="3.0"/><circle class="u" cx="40.5" cy="85.5" r="3.0"/><circle class="u" cx="49.5" cy="85.5" r="3.0"/><circle class="u" cx="58.5" cy="85.5" r="3.0"/><circle class="u" cx="67.5" cy="85.5" r="3.0"/><circle class="u" cx="76.5" cy="85.5" r="3.0"/><circle class="u" cx="85.5" cy="85.5" r="3.0"/><circle class="u" cx="94.5" cy="85.5" r="3.0"/><circle class="u" cx="103.5" cy="85.5" r="3.0"/><circle class="u" cx="112.5" cy="85.5" r="3.0"/><circle class="u" cx="121.5" cy="85.5" r="3.0"/><circle class="u" cx="130.5" cy="85.5" r="3.0"/><circle class="u" cx="139.5" cy="85.5" r="3.0"/><circle class="u" cx="148.5" cy="85.5" r="3.0"/><circle class="u" cx="157.5" cy="85.5" r="3.0"/><circle class="u" cx="166.5" cy="85.5" r="3.0"/><circle class="u" cx="175.5" cy="85.5" r="3.0"/><circle class="u" cx="184.5" cy="85.5" r="3.0"/><circle class="u" cx="193.5" cy="85.5" r="3.0"/><circle class="u" cx="202.5" cy="85.5" r="3.0"/><circle class="u" cx="211.5" cy="85.5" r="3.0"/><circle class="u" cx="220.5" cy="85.5" r="3.0"/><circle class="u" cx="229.5" cy="85.5" r="3.0"/><circle class="u" cx="238.5" cy="85.5" r="3.0"/><circle class="u" cx="247.5" cy="85.5" r="3.0"/><circle class="u" cx="256.5" cy="85.5" r="3.0"/><circle class="u" cx="265.5" cy="85.5" r="3.0"/><circle class="u" cx="274.5" cy="85.5" r="3.0"/><circle class="u" cx="283.5" cy="85.5" r="3.0"/><circle class="u" cx="292.5" cy="85.5" r="3.0"/><circle class="u" cx="301.5" cy="85.5" r="3.0"/><circle class="u" cx="310.5" cy="85.5" r="3.0"/><circle class="u" cx="319.5" cy="85.5" r="3.0"/><circle class="u" cx="328.5" cy="85.5" r="3.0"/><circle class="u" cx="337.5" cy="85.5" r="3.0"/><circle class="u" cx="346.5" cy="85.5" r="3.0"/><circle class="u" cx="355.5" cy="85.5" r="3.0"/><circle class="u" cx="364.5" cy="85.5" r="3.0"/><circle class="u" cx="373.5" cy="85.5" r="3.0"/><circle class="u" cx="382.5" cy="85.5" r="3.0"/><circle class="u" cx="391.5" cy="85.5" r="3.0"/><circle class="u" cx="400.5" cy="85.5" r="3.0"/><circle class="u" cx="409.5" cy="85.5" r="3.0"/><circle class="u" cx="418.5" cy="85.5" r="3.0"/><circle class="u" cx="427.5" cy="85.5" r="3.0"/><circle class="u" cx="4.5" cy="94.5" r="3.0"/><circle class="u" cx="13.5" cy="94.5" r="3.0"/><circle class="u" cx="22.5" cy="94.5" r="3.0"/><circle class="u" cx="31.5" cy="94.5" r="3.0"/><circle class="u" cx="40.5" cy="94.5" r="3.0"/><circle class="u" cx="49.5" cy="94.5" r="3.0"/><circle class="u" cx="58.5" cy="94.5" r="3.0"/><circle class="u" cx="67.5" cy="94.5" r="3.0"/><circle class="u" cx="76.5" cy="94.5" r="3.0"/><circle class="u" cx="85.5" cy="94.5" r="3.0"/><circle class="u" cx="94.5" cy="94.5" r="3.0"/><circle class="u" cx="103.5" cy="94.5" r="3.0"/><circle class="u" cx="112.5" cy="94.5" r="3.0"/><circle class="u" cx="121.5" cy="94.5" r="3.0"/><circle class="u" cx="130.5" cy="94.5" r="3.0"/><circle class="u" cx="139.5" cy="94.5" r="3.0"/><circle class="u" cx="148.5" cy="94.5" r="3.0"/><circle class="u" cx="157.5" cy="94.5" r="3.0"/><circle class="u" cx="166.5" cy="94.5" r="3.0"/><circle class="u" cx="175.5" cy="94.5" r="3.0"/><circle class="u" cx="184.5" cy="94.5" r="3.0"/><circle class="u" cx="193.5" cy="94.5" r="3.0"/><circle class="u" cx="202.5" cy="94.5" r="3.0"/><circle class="u" cx="211.5" cy="94.5" r="3.0"/><circle class="u" cx="220.5" cy="94.5" r="3.0"/><circle class="u" cx="229.5" cy="94.5" r="3.0"/><circle class="u" cx="238.5" cy="94.5" r="3.0"/><circle class="u" cx="247.5" cy="94.5" r="3.0"/><circle class="u" cx="256.5" cy="94.5" r="3.0"/><circle class="u" cx="265.5" cy="94.5" r="3.0"/><circle class="u" cx="274.5" cy="94.5" r="3.0"/><circle class="u" cx="283.5" cy="94.5" r="3.0"/><circle class="u" cx="292.5" cy="94.5" r="3.0"/><circle class="u" cx="301.5" cy="94.5" r="3.0"/><circle class="u" cx="310.5" cy="94.5" r="3.0"/><circle class="u" cx="319.5" cy="94.5" r="3.0"/><circle class="u" cx="328.5" cy="94.5" r="3.0"/><circle class="u" cx="337.5" cy="94.5" r="3.0"/><circle class="u" cx="346.5" cy="94.5" r="3.0"/><circle class="u" cx="355.5" cy="94.5" r="3.0"/><circle class="u" cx="364.5" cy="94.5" r="3.0"/><circle class="u" cx="373.5" cy="94.5" r="3.0"/><circle class="u" cx="382.5" cy="94.5" r="3.0"/><circle class="u" cx="391.5" cy="94.5" r="3.0"/><circle class="u" cx="400.5" cy="94.5" r="3.0"/><circle class="u" cx="409.5" cy="94.5" r="3.0"/><circle class="u" cx="418.5" cy="94.5" r="3.0"/><circle class="u" cx="427.5" cy="94.5" r="3.0"/><circle class="u" cx="4.5" cy="103.5" r="3.0"/><circle class="u" cx="13.5" cy="103.5" r="3.0"/><circle class="u" cx="22.5" cy="103.5" r="3.0"/><circle class="u" cx="31.5" cy="103.5" r="3.0"/><circle class="u" cx="40.5" cy="103.5" r="3.0"/><circle class="u" cx="49.5" cy="103.5" r="3.0"/><circle class="u" cx="58.5" cy="103.5" r="3.0"/><circle class="u" cx="67.5" cy="103.5" r="3.0"/><circle class="u" cx="76.5" cy="103.5" r="3.0"/><circle class="u" cx="85.5" cy="103.5" r="3.0"/><circle class="u" cx="94.5" cy="103.5" r="3.0"/><circle class="u" cx="103.5" cy="103.5" r="3.0"/><circle class="u" cx="112.5" cy="103.5" r="3.0"/><circle class="u" cx="121.5" cy="103.5" r="3.0"/><circle class="u" cx="130.5" cy="103.5" r="3.0"/><circle class="u" cx="139.5" cy="103.5" r="3.0"/><circle class="u" cx="148.5" cy="103.5" r="3.0"/><circle class="u" cx="157.5" cy="103.5" r="3.0"/><circle class="u" cx="166.5" cy="103.5" r="3.0"/><circle class="u" cx="175.5" cy="103.5" r="3.0"/><circle class="u" cx="184.5" cy="103.5" r="3.0"/><circle class="u" cx="193.5" cy="103.5" r="3.0"/><circle class="u" cx="202.5" cy="103.5" r="3.0"/><circle class="u" cx="211.5" cy="103.5" r="3.0"/><circle class="u" cx="220.5" cy="103.5" r="3.0"/><circle class="u" cx="229.5" cy="103.5" r="3.0"/><circle class="u" cx="238.5" cy="103.5" r="3.0"/><circle class="u" cx="247.5" cy="103.5" r="3.0"/><circle class="u" cx="256.5" cy="103.5" r="3.0"/><circle class="u" cx="265.5" cy="103.5" r="3.0"/><circle class="u" cx="274.5" cy="103.5" r="3.0"/><circle class="u" cx="283.5" cy="103.5" r="3.0"/><circle class="u" cx="292.5" cy="103.5" r="3.0"/><circle class="u" cx="301.5" cy="103.5" r="3.0"/><circle class="u" cx="310.5" cy="103.5" r="3.0"/><circle class="u" cx="319.5" cy="103.5" r="3.0"/><circle class="u" cx="328.5" cy="103.5" r="3.0"/><circle class="u" cx="337.5" cy="103.5" r="3.0"/><circle class="u" cx="346.5" cy="103.5" r="3.0"/><circle class="u" cx="355.5" cy="103.5" r="3.0"/><circle class="u" cx="364.5" cy="103.5" r="3.0"/><circle class="u" cx="373.5" cy="103.5" r="3.0"/><circle class="u" cx="382.5" cy="103.5" r="3.0"/><circle class="u" cx="391.5" cy="103.5" r="3.0"/><circle class="u" cx="400.5" cy="103.5" r="3.0"/></svg><div class="key"><span class="a"><i></i>30 write-tool calls</span><span class="b"><i></i>543 shell writes</span></div></div>
@@ -393,8 +410,9 @@ body.presenter.idle{cursor:none}
     <h2 style="margin-top:22px">Open it. Wait for the hand.</h2>
     <p class="sub">It arrives after a six-second lead-in.</p>
     <div class="urls">
-      <div><span>Landing</span>steam.edycu.dev/landing/</div>
-      <div><span>Source</span>github.com/edycutjong/steam</div>
+      <div><span>Try it</span><a href="https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&amp;pace=12&amp;lead=6">steam.edycu.dev</a></div>
+      <div><span>Landing</span><a href="/landing/">steam.edycu.dev/landing/</a></div>
+      <div><span>Source</span><a href="https://github.com/edycutjong/steam">github.com/edycutjong/steam</a></div>
     </div>
     <div class="cats"><span>Category: Costume Contest</span></div>
   </div>
@@ -406,7 +424,7 @@ body.presenter.idle{cursor:none}
 </main></div>
 <nav class="ctrl" aria-label="Deck controls"><button id="prev" type="button" aria-label="Previous slide">←</button><span class="count" id="count" aria-live="polite">01 / 10</span><button id="next" type="button" aria-label="Next slide">→</button></nav>
 <div class="notes" id="notes" hidden></div>
-<div class="rotate" id="rotate" role="dialog" aria-label="This deck is 16:9"><img src="/site/media/window-held-760.webp" alt="The steamed window with the note written in ember." width="760" height="570"><h1 class="rt">Her Hand in the Steam</h1><p>This deck is 16:9. Turn the phone sideways, or read the same story as a page.</p><a href="/landing/">Open the landing page</a><button type="button" id="rotate-ok">Show the deck anyway</button></div>
+<div class="rotate" id="rotate" role="dialog" aria-label="This deck is 16:9"><img src="/site/media/window-held-760.webp" alt="The steamed window with the note written in ember." width="760" height="570" fetchpriority="high"><h1 class="rt">Her Hand in the Steam</h1><p>This deck is 16:9. Turn the phone sideways, or read the same story as a page.</p><a href="/landing/">Open the landing page</a><button type="button" id="rotate-ok">Show the deck anyway</button></div>
 
 <script>
 (function(){
@@ -477,7 +495,7 @@ body.presenter.idle{cursor:none}
   function later(f){ (window.requestIdleCallback || function(cb){ return setTimeout(cb, 200) })(f, { timeout: 1500 }) }
   var glassReady = false;
   var start = parseInt(location.hash.slice(1), 10);
-  function boot(){ go(start >= 1 && start <= N ? start - 1 : 0); later(function(){ loadGlass(function(){ glassReady = true; glassFor(cur); drawSteps(cur) }, function(why){ var lt = document.getElementById('livetag'), hn = document.getElementById('harness'); if (lt) lt.textContent = 'A captured frame of the product\u2019s pane (this browser has ' + why + ') · Wellcome MS.1810 · p.23 · c. 1750'; if (hn) hn.textContent = 'This browser has ' + why + ', so the deck shows a captured frame here instead of the four times.' }) }) }
+  function boot(){ go(start >= 1 && start <= N ? start - 1 : 0); later(function(){ loadGlass(function(){ glassReady = true; glassFor(cur); drawSteps(cur) }, function(why){ var lt = document.getElementById('livetag'), hn = document.getElementById('harness'); if (lt) lt.textContent = 'A captured frame of the product\u2019s pane (this browser has ' + why + ') · Wellcome MS.1810 · p.23 · c. 1750'; if (hn) hn.textContent = 'This browser has ' + why + ': one captured frame instead.' }) }) }
   if (document.readyState === 'complete') boot(); else addEventListener('load', boot);
 })();
 </script>

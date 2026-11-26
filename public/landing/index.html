@@ -34,21 +34,21 @@
 
 /* the design tokens: every colour and face on this page is one of these */
 :root {
-  --bg:      #0E0A0A;  /* the kitchen at midnight on All Hallows': soot black with a trace of ember; red > blue, so it sits outside the blue-black #0B0E14 cluster (earlier value: #130E0B) */
-  --ink:     #EFE7DA;  /* steam white with tallow warmth: step text, wet rims on the glass */
-  --muted:   #9A8F82;  /* pewter: captions, archive slips, the timer at rest */
-  --before:  #7F909C;  /* state: fogged — breath-grey condensation hiding the note, cooled by the moon above it; the pane's resting colour (earlier value: #7D8B94) */
-  --after:   #F2A65A;  /* state: revealed — hob ember: dim on the pot flame at rest, on the timer in the 10 s before a note, and at full strength only in the light through strokes wiped out of the fog */
-  --fault:   #D9654E;  /* upload gate failures only (a scorched-pan red); never in Cook Mode */
-  --rule:    #3A2D24;  /* sash-bar wood: pane frame, dividers, the hairline over each archive slip */
-  --paper:   #E8DCC2;  /* facsimile mat behind scans on the shelf and edition view (never behind the steam pane) */
-  --glass-hi: rgba(239, 231, 218, 0.55);  /* specular highlight on the sash glass, derived from --ink */
-  --ghost:   #BCD3E4;  /* cold breath: the blue-white rim at the edge of every stroke the dead hand wipes, the cold bloom, and the cold writing-head glow */
-  --moon:    #E4E9EC;  /* the full moon through the upper sash: bone white, cold; also the moonlit edge of the fog's top */
-  --night:   #121A24;  /* the sky beyond the upper sash: the only blue surface, and only ever seen through glass */
-  --font-display: "IM Fell English", "IM Fell DW Pica", Georgia, serif;  /* Fell types, cut in the late 1600s and cast for English presses: the printed voice of the receipt book's own century. Titles and the 'The hand, quoted' page only */
-  --font-body:    "Literata", Georgia, serif;  /* the edition voice: a screen-reading book face for step text and transcriptions; tabular lining figures for the timer */
-  --font-data:    "DM Mono", ui-monospace, monospace;  /* ONLY shelfmarks, IIIF region coordinates, the pace multiplier (×12) and the ?fps=1 overlay */
+  --bg:      #0E0A0A;
+  --ink:     #EFE7DA;
+  --muted:   #9A8F82;
+  --before:  #7F909C;
+  --after:   #F2A65A;
+  --fault:   #D9654E;
+  --rule:    #3A2D24;
+  --paper:   #E8DCC2;
+  --glass-hi: rgba(239, 231, 218, 0.55);
+  --ghost:   #BCD3E4;
+  --moon:    #E4E9EC;
+  --night:   #121A24;
+  --font-display: "IM Fell English", "IM Fell DW Pica", Georgia, serif;
+  --font-body:    "Literata", Georgia, serif;
+  --font-data:    "DM Mono", ui-monospace, monospace;
 }
 
 *,*::before,*::after{box-sizing:border-box}
@@ -84,6 +84,8 @@ p{margin:0}
 .btn:active{transform:translateY(0)}
 .btn--paper{background:var(--paper);color:var(--bg);border-color:var(--paper);box-shadow:0 0 0 1px color-mix(in srgb,var(--ghost) 40%,transparent),0 12px 34px -14px rgb(0 0 0 / .7)}
 .btn--paper:hover{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.btn--text{background:none;border-color:transparent;color:var(--muted);padding-inline:10px}
+.btn--text:hover{background:none;border-color:transparent;color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:6px}
 .btn .arr{font-family:var(--font-body);font-weight:400;opacity:.8}
 .nav .btn{min-height:40px;padding:10px 14px;font-size:14px;color:var(--ink)}
 
@@ -97,7 +99,7 @@ p{margin:0}
 .hero.dip::after{animation:dip 1.2s ease-in-out}
 @keyframes dip{0%{opacity:0}35%{opacity:.22}100%{opacity:0}}
 h1{font-size:clamp(46px,5.3vw,86px);line-height:1.02;letter-spacing:-.012em;margin:26px 0 24px}
-h1 .hand{white-space:nowrap}
+h1 .hand,h1 .nw{white-space:nowrap}
 .sub{color:var(--muted);font-size:clamp(17px,1.35vw,19.5px);line-height:1.62;max-width:36em}
 .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
 .proof{margin-top:22px;display:flex;flex-wrap:wrap;gap:6px 22px;font-size:15px;color:var(--muted);line-height:1.5}
@@ -140,8 +142,8 @@ section{scroll-margin-top:24px}
 .sec{padding:clamp(80px,11vh,128px) 0}
 
 /* the moment */
-.viewer{display:grid;grid-template-columns:minmax(0,8fr) minmax(0,4fr);gap:clamp(24px,3vw,44px);margin-top:46px;align-items:start}
-.viewer__img{position:relative;aspect-ratio:1920/1300;border-radius:3px;overflow:hidden;box-shadow:0 40px 90px -40px rgb(0 0 0 / .9)}
+.viewer{display:grid;grid-template-columns:minmax(0,8fr) minmax(0,4fr);gap:clamp(24px,3vw,44px);margin-top:46px;align-items:center}
+.viewer__img{position:relative;aspect-ratio:2100/1530;border-radius:3px;overflow:hidden;box-shadow:0 40px 90px -40px rgb(0 0 0 / .9)}
 .viewer__img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease}
 .viewer__img img.on{opacity:1}
 .viewer__steps{list-style:none;margin:0;padding:0;display:grid;gap:4px}
@@ -162,6 +164,7 @@ section{scroll-margin-top:24px}
 .quoted::before{content:"";position:absolute;left:0;right:0;top:0;height:14px;background:linear-gradient(180deg,color-mix(in srgb,var(--rule) 78%,var(--muted)),color-mix(in srgb,var(--rule) 82%,var(--bg)) 60%,color-mix(in srgb,var(--rule) 60%,var(--bg)))}
 .spread{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,6fr);gap:clamp(28px,4vw,60px);margin-top:46px;align-items:start}
 .verso .plate{background:var(--paper);padding:16px;background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--rule) 5%,transparent) 0 1px,transparent 1px 8px);box-shadow:0 1px 0 color-mix(in srgb,var(--rule) 30%,transparent),0 24px 50px -30px rgb(0 0 0 / .45)}
+.verso .plate img{width:100%;height:auto;aspect-ratio:1364/379;object-fit:cover;object-position:left center}   /* the region's last ~32 px are the book's gutter */
 .verso img{width:100%;height:auto;aspect-ratio:1400/379;object-fit:cover;background:color-mix(in srgb,var(--paper) 80%,var(--rule))}
 
 .verso .order{margin-top:28px;font:italic 400 24px/1.42 var(--font-display);color:var(--ink);max-width:30ch}
@@ -227,7 +230,7 @@ section{scroll-margin-top:24px}
 .sill::before,.sill::after{content:"";position:absolute;left:0;right:0;height:14px;background:linear-gradient(180deg,color-mix(in srgb,var(--rule) 78%,var(--muted)),color-mix(in srgb,var(--rule) 82%,var(--bg)) 60%,color-mix(in srgb,var(--rule) 60%,var(--bg)));box-shadow:0 2px 0 color-mix(in srgb,var(--bg) 60%,transparent)}
 .sill::before{top:0}
 .sill::after{bottom:0;transform:scaleY(-1)}
-.quotes{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,4fr) minmax(0,3fr);gap:clamp(24px,3.4vw,52px);margin-top:44px}
+.quotes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(24px,3.4vw,52px);margin-top:44px}
 .quotes blockquote{margin:0;border-top:1px solid var(--rule);padding-top:18px}
 .quotes blockquote p{font:italic 400 clamp(21px,1.8vw,26px)/1.38 var(--font-display);color:var(--ink)}
 .quotes blockquote p strong{font-style:italic;color:var(--fault);font-weight:400}
@@ -247,7 +250,8 @@ details .ans{padding:0 0 24px;color:var(--muted);max-width:64ch;font-size:17px}
 details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
 
 /* closing */
-.close{position:relative;text-align:center;padding:clamp(96px,14vh,150px) 5vw 64px;overflow:hidden}
+.close{position:relative;text-align:center;padding:clamp(96px,14vh,150px) 0 64px;overflow:hidden}
+.close h2,.close .cta{padding-inline:5vw}
 .close::before{content:"";position:absolute;left:50%;bottom:-30%;width:min(900px,110vw);aspect-ratio:2/1;transform:translateX(-50%);background:radial-gradient(closest-side,color-mix(in srgb,var(--after) 20%,transparent),transparent);z-index:-1}
 .close h2{font-size:clamp(56px,8vw,120px);margin:0 0 30px}
 .close .cta{justify-content:center}
@@ -330,6 +334,13 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
 @media (max-width:400px){
   h1{font-size:40px}
   h1 .hand{white-space:normal}
+  .top{gap:12px}
+  .nav{flex-shrink:0}
+  .brand{min-width:0}
+  .brand span{min-width:0;overflow:hidden;text-overflow:ellipsis}   /* only while the fallback face is showing */
+}
+@media (max-width:359px){
+  .top .nav{display:none}   /* brand 214 px + button 95 px do not fit in 288 px; the hero links the deck */
 }
 @media print{
   .top .nav,.ctls,.skip{display:none}
@@ -357,12 +368,12 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
 <header class="hero" id="top">
   <div class="hero__copy">
     <p class="eyebrow">Kiroween 2026 · Costume Contest<span class="hallows"> · All Hallows' night</span></p>
-    <h1><span class="l1">A dead writer's hand, </span><span class="l2"><em class="hand">still writing</em> in the steam.</span></h1>
-    <p class="sub">Cook Mode for handwritten recipes. At the step where the writer left a judgement in their own words, steam condenses on the window over the pot and their scanned hand is wiped clear out of the fog. The hand is real: a <b>c. 1750</b> receipt book in the Wellcome Collection, and the page crop behind <b>each of its 3 notes</b> matches a fresh fetch of the same region from the archive.</p>
+    <h1><span class="l1">A dead writer's hand, </span><span class="l2"><em class="hand">still writing</em> <span class="nw">in the steam.</span></span></h1>
+    <p class="sub">Cook Mode for handwritten recipes. At the step where the writer left a judgement in their own words, steam condenses on the window over the pot and their scanned hand is wiped clear of the fog. The hand is real: a <b>c. 1750</b> receipt book in the Wellcome Collection.</p>
     <div class="cta">
-      <a class="btn" href="https://github.com/edycutjong/steam">GitHub <span class="arr" aria-hidden="true">↗</span></a>
-      <a class="btn" href="/deck/">Pitch deck</a>
-      <a class="btn btn--paper" href="https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&amp;pace=12&amp;lead=6">Open the hero moment <span class="arr" aria-hidden="true">↗</span></a>
+      <a class="btn btn--paper" href="https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&amp;pace=12&amp;lead=6">Watch the hand arrive <span class="arr" aria-hidden="true">↗</span></a>
+      <a class="btn btn--text" href="/deck/">Pitch deck</a>
+      <a class="btn btn--text" href="https://github.com/edycutjong/steam">GitHub <span class="arr" aria-hidden="true">↗</span></a>
     </div>
     <p class="proof"><span>the browser runs no model</span><span>the app works offline once it has been opened online</span><span>every note links to its archive region</span></p>
   </div>
@@ -395,9 +406,9 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
     <p class="lede">Cook Mode runs the recipe's steps against a pot on a fogged window. At the step where the writer left a judgement, the lamp dips, the simmer drops, and the writer's own ink is wiped clear of the glass. The typed step stays on screen for reading and for screen readers.</p>
     <div class="viewer" id="viewer">
       <div class="viewer__img">
-        <img data-i="0" src="/site/media/cook-before-reveal-crop-1200.webp" srcset="/site/media/cook-before-reveal-crop-800.webp 800w, /site/media/cook-before-reveal-crop-1200.webp 1200w" sizes="(max-width:900px) 92vw, 780px" width="1200" height="813" loading="lazy" alt="Cook Mode at step 5 of 5: the steamed window under the moon, the fog thick on the glass, the timer at 1:33.">
-        <img data-i="1" src="/site/media/cook-mid-wipe-crop-1200.webp" srcset="/site/media/cook-mid-wipe-crop-800.webp 800w, /site/media/cook-mid-wipe-crop-1200.webp 1200w" sizes="(max-width:900px) 92vw, 780px" width="1200" height="813" loading="lazy" alt="The first strokes of the note appear in ember out of the fog, the timer at 1:54, the button reads The hand is writing.">
-        <img data-i="2" class="on" src="/site/media/cook-held-note-crop-1200.webp" srcset="/site/media/cook-held-note-crop-800.webp 800w, /site/media/cook-held-note-crop-1200.webp 1200w" sizes="(max-width:900px) 92vw, 780px" width="1200" height="813" loading="lazy" alt="The note till it Looks red &amp; smooth held clear in ember on the glass, the typed step below it, the timer at 3:12.">
+        <img data-i="0" src="/site/media/cook-before-reveal-crop-1200.webp" srcset="/site/media/cook-before-reveal-crop-800.webp 800w, /site/media/cook-before-reveal-crop-1200.webp 1200w, /site/media/cook-before-reveal-crop-1600.webp 1600w" sizes="(max-width:900px) 92vw, 800px" width="1200" height="874" loading="lazy" alt="Cook Mode at step 5 of 5: the steamed window under the moon, the fog thick on the glass, the timer at 1:33.">
+        <img data-i="1" src="/site/media/cook-mid-wipe-crop-1200.webp" srcset="/site/media/cook-mid-wipe-crop-800.webp 800w, /site/media/cook-mid-wipe-crop-1200.webp 1200w, /site/media/cook-mid-wipe-crop-1600.webp 1600w" sizes="(max-width:900px) 92vw, 800px" width="1200" height="874" loading="lazy" alt="The first strokes of the note appear in ember out of the fog, the timer at 1:54, the button reads The hand is writing.">
+        <img data-i="2" class="on" src="/site/media/cook-held-note-crop-1200.webp" srcset="/site/media/cook-held-note-crop-800.webp 800w, /site/media/cook-held-note-crop-1200.webp 1200w, /site/media/cook-held-note-crop-1600.webp 1600w" sizes="(max-width:900px) 92vw, 800px" width="1200" height="874" loading="lazy" alt="The note till it Looks red &amp; smooth held clear in ember on the glass, the typed step below it, the timer at 3:12.">
       </div>
       <ol class="viewer__steps">
         <li><button type="button" data-i="0" aria-pressed="false"><span class="t">1:33</span><span class="what"><span class="dot" aria-hidden="true"></span>The fog thickens on the glass.</span><span class="meta">step 5 of 5, before the note</span></button></li>
@@ -447,7 +458,7 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
         <h3>Two readers who cannot see each other</h3>
         <p>Two Kiro custom agents read the manuscript page. Kiro enforces that neither can read the other's file, and neither has shell, web or MCP. Where they differ, the edition keeps both readings:</p>
         <div class="scanword"><img src="/site/media/p23-stird.webp" width="740" height="98" loading="lazy" alt="The writer's ink for keeping it stir'd all, from the scan of p.23."></div>
-        <p class="cap-prose">The scan of that line, keeping it stir'd all, from the archive's region shown below.</p>
+        <p class="cap-prose">The scan of that line, keeping it stir'd all, from the archive's region shown above.</p>
         <p class="disagree">keeping it <span class="dag">†[stir'd | stirred]</span> all The time it Boils</p>
         <div class="readers">
           <div class="reader"><b>scribe</b><span>claude-opus-5.5 · .kiro/agents/scribe.json</span></div>
@@ -512,7 +523,7 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
     <div class="faq__list">
       <details><summary>Is the handwriting generated?</summary><div class="ans"><p>No. The ink is the scan's own ink lifted off the paper: its shape and density come from the scan and are drawn in the renderer's colour. <code>scripts/verify_provenance.py</code> re-fetches each note's region from the archive and checks that the bundled page crop matches it and that the displayed ink lies inside it.</p></div></details>
       <details><summary>Is that the writer&#x27;s stroke order?</summary><div class="ans"><p>No. The write-on follows a traced path through that ink, so the order of strokes is ours, not the writer's. The README says so in its Solution section.</p></div></details>
-      <details><summary>Does it work on a phone?</summary><div class="ans"><p>Yes, in emulation. A pane 640 px wide or narrower gets a phone layout that shows only the note: a line is cut at a gap in its ink when that keeps the hand readable or lets it grow, and the parts stack. The frame-rate runs used an emulated Pixel 5 with a 4× CPU throttle; no physical phone has been tried.</p></div></details>
+      <details><summary>Does it work on a phone?</summary><div class="ans"><p>Yes, in emulation. A pane 640 px wide or narrower gets a phone layout that shows only the note: a line is cut at a gap in its ink when that keeps the hand readable or lets it grow, and the parts stack. The frame-rate runs used an emulated Pixel 5 with a 4× CPU throttle; no physical Android run was made.</p></div></details>
       <details><summary>What did Kiro actually do?</summary><div class="ans"><p>304 commits are labelled [kiro] (301 of them fall inside a recorded Kiro session's time window), made working through a spec's tasks, a bugfix spec or an agent workflow. Its two custom agents read the page. In our tests its hooks refused a write that adds a synthetic voice and a catalog write with no named reviewer; refusing a handwriting font is unit-tested. The shipped recipe's reviewer is the builder's agent. <code>docs/KIRO.md</code> lists each feature with the files and commits behind it, and what was planned and not built.</p></div></details>
       <details><summary>Where do the cooking times come from?</summary><div class="ans"><p>The manuscript gives no cooking times, so none is invented: each note is placed at its step or at a cited modern check time, and each time is labelled. In the shipped recipe all three notes arrive with their step.</p></div></details>
       <details><summary>What is not real yet?</summary><div class="ans"><p>One recipe is on the shelf, and its sign-off came from the builder's agent, not a person; a human sign-off is still owed. The renderer missed its look gate at the last scored pass, 1 end-to-end test fails (113 of 114 pass, run at 90c4e6f), and no build-wide Kiro credit total was kept.</p></div></details>
@@ -524,9 +535,9 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
 <footer class="close">
   <h2><em class="hand">Still writing.</em></h2>
   <div class="cta">
-    <a class="btn" href="https://github.com/edycutjong/steam">GitHub <span class="arr" aria-hidden="true">↗</span></a>
+    <a class="btn btn--paper" href="https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&amp;pace=12&amp;lead=6">Watch the hand arrive <span class="arr" aria-hidden="true">↗</span></a>
     <a class="btn" href="/deck/">Pitch deck</a>
-    <a class="btn btn--paper" href="https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&amp;pace=12&amp;lead=6">Open the hero moment <span class="arr" aria-hidden="true">↗</span></a>
+    <a class="btn" href="https://github.com/edycutjong/steam">GitHub <span class="arr" aria-hidden="true">↗</span></a>
   </div>
   <div class="wrap fine">
     <span>Built for Kiroween 2026 · Costume Contest. Code: MIT. The scan: Wellcome Collection MS.1810, Public Domain Mark. Faces: IM Fell English, Literata, DM Mono (SIL Open Font License).</span>
