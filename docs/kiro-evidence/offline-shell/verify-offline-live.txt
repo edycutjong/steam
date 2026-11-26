@@ -1,10 +1,11 @@
+# scripts/verify_offline.py https://steam.edycu.dev, run 2026-11-27 against the production deploy of db0374c (after the offline-shell change cf37cfb that leaves /landing/, /deck/ and /site/ to the network)
 online: https://steam.edycu.dev/
 service worker active: True
 page controlled by the service worker: True
 offline: network off
 A deep link offline: cook:ready + hero reveal reached
-A reached 'The hand, quoted' in 8.5s
+A reached 'The hand, quoted' in 8.7s
 A bundled images all decoded: True
-B shelf -> Watch it at x12 -> 'The hand, quoted' in 24.1s (cooked to the end offline)
+B shelf -> Watch it at x12 -> 'The hand, quoted' in 26.4s (cooked to the end offline)
 failed requests while offline: 0 total, unexpected: none
 RESULT: PASS
