@@ -43,4 +43,4 @@ Some folders do not exist yet. Create files in these places when tasks need them
 
 ## Editing files
 - Write and edit files with the write tools (`fs_write`, `str_replace`): `no-imitation` and `catalog-gate` judge them before they land.
-- A shell write under `src/` or to the catalog is gated by `shell-gate` (before) and `src-scan-after-shell` (after) and logged in `hooks.log`. Heredocs, `sed -i` and scripts are not a way around the rules; the catalog is written only by `npm run catalog`.
+- A shell write under `src/` or to the catalog is judged before it runs by `shell-gate` (which can refuse the command) and after it by `src-scan-after-shell` (in headless runs its exit 2 is a `hooks.log` line, not a refusal), and both are logged in `hooks.log`. Heredocs, `sed -i` and scripts are not a way around the rules; the catalog is written only by `npm run catalog`.
