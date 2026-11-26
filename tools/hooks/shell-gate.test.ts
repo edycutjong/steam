@@ -171,3 +171,31 @@ describe('shell-gate: the process, as Kiro starts it', () => {
     expect(lines()).toEqual([])
   })
 })
+
+describe('shell-gate: a2a round 07 — never a silent allow of a write it saw', () => {
+  it('refuses a speaking write through a variable set earlier in the command', () => {
+    const r = gate('f=src/steam/x.ts; printf "speechSynthesis.speak(u)" > "$f"')
+    expect(r.exit).toBe(2)
+    expect(r.stderr).toContain('shell-gate: src/steam/x.ts:1: speechSynthesis')
+  })
+  it('refuses a speaking write by an interpreter that npx launches', () => {
+    expect(gate(`npx tsx -e "require('fs').writeFileSync('src/steam/x.ts', 'speechSynthesis.speak(u)')"`).exit).toBe(2)
+  })
+  it('logs a write it cannot resolve when the command names src/, and a diff applied from a file', () => {
+    expect(gate('cd src/steam && echo x > "$OUT"').exit).toBe(0)
+    expect(gate('git apply fix.diff').exit).toBe(0)
+    expect(lines().map((l) => l.replace(/^\S+ · shell-gate · /, ''))).toEqual([
+      '(unresolved write) · pass (unresolved: $OUT; src-scan judges the files after)',
+      '(unresolved write) · pass (unresolved: git apply: a diff from a file or stdin; src-scan judges the files after)',
+    ])
+  })
+  it('stays silent on an unresolved write that has nothing to do with src/ or the catalog', () => {
+    expect(gate('echo x > "$TMPDIR/out.txt"')).toEqual({ exit: 0, stdout: '', stderr: '' })
+    expect(lines()).toEqual([])
+  })
+  it('with two targets, names the text for both rather than pinning the line on the first file', () => {
+    const r = gate("printf 'a\\n' > src/a.ts; printf 'speechSynthesis\\n' > src/b.ts")
+    expect(r.exit).toBe(2)
+    expect(r.stderr).toContain('shell-gate: the text for src/a.ts + src/b.ts:2: speechSynthesis')
+  })
+})

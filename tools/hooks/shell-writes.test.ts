@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { analyzeShell } from './shell-writes.ts'
+import { analyzeShell, runsCatalogCommand } from './shell-writes.ts'
 
 const ROOT = '/work/steam'
 const CAT = 'content/' + 'catalog' + '.json'
@@ -94,4 +94,51 @@ describe('analyzeShell: a shell write under src/ (hook-coverage H1)', () => {
     expect(analyzeShell('echo "unclosed', { root: ROOT }).parsed).toBe(false)
     expect(analyzeShell("cat > src/a.ts <<'E'\nx\nE", { root: ROOT }).parsed).toBe(true)
   })
+})
+
+describe('analyzeShell: a2a round 07 — subshells, launchers, eval, variables, what it cannot resolve', () => {
+  const a = (cmd: string, expandVars = false) => analyzeShell(cmd, { root: ROOT, expandVars })
+  it('a cd inside ( … ) does not leak out, either way', () => {
+    expect(paths('(cd /tmp && ls); printf x > src/steam/x.ts')).toEqual(['src:src/steam/x.ts'])
+    expect(paths('(cd src && ls); echo hi > notes.txt')).toEqual([])
+    expect(paths('(cd src && echo hi > notes.ts)')).toEqual(['src:src/notes.ts'])
+  })
+  it('a cd inside bash -c stays in that shell', () => {
+    expect(paths('bash -c "cd src"; echo hi > notes.txt')).toEqual([])
+    expect(paths('bash -c "cd src && echo hi > a.ts"')).toEqual(['src:src/a.ts'])
+  })
+  it('reads through npx and bunx (with their options) to the interpreter they launch', () => {
+    expect(paths(`npx tsx -e "require('fs').writeFileSync('src/steam/x.ts', 'x')"`)).toEqual(['src:src/steam/x.ts'])
+    expect(paths(`npx -y -p tsx tsx -e "require('fs').writeFileSync('src/a.ts', 'x')"`)).toEqual(['src:src/a.ts'])
+    expect(paths('bunx prettier --write src/a.ts')).toEqual([])
+  })
+  it('reads the command eval runs', () => {
+    expect(paths('eval "echo x > src/x.ts"')).toEqual(['src:src/x.ts'])
+  })
+  it('substitutes a variable set earlier in the command only with expandVars (the gate), never for the ledger', () => {
+    const cmd = 'f=src/steam/x.ts; printf x > "$f"'
+    expect(a(cmd).targets).toEqual([])
+    expect(a(cmd).unresolved).toEqual(['$f'])
+    expect(a(cmd, true).targets.map((t) => t.path)).toEqual(['src/steam/x.ts'])
+    expect(a('export F=src; echo x > $F/a.ts', true).targets.map((t) => t.path)).toEqual(['src/a.ts'])
+    expect(a('bash -c "f=src/a.ts"; echo x > "$f"', true).targets).toEqual([])
+  })
+  it('lists the writes it saw and could not resolve', () => {
+    expect(a('echo hi > $OUT').unresolved).toEqual(['$OUT'])
+    expect(a('git apply fix.diff').unresolved).toEqual(['git apply: a diff from a file or stdin'])
+    expect(a('patch -p1 < fix.diff').unresolved).toEqual(['patch: a diff from a file or stdin'])
+    expect(a("git apply <<'E'\n+++ b/src/a.ts\nE").unresolved).toEqual([])
+    expect(a('echo hi > /tmp/x').unresolved).toEqual([])
+  })
+})
+
+describe('runsCatalogCommand: the catalog CLI run by an interpreter, not a word that names it (a2a round 07)', () => {
+  it.each([
+    ['npm run catalog', true],
+    ['tsx tools/steam-ingest/cli.ts catalog', true],
+    ['npx tsx tools/steam-ingest/cli.ts catalog', true],
+    ['echo tools/steam-ingest/cli.ts catalog', false],
+    ['cat tools/steam-ingest/cli.ts catalog', false],
+    ['echo npm run catalog', false],
+  ])('%s → %s', (cmd, want) => expect(runsCatalogCommand(cmd)).toBe(want))
 })

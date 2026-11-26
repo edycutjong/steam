@@ -38,15 +38,17 @@ export function run(raw: string, deps: Deps = {}): HookResult {
   const toolCwd = input.tool_input?.cwd
   let a: ShellAnalysis
   try {
-    a = analyzeShell(command, { root, cwd: typeof toolCwd === 'string' && toolCwd !== '' ? toolCwd : undefined })
+    a = analyzeShell(command, { root, cwd: typeof toolCwd === 'string' && toolCwd !== '' ? toolCwd : undefined, expandVars: true })
   } catch {
-    a = { parsed: false, targets: [], text: '', blind: false }
+    a = { parsed: false, targets: [], text: '', blind: false, unresolved: [] }
   }
 
   const srcTargets = a.targets.filter((t) => t.kind === 'src' && !t.test)
   const catalogTargets = a.targets.filter((t) => t.kind === 'catalog')
   const unparsed = !a.parsed
-  if (!srcTargets.length && !catalogTargets.length && !(unparsed && mentionsJudged(command))) return ok()
+  // a write it saw and could not resolve (an unknown $VAR or ~, a diff applied from a file) is logged, never allowed silently (a2a r07)
+  const unresolved = a.unresolved.filter((u) => u.includes('diff') || mentionsJudged(command))
+  if (!srcTargets.length && !catalogTargets.length && !(unparsed && mentionsJudged(command)) && !unresolved.length) return ok()
 
   const finish = (exit: number, target: string, result: string, stderr = ''): HookResult => {
     const failure = logHook(root, HOOK, target, result, deps.now)
@@ -54,8 +56,9 @@ export function run(raw: string, deps: Deps = {}): HookResult {
   }
 
   const named = [...srcTargets, ...catalogTargets].map((t) => t.path)
-  const target = named.length ? (named.length > 3 ? `${named.slice(0, 3).join(', ')} (+${named.length - 3})` : named.join(', ')) : '(unparsed command)'
-  const where = srcTargets[0]?.path ?? '(command)'
+  const target = named.length ? (named.length > 3 ? `${named.slice(0, 3).join(', ')} (+${named.length - 3})` : named.join(', ')) : unparsed ? '(unparsed command)' : '(unresolved write)'
+  // the text is the join of every judged target's payload, so with two targets a line number belongs to that text, not to one file
+  const where = srcTargets.length > 1 ? `the text for ${srcTargets.map((t) => t.path).join(' + ')}` : (srcTargets[0]?.path ?? '(command)')
 
   const found = srcTargets.length ? findViolations(a.text) : []
   const reasons = [found.map((f) => `${f.what} (line ${f.line})`).join(', '), ...(catalogTargets.length ? [CATALOG_REASON] : [])].filter(Boolean)
@@ -70,7 +73,11 @@ export function run(raw: string, deps: Deps = {}): HookResult {
     ].join('\n')
     return finish(2, target, `blocked: ${reasons.join(' | ')}`, stderr)
   }
-  const notes = [...(unparsed ? ['unparsed: the command could not be read to the end, so only part of it was checked; src-scan judges the files after'] : []), ...(a.blind ? [BLIND] : [])]
+  const notes = [
+    ...(unparsed ? ['unparsed: the command could not be read to the end, so only part of it was checked; src-scan judges the files after'] : []),
+    ...(unresolved.length ? [`unresolved: ${unresolved.slice(0, 3).join(', ')}; src-scan judges the files after`] : []),
+    ...(a.blind ? [BLIND] : []),
+  ]
   return finish(0, target, `pass (${[srcTargets.length ? PASS : '', ...notes].filter(Boolean).join('; ') || 'nothing to judge'})`)
 }
 

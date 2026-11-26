@@ -12,11 +12,18 @@
 //      that calls a file-writing API (open(…,'w'|'a'|'x'), .write(, write_text, writeFileSync, appendFile, copyFile, cpSync,
 //      renameSync, File.write, …; stdout.write and stderr.write do not count) and has a string literal that is a path under src/.
 //      A script that writes and only names the folder (`'src'`, built from parts) is a write to `src/(script)`.
-// "Under src/" is the path relative to the root, after `cd`, `./`, `..`, doubled slashes and a leading $VAR/ are resolved.
+// "Under src/" is the path relative to the root, after `cd`, `./`, `..`, doubled slashes and a leading $VAR/ are resolved. A `cd`
+// inside ( … ) or `bash -c` does not leak out, and `npx`/`bunx` and `eval` are read through (a2a round 07; these change no
+// classification of the 1,826 shell calls in the session store the ledger read). With `expandVars` (shell-gate sets it), a
+// variable set earlier in the same command (`f=src/x.ts; … > "$f"`) is substituted too. The ledger does not set it, so its
+// published counts keep the rule they were taken with; expanding variables reclassifies one of those calls (a write to
+// src/steam/derive.ts through `$f`), which would make 544 / 546 of the published 543 / 545.
 // The same rule marks a write to the public catalog (kind "catalog"). A write to a test file (*.test.ts, *.spec.ts,
 // src/__tests__/) is a target with test = true: it is counted, and not judged.
 // WHAT IT CANNOT SEE: a script file that is run by name (node scripts/x.ts), a path built from parts that is not named
 // `src`, find -exec / xargs, and a file written by a program another command started. src-scan (PostToolUse) is the backstop.
+// What it sees and cannot resolve is listed in `unresolved` (a write to $VAR or ~ it cannot expand, a diff applied from a file),
+// so shell-gate logs it instead of allowing it silently. `unresolved` never changes `targets`: the counts stay the same.
 
 import { posix } from 'node:path'
 import { isTestFile } from './no-imitation.ts'
@@ -38,12 +45,16 @@ export interface ShellAnalysis {
   text: string
   /** True when some judged target's content does not appear in the command text (cp, a redirect from another command). */
   blind: boolean
+  /** Write positions the rule saw but could not resolve to a path: `redirect $f`, `git apply <file>`, `patch <file>`. */
+  unresolved: string[]
 }
 
 export interface ShellOptions {
   root: string
   /** The `cwd` of the tool call, when it names one. */
   cwd?: string
+  /** Substitute variables assigned earlier in the same command (the gate); off for the ledger's published counts. */
+  expandVars?: boolean
 }
 
 /** Spelled in two parts: the R35.5 test lists every non-test source file that names the catalog file. */
@@ -73,6 +84,9 @@ interface Pending {
 }
 
 const fresh = (pipe: number): Cmd => ({ words: [], redirs: [], heredocs: [], herestrings: [], pipe })
+const SUB_OPEN = '\u0000('
+const SUB_CLOSE = '\u0000)'
+const isMarker = (c: Cmd): boolean => c.words.length === 1 && (c.words[0] === SUB_OPEN || c.words[0] === SUB_CLOSE)
 const REDIRECT = /(\d*)(&>>|&>|>>|>\||>&|>|<<<|<<-|<<|<&|<>|<)/y
 const WORD_END = new Set([' ', '\t', '\n', ';', '&', '|', '(', ')', '<', '>'])
 
@@ -89,6 +103,13 @@ class Lexer {
     this.s = s
     this.ctx = ctx
     this.cur = fresh(ctx.pipe)
+  }
+
+  /** A marker command for the start or end of a ( … ) subshell, so that a `cd` inside it does not leak out. */
+  private mark(word: string): void {
+    this.cmds.push({ ...fresh(this.ctx.pipe), words: [word] })
+    this.ctx.pipe++
+    this.cur = fresh(this.ctx.pipe)
   }
 
   private endCmd(seq: boolean): void {
@@ -311,12 +332,14 @@ class Lexer {
       if (c === '(') {
         this.i++
         this.endCmd(true)
+        this.mark(SUB_OPEN)
         continue
       }
       if (c === ')') {
         this.i++
         this.endCmd(true)
         if (closer) return
+        this.mark(SUB_CLOSE)
         continue
       }
       const before = this.i
@@ -331,6 +354,21 @@ class Lexer {
 
 // ---- the rule --------------------------------------------------------------------------------------------------------
 
+const LAUNCHERS = new Set(['npx', 'bunx'])
+/** Drops leading assignments, wrappers (env, sudo, time…) and package launchers with their options (`npx -y -p pkg tsx` → `tsx`). */
+function unwrap(words: string[]): void {
+  while (words.length) {
+    const w = words[0]!
+    if (/^[A-Za-z_]\w*=/.test(w) || WRAPPERS.has(w)) words.shift()
+    else if (LAUNCHERS.has(posix.basename(w))) {
+      words.shift()
+      while (words.length && words[0]!.startsWith('-')) {
+        const o = words.shift()!
+        if ((o === '-p' || o === '--package') && words.length) words.shift()
+      }
+    } else break
+  }
+}
 const WRAPPERS = new Set(['env', 'sudo', 'time', 'nohup', 'command', 'exec', 'builtin', '!', '{', '}', 'then', 'do', 'else', 'if', 'while', 'until', 'elif', 'nice'])
 const WRITE_OPS = new Set(['>', '>>', '>|', '&>', '&>>', '<>', '>&'])
 const INTERPRETER = /^(?:python[\d.]*|node(?:js)?|deno|bun|tsx|ruby|perl|php)$/
@@ -347,6 +385,10 @@ interface State {
   texts: string[]
   blind: boolean
   parsed: boolean
+  /** NAME=value assignments made earlier in the command (a bare assignment or `export NAME=value`). */
+  vars: Map<string, string>
+  expandVars: boolean
+  unresolved: string[]
 }
 
 /** `word` as a path relative to the root, or undefined when it lies outside or its base is unknown. */
@@ -354,12 +396,20 @@ function relOf(word: string, st: State): string | undefined {
   if (word === '' || word.includes('\u0000')) return undefined
   let w = word
   let base = st.cwd
-  const lead = /^\$(?:\{[A-Za-z_]\w*\}|[A-Za-z_]\w*)\//.exec(w)
-  if (lead) {
-    w = w.slice(lead[0].length)
-    base = st.root
+  const known = /^\$(?:\{([A-Za-z_]\w*)\}|([A-Za-z_]\w*))(?=\/|$)/.exec(w)
+  const value = known && st.expandVars ? st.vars.get(known[1] ?? known[2]!) : undefined
+  if (known && value !== undefined && !value.includes('$')) w = value + w.slice(known[0].length)
+  else {
+    const lead = /^\$(?:\{[A-Za-z_]\w*\}|[A-Za-z_]\w*)\//.exec(w)
+    if (lead) {
+      w = w.slice(lead[0].length)
+      base = st.root
+    }
   }
-  if (w.startsWith('$') || w.startsWith('~')) return undefined
+  if (w.startsWith('$') || w.startsWith('~')) {
+    st.unresolved.push(word)
+    return undefined
+  }
   const abs = w.startsWith('/') ? posix.normalize(w) : posix.resolve(base, w)
   const r = posix.relative(st.root, abs)
   if (r === '' || r.startsWith('..') || posix.isAbsolute(r)) return undefined
@@ -431,8 +481,14 @@ const pipeMates = (cmd: Cmd, all: Cmd[]): string =>
     .join('\n')
 
 function handle(cmd: Cmd, all: Cmd[], st: State, depth: number): void {
+  // a bare assignment (`f=src/x.ts`) or `export f=…` is remembered for later words of the command
+  const assigns = cmd.words[0] === 'export' ? cmd.words.slice(1) : cmd.words
+  if (assigns.length && assigns.every((w) => /^[A-Za-z_]\w*=/.test(w))) {
+    for (const a of assigns) st.vars.set(a.slice(0, a.indexOf('=')), a.slice(a.indexOf('=') + 1))
+    return
+  }
   const words = cmd.words.slice()
-  while (words.length && (/^[A-Za-z_]\w*=/.test(words[0]!) || WRAPPERS.has(words[0]!))) words.shift()
+  unwrap(words)
   const nameIndex = cmd.words.length - words.length
   const name = words.length ? posix.basename(words[0]!) : ''
   const args = words.slice(1)
@@ -507,6 +563,7 @@ function handle(cmd: Cmd, all: Cmd[], st: State, depth: number): void {
       break
     case 'patch':
       for (const a of rest) hit(relOf(a, st), 'patch')
+      if (!cmd.heredocs.length && !cmd.herestrings.length) st.unresolved.push('patch: a diff from a file or stdin')
       diffHeaders(cmd, st, hit)
       break
     case 'git': {
@@ -525,7 +582,10 @@ function handle(cmd: Cmd, all: Cmd[], st: State, depth: number): void {
         tail.forEach((a, j) => {
           if (!a.startsWith('-') && !skip.has(j)) hit(relOf(a, st), 'git restore')
         })
-      } else if (sub === 'apply') diffHeaders(cmd, st, hit)
+      } else if (sub === 'apply') {
+        if (!cmd.heredocs.length && !cmd.herestrings.length) st.unresolved.push('git apply: a diff from a file or stdin')
+        diffHeaders(cmd, st, hit)
+      }
       else if (sub === 'mv') {
         const r = options(tail).rest
         if (r.length >= 2) hit(relOf(r[r.length - 1]!, st), 'git mv')
@@ -534,10 +594,16 @@ function handle(cmd: Cmd, all: Cmd[], st: State, depth: number): void {
     }
     default:
       if (SHELLS.has(name)) {
+        // a child shell: its cd and its variables stay inside it
+        const cwd = st.cwd
+        const vars = new Map(st.vars)
         const c = args.findIndex((a) => /^-[A-Za-z]*c$/.test(a))
         if (c >= 0 && args[c + 1] !== undefined && depth < DEPTH_MAX) walk(args[c + 1]!, st, depth + 1)
         else for (const h of cmd.heredocs) if (depth < DEPTH_MAX) walk(h, st, depth + 1)
-      } else if (INTERPRETER.test(name)) interpreter(cmd, args, st)
+        st.cwd = cwd
+        st.vars = vars
+      } else if (name === 'eval' && args.length && depth < DEPTH_MAX) walk(args.join(' '), st, depth + 1)
+      else if (INTERPRETER.test(name)) interpreter(cmd, args, st)
   }
 
   const judged = mark.filter((t) => t.kind === 'src' && !t.test)
@@ -564,7 +630,14 @@ function walk(command: string, st: State, depth: number): void {
   const L = new Lexer(command)
   L.run(false)
   if (!L.ok) st.parsed = false
-  for (const c of L.cmds) handle(c, L.cmds, st, depth)
+  const saved: { cwd: string; vars: Map<string, string> }[] = []
+  for (const c of L.cmds) {
+    if (c.words[0] === SUB_OPEN && isMarker(c)) saved.push({ cwd: st.cwd, vars: new Map(st.vars) })
+    else if (c.words[0] === SUB_CLOSE && isMarker(c)) {
+      const s = saved.pop()
+      if (s) Object.assign(st, s)
+    } else handle(c, L.cmds, st, depth)
+  }
 }
 
 /** The words of every simple command of `command`, in order, including those inside $( ), backticks and `bash -c '…'`. */
@@ -573,8 +646,9 @@ export function commandWords(command: string, depth = 0): string[][] {
   L.run(false)
   const out: string[][] = []
   for (const c of L.cmds) {
+    if (isMarker(c)) continue
     const words = c.words.slice()
-    while (words.length && (/^[A-Za-z_]\w*=/.test(words[0]!) || WRAPPERS.has(words[0]!))) words.shift()
+    unwrap(words)
     if (!words.length) continue
     out.push(words)
     if (SHELLS.has(posix.basename(words[0]!)) && depth < DEPTH_MAX) {
@@ -593,15 +667,17 @@ export function runsCatalogCommand(command: string): boolean {
       const rest = w.slice(1).filter((x) => x !== 'run' && x !== '--')
       return rest[0] === 'catalog' || (rest[0] === 'steam-ingest' && rest[1] === 'catalog')
     }
+    // the CLI run by an interpreter, not a word that only mentions it (`echo tools/steam-ingest/cli.ts catalog`)
+    if (!/^(?:tsx|node|bun|deno|ts-node)$/.test(name)) return false
     const cli = w.findIndex((x) => x.endsWith('steam-ingest/cli.ts'))
-    return cli >= 0 && w[cli + 1] === 'catalog'
+    return cli >= 1 && w[cli + 1] === 'catalog'
   })
 }
 
 export function analyzeShell(command: string, opt: ShellOptions): ShellAnalysis {
   const root = posix.normalize(opt.root).replace(/\/+$/, '') || '/'
   const cwd = opt.cwd ? (opt.cwd.startsWith('/') ? posix.normalize(opt.cwd) : posix.resolve(root, opt.cwd)) : root
-  const st: State = { root, cwd, targets: [], texts: [], blind: false, parsed: true }
+  const st: State = { root, cwd, targets: [], texts: [], blind: false, parsed: true, vars: new Map(), expandVars: opt.expandVars === true, unresolved: [] }
   walk(command, st, 0)
-  return { parsed: st.parsed, targets: st.targets, text: st.texts.join('\n'), blind: st.blind }
+  return { parsed: st.parsed, targets: st.targets, text: st.texts.join('\n'), blind: st.blind, unresolved: [...new Set(st.unresolved)] }
 }
