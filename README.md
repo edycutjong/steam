@@ -1,14 +1,15 @@
 <div align="center">
-  <img src="docs/icon.svg" alt="Her Hand in the Steam icon" width="144">
+  <img src="docs/icon-animated.svg" alt="Her Hand in the Steam icon, animated: a sash window at night, the full moon in the upper sash; below, the writer's word &quot;smooth&quot;, lifted from the c. 1750 scan, is wiped clear of the fog and holds" width="144">
   <h1>Her Hand in the Steam 🕯️</h1>
   <p><em>A dead writer's hand, still writing in the steam.</em></p>
-  <img src="docs/readme-hero.png" alt="Her Hand in the Steam: a steamed window, one candle, and a c. 1750 hand written out of the fog" width="100%">
+  <img src="docs/readme-hero-animated.svg" alt="Animated banner, an illustration composed from the scan: on All Hallows' night a cloud crosses the moon, a candle gutters, the fog thickens over the pot, and the writer's c. 1750 note &quot;till it Looks red &amp; smooth&quot; is written out of the steam on the window and holds; beside it, c. 1750, Wellcome MS.1810, p.23, Public Domain Mark" width="100%">
 
   A typed copy can keep "till it Looks red & smooth" and still lose the writer's hand, the page it came from, and the moment at the stove when it matters. Her Hand in the Steam is Cook Mode for one such page, *Marmalade of Quinces* (Wellcome Collection MS.1810, p.23, c. 1750): at each step where the writer left a judgement, steam condenses on a pane of glass, the writer's own scanned ink is wiped clear of the fog, and every note links back to its region of the archive's scan. The browser runs no model; two isolated Kiro agents read the page at build time, and a code gate decides what may be published.
 
   <br/>
 
   [![Live Demo](https://img.shields.io/badge/🚀_Try_it-live-06b6d4?style=for-the-badge)](https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=6)
+  [![Pitch Deck](https://img.shields.io/badge/📊_Pitch-Deck-f59e0b?style=for-the-badge)](https://steam.edycu.dev/deck/)
   [![Built for Kiroween 2026](https://img.shields.io/badge/Devpost-Kiroween_2026-8b5cf6?style=for-the-badge)](https://kiroween.devpost.com/)
 
   <br/>
@@ -19,6 +20,7 @@
   ![WebGL2](https://img.shields.io/badge/WebGL2-990000?style=flat&logo=webgl&logoColor=white)
   ![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)
   [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+  [![CI](https://github.com/edycutjong/steam/actions/workflows/ci.yml/badge.svg)](https://github.com/edycutjong/steam/actions/workflows/ci.yml)
 
 </div>
 
@@ -26,7 +28,7 @@
 
 ## 📸 See it in Action
 
-*The banner above is an illustration composed from the scan; the live app renders the glass in WebGL2.*
+*The animated banner above is an illustration composed from the scan's ink; the live app renders the glass in WebGL2.*
 
 **Try it:** [open the hero moment](https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=6). No install and no input: the pot runs at a visible ×12 pace and the note is written out of the fog after a 6 s lead-in. [`DEMO.md`](DEMO.md) has the exact judge steps and what to expect at each one.
 
@@ -115,7 +117,25 @@ npm run props      # ingestion gate over every recipe
 npm run e2e        # Playwright (installs Chromium: npx playwright install chromium)
 npm run bench      # frame-rate profiles → bench/results.json
 ```
-CI is defined in `.github/workflows/ci.yml` (typecheck, tests, the gate, build, the dist check, e2e). **It has not run yet:** every GitHub Actions run so far was refused before the job started (account billing), so there is no CI badge and the figures in this README come from local runs.
+Six GitHub Actions workflows run on every push to `main` (and on pull requests, except Deploy):
+
+[![CI](https://github.com/edycutjong/steam/actions/workflows/ci.yml/badge.svg)](https://github.com/edycutjong/steam/actions/workflows/ci.yml)
+[![E2E](https://github.com/edycutjong/steam/actions/workflows/e2e.yml/badge.svg)](https://github.com/edycutjong/steam/actions/workflows/e2e.yml)
+[![CodeQL](https://github.com/edycutjong/steam/actions/workflows/codeql.yml/badge.svg)](https://github.com/edycutjong/steam/actions/workflows/codeql.yml)
+[![Security](https://github.com/edycutjong/steam/actions/workflows/security.yml/badge.svg)](https://github.com/edycutjong/steam/actions/workflows/security.yml)
+[![Quality](https://github.com/edycutjong/steam/actions/workflows/quality.yml/badge.svg)](https://github.com/edycutjong/steam/actions/workflows/quality.yml)
+[![Deploy](https://github.com/edycutjong/steam/actions/workflows/deploy.yml/badge.svg)](https://github.com/edycutjong/steam/actions/workflows/deploy.yml)
+
+| Workflow | What it runs |
+|---|---|
+| [CI](.github/workflows/ci.yml) | oxlint + actionlint, typecheck, the unit + property suite on Node 22 and 24 (built first, so the dist checks run too: 1571 passed + 5 expected-fail on both), the ingestion gate, build + `check:dist` |
+| [E2E](.github/workflows/e2e.yml) | the Playwright suite against the production build, Chromium on software GL |
+| [CodeQL](.github/workflows/codeql.yml) | `security-extended` queries over the TypeScript and over these workflows |
+| [Security](.github/workflows/security.yml) | gitleaks over the full history (pinned release, checksum checked), `npm audit` at moderate, dependency review on pull requests |
+| [Quality](.github/workflows/quality.yml) | Lighthouse CI on `/`, `/landing/`, `/deck/` (median of 5 mobile runs, budgets in `lighthouserc.json`) and a gzip budget for the code those pages load (`npm run budget`) |
+| [Deploy](.github/workflows/deploy.yml) | only after CI passes on `main`: `vercel build`, then `vercel deploy --prebuilt` of that output to https://steam.edycu.dev, then `npm run smoke:live`: the three pages, the hero deep link opened in Chromium (it must reveal the note and end on "The hand, quoted") and the files it loads |
+
+Every action is pinned to a commit SHA; Dependabot keeps npm packages and actions current. The Vercel project has no Git integration, so the Deploy workflow is the only path from a push to production.
 
 ## 📁 Project Structure
 
