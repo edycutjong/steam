@@ -4,7 +4,7 @@
   <p><em>A dead writer's hand, still writing in the steam.</em></p>
   <img src="docs/readme-hero.png" alt="Her Hand in the Steam: a steamed window, one candle, and a c. 1750 hand written out of the fog" width="100%">
 
-  Cook Mode for handwritten recipes. At the step where the writer left a judgement in their own words, steam condenses on a pane of glass and that writer's scanned hand is wiped clear out of the fog.
+  Typing up a handwritten recipe keeps the steps and loses the judgement calls: "till it Looks red & smooth". Her Hand in the Steam is Cook Mode for one such page, *Marmalade of Quinces* (Wellcome Collection MS.1810, p.23, c. 1750): at each step where the writer left a judgement, steam condenses on a pane of glass and the writer's own scanned ink is wiped clear of the fog. The browser runs no model; two isolated Kiro agents read the page at build time, and a code gate decides what may be published.
 
   <br/>
 
