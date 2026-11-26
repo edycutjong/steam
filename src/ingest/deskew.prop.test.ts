@@ -16,7 +16,9 @@ describe('S2 deskew on synthetic ruled text', () => {
         for (let i = 0; i < n; i++)
           textRow(c, { yc: 70 + i * 84, hh: 14, x0: 24, words: [4, 3, 5, 4, 3, 4], gap: 12 + Math.floor(rnd() * 4), slant: rnd() * 0.3, tilt })
         const est = estimateTilt(c.ink, c.w, c.h)
-        expect(Math.abs(est - tilt)).toBeLessThanOrEqual(0.2)
+        // Both sides sit on the 0.1-degree grid, so an estimate two steps off is exactly 0.2 in degrees but can come out as
+        // 0.20000000000000007 in floating point (CI run 45894170892, seed -2108087428): allow 1e-9 for the rounding, nothing more.
+        expect(Math.abs(est - tilt)).toBeLessThanOrEqual(0.2 + 1e-9)
         const g = { width: c.w, height: c.h, data: c.ink.map((v) => (v ? 40 : 235)) }
         const r = applyDeskew(g, est)
         expect(r.applied).toBe(Math.abs(est) >= 0.5)
