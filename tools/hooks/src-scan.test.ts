@@ -119,26 +119,30 @@ describe('src-scan: one line per change of the judged state', () => {
   })
 })
 
-describe('src-scan: the catalog changes only through npm run catalog', () => {
+describe('src-scan: a changed catalog must pass catalog-gate\'s content check, whoever wrote it (a2a round 07)', () => {
   const edit = () => put(CAT, '[{"id":"x"}]\n')
   it('fails on a change of the catalog by any other command and says which file', () => {
     edit()
     const r = scan('python3 scripts/y.py')
     expect(r.exit).toBe(2)
-    expect(r.stderr).toContain(`src-scan: ${CAT} differs from HEAD and was not written by npm run catalog`)
+    expect(r.stderr).toContain(`src-scan: ${CAT} differs from HEAD and does not verify: the proposed ${CAT} is not a catalog`)
     expect(r.stderr).toContain('Use `npm run catalog`: it verifies every recipe first and is the only writer of ' + CAT)
-    expect(lines()).toEqual([`2026-11-25T12:00:00.000Z · src-scan · ${CAT} · fail the catalog differs from HEAD and was not written by npm run catalog (${CAT})`])
+    expect(lines()).toEqual([`2026-11-25T12:00:00.000Z · src-scan · ${CAT} · fail the catalog differs from HEAD and does not verify (${CAT})`])
   })
-  it('accepts the change when the command was npm run catalog (or the tsx form), and remembers its content', () => {
+  it('the command text is not proof of the writer: npm run catalog followed by a script still fails on content that does not verify', () => {
     edit()
+    expect(scan('npm run catalog && node scripts/x.js').exit).toBe(2)
+    expect(scan('npm run catalog').exit).toBe(2)
+    expect(scan('echo tools/steam-ingest/cli.ts catalog').exit).toBe(2)
+  })
+  it('a changed catalog whose every entry verifies passes, and keeps passing while uncommitted', () => {
+    put(CAT, '[ ]\n') // differs from HEAD's '[]', lists nothing unverified
     expect(scan('npm run catalog').exit).toBe(0)
-    expect(scan('ls').exit).toBe(0) // an uncommitted catalog that npm run catalog wrote stays accepted
-    put(CAT, '[{"id":"y"}]\n')
-    expect(scan('ls').exit).toBe(2)
-  })
-  it('accepts the tsx form of the command', () => {
-    edit()
-    expect(scan('npx tsx tools/steam-ingest/cli.ts catalog').exit).toBe(0)
+    expect(scan('ls').exit).toBe(0)
+    put(CAT, '[{"id":"y","title":"Y","gateSha256":"' + '0'.repeat(64) + '"}]\n')
+    const r = scan('ls')
+    expect(r.exit).toBe(2)
+    expect(r.stderr).toContain('y: no gate.json')
   })
   it('a command that only mentions the words does not make a change legitimate', () => {
     edit()
@@ -153,6 +157,51 @@ describe('src-scan: the catalog changes only through npm run catalog', () => {
   it('a deleted catalog is a change', () => {
     rmSync(join(root, CAT))
     expect(scan().exit).toBe(2)
+  })
+})
+
+describe('src-scan: a command that writes and commits in one go (a2a round 07)', () => {
+  const SAY = 'export const say = (t: string) => speechSynthesis.speak(new SpeechSynthesisUtterance(t))\n'
+  it('judges the lines a commit added since its previous run: exit 2 once, one log line, then pass', () => {
+    expect(scan('ls', '2026-11-27T12:00:00Z').exit).toBe(0) // remembers HEAD
+    put('src/b.ts', SAY)
+    git('add', '-A')
+    git('commit', '-q', '-m', 'x')
+    const r = scan('python3 -c "…" && git add -A && git commit -m x', '2026-11-27T12:00:01Z')
+    const head = git('rev-parse', '--short=7', 'HEAD').trim()
+    expect(r.exit).toBe(2)
+    expect(r.stderr).toContain(`src-scan: src/b.ts:1: speechSynthesis, committed in ${head}`)
+    expect(scan('ls', '2026-11-27T12:00:02Z').exit).toBe(0)
+    expect(lines().map((l) => l.replace(/^\S+ · src-scan · /, ''))).toEqual([
+      'src/ · pass (0 files)',
+      `src/b.ts · fail speechSynthesis (src/b.ts:1, committed in ${head}), SpeechSynthesisUtterance (src/b.ts:1, committed in ${head})`,
+      'src/ · pass (0 files)',
+    ])
+  })
+  it('judges only the added lines of the commit, and never a test file', () => {
+    put('src/a.ts', 'export const a = speechSynthesis\nexport const b = 2\n')
+    git('commit', '-q', '-am', 'old violation, before the hook remembered HEAD')
+    scan('ls')
+    put('src/a.ts', 'export const a = speechSynthesis\nexport const b = 3\n')
+    put('src/b.test.ts', SAY)
+    git('add', '-A')
+    git('commit', '-q', '-m', 'y')
+    expect(scan('git commit -am y').exit).toBe(0)
+  })
+  it('also sees an amended commit (the remembered HEAD is no longer an ancestor)', () => {
+    put('src/b.ts', 'export const b = 1\n')
+    git('add', '-A')
+    git('commit', '-q', '-m', 'clean')
+    scan('ls')
+    put('src/b.ts', SAY)
+    git('commit', '-q', '-a', '--amend', '-m', 'clean (amended)')
+    expect(scan('git commit -a --amend').exit).toBe(2)
+  })
+  it('the first scan of a workspace has no remembered HEAD: it judges the working tree only', () => {
+    put('src/b.ts', SAY)
+    git('add', '-A')
+    git('commit', '-q', '-m', 'x')
+    expect(scan('ls').exit).toBe(0)
   })
 })
 

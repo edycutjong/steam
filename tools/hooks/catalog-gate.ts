@@ -93,6 +93,27 @@ function refuseReason(root: string, id: string, entry: { title: string; gateSha2
   return undefined
 }
 
+/**
+ * The content check, shared with src-scan (a2a round 07): every listed recipe passed its gate, its hashes match and review.json
+ * signs it. Returns the reasons to refuse, or the number of recipes it verified.
+ */
+export function verifyCatalogText(root: string, text: string): { ok: true; count: number } | { ok: false; reasons: string[] } {
+  let list
+  try {
+    list = Catalog.parse(JSON.parse(text))
+  } catch (e) {
+    return { ok: false, reasons: [`the proposed ${CATALOG_REL} is not a catalog, [{id, title, gateSha256}] (${why1(e)})`] }
+  }
+  const reasons: string[] = []
+  const seen = new Set<string>()
+  for (const e of list) {
+    if (seen.has(e.id)) reasons.push(`${e.id}: listed twice`)
+    else reasons.push(...[refuseReason(root, e.id, e)].filter((x): x is string => x !== undefined))
+    seen.add(e.id)
+  }
+  return reasons.length ? { ok: false, reasons } : { ok: true, count: list.length }
+}
+
 export function run(raw: string, deps: Deps = {}): HookResult {
   const input = parseHookInput(raw)
   const raw0 = input?.tool_input?.path
@@ -111,24 +132,13 @@ export function run(raw: string, deps: Deps = {}): HookResult {
   const p = proposed(input, resolve(root, path))
   if ('skip' in p) return finish(0, `allowed (${p.skip})`)
   if (!p.ok) return finish(2, `blocked: ${p.why}`, `${HOOK}: refused. ${p.why}, so it cannot be checked. ${use}`)
-  let list
-  try {
-    list = Catalog.parse(JSON.parse(p.text))
-  } catch (e) {
-    const why = `the proposed ${CATALOG_REL} is not a catalog, [{id, title, gateSha256}] (${why1(e)})`
-    return finish(2, `blocked: ${why}`, `${HOOK}: refused. ${why}. ${use}`)
+  const v = verifyCatalogText(root, p.text)
+  if (!v.ok) {
+    const [first] = v.reasons
+    if (v.reasons.length === 1 && first!.startsWith('the proposed ')) return finish(2, `blocked: ${first}`, `${HOOK}: refused. ${first}. ${use}`)
+    return finish(2, `blocked: ${first}`, `${v.reasons.map((r) => `${HOOK}: ${r}`).join('\n')}\n${use}`)
   }
-  const reasons: string[] = []
-  const seen = new Set<string>()
-  for (const e of list) {
-    if (seen.has(e.id)) reasons.push(`${e.id}: listed twice`)
-    else reasons.push(...[refuseReason(root, e.id, e)].filter((x): x is string => x !== undefined))
-    seen.add(e.id)
-  }
-  if (reasons.length) {
-    return finish(2, `blocked: ${reasons[0]}`, `${reasons.map((r) => `${HOOK}: ${r}`).join('\n')}\n${use}`)
-  }
-  return finish(0, `allowed: ${list.length} recipe${list.length === 1 ? '' : 's'} verified (gate pass, hashes match, review.json)`)
+  return finish(0, `allowed: ${v.count} recipe${v.count === 1 ? '' : 's'} verified (gate pass, hashes match, review.json)`)
 }
 
 if (isMain(import.meta.url)) runAsMain((raw) => run(raw))
