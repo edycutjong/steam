@@ -373,7 +373,7 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
   <div class="hero__copy">
     <p class="eyebrow">Kiroween 2026 · Costume Contest<span class="hallows"> · All Hallows' night</span></p>
     <h1><span class="l1">A dead writer's hand, </span><span class="l2"><em class="hand">still writing</em> <span class="nw">in the steam.</span></span></h1>
-    <p class="sub">Cook Mode for handwritten recipes. At the step where the writer left a judgement in their own words, steam condenses on the window over the pot and their scanned hand is wiped clear of the fog. The hand is real: a <b>c. 1750</b> receipt book in the Wellcome Collection.</p>
+    <p class="sub">Cook Mode for handwritten recipes. At the step where the writer left a judgement in their own words, steam condenses on the window over the pot and their scanned hand is wiped clear of the fog. The hand is real: one page of a <b>c. 1750</b> receipt book in the Wellcome Collection.</p>
     <div class="cta">
       <a class="btn btn--paper" href="https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&amp;pace=12&amp;lead=6">Watch the hand arrive <span class="arr" aria-hidden="true">↗</span></a>
       <a class="btn btn--text" href="/deck/">Pitch deck</a>
@@ -399,7 +399,7 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
     <div class="rc"><p class="rc__n"><span data-count="3">3</span><small>of 3</small></p><p class="rc__l">bundled page crops match a fresh fetch of their region from the archive (NCC .960 / .976 / .991, pass at .90)</p><span class="src">docs/<wbr>kiro-evidence/<wbr>provenance/<wbr>run-4.txt</span></div>
     <div class="rc"><p class="rc__n"><span data-count="15">15</span></p><p class="rc__l">Kiro specs: 5 feature, 10 bugfix</p><span class="src">.kiro/specs/</span></div>
     <div class="rc"><p class="rc__n"><span data-count="304">304</span></p><p class="rc__l">commits labelled [kiro]</p><span class="src">git log --format=%s | grep -c '^\[kiro\]'</span></div>
-    <div class="rc"><p class="rc__n"><span data-count="1544">1,544</span></p><p class="rc__l">unit and property tests pass, 5 expected-fail (npm test at 8045c5e)</p><span class="src">docs/<wbr>kiro-evidence/<wbr>unit-run.txt</span></div>
+    <div class="rc"><p class="rc__n"><span data-count="1569">1,569</span></p><p class="rc__l">unit and property tests pass, 5 expected-fail (npm test at d824683)</p><span class="src">docs/<wbr>kiro-evidence/<wbr>unit-run.txt</span></div>
   </section>
 </div>
 
@@ -499,7 +499,7 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
           <span class="ln">2026-11-24T20:33:24Z · <em>catalog-gate</em> · content/catalog.json · <span class="no">blocked:</span> quinces-marmalade: gate.json pass=false (till-it-looks-red-smooth: line 8: quote splits a disagreement)</span>
           <span class="ln">2026-11-25T20:50:06Z · <em>shell-gate</em> · content/catalog.json · <span class="no">blocked:</span> a shell command writes the catalog; only npm run catalog writes it</span>
         </div></div>
-        <p>Lines from docs/kiro-evidence/hooks.log, timestamps trimmed to the second. All three are refusals we provoked to test the hooks (docs/KIRO.md §2; line 2 is the eval in sessions/transcripts/20261124T2030-17dfe7bc.md). The catalog gate now asks for a named reviewer; the shipped recipe's is the builder's agent. No-imitation refuses a src/ write that speaks or fakes handwriting: 6 hooks in .kiro/hooks/.</p>
+        <p>Lines from docs/kiro-evidence/hooks.log, timestamps trimmed to the second. All three are refusals we provoked to test the hooks (docs/KIRO.md §2; line 2 is the eval in sessions/transcripts/20261124T2030-17dfe7bc.md). Line 1 is the gate's wording at the time. The rule it enforces: no recipe is listed without a review.json that names who signed the reading, and the edition page prints that name. The shipped recipe's signer is the builder's agent, not a person, and the edition says so; a human sign-off is still owed. No-imitation refuses a src/ write that speaks or fakes handwriting: 6 hooks in .kiro/hooks/.</p>
       </article>
     </div>
   </div>
@@ -525,12 +525,12 @@ details .ans code{font-family:var(--font-data);font-size:.86em;color:var(--ink)}
       <h2>Questions a judge would ask</h2>
     </div>
     <div class="faq__list">
-      <details><summary>Is the handwriting generated?</summary><div class="ans"><p>No. The ink is the scan's own ink lifted off the paper: its shape and density come from the scan and are drawn in the renderer's colour. <code>scripts/verify_provenance.py</code> re-fetches each note's region from the archive and checks that the bundled page crop matches it and that the displayed ink lies inside it.</p></div></details>
+      <details><summary>Is the handwriting generated?</summary><div class="ans"><p>No. The ink is the scan's own ink lifted off the paper: its shape and density come from the scan and are drawn in the renderer's colour. <code>scripts/verify_provenance.py</code> re-fetches each note's region from the archive and checks that the bundled page crop matches it and that the bounding box of the displayed ink lies inside it. That is a region-level check, not a pixel-level proof: the displayed note is a processed render, and a pixel-level check was tried and dropped (<code>docs/EXPERIMENTS.md</code>, row 8).</p></div></details>
       <details><summary>Is that the writer&#x27;s stroke order?</summary><div class="ans"><p>No. The write-on follows a traced path through that ink, so the order of strokes is ours, not the writer's. The README says so in its Solution section.</p></div></details>
       <details><summary>Does it work on a phone?</summary><div class="ans"><p>Yes, in emulation. A pane 640 px wide or narrower gets a phone layout that shows only the note: a line is cut at a gap in its ink when that keeps the hand readable or lets it grow, and the parts stack. The frame-rate runs used an emulated Pixel 5 with a 4× CPU throttle; no physical Android run was made.</p></div></details>
       <details><summary>What did Kiro actually do?</summary><div class="ans"><p>304 commits are labelled [kiro] (301 of them fall inside a recorded Kiro session's time window), made working through a spec's tasks, a bugfix spec or an agent workflow. Its two custom agents read the page. In our tests its hooks refused a write that adds a synthetic voice and a catalog write with no named reviewer; refusing a handwriting font is unit-tested. The shipped recipe's reviewer is the builder's agent. <code>docs/KIRO.md</code> lists each feature with the files and commits behind it, and what was planned and not built.</p></div></details>
       <details><summary>Where do the cooking times come from?</summary><div class="ans"><p>The manuscript gives no cooking times, so none is invented: each note is placed at its step or at a cited modern check time, and each time is labelled. In the shipped recipe all three notes arrive with their step.</p></div></details>
-      <details><summary>What is not real yet?</summary><div class="ans"><p>One recipe is on the shelf, and its sign-off came from the builder's agent, not a person; a human sign-off is still owed. The renderer missed its look gate at the last scored pass, 1 end-to-end test fails (113 of 114 pass, run at 90c4e6f), and no build-wide Kiro credit total was kept.</p></div></details>
+      <details><summary>What is not real yet?</summary><div class="ans"><p>One recipe is on the shelf, and its sign-off came from the builder's agent, not a person; a human sign-off is still owed. The renderer missed its look gate at the last scored pass, 1 end-to-end test fails intermittently on a path the shipped recipe never takes (113 of 114 passed in the full run at 0b7e471), and no build-wide Kiro credit total was kept.</p></div></details>
     </div>
   </div>
 </section>
