@@ -8,11 +8,12 @@ Live: https://steam.edycu.dev (static site on Vercel; no account, no install, no
 |---|---|---|
 | 1 | Open the [hero deep link](https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=6) in desktop Chrome. | Cook Mode opens on the step "…boil it till it Looks red & smooth…". The pot runs at a visible ×12 pace. After a lead-in of 6 s (the `lead=6` in the link) the writer's note "till it Looks red & smooth" is written out of the fog in ink. Without input. |
 | 2 | During the lead-in, press **Show the note**. | The fog thickens at once and the write-on follows about 1.2 s later, without waiting for the lead-in. Otherwise wait for it. |
-| 3 | Wait for the write-on to finish (about 5 s of writing, about 6 s from the press). | The scanned ink holds on the glass. The typed step text stays on screen beside it. On this last step the control now reads **The hand, quoted**; on earlier steps (`?note=when-tender`, `?note=full-ripe`) it reads **Wipe the glass**, which clears the ink and moves to the next step. |
+| 3 | Wait for the write-on to finish (about 5 s of writing, about 6 s from the press). | The scanned ink holds on the glass. The typed step text stays on screen beside it. On this last step the control now reads **The hand, quoted**; on earlier steps (`?note=when-tender`, `?note=full-ripe`) it reads **Wipe the glass**, which clears the ink and moves to the next step. A drag across the glass with the mouse or a finger does the same (`e2e/cook-flow.spec.ts`); by keyboard, Tab to the control and press Space or Enter (`e2e/cook-a11y.spec.ts`). |
 | 4 | Press **The hand, quoted** (or open `#/r/quinces-marmalade/quoted`). | The glass wipes and the page "The hand, quoted" opens, showing the notes quoted from the scan. |
 | 5 | On that page press **verify at source ↗**. | The note's bounding box opens on Wellcome's own image server (needs a connection). The page says the box may take in a little of the neighbouring lines. |
 | 6 | Open the shelf (`https://steam.edycu.dev/`) and press **Watch it at ×12** or **Cook it**. | One recipe on the shelf: *Marmalade of Quinces*. **Cook it** runs at real time (no `pace` in the URL). |
 | 7 | Open the edition view, `#/r/quinces-marmalade`, and press **Read the provenance**. | The typed transcription with the two Kiro readers' disagreements marked `†` and both readings shown. The slip expands to institution, shelfmark MS.1810, page p.23, date, licence (Public Domain Mark), credit, the Wellcome work page and IIIF manifest (links), the canvas id and image service (text), the retrieval date and the review line. Beside each note the edition shows when it arrives ("with its step"); press that control to see the basis ("the manuscript gives no time; the note arrives with its step"). Cook Mode shows neither. |
+| 8 | Offline: after one online visit, turn the network off and open the hero deep link again. | Cook Mode runs from the service worker's cache and reaches "The hand, quoted"; only **verify at source** needs the network. Checked by `python3 scripts/verify_offline.py https://steam.edycu.dev` on the production deploy (`docs/kiro-evidence/offline-shell/verify-offline-live.txt`: RESULT: PASS). |
 
 Other deep links: `?note=when-tender` and `?note=full-ripe` (the other two notes); `pace=1`, `4` or `12`; `lead=<seconds>` (0 to 120); `fps=1` shows a frame-rate overlay.
 
@@ -32,7 +33,7 @@ https://steam.edycu.dev/landing/ and https://steam.edycu.dev/deck/ are static pa
 
 | Claim | Number | Reproduce |
 |---|---|---|
-| Unit and property tests | 1544 passed, 5 expected-fail (169 files) at 8045c5e; four tests added later are not in that count | `npm ci && npm test` |
+| Unit and property tests | 1569 passed, 5 expected-fail (169 files) at d824683 | `npm ci && npm test` (output: `docs/kiro-evidence/unit-run.txt`) |
 | Ingestion gate | P1-P6 pass on the shelf recipe | `npm run props` |
 | Frame rate, four budget profiles (Apple M1 Max, ANGLE Metal, machine not idle) | 60 fps average, 0 frames under 55 fps in each | `BENCH_ANGLE=metal npm run bench` → `bench/results.json` (measured at renderer commit 553c771, since changed; second of two back-to-back runs; the first had 2 frames under 55 fps on desktop 1280×720) |
 | Software GL, recorded, not a budget row | 34.96 fps average, 182 frames under 55 fps, quality governor at tier 3 (static pane) | same run |
