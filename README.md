@@ -8,9 +8,11 @@
 
   <br/>
 
+  [![For judges](https://img.shields.io/badge/For_judges-the_judge_path-1F4E79?style=for-the-badge)](JUDGE.md)
   [![Live Demo](https://img.shields.io/badge/🚀_Try_it-live-06b6d4?style=for-the-badge)](https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=6)
   [![Demo Video](https://img.shields.io/badge/▶_Demo-Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/PWxFcwzVqFI)
-  [![For judges](https://img.shields.io/badge/For_judges-the_judge_path-1F4E79?style=for-the-badge)](JUDGE.md)
+  [![Landing](docs/badges/production-landing.svg)](https://steam.edycu.dev/landing/)
+  [![Cook mode](docs/badges/production-cook.svg)](https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=6)
   [![Pitch Deck](https://img.shields.io/badge/📊_Pitch-Deck-f59e0b?style=for-the-badge)](https://steam.edycu.dev/deck/)
   [![Built for Kiroween 2026](https://img.shields.io/badge/Devpost-Kiroween_2026-8b5cf6?style=for-the-badge)](https://kiroween.devpost.com/)
 
