@@ -21,6 +21,7 @@
   ![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)
   [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
   [![CI](https://github.com/edycutjong/steam/actions/workflows/ci.yml/badge.svg)](https://github.com/edycutjong/steam/actions/workflows/ci.yml)
+  [![Release](https://img.shields.io/github/v/release/edycutjong/steam?sort=semver)](https://github.com/edycutjong/steam/releases/latest)
 
 </div>
 
