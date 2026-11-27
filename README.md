@@ -154,7 +154,7 @@ Seven GitHub Actions workflows: five run on every push to `main` and on pull req
 | [E2E](.github/workflows/e2e.yml) | the Playwright suite against the production build, Chromium on software GL, on `macos-latest` (the platform the timing checks were measured on); in CI a failed test is retried once and a pass on retry is reported as flaky, not as passed |
 | [CodeQL](.github/workflows/codeql.yml) | `security-extended` queries over the TypeScript and over these workflows |
 | [Security](.github/workflows/security.yml) | gitleaks over the full history (pinned release, checksum checked), `npm audit` at moderate, dependency review on pull requests |
-| [Quality](.github/workflows/quality.yml) | Lighthouse CI on `/`, `/landing/`, `/deck/` (median of 5 mobile runs, budgets in `lighthouserc.json`) and a gzip budget for the code those pages load (`npm run budget`) |
+| [Quality](.github/workflows/quality.yml) | Lighthouse CI on `/`, `/landing/`, `/deck/`, `/judge/` (median of 5 mobile runs, budgets in `lighthouserc.json`) and a gzip budget for the code those pages load (`npm run budget`) |
 | [Deploy](.github/workflows/deploy.yml) | only after CI passes on `main`: `vercel build`, then `vercel deploy --prebuilt` of that output to https://steam.edycu.dev, then `npm run smoke:live`: the three pages, the hero deep link opened in Chromium (it must reveal the note and end on "The hand, quoted") and the files it loads |
 | [Release](.github/workflows/release.yml) | only after CI passes on `main`, and only when the repository variable `AUTO_RELEASE` is `true`: a semver tag and GitHub Release from the Conventional Commit subjects (`feat` minor; `fix`, `perf` patch), then the README's release badge is re-rendered |
 
@@ -173,10 +173,10 @@ bench/          frame-rate runs          docs/        KIRO, EXPERIMENTS, DX-REPO
 ## 📽️ Demo Materials
 
 - Live: https://steam.edycu.dev
-- For judges, one page: [`JUDGE.md`](JUDGE.md) (the 60-second path, where Kiro did the work, how to verify)
+- For judges, one page: [`JUDGE.md`](JUDGE.md) (the 60-second path, where Kiro did the work, how to verify), and the same as a web page with the five criteria and the video by chapter: https://steam.edycu.dev/judge/
 - Judge steps in full: [`DEMO.md`](DEMO.md)
 - Architecture, box by box: [`ARCHITECTURE.md`](ARCHITECTURE.md)
-- Landing page: https://steam.edycu.dev/landing/ and pitch deck: https://steam.edycu.dev/deck/ (both mount the app's own `SteamGlass` through `site/glass.tsx`)
+- Landing page: https://steam.edycu.dev/landing/ and pitch deck: https://steam.edycu.dev/deck/ (both mount the app's own `SteamGlass` through `site/glass.tsx`); judge page: https://steam.edycu.dev/judge/ (static, no script)
 - Demo video (2:21, captioned, no voice-over; every product shot is the live site): https://youtu.be/PWxFcwzVqFI
 
 ## 📄 License

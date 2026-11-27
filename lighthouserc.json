@@ -5,7 +5,8 @@
       "url": [
         "http://localhost/",
         "http://localhost/landing/",
-        "http://localhost/deck/"
+        "http://localhost/deck/",
+        "http://localhost/judge/"
       ],
       "numberOfRuns": 5,
       "settings": {
@@ -55,7 +56,7 @@
           }
         },
         {
-          "matchingUrlPattern": "^https?://[^/]+/(landing|deck)/",
+          "matchingUrlPattern": "^https?://[^/]+/(landing|deck|judge)/",
           "assertions": {
             "categories:performance": [
               "error",

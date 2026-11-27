@@ -1,6 +1,6 @@
 name: Deploy
 # Production deploy of main to the Vercel project `steam` (https://steam.edycu.dev), only after CI passed on that commit
-# (or by hand from main), then a smoke test of the live site: the three pages, the README's hero deep link in a real
+# (or by hand from main), then a smoke test of the live site: the four pages, the README's hero deep link in a real
 # browser, and the files it loads. The build runs here (vercel build) and the prebuilt output is what ships, so the
 # deploy is exactly the commit CI checked. The Vercel project has no Git integration: this workflow is the only path
 # from a push to production.
@@ -53,11 +53,11 @@ jobs:
         run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
       - name: vercel build --prod
         run: vercel build --prod --token="$VERCEL_TOKEN"
-      - name: The output is the static app, its offline shell and the two pages
+      - name: The output is the static app, its offline shell and the three pages
         id: out
         run: |
           out=.vercel/output/static
-          for f in index.html sw.js favicon.svg landing/index.html deck/index.html site/glass.js recipes/quinces-marmalade/recipe.json; do
+          for f in index.html sw.js favicon.svg landing/index.html deck/index.html judge/index.html site/glass.js recipes/quinces-marmalade/recipe.json; do
             test -s "$out/$f" || { echo "missing $out/$f"; exit 1; }
           done
           bundle=$(grep -o 'index-[A-Za-z0-9_-]*\.js' "$out/index.html")

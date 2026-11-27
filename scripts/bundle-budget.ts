@@ -1,7 +1,7 @@
 // Gzip budget for the code a visitor downloads (Quality workflow; `npm run budget` after `npm run build`).
 //   app   : the JavaScript and CSS dist/index.html loads (the shelf, Cook Mode and the renderer are one bundle)
 //   pages : the renderer bundle the landing page and the deck load beside the app (site/glass.js + site/glass.css),
-//           and the two pages themselves (their CSS and scripts are inline)
+//           and the two pages themselves (their CSS and scripts are inline); the judge page (inline CSS, no script, no renderer)
 // Each budget is the size at the time it was set (2026-11-27, app bundle index-Bss4SLit.js) plus about 10 %: a new
 // dependency or an accidental duplicate shows up as a red run, not as a slower first visit nobody measured.
 //
@@ -34,6 +34,7 @@ const rows: Row[] = [
   { name: 'pages: renderer CSS', files: ['site/glass.css'], budget: 3 * KB }, // 2.6 KiB
   { name: 'landing page (inline CSS + script)', files: ['landing/index.html'], budget: 21 * KB }, // 18.9 KiB
   { name: 'deck (inline CSS + script)', files: ['deck/index.html'], budget: 17 * KB }, // 15.3 KiB
+  { name: 'judge page (inline CSS, no script)', files: ['judge/index.html'], budget: 16 * KB }, // 14.2 KiB
 ]
 
 const fmt = (n: number) => `${(n / KB).toFixed(1)} KiB`

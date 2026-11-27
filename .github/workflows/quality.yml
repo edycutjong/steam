@@ -1,5 +1,5 @@
 name: Quality
-# Lighthouse CI on the three judge-facing pages of the production build (/, /landing/, /deck/; budgets in
+# Lighthouse CI on the four judge-facing pages of the production build (/, /landing/, /deck/, /judge/; budgets in
 # lighthouserc.json, median of 5 mobile runs), and a gzip budget for the code they load (scripts/bundle-budget.ts).
 on:
   push:

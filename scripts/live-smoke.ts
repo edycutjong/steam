@@ -1,5 +1,5 @@
 // Post-deploy smoke test of the live site (Deploy workflow; `npm run smoke:live [base]` by hand).
-//  1. HTTP: /, /landing/, /deck/, the README's hero deep link, and every file that link loads answer 200 with the right type.
+//  1. HTTP: /, /landing/, /deck/, /judge/ (and /judge without the slash), the README's hero deep link, and every file that link loads answer 200 with the right type.
 //  2. The served index.html names the app bundle this build produced (EXPECT_BUNDLE), so the alias points at the new deploy.
 //  3. Browser: the hero deep link, opened fresh in Chromium (software GL, as in e2e/), reaches cook:ready, reveals the note
 //     by itself after the 6 s lead-in, and ends on "The hand, quoted". The fragment never reaches the server, so only a
@@ -49,6 +49,11 @@ async function http(path: string, type: RegExp): Promise<string> {
 const index = await http('/', /text\/html/)
 await http('/landing/', /text\/html/)
 await http('/deck/', /text\/html/)
+for (const p of ['/judge/', '/judge']) {
+  const html = await http(p, /text\/html/)
+  // the real judge page, not the app shell or a 404 page that happens to be HTML
+  record(`${p} is the judge page`, html.includes('<link rel="canonical" href="https://steam.edycu.dev/judge/">'), html.match(/<title>([^<]*)<\/title>/)?.[1] ?? 'no title')
+}
 await http(DEEP_LINK, /text\/html/) // the server sees '/', the fragment is the client's
 const bundle = index.match(/\/assets\/(index-[\w-]+\.js)/)?.[1]
 const expected = process.env.EXPECT_BUNDLE

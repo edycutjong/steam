@@ -2,7 +2,7 @@
 
 > Cook Mode for one handwritten recipe from c. 1750 (Wellcome Collection MS.1810, p.23): at each step where the writer left a judgement, such as "till it Looks red & smooth", steam fogs a window and the writer's own scanned ink is wiped clear of it, quoted from the archive, never generated. It is for anyone who would rather cook from, or check a transcription against, the writer's own hand than a retyped copy. Typing a recipe up keeps the words but loses the hand and the page they came from; here every note links back to its region of the archive's scan.
 
-**Video (2:21):** https://youtu.be/PWxFcwzVqFI · **Live:** https://steam.edycu.dev · Category: Costume Contest
+**Video (2:21):** https://youtu.be/PWxFcwzVqFI · **Live:** https://steam.edycu.dev · **This page on the web** (with the five criteria and the video by chapter): https://steam.edycu.dev/judge/ · Category: Costume Contest
 
 ## In the browser (~60 s)
 
@@ -65,6 +65,6 @@ On every push GitHub Actions runs [CI](https://github.com/edycutjong/steam/actio
 ## Links
 
 - Repository (MIT): https://github.com/edycutjong/steam
-- Live: https://steam.edycu.dev · landing page: https://steam.edycu.dev/landing/ · deck: https://steam.edycu.dev/deck/
+- Live: https://steam.edycu.dev · judge page: https://steam.edycu.dev/judge/ · landing page: https://steam.edycu.dev/landing/ · deck: https://steam.edycu.dev/deck/
 - Video: https://youtu.be/PWxFcwzVqFI
 - [`README.md`](README.md) · [`DEMO.md`](DEMO.md) · [`ARCHITECTURE.md`](ARCHITECTURE.md) · [`docs/KIRO.md`](docs/KIRO.md)
