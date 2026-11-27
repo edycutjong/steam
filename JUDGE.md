@@ -27,7 +27,7 @@ Every step with what to expect, the other deep links and the reduced-motion beha
 
 ## Kiro, impossible to miss
 
-`git log --format=%s | grep -c '^\[kiro\]'` gives 304: the commits made in a Kiro session working through a spec's tasks, a bugfix spec or an agent workflow. Every other commit is labelled `[claude-direct]`, except 4 README-badge and image clean-up commits that carry no label (listed in [`docs/KIRO.md`](docs/KIRO.md)); none of the four came from Kiro. The builder was a Claude agent that wrote every prompt Kiro received; the full causal chain is [`docs/KIRO.md`](docs/KIRO.md).
+`git log --format=%s | grep -c '^\[kiro\]'` gives 304: the commits made in a Kiro session working through a spec's tasks, a bugfix spec or an agent workflow. Every other commit is labelled `[claude-direct]`, except 4 README-badge and image clean-up commits and the release workflow's automatic `chore(release): badge` commits, which carry no label (listed in [`docs/KIRO.md`](docs/KIRO.md)); none of them came from Kiro. The builder was a Claude agent that wrote every prompt Kiro received; the full causal chain is [`docs/KIRO.md`](docs/KIRO.md).
 
 | Kiro feature | Where | What it did | Evidence |
 |---|---|---|---|
@@ -44,7 +44,7 @@ Every step with what to expect, the other deep links and the reduced-motion beha
 
 ```bash
 git clone https://github.com/edycutjong/steam && cd steam && npm ci
-npm run build && npm test        # Test Files 170 passed; Tests 1571 passed | 5 expected fail
+npm run build && npm test        # Test Files 171 passed; Tests 1575 passed | 5 expected fail
 npm run props                    # gate quinces-marmalade: pass (matches the committed gate.json)
 git log --format=%s | grep -c '^\[kiro\]'   # 304
 ```

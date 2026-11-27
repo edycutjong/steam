@@ -33,7 +33,7 @@ https://steam.edycu.dev/landing/ and https://steam.edycu.dev/deck/ are static pa
 
 | Claim | Number | Reproduce |
 |---|---|---|
-| Unit and property tests | 1571 passed, 5 expected-fail (170 files) at 7318dcc | `npm ci && npm test` (output: `docs/kiro-evidence/unit-run.txt`) |
+| Unit and property tests | 1575 passed, 5 expected-fail (171 files) at at | `npm ci && npm test` (output: `docs/kiro-evidence/unit-run.txt`) |
 | Ingestion gate | P1-P6 pass on the shelf recipe | `npm run props` |
 | Frame rate, four budget profiles (Apple M1 Max, ANGLE Metal, machine not idle) | 60 fps average, 0 frames under 55 fps in each | `BENCH_ANGLE=metal npm run bench` → `bench/results.json` (measured at renderer commit 553c771, since changed; second of two back-to-back runs; the first had 2 frames under 55 fps on desktop 1280×720) |
 | Software GL, recorded, not a budget row | 34.96 fps average, 182 frames under 55 fps, quality governor at tier 3 (static pane) | same run |

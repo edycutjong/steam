@@ -84,7 +84,7 @@ Kiro is the engine, not decoration. [`docs/KIRO.md`](docs/KIRO.md) is the causal
 - **Steering:** 5 files in [`.kiro/steering/`](.kiro/steering/) encode "quoted, not generated".
 - **Hooks:** 6 in [`.kiro/hooks/`](.kiro/hooks/); `docs/KIRO.md` section 2 states what they saw and what they missed, including the gap we measured in our own hook evidence.
 - **Custom agents and a workflow:** [`.kiro/agents/`](.kiro/agents/) and [`.kiro/workflows/ingest-recipe.workflow.json`](.kiro/workflows/ingest-recipe.workflow.json).
-- **Commit labels:** each commit says who wrote it, `[kiro]` or `[claude-direct]`; 4 README-badge and image clean-up commits carry no label and none came from Kiro (`docs/KIRO.md` lists them). Run `git log --format=%s | grep -c '^\[kiro\]'` to count.
+- **Commit labels:** each commit says who wrote it, `[kiro]` or `[claude-direct]`; 4 README-badge and image clean-up commits and the release workflow's `chore(release): badge` commits carry no label, and none came from Kiro (`docs/KIRO.md` lists them). Run `git log --format=%s | grep -c '^\[kiro\]'` to count.
 - **Not built:** an MCP server, a Power, an archivist agent, the fog A/B and the spec-vs-vibe comparison. No build-wide credit total was kept (one workflow run is measured). All stated in `docs/KIRO.md` section 4.
 
 Experiments, counted by what ran, with "not run" stated for the rest: [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md). Friction with Kiro, dated: [`docs/DX-REPORT.md`](docs/DX-REPORT.md).
@@ -93,12 +93,12 @@ Experiments, counted by what ran, with "not run" stated for the rest: [`docs/EXP
 
 | Check | Result | Source |
 |---|---|---|
-| Unit and property tests | **1571 passed, 5 expected-fail** (170 files) at 7318dcc; the 5 are the crop-overlap bug reproduction, kept red on purpose: the kill test's eye-read crop boxes must keep failing property P4 on steps 1-5 (`it.fails`, `src/ingest/cropOverlap.bug.test.ts`) | `npm test` (output: `docs/kiro-evidence/unit-run.txt`) |
+| Unit and property tests | **1575 passed, 5 expected-fail** (171 files) at at; the 5 are the crop-overlap bug reproduction, kept red on purpose: the kill test's eye-read crop boxes must keep failing property P4 on steps 1-5 (`it.fails`, `src/ingest/cropOverlap.bug.test.ts`) | `npm test` (output: `docs/kiro-evidence/unit-run.txt`) |
 | End-to-end (Playwright) | **114 of 114 passed** in the full local run of 2026-11-27 (macOS, Chromium on software GL); CI runs the same suite on `macos-latest` (E2E workflow). The intermittent failure of earlier runs, `e2e/cook-session.spec.ts` "a note with an unsupported licence is withheld" (formerly line 110; the deep link started at step 4, not 1), was a race in the test, not the app: once the service worker had precached `recipe.json` and claimed the page, the reload was answered from its cache with the real bundle instead of the test's mocked one. Waiting for the worker before the reload reproduced it 3 of 3; the test now blocks the worker, as `shelf-retry.spec.ts` already did | `npm run e2e` (output: `docs/kiro-evidence/e2e-run.txt`) |
 | Ingestion gate P1-P6 on the shelf recipe | pass | `npm run props` |
 | Provenance: the bundled page region each note comes from matches a fresh IIIF fetch (the displayed note is a processed render of those pixels) | 3 of 3 notes match a fresh IIIF fetch, NCC .960 / .976 / .991 (threshold .90 fixed before the first run); a shifted region and a wrong page both fail | `scripts/verify_provenance.py` |
 | Agent-output evals | 8 ran, 8 pass; E3 not run | `docs/EXPERIMENTS.md`, row 7 |
-| Lighthouse (CI, mobile emulation, median of 5 runs) | performance `/landing/` 100, `/deck/` 99, `/` 88 (its runs spread 80-95: the shelf renders after the app bundle); accessibility, best practices and SEO 100 on all three; budgets in `lighthouserc.json` | [Quality run 45913908565](https://github.com/edycutjong/steam/actions/runs/45913908565) (2026-11-27) |
+| Lighthouse (CI, mobile emulation, median of 5 runs) | performance `/landing/` 100, `/deck/` 99, `/` 95 (one of its 5 runs scored 67: the shelf renders after the app bundle); accessibility, best practices and SEO 100 on all three; budgets in `lighthouserc.json`. On the live site the shelf's largest paint was the full 572 KB scan; since 233bccf a phone gets a 480 px area-average copy of it (72 KB) and the edition keeps the full scan: Lighthouse 13.5 mobile on https://steam.edycu.dev/, 3 runs each, LCP 5.27 / 5.27 / 5.28 s and performance 80 before, 2.45 / 2.87 / 2.87 s and 95-96 after (the CI median LCP on `/` stayed about 3.0 s before and after) | [Quality run 45941553037](https://github.com/edycutjong/steam/actions/runs/45941553037) (2026-11-27) |
 | Bundle (gzip) | app JavaScript 141.6 KiB, app CSS 7.1 KiB; the landing page and deck add the 116.3 KiB renderer bundle | `npm run budget` (`scripts/bundle-budget.ts`, budgets about 10 % above these) |
 
 ### Frame rate
@@ -150,7 +150,7 @@ Six GitHub Actions workflows run on every push to `main` (and on pull requests, 
 
 | Workflow | What it runs |
 |---|---|
-| [CI](.github/workflows/ci.yml) | oxlint + actionlint, typecheck, the unit + property suite on Node 22 and 24 (built first, so the dist checks run too: 1571 passed + 5 expected-fail on both), the ingestion gate, build + `check:dist` |
+| [CI](.github/workflows/ci.yml) | oxlint + actionlint, typecheck, the unit + property suite on Node 22 and 24 (built first, so the dist checks run too: 1575 passed + 5 expected-fail on both), the ingestion gate, build + `check:dist` |
 | [E2E](.github/workflows/e2e.yml) | the Playwright suite against the production build, Chromium on software GL, on `macos-latest` (the platform the timing checks were measured on); in CI a failed test is retried once and a pass on retry is reported as flaky, not as passed |
 | [CodeQL](.github/workflows/codeql.yml) | `security-extended` queries over the TypeScript and over these workflows |
 | [Security](.github/workflows/security.yml) | gitleaks over the full history (pinned release, checksum checked), `npm audit` at moderate, dependency review on pull requests |
