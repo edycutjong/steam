@@ -12,11 +12,11 @@ const dist = fc
 
 describe('buildPrecacheList', () => {
   // The pages beside the app (landing, deck, their shared files) are never stored, wherever they sit in a generated dist/
-  it('stores nothing under /landing/, /deck/ or /site/', () => {
+  it('stores nothing under /landing/, /deck/, /judge/ or /site/', () => {
     const sitePage = fc.tuple(fc.constantFrom(...SITE_PREFIXES), file).map(([pre, f]) => pre.slice(1) + f)
     fc.assert(
       fc.property(dist, fc.array(sitePage, { maxLength: 6 }), ({ files, ids }, site) => {
-        const list = buildPrecacheList([...files, ...site, 'landing/index.html', 'deck/index.html'], ids)
+        const list = buildPrecacheList([...files, ...site, 'landing/index.html', 'deck/index.html', 'judge/index.html'], ids)
         expect(list.filter(isSitePath)).toEqual([])
         expect(list).toEqual(buildPrecacheList(files, ids))
       }),

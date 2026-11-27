@@ -86,10 +86,10 @@ describe('respond', () => {
     expect(t.shell.respond(req('/assets/a.js', { method: 'POST', body: 'x' }))).toBeNull()
     expect(t.store.size).toBe(0)
   })
-  it('leaves the landing page, the deck and their files to the browser: null for navigations and files, even after install', async () => {
+  it('leaves the landing page, the deck, the judge page and their files to the browser: null for navigations and files, even after install', async () => {
     const t = make()
     await t.shell.install()
-    for (const p of ['/landing/', '/landing', '/deck/', '/deck', '/deck/index.html', '/site/glass.js', '/site/media/a.webp']) {
+    for (const p of ['/landing/', '/landing', '/deck/', '/deck', '/deck/index.html', '/judge/', '/judge', '/judge/index.html', '/site/glass.js', '/site/media/a.webp']) {
       expect(t.shell.respond(req(p, { mode: 'navigate' })), p).toBeNull()
       expect(t.shell.respond(req(p)), p).toBeNull()
     }
@@ -98,7 +98,7 @@ describe('respond', () => {
   it('a path that only starts like a site page is still the app', async () => {
     const t = make()
     await t.shell.install()
-    for (const p of ['/landings', '/decked/x', '/sites']) expect(await (await t.shell.respond(req(p, { mode: 'navigate' }))!).text(), p).toBe('body of /index.html')
+    for (const p of ['/landings', '/decked/x', '/judges', '/sites']) expect(await (await t.shell.respond(req(p, { mode: 'navigate' }))!).text(), p).toBe('body of /index.html')
   })
   it('a same-origin URL that is not in the list goes to the network and is not stored', async () => {
     const t = make()

@@ -10,13 +10,13 @@ export const CACHE_PREFIX = 'steam-shell-'
 const isMap = (f: string): boolean => f.endsWith('.map')
 
 /**
- * The pages served beside the app: the landing page, the pitch deck and the files they share.
+ * The pages served beside the app: the landing page, the pitch deck, the judge page and the files they share.
  * They are not the app: the shell never stores them and never answers a request for them, so a visitor who has opened the app
- * still gets the real page at /landing/ and /deck/, not the cached index.html.
+ * still gets the real page at /landing/, /deck/ and /judge/, not the cached index.html.
  */
-export const SITE_PREFIXES = ['/landing/', '/deck/', '/site/'] as const
+export const SITE_PREFIXES = ['/landing/', '/deck/', '/judge/', '/site/'] as const
 
-/** True for `/landing`, `/landing/` and anything under it (same for /deck and /site). */
+/** True for `/landing`, `/landing/` and anything under it (same for /deck, /judge and /site). */
 export const isSitePath = (pathname: string): boolean => SITE_PREFIXES.some((p) => pathname === p.slice(0, -1) || pathname.startsWith(p))
 
 /** `assets/a.js` -> `/assets/a.js`; Windows separators and a leading `./` are normalised. */
