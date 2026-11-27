@@ -342,10 +342,10 @@ section{scroll-margin-top:18px}
     </div>
     <figure class="pane">
       <div class="glass">
-        <img src="/site/media/window-held-760.webp" srcset="/site/media/window-held-760.webp 760w, /site/media/window-held.webp 1520w" sizes="(max-width:979px) calc(100vw - 32px), 500px" width="1520" height="1140" alt="A held frame of the live renderer: the steamed window at night, a full moon through bare branches in the upper sash, and in the fog below the words till it Looks red &amp; smooth wiped clear in ember, one candle on the sill." fetchpriority="high">
+        <img src="/site/media/window-held-760.webp" srcset="/site/media/window-held-760.webp 760w, /site/media/window-held.webp 1520w" sizes="(max-width:979px) calc(100vw - 32px), 500px" width="1520" height="1140" alt="A held frame of the renderer: the steamed window at night, a full moon through bare branches in the upper sash, and in the fog below the words till it Looks red &amp; smooth wiped clear in ember, one candle on the sill." fetchpriority="high">
       </div>
       <figcaption>
-        <p class="gloss">“till it Looks red &amp; smooth” <span>a still captured from the live renderer; on this page the fog is a CSS layer over it, wiped once</span></p>
+        <p class="gloss">“till it Looks red &amp; smooth” <span>a still captured from the renderer (a local build of the same component); on this page the fog is a CSS layer over it, wiped once</span></p>
         <p class="slip">Wellcome MS.1810 · p.23 · c. 1750 · Public Domain Mark</p>
       </figcaption>
     </figure>
@@ -404,7 +404,7 @@ section{scroll-margin-top:18px}
     </div>
     <div>
       <h3>Design<small>a complete, intentional product</small></h3>
-      <p><b>The haunting is the interface:</b> the fog is the cue, the lamp dip draws the eye, wiping the glass says “seen” and moves on. Shelf → edition → Cook Mode → the hand, quoted → the archive. Bounded: the renderer scored 6.5/10 against its own 7/10 look gate.</p>
+      <p><b>The haunting is the interface:</b> the fog is the cue, the lamp dip draws the eye, wiping the glass says “seen” and moves on. Shelf → edition → Cook Mode → the hand, quoted → the archive. Bounded: the renderer's last scored look pass was 6.5/10 against its own 7/10 gate.</p>
       <ul>
         <li><a href="https://github.com/edycutjong/steam/blob/main/JUDGE.md#design-what-to-look-at">JUDGE.md: Design, what to look at</a></li>
         <li><a href="https://github.com/edycutjong/steam/blob/main/README.md#-see-it-in-action">Three live captures at real speed</a></li>
@@ -434,15 +434,15 @@ section{scroll-margin-top:18px}
 <section class="wrap sec" id="kiro" aria-labelledby="h-kiro">
   <p class="eyebrow">iii · technological implementation</p>
   <h2 id="h-kiro"><span class="n">iii.</span>Kiro, file by file</h2>
-  <p class="lede">Every card links to the file in the public repo. The builder was a Claude agent that wrote every prompt Kiro received; Kiro wrote the specs, the code, the tests and the fixes under them. The full chain, feature → files → commits → how to check: <a href="https://github.com/edycutjong/steam/blob/main/docs/KIRO.md">docs/KIRO.md</a>.</p>
+  <p class="lede">Every card links to the file in the public repo. The builder was a Claude agent that wrote the prompts for the 26 build sessions; the other 13 sessions (workflow readers, hook and permission self-tests, one aborted) were launched from inside them. Kiro wrote the specs and most of the code, tests and fixes; the builder committed the rest directly, labelled <code>[claude-direct]</code>. The full chain, feature → files → commits → how to check: <a href="https://github.com/edycutjong/steam/blob/main/docs/KIRO.md">docs/KIRO.md</a>.</p>
 
   <div class="finding">
     <p class="kick">The finding we did not want · <span style="white-space:nowrap">bugfix spec hook-coverage</span></p>
     <h3>Our hooks saw <span class="hand">about 5%</span> of the writes.</h3>
-    <p>Our write hooks matched only Kiro's write tools. Kiro wrote mostly through its <b>shell</b> tool. By the session ledger's write rule, a heuristic count of commands, not a filesystem audit, there were <b>30 write-tool calls</b> under <code>src/</code> against <b>543 flagged shell commands</b>, and <b>none of the 543 had a hook event</b>.</p>
+    <p>Our write hooks matched only Kiro's write tools. Kiro wrote mostly through its <b>shell</b> tool. By the session ledger's write rule, a heuristic count of commands, not a filesystem audit, there were <b>30 write-tool calls</b> under <code>src/</code> (the only kind the hooks matched) against <b>543 flagged shell commands</b>, and <b>none of the 543 had a hook event</b>. 12 of the 30 and 172 of the 543 came before the hooks existed; from the session that installed them on, it is 18 against 371, still about 5%.</p>
     <div class="meter" role="img" aria-label="30 of 573 writes under src went through a write tool the hooks matched, about 5 percent; 543 went through the shell with no hook event.">
       <div class="meter__bar"><i class="seen"></i><i class="unseen"></i></div>
-      <div class="meter__key"><span class="k1"><b>30</b>write-tool calls, the hooks' only view</span><span class="k2"><b>543</b>shell commands, 0 hook events</span></div>
+      <div class="meter__key"><span class="k1"><b>30</b>write-tool calls, the kind the hooks matched</span><span class="k2"><b>543</b>shell commands, 0 hook events</span></div>
     </div>
     <div class="after3">
       <div><b>2 new hooks</b><code>shell-gate</code> refuses a shell command whose text visibly writes such code; <code>src-scan-after-shell</code> reports one after the fact</div>
@@ -460,7 +460,7 @@ section{scroll-margin-top:18px}
     </div>
     <div class="feat">
       <h3>Hooks <span class="c">6</span></h3>
-      <p><code>no-imitation</code> refuses a <code>src/</code> write that speaks or fakes handwriting; <code>catalog-gate</code> refuses a catalog listing a recipe that fails the gate; plus <code>props-on-save</code>, <code>shell-gate</code>, <code>src-scan-after-shell</code>, and <code>tests-after-task</code> (IDE-only, never fired).</p>
+      <p><code>no-imitation</code> refuses a <code>src/</code> write-tool write that calls the speech API, sets a handwriting-style font or imports a handwriting package; <code>catalog-gate</code> refuses a catalog listing a recipe that fails the gate; plus <code>props-on-save</code>, <code>shell-gate</code>, <code>src-scan-after-shell</code>, and <code>tests-after-task</code> (IDE-only, never fired).</p>
       <span class="src"><a href="https://github.com/edycutjong/steam/tree/main/.kiro/hooks">.kiro/hooks/</a> · <a href="https://github.com/edycutjong/steam/blob/main/docs/kiro-evidence/hooks.log">hooks.log</a></span>
     </div>
     <div class="feat">
@@ -480,17 +480,17 @@ section{scroll-margin-top:18px}
     </div>
     <div class="feat">
       <h3>Sessions <span class="c">39 recorded</span></h3>
-      <p>All through <code>kiro-cli</code>, headless. <b>301 of the 304</b> <code>[kiro]</code> commits fall inside a recorded session's time window; condensed transcripts of every session are in the repo.</p>
+      <p>Run headless through <code>kiro-cli</code> (the launch line of each build session was not recorded). <b>301 of the 304</b> <code>[kiro]</code> commits fall inside a recorded session's time window; condensed transcripts of every session are in the repo.</p>
       <span class="src"><a href="https://github.com/edycutjong/steam/blob/main/docs/kiro-evidence/sessions/ledger.json">ledger.json</a> · <a href="https://github.com/edycutjong/steam/tree/main/docs/kiro-evidence/sessions/transcripts">transcripts/</a></span>
     </div>
     <div class="feat span2 ledgercard">
       <h3>Who wrote which commit <span class="c">labelled</span></h3>
       <div class="ledger" aria-label="Commit labels">
         <div class="k"><b>304</b><span>commits labelled [kiro]</span></div>
-        <div><b>104</b><span>labelled [claude-direct]</span></div>
-        <div><b>5</b><span>unlabelled, none from Kiro</span></div>
+        <div><b>107</b><span>labelled [claude-direct]</span></div>
+        <div><b>6</b><span>unlabelled, none from Kiro</span></div>
       </div>
-      <p class="ledgernote">By lines changed (<code>git log --shortstat</code>), <code>[kiro]</code> commits carry about 64k lines and <code>[claude-direct]</code> about 35k. The unlabelled ones are 4 README-badge and image clean-ups and the release workflow's automatic badge commit, listed in <a href="https://github.com/edycutjong/steam/blob/main/docs/KIRO.md">docs/KIRO.md</a>. Count it yourself: <code>git log --format=%s | grep -c '^\[kiro\]'</code>. This page is a <code>[claude-direct]</code> commit.</p>
+      <p class="ledgernote">By lines changed (<code>git log --shortstat</code>), <code>[kiro]</code> commits carry about 64k lines and <code>[claude-direct]</code> about 36k. The unlabelled ones are 4 README-badge and image clean-ups and the release workflow's automatic badge commits (one per release, two so far), listed in <a href="https://github.com/edycutjong/steam/blob/main/docs/KIRO.md">docs/KIRO.md</a>. Count it yourself: <code>git log --format=%s | grep -c '^\[kiro\]'</code>. This page is a <code>[claude-direct]</code> commit.</p>
     </div>
   </div>
 
@@ -500,7 +500,7 @@ section{scroll-margin-top:18px}
 <section class="wrap sec" id="video" aria-labelledby="h-video">
   <p class="eyebrow">iv · presentation</p>
   <h2 id="h-video"><span class="n">iv.</span>The video, by chapter</h2>
-  <p class="lede">2:21, captions burned in, no voice. Every product shot is the live site captured frame by frame at the app's real speed; the only speed-up is the app's own ×12 pace, badged in the pane. Each line opens YouTube at that second.</p>
+  <p class="lede">2:21, captions burned in, no voice. Product shots are the live site captured at the app's real speed; the only change to the app's own speed is its ×12 pace, badged in the pane. The edit cuts one 4.4 s stretch of a take, holds two static frames, shortens lead-ins with the app's <code>?lead=</code>, and shows the archive as a still of Wellcome's page image. Each line opens YouTube at that second.</p>
   <ol class="tape">
     <li><a href="https://youtu.be/PWxFcwzVqFI?t=0"><span class="ts">0:00</span><span class="w">Cold open: the writer's hand in the steam<em>“Not a font. Not generated. The scan's own ink.”</em></span><span class="go" aria-hidden="true">↗</span></a></li>
     <li><a href="https://youtu.be/PWxFcwzVqFI?t=18"><span class="ts">0:18</span><span class="w">Why handwritten recipes matter<em>type a recipe up, and the hand is gone</em></span><span class="go" aria-hidden="true">↗</span></a></li>
@@ -509,10 +509,10 @@ section{scroll-margin-top:18px}
     <li><a href="https://youtu.be/PWxFcwzVqFI?t=61"><span class="ts">1:01</span><span class="w">The hand, quoted → verify at source → the archive<em>NCC .960 / .976 / .991 against a fresh archive fetch</em></span><span class="go" aria-hidden="true">↗</span></a></li>
     <li><a href="https://youtu.be/PWxFcwzVqFI?t=75"><span class="ts">1:15</span><span class="w">How Kiro reads the page<em>two isolated agents, a watch gate in code, the catalog-gate hook</em></span><span class="go" aria-hidden="true">↗</span></a></li>
     <li><a href="https://youtu.be/PWxFcwzVqFI?t=91"><span class="ts">1:31</span><span class="w">The gates, in hooks.log<em>a failing gate keeps a recipe off the shelf</em></span><span class="go" aria-hidden="true">↗</span></a></li>
-    <li><a href="https://youtu.be/PWxFcwzVqFI?t=104"><span class="ts">1:44</span><span class="w">Then we measured our hooks<em>543 shell writes, 0 hook events → bugfix spec hook-coverage</em></span><span class="go" aria-hidden="true">↗</span></a></li>
-    <li><a href="https://youtu.be/PWxFcwzVqFI?t=123"><span class="ts">2:03</span><span class="w">At phone size, the limits, the end<em>emulated phone viewport, no handset; one recipe so far</em></span><span class="go" aria-hidden="true">↗</span></a></li>
+    <li><a href="https://youtu.be/PWxFcwzVqFI?t=105"><span class="ts">1:45</span><span class="w">Then we measured our hooks<em>543 shell writes, 0 hook events → bugfix spec hook-coverage</em></span><span class="go" aria-hidden="true">↗</span></a></li>
+    <li><a href="https://youtu.be/PWxFcwzVqFI?t=124"><span class="ts">2:04</span><span class="w">At phone size, the limits, the end<em>emulated phone viewport, no handset; one recipe so far</em></span><span class="go" aria-hidden="true">↗</span></a></li>
   </ol>
-  <p class="src">The end card shows the unit-test count on the day the video was cut (1544); the repo now has 1575, see Receipts.</p>
+  <p class="src">The “Spec-driven, in the repo” card (about 1:55 to 2:03) shows the unit-test count on the day the video was cut (1544); the repo now has 1575, see Receipts.</p>
   <div class="vidrow">
     <a class="btn" href="https://youtu.be/PWxFcwzVqFI">Watch on YouTube <span class="arr" aria-hidden="true">↗</span></a>
     <a class="btn" href="https://dev.to/edycutjong/my-kiro-hooks-saw-5-of-the-writes-here-is-how-i-found-out-3ife">Read the dev.to post <span class="arr" aria-hidden="true">↗</span></a>
@@ -525,10 +525,10 @@ section{scroll-margin-top:18px}
   <p class="lede">Each number links to the file or run it comes from.</p>
   <div class="receipts">
     <div class="rc"><div class="rc__n">1575<small>passed</small></div><p class="rc__l">unit and property tests (171 files), on Node 22 and 24 in CI, plus 5 expected-fail: a bug reproduction kept red on purpose</p><span class="src"><a href="https://github.com/edycutjong/steam/blob/main/docs/kiro-evidence/unit-run.txt">unit-run.txt</a> · <a href="https://github.com/edycutjong/steam/actions/workflows/ci.yml">CI</a></span></div>
-    <div class="rc"><div class="rc__n">114<small>of 114</small></div><p class="rc__l">Playwright end-to-end tests pass in CI on macOS, no retries</p><span class="src"><a href="https://github.com/edycutjong/steam/actions/workflows/e2e.yml">E2E workflow</a> · <a href="https://github.com/edycutjong/steam/tree/main/e2e">e2e/</a></span></div>
+    <div class="rc"><div class="rc__n">114<small>of 114</small></div><p class="rc__l">Playwright end-to-end tests pass in CI on macOS (114 passed, 0 flaky, in each of the last four runs before this page); CI allows one retry per failed test, and three earlier green runs each needed one</p><span class="src"><a href="https://github.com/edycutjong/steam/actions/workflows/e2e.yml">E2E workflow</a> · <a href="https://github.com/edycutjong/steam/tree/main/e2e">e2e/</a></span></div>
     <div class="rc"><div class="rc__n">100<small>a11y · bp · SEO</small></div><p class="rc__l">Lighthouse in CI, mobile, median of 5, on the app, landing and deck; performance 100 landing, 99 deck, 95 app (the app's median has ranged 79 to 95 across CI runs: it renders after its bundle loads)</p><span class="src"><a href="https://github.com/edycutjong/steam/actions/runs/45941553037">Quality run 45941553037</a> · <a href="https://github.com/edycutjong/steam/blob/main/lighthouserc.json">lighthouserc.json</a></span></div>
     <div class="rc"><div class="rc__n">.960<small>/ .976 / .991</small></div><p class="rc__l">each note's bundled crop against a fresh fetch from the archive (NCC, threshold .90 fixed before the first run); a shifted region and a wrong page both fail</p><span class="src"><a href="https://github.com/edycutjong/steam/blob/main/docs/kiro-evidence/provenance/run-4.txt">provenance/run-4.txt</a></span></div>
-    <div class="rc"><div class="rc__n">60<small>fps avg</small></div><p class="rc__l">renderer-only bench, 0 frames under 55 fps on four profiles in the recorded run (an earlier back-to-back run had 2 slow frames); Apple M1 Max, ANGLE Metal, emulated Pixel 5 included, no physical Android run; measured at renderer commit 553c771</p><span class="src"><a href="https://github.com/edycutjong/steam/blob/main/bench/results.json">bench/results.json</a></span></div>
+    <div class="rc"><div class="rc__n">60<small>fps avg</small></div><p class="rc__l">renderer-only bench, 0 frames under 55 fps on four profiles in the recorded run (an earlier back-to-back run had 2 slow frames); Apple M1 Max, ANGLE Metal, emulated Pixel 5 included, no physical Android run; measured at renderer commit 553c771, machine not idle. Software GL (SwiftShader, not a budget row): 34.96 fps, and the governor drops to the static pane</p><span class="src"><a href="https://github.com/edycutjong/steam/blob/main/bench/results.json">bench/results.json</a></span></div>
     <div class="rc"><div class="rc__n">P1-P6<small>pass</small></div><p class="rc__l">the ingestion gate on the shelf recipe; a recipe that fails it cannot be listed</p><span class="src"><a href="https://github.com/edycutjong/steam/blob/main/content/recipes/quinces-marmalade/gate.json">gate.json</a> · <code>npm run props</code></span></div>
     <div class="rc"><div class="rc__n">7<small>workflows</small></div><p class="rc__l">CI, E2E, CodeQL, Security, Quality, Deploy and Release, green on the submitted commit; every deploy smoke-tests the live hero link</p><span class="src"><a href="https://github.com/edycutjong/steam/actions">Actions</a> · <a href="https://github.com/edycutjong/steam/blob/main/scripts/live-smoke.ts">live-smoke.ts</a></span></div>
     <div class="rc"><div class="rc__n">0<small>generated</small></div><p class="rc__l">no handwriting font, no generated handwriting, no synthetic voice; the browser runs no model</p><span class="src"><a href="https://github.com/edycutjong/steam/tree/main/.kiro/steering">.kiro/steering/</a> · <a href="https://github.com/edycutjong/steam/blob/main/tools/hooks/no-imitation.ts">no-imitation.ts</a></span></div>
@@ -541,7 +541,7 @@ section{scroll-margin-top:18px}
   <div class="rv">
     <div><p class="claim">The writing on the glass is the scan's own ink</p><span class="st real">real</span><p class="why">Lifted off the scan and drawn in the renderer's colour: a processed render checked at region level (NCC, and the ink's bounding box lies inside the verified region), not a pixel-level proof.</p></div>
     <div><p class="claim">The page is Wellcome Collection MS.1810, p.23</p><span class="st real">real</span><p class="why">Fetched through the IIIF Image API; “verify at source” opens the region on Wellcome's own server.</p></div>
-    <div><p class="claim">Cook Mode runs offline after one visit</p><span class="st real">tested</span><p class="why">Service-worker precache, checked on the live site with a no-worker control that fails: <a href="https://github.com/edycutjong/steam/blob/main/docs/kiro-evidence/offline-shell/verify-offline-live.txt">verify-offline-live.txt</a>.</p></div>
+    <div><p class="claim">Cook Mode runs offline after one visit</p><span class="st real">tested</span><p class="why">Service-worker precache: <code>verify_offline.py</code> passed on a production deploy (<a href="https://github.com/edycutjong/steam/blob/main/docs/kiro-evidence/offline-shell/verify-offline-live.txt">verify-offline-live.txt</a>); its no-worker negative control, which cannot pass, was run on a local build (<a href="https://github.com/edycutjong/steam/blob/main/docs/kiro-evidence/offline-shell/verify-offline.txt">verify-offline.txt</a>).</p></div>
     <div><p class="claim">The pot's timing</p><span class="st part">sped up, labelled</span><p class="why">×12 is the app's own pace parameter, badged in the pane. The manuscript gives no cooking times, so none is invented.</p></div>
     <div><p class="claim">The order the strokes are written in</p><span class="st part">ours</span><p class="why">The write-on follows a traced path through the ink, not the writer's pen order.</p></div>
     <div><p class="claim">The phone shot in the video</p><span class="st part">emulated</span><p class="why">A phone-size viewport in Chrome, no handset.</p></div>
@@ -556,7 +556,7 @@ section{scroll-margin-top:18px}
     <h2 id="h-lim"><span class="n">vii.</span>Honest limits</h2>
     <ul class="limits">
       <li>One recipe is on the shelf.<span>The ingestion pipeline has run on that one page only. A judge cannot bring their own card.</span></li>
-      <li>The renderer missed its own look gate.<span>6.5/10 desktop and 6.5 phone at its last scored pass, against a 7/10 gate.</span></li>
+      <li>The renderer missed its own look gate.<span>6.5/10 desktop and 6.5 phone at its last scored pass (look pass 2), against a 7/10 gate; the shipped pass 3 was not scored.</span></li>
       <li>The reading's sign-off is the builder's agent, not a person.<span>A human sign-off is still owed.</span></li>
       <li>Our hooks were blind to most writes until we measured them.<span>The 543 is a heuristic count of shell commands, not a filesystem audit; <code>shell-gate</code> does not see a write by a script run by name, or a path built from parts, before it runs; <code>src-scan-after-shell</code> reports it after.</span></li>
       <li>Kiro ran headless through <code>kiro-cli</code>.<span>IDE-only features (Spec Correctness, checkpoints, PostTaskExec hooks) were not used, and no build-wide credit total was kept.</span></li>

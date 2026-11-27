@@ -34,7 +34,7 @@ const rows: Row[] = [
   { name: 'pages: renderer CSS', files: ['site/glass.css'], budget: 3 * KB }, // 2.6 KiB
   { name: 'landing page (inline CSS + script)', files: ['landing/index.html'], budget: 21 * KB }, // 18.9 KiB
   { name: 'deck (inline CSS + script)', files: ['deck/index.html'], budget: 17 * KB }, // 15.3 KiB
-  { name: 'judge page (inline CSS, no script)', files: ['judge/index.html'], budget: 16 * KB }, // 14.2 KiB
+  { name: 'judge page (inline CSS, no script)', files: ['judge/index.html'], budget: 17 * KB }, // 14.9 KiB
 ]
 
 const fmt = (n: number) => `${(n / KB).toFixed(1)} KiB`

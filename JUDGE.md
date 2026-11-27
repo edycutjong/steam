@@ -27,7 +27,7 @@ Every step with what to expect, the other deep links and the reduced-motion beha
 
 ## Kiro, impossible to miss
 
-`git log --format=%s | grep -c '^\[kiro\]'` gives 304: the commits made in a Kiro session working through a spec's tasks, a bugfix spec or an agent workflow. Every other commit is labelled `[claude-direct]`, except 4 README-badge and image clean-up commits and the release workflow's automatic `chore(release): badge` commits, which carry no label (listed in [`docs/KIRO.md`](docs/KIRO.md)); none of them came from Kiro. The builder was a Claude agent that wrote every prompt Kiro received; the full causal chain is [`docs/KIRO.md`](docs/KIRO.md).
+`git log --format=%s | grep -c '^\[kiro\]'` gives 304: the commits made in a Kiro session working through a spec's tasks, a bugfix spec or an agent workflow. Every other commit is labelled `[claude-direct]`, except 4 README-badge and image clean-up commits and the release workflow's automatic `chore(release): badge` commits, which carry no label (listed in [`docs/KIRO.md`](docs/KIRO.md)); none of them came from Kiro. The builder was a Claude agent that wrote the prompts for Kiro's 26 build sessions (the other 13 recorded sessions, workflow readers and hook self-tests among them, were launched from inside those); the full causal chain is [`docs/KIRO.md`](docs/KIRO.md).
 
 | Kiro feature | Where | What it did | Evidence |
 |---|---|---|---|
