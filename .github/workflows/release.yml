@@ -41,7 +41,7 @@ jobs:
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 35 # the badge may wait up to 25 minutes for the deploy that follows the same CI run
     permissions:
       contents: write # push the tag, create the Release, commit the badge
     env:
@@ -110,6 +110,10 @@ jobs:
       - name: Keep the README release badge on the latest release
         env:
           GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
           LATEST=$(gh release view --json tagName --jq .tagName 2> /dev/null || true)
@@ -122,6 +126,19 @@ jobs:
           curl -fsS --retry 3 --retry-all-errors --max-time 20 -o "$RUNNER_TEMP/release.svg" \
             "https://img.shields.io/badge/release-${LATEST}-${BADGE_COLOR}?logo=github"
           grep -q "aria-label=\"release: ${LATEST}\"" "$RUNNER_TEMP/release.svg" || { echo "::error::shields returned an unexpected badge"; exit 1; }
+          # Other workflows that follow the same CI run (a deploy may check that its commit is still the tip of main) see
+          # main move when the badge lands, and a GITHUB_TOKEN push starts no CI run that would deploy again. So the badge
+          # waits until every other workflow_run for this commit has finished (25 minutes at most).
+          if [ "$EVENT" = workflow_run ]; then
+            for _ in $(seq 1 50); do
+              PENDING=$(gh api "repos/$REPO/actions/runs?head_sha=$SHA&event=workflow_run&per_page=100" \
+                --jq "[.workflow_runs[] | select(.id != $RUN_ID and .status != \"completed\")] | length")
+              [ "$PENDING" = 0 ] && break
+              echo "waiting for $PENDING other workflow_run run(s) on ${SHA:0:7} before moving main"
+              sleep 30
+            done
+            git fetch --quiet origin main
+          fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout --quiet -B release-badge origin/main
