@@ -4,7 +4,10 @@
   <p><em>A dead writer's hand, still writing in the steam.</em></p>
   <img src="docs/readme-hero-animated.svg" alt="Animated banner, an illustration composed from the scan: on All Hallows' night a cloud crosses the moon, a candle gutters, the fog thickens over the pot, and the writer's c. 1750 note &quot;till it Looks red &amp; smooth&quot; is written out of the steam on the window and holds; beside it, c. 1750, Wellcome MS.1810, p.23, Public Domain Mark" width="100%">
 
-  A typed copy can keep "till it Looks red & smooth" and still lose the writer's hand, the page it came from, and the moment at the stove when it matters. Her Hand in the Steam is Cook Mode for one such page, *Marmalade of Quinces* (Wellcome Collection MS.1810, p.23, c. 1750): at each step where the writer left a judgement, steam condenses on a pane of glass, the writer's own scanned ink is wiped clear of the fog, and every note links back to its region of the archive's scan. It is for anyone who would rather cook from, or check a transcription against, the writer's own hand than a retyped copy. The browser runs no model; two isolated Kiro agents read the page at build time, and a code gate decides what may be published.
+  **What:** Cook Mode for a handwritten recipe, *Marmalade of Quinces* (Wellcome Collection MS.1810, p.23, c. 1750). At each step where the writer left a judgement, such as "till it Looks red & smooth", steam fogs the window and the writer's own scanned ink is wiped clear of it.<br/>
+  **For:** anyone who would rather cook from, or check a transcription against, the writer's own hand than a retyped copy.<br/>
+  **Why:** a typed copy keeps the words but loses the hand and the page they came from. Here every note links back to its region of the archive's scan: quoted, never generated.<br/>
+  **Kiro:** built with Kiro specs, bugfix specs, steering and hooks; two isolated Kiro custom agents read the page inside a Kiro workflow at build time, and a code gate decides what may be published. The browser runs no model.
 
   <br/>
 
@@ -81,7 +84,7 @@ Kiro is the engine, not decoration. [`docs/KIRO.md`](docs/KIRO.md) is the causal
 - **Steering:** 5 files in [`.kiro/steering/`](.kiro/steering/) encode "quoted, not generated".
 - **Hooks:** 6 in [`.kiro/hooks/`](.kiro/hooks/); `docs/KIRO.md` section 2 states what they saw and what they missed, including the gap we measured in our own hook evidence.
 - **Custom agents and a workflow:** [`.kiro/agents/`](.kiro/agents/) and [`.kiro/workflows/ingest-recipe.workflow.json`](.kiro/workflows/ingest-recipe.workflow.json).
-- **Commit labels:** every product commit says who wrote it, `[kiro]` or `[claude-direct]`. Run `git log --format=%s | grep -c '^\[kiro\]'` to count.
+- **Commit labels:** each commit says who wrote it, `[kiro]` or `[claude-direct]`; 4 README-badge and image clean-up commits carry no label and none came from Kiro (`docs/KIRO.md` lists them). Run `git log --format=%s | grep -c '^\[kiro\]'` to count.
 - **Not built:** an MCP server, a Power, an archivist agent, the fog A/B and the spec-vs-vibe comparison. No build-wide credit total was kept (one workflow run is measured). All stated in `docs/KIRO.md` section 4.
 
 Experiments, counted by what ran, with "not run" stated for the rest: [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md). Friction with Kiro, dated: [`docs/DX-REPORT.md`](docs/DX-REPORT.md).

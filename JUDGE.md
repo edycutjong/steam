@@ -17,9 +17,17 @@ No install, no account, no input needed. Desktop Chrome is best.
 
 Every step with what to expect, the other deep links and the reduced-motion behaviour: [`DEMO.md`](DEMO.md).
 
+## Design: what to look at
+
+- **The haunting is the interface.** The fog thickening is the cue that a step with the writer's judgement has arrived; the lamp dips and the simmer goes quiet (once a first click or key has started the sound) to draw the eye; wiping the glass, by a drag or the **Wipe the glass** button, is how the cook says "seen" and moves on. Scary first, then one obvious thing to do.
+- **One complete product, not a renderer demo.** Shelf → edition (transcription beside the scan, the readers' disagreements marked †) → Cook Mode → "The hand, quoted" → "verify at source" on the archive's own server; after one visit it also runs offline.
+- **Nothing on the glass is faked.** The writing is the scan's own ink, never a font or a model; the type is self-hosted IM Fell English, Literata and DM Mono, and there is no handwriting font anywhere in the app.
+- **It stays usable.** The typed step is always on screen under the glass, for reading and for screen readers; with reduced motion the canvas becomes a static pane (`e2e/cook-a11y.spec.ts`); on software GL the quality governor steps down to the static pane. Lighthouse accessibility is 100 on the app, the landing page and the deck.
+- **Bounded, said plainly:** the animated renderer missed its own look gate at its last scored pass (6.5 of 7, see Honest limits).
+
 ## Kiro, impossible to miss
 
-`git log --format=%s | grep -c '^\[kiro\]'` gives 304: the commits made in a Kiro session working through a spec's tasks, a bugfix spec or an agent workflow. Every other commit is labelled `[claude-direct]`. The builder was a Claude agent that wrote every prompt Kiro received; the full causal chain is [`docs/KIRO.md`](docs/KIRO.md).
+`git log --format=%s | grep -c '^\[kiro\]'` gives 304: the commits made in a Kiro session working through a spec's tasks, a bugfix spec or an agent workflow. Every other commit is labelled `[claude-direct]`, except 4 README-badge and image clean-up commits that carry no label (listed in [`docs/KIRO.md`](docs/KIRO.md)); none of the four came from Kiro. The builder was a Claude agent that wrote every prompt Kiro received; the full causal chain is [`docs/KIRO.md`](docs/KIRO.md).
 
 | Kiro feature | Where | What it did | Evidence |
 |---|---|---|---|
