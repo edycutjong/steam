@@ -1,0 +1,137 @@
+name: Release
+
+# A semver tag and GitHub Release, cut from Angular-convention commit subjects, only after the CI run for a push to main has
+# succeeded, and always on the exact commit that run judged (a red main never gets a tag). The rules live in
+# .github/scripts/next-version.sh, which is also the local dry run (bash .github/scripts/next-version.sh): the authorship
+# prefixes "[kiro] ", "[claude-direct] ", "kiro: " and "claude-direct: " are stripped first; feat bumps minor; fix and perf
+# bump patch; "!" or a BREAKING CHANGE footer bumps major, except that while the version is 0.x a breaking change bumps
+# minor (1.0.0 is a human decision); every other type, and a subject with no type, cuts nothing.
+#
+# Automatic cuts are armed by the repository variable AUTO_RELEASE: unless it is exactly 'true', a run after green CI only
+# reports what it would cut. workflow_dispatch on main (Actions > Release > Run workflow) always cuts, unless dry_run is ticked.
+#
+# Every run then keeps docs/badges/release.svg, the README's release badge, equal to the latest release (it is committed
+# because GitHub's image proxy times out on shields' dynamic release endpoint). The badge commit is pushed with GITHUB_TOKEN,
+# and pushes made with GITHUB_TOKEN start no workflow runs, so it cannot loop back into CI or here; its subject
+# "chore(release): badge vX.Y.Z" would cut nothing anyway. Nothing deploys from this workflow.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only report the version this would cut; tag nothing"
+        type: boolean
+        default: false
+
+concurrency:
+  group: release
+  cancel-in-progress: false # never cancel a release half way; a newer run waits its turn
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Tag and release (after green CI)
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # push the tag, create the Release, commit the badge
+    env:
+      BADGE: docs/badges/release.svg
+      BADGE_COLOR: ea7233 # the committed badge was rendered by shields with this colour; same URL, byte-identical output
+      SEMVER: '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (no ref: override; main as of this run. The CI-judged commit is tagged by sha below)
+        with:
+          fetch-depth: 0 # full history and tags: the bump reads every commit since the last tag
+
+      - name: Compute the next version from the commits since the last tag
+        id: ver
+        env:
+          EVENT: ${{ github.event_name }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }} # passed as data, never spliced into the script
+          AUTO_RELEASE: ${{ vars.AUTO_RELEASE }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          NOTES_FILE: ${{ runner.temp }}/release-notes.md
+        run: |
+          set -euo pipefail
+          [[ "$SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::refusing sha '$SHA'"; exit 1; }
+          git merge-base --is-ancestor "$SHA" HEAD || { echo "::error::$SHA is not on main"; exit 1; }
+          OUT=$(bash .github/scripts/next-version.sh "$SHA")
+          echo "$OUT"
+          echo "$OUT" >> "$GITHUB_OUTPUT"
+          val() { sed -n "s/^$1=//p" <<< "$OUT"; }
+          LAST=$(val last); NEXT=$(val next); BUMP=$(val bump); RELEASED_IN=$(val released_in)
+          CUT=false
+          if [ -n "$RELEASED_IN" ]; then
+            echo "::notice::Nothing to release: ${SHA:0:7} is already in $RELEASED_IN."
+          elif [ "$BUMP" = none ]; then
+            echo "::notice::Nothing to release: no feat, fix, perf or breaking commit since ${LAST:-the first commit}."
+          elif [ "$EVENT" = workflow_dispatch ] && [ "$DRY_RUN" = true ]; then
+            echo "::notice::Dry run: would cut $NEXT ($BUMP since ${LAST:-the first commit}); nothing tagged."
+          elif [ "$EVENT" = workflow_dispatch ] || [ "$AUTO_RELEASE" = true ]; then
+            CUT=true
+          else
+            echo "::notice::Would cut $NEXT ($BUMP since ${LAST:-the first commit}), but automatic releases are off: set the repository variable AUTO_RELEASE to 'true', or run this workflow by hand."
+          fi
+          echo "cut=$CUT" >> "$GITHUB_OUTPUT"
+          if [ -f "$NOTES_FILE" ]; then
+            { echo "### ${NEXT} ($BUMP) — $([ "$CUT" = true ] && echo releasing || echo not released)"; echo; cat "$NOTES_FILE"; } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Tag the CI-judged commit and publish the release
+        if: steps.ver.outputs.cut == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          NEXT: ${{ steps.ver.outputs.next }} # passed as data, never spliced into the script
+          NOTES_FILE: ${{ runner.temp }}/release-notes.md
+        run: |
+          set -euo pipefail
+          [[ "$NEXT" =~ $SEMVER ]] || { echo "::error::refusing malformed tag '$NEXT'"; exit 1; }
+          if git ls-remote --exit-code --tags origin "refs/tags/$NEXT" > /dev/null; then
+            echo "::error::tag $NEXT already exists on origin; refusing to move it"; exit 1
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$NEXT" -m "$NEXT" "$SHA"
+          git push origin "refs/tags/$NEXT"
+          gh release create "$NEXT" --verify-tag --title "$NEXT" --notes-file "$NOTES_FILE"
+          echo "::notice::Released $NEXT at ${SHA:0:7}."
+
+      - name: Keep the README release badge on the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          LATEST=$(gh release view --json tagName --jq .tagName 2> /dev/null || true)
+          if [ -z "$LATEST" ]; then echo "::notice::No release yet; badge left alone."; exit 0; fi
+          [[ "$LATEST" =~ $SEMVER ]] || { echo "::error::refusing malformed latest release tag '$LATEST'"; exit 1; }
+          git fetch --quiet origin main
+          SHOWN=$(git show "origin/main:$BADGE" 2> /dev/null | grep -o 'aria-label="release: [^"]*"' | sed 's/^aria-label="release: //; s/"$//' || true)
+          if [ "$SHOWN" = "$LATEST" ]; then echo "::notice::Release badge already shows $LATEST."; exit 0; fi
+          # Rendered by shields directly (not through GitHub's image proxy), then checked before it is committed.
+          curl -fsS --retry 3 --retry-all-errors --max-time 20 -o "$RUNNER_TEMP/release.svg" \
+            "https://img.shields.io/badge/release-${LATEST}-${BADGE_COLOR}?logo=github"
+          grep -q "aria-label=\"release: ${LATEST}\"" "$RUNNER_TEMP/release.svg" || { echo "::error::shields returned an unexpected badge"; exit 1; }
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --quiet -B release-badge origin/main
+          mkdir -p "$(dirname "$BADGE")"
+          cp "$RUNNER_TEMP/release.svg" "$BADGE"
+          git add "$BADGE"
+          git commit --quiet -m "chore(release): badge $LATEST"
+          if ! git push origin HEAD:main; then
+            echo "main moved while the badge was rendered: rebasing the one badge commit and retrying once (never forced)"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+          echo "::notice::Release badge ${SHOWN:-missing} -> $LATEST."
