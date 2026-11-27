@@ -93,12 +93,12 @@ Experiments, counted by what ran, with "not run" stated for the rest: [`docs/EXP
 
 | Check | Result | Source |
 |---|---|---|
-| Unit and property tests | **1575 passed, 5 expected-fail** (171 files) at at; the 5 are the crop-overlap bug reproduction, kept red on purpose: the kill test's eye-read crop boxes must keep failing property P4 on steps 1-5 (`it.fails`, `src/ingest/cropOverlap.bug.test.ts`) | `npm test` (output: `docs/kiro-evidence/unit-run.txt`) |
+| Unit and property tests | **1575 passed, 5 expected-fail** (171 files) at 8631491; the 5 are the crop-overlap bug reproduction, kept red on purpose: the kill test's eye-read crop boxes must keep failing property P4 on steps 1-5 (`it.fails`, `src/ingest/cropOverlap.bug.test.ts`) | `npm test` (output: `docs/kiro-evidence/unit-run.txt`) |
 | End-to-end (Playwright) | **114 of 114 passed** in the full local run of 2026-11-27 (macOS, Chromium on software GL); CI runs the same suite on `macos-latest` (E2E workflow). The intermittent failure of earlier runs, `e2e/cook-session.spec.ts` "a note with an unsupported licence is withheld" (formerly line 110; the deep link started at step 4, not 1), was a race in the test, not the app: once the service worker had precached `recipe.json` and claimed the page, the reload was answered from its cache with the real bundle instead of the test's mocked one. Waiting for the worker before the reload reproduced it 3 of 3; the test now blocks the worker, as `shelf-retry.spec.ts` already did | `npm run e2e` (output: `docs/kiro-evidence/e2e-run.txt`) |
 | Ingestion gate P1-P6 on the shelf recipe | pass | `npm run props` |
 | Provenance: the bundled page region each note comes from matches a fresh IIIF fetch (the displayed note is a processed render of those pixels) | 3 of 3 notes match a fresh IIIF fetch, NCC .960 / .976 / .991 (threshold .90 fixed before the first run); a shifted region and a wrong page both fail | `scripts/verify_provenance.py` |
 | Agent-output evals | 8 ran, 8 pass; E3 not run | `docs/EXPERIMENTS.md`, row 7 |
-| Lighthouse (CI, mobile emulation, median of 5 runs) | performance `/landing/` 100, `/deck/` 99, `/` 95 (one of its 5 runs scored 67: the shelf renders after the app bundle); accessibility, best practices and SEO 100 on all three; budgets in `lighthouserc.json`. On the live site the shelf's largest paint was the full 572 KB scan; since 233bccf a phone gets a 480 px area-average copy of it (72 KB) and the edition keeps the full scan: Lighthouse 13.5 mobile on https://steam.edycu.dev/, 3 runs each, LCP 5.27 / 5.27 / 5.28 s and performance 80 before, 2.45 / 2.87 / 2.87 s and 95-96 after (the CI median LCP on `/` stayed about 3.0 s before and after) | [Quality run 45941553037](https://github.com/edycutjong/steam/actions/runs/45941553037) (2026-11-27) |
+| Lighthouse (CI, mobile emulation, median of 5 runs) | performance `/landing/` 100, `/deck/` 99, `/` 95 (one of its 5 runs scored 67: the shelf renders after the app bundle); accessibility, best practices and SEO 100 on all three; budgets in `lighthouserc.json`. On the live site the shelf's largest paint was the full 572 KB scan; since 233bccf a phone-sized screen gets a 480 px area-average copy of it (72 KB; the 800 px copy, 171 KB, on high-density phones) and the edition keeps the full scan: Lighthouse 13.5 mobile on https://steam.edycu.dev/, 3 runs each, LCP 5.27 / 5.27 / 5.28 s and performance 80 before, 2.45 / 2.87 / 2.87 s and 95-96 after (the CI median LCP on `/` stayed about 3.0 s before and after) | [Quality run 45941553037](https://github.com/edycutjong/steam/actions/runs/45941553037) (2026-11-27) |
 | Bundle (gzip) | app JavaScript 141.6 KiB, app CSS 7.1 KiB; the landing page and deck add the 116.3 KiB renderer bundle | `npm run budget` (`scripts/bundle-budget.ts`, budgets about 10 % above these) |
 
 ### Frame rate
@@ -139,7 +139,7 @@ npm run props      # ingestion gate over every recipe
 npm run e2e        # Playwright (installs Chromium: npx playwright install chromium)
 npm run bench      # frame-rate profiles → bench/results.json
 ```
-Six GitHub Actions workflows run on every push to `main` (and on pull requests, except Deploy):
+Seven GitHub Actions workflows: five run on every push to `main` and on pull requests; Deploy and Release run after CI passes on `main`:
 
 [![CI](https://github.com/edycutjong/steam/actions/workflows/ci.yml/badge.svg)](https://github.com/edycutjong/steam/actions/workflows/ci.yml)
 [![E2E](https://github.com/edycutjong/steam/actions/workflows/e2e.yml/badge.svg)](https://github.com/edycutjong/steam/actions/workflows/e2e.yml)
@@ -156,6 +156,7 @@ Six GitHub Actions workflows run on every push to `main` (and on pull requests, 
 | [Security](.github/workflows/security.yml) | gitleaks over the full history (pinned release, checksum checked), `npm audit` at moderate, dependency review on pull requests |
 | [Quality](.github/workflows/quality.yml) | Lighthouse CI on `/`, `/landing/`, `/deck/` (median of 5 mobile runs, budgets in `lighthouserc.json`) and a gzip budget for the code those pages load (`npm run budget`) |
 | [Deploy](.github/workflows/deploy.yml) | only after CI passes on `main`: `vercel build`, then `vercel deploy --prebuilt` of that output to https://steam.edycu.dev, then `npm run smoke:live`: the three pages, the hero deep link opened in Chromium (it must reveal the note and end on "The hand, quoted") and the files it loads |
+| [Release](.github/workflows/release.yml) | only after CI passes on `main`, and only when the repository variable `AUTO_RELEASE` is `true`: a semver tag and GitHub Release from the Conventional Commit subjects (`feat` minor; `fix`, `perf` patch), then the README's release badge is re-rendered |
 
 Every action is pinned to a commit SHA; Dependabot keeps npm packages and actions current. The Vercel project has no Git integration, so the Deploy workflow is the only path from a push to production.
 
