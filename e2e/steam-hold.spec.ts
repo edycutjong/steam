@@ -2,7 +2,7 @@
 import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import { REFOG_MS, WIPE_MS, WRITE_ON_MS } from '../src/steam/timeline.ts'
-import { luminance } from './helpers/capture.ts'
+import { decodePng, luminance } from './helpers/capture.ts'
 import {
   TOKENS,
   VIEWPORTS,
@@ -94,26 +94,37 @@ async function label(page: Page): Promise<string> {
 // Re-pinned in cook-mode task 31: the bundle's hero note puts group 0's dst rect at y 0 to 210 of a 345 px desktop pane, so the old
 // top band (y 4 to 40) now crosses the hull over 742 of 1236 columns; the spike's note left that band clear.
 async function clearedFraction(page: Page, ref: Awaited<ReturnType<typeof shot>>): Promise<number> {
-  const png = await shot(page)
+  return (await clearedSampler(page, ref))()
+}
+
+/**
+ * The cleared share of the plain glass in a strip just under the pane's top edge, against the held reference.
+ * The geometry is read once and each sample photographs only that strip, so a sample costs a small clipped screenshot
+ * instead of a full page plus three DOM reads. On a slow CI runner the full-page version managed two samples in the
+ * 1.4 s sweep (macos-latest run 45919673507 saw only 0.00 and 1.00); the pixels compared and the threshold are unchanged.
+ */
+async function clearedSampler(page: Page, ref: Awaited<ReturnType<typeof shot>>): Promise<() => Promise<number>> {
   const c = await canvasRegion(page)
   const o = await canvasOrigin(page)
   const covered = (await readLayout(page)).groups.map((g) => [o.x + g.dst[0], o.x + g.dst[2]] as const)
-  let cleared = 0
-  let cols = 0
   const y0 = c.y + 4
   const y1 = c.y + 40
-  for (let x = c.x; x < c.x + c.w; x++) {
-    if (covered.some(([a, b]) => x >= a - 2 && x <= b + 2)) continue
-    cols++
-    let d = 0
-    for (let y = y0; y < y1; y++) {
-      const [r1, g1, b1] = pixel(png, x, y)
-      const [r2, g2, b2] = pixel(ref, x, y)
-      d += luminance(r1, g1, b1) - luminance(r2, g2, b2)
+  const xs: number[] = []
+  for (let x = c.x; x < c.x + c.w; x++) if (!covered.some(([a, b]) => x >= a - 2 && x <= b + 2)) xs.push(x)
+  return async () => {
+    const strip = decodePng(await page.screenshot({ type: 'png', clip: { x: c.x, y: y0, width: c.w, height: y1 - y0 } }))
+    let cleared = 0
+    for (const x of xs) {
+      let d = 0
+      for (let y = y0; y < y1; y++) {
+        const [r1, g1, b1] = pixel(strip, x - c.x, y - y0)
+        const [r2, g2, b2] = pixel(ref, x, y)
+        d += luminance(r1, g1, b1) - luminance(r2, g2, b2)
+      }
+      if (Math.abs(d / (y1 - y0)) > 15) cleared++
     }
-    if (Math.abs(d / (y1 - y0)) > 15) cleared++
+    return xs.length ? cleared / xs.length : 0
   }
-  return cols ? cleared / cols : 0
 }
 
 test('the button and Space: disabled while writing, wipe sweeps, fog returns off the channels', async ({ page }) => {
@@ -134,11 +145,12 @@ test('the button and Space: disabled while writing, wipe sweeps, fog returns off
   const heldChannel = meanLumAt(held, pts)
 
   // Wipe with Space (focus is on the body, so the key handler runs). The sweep must pass through partial states.
+  const sample = await clearedSampler(page, held)
   const wipedAt = Date.now()
   await page.keyboard.press('Space')
   await expect(btn).toHaveText(SHOW)
   const samples: number[] = []
-  while (Date.now() - wipedAt < WIPE_MS + 600) samples.push(await clearedFraction(page, held))
+  while (Date.now() - wipedAt < WIPE_MS + 600) samples.push(await sample())
   const partial = samples.filter((f) => f > 0.05 && f < 0.95)
   expect(partial.length, `a sweep in progress was seen in ${samples.map((f) => f.toFixed(2)).join(' ')}`).toBeGreaterThan(0)
   for (let i = 1; i < samples.length; i++) expect(samples[i]).toBeGreaterThanOrEqual(samples[i - 1] - 0.05)

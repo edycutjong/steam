@@ -90,8 +90,14 @@ test('no t: nothing of the note 2000 ms after load', async ({ page }) => {
 
 test('the write-on starts LEAD_MS after the first frame and holds WRITE_ON_MS later', async ({ page }) => {
   await page.addInitScript(() => {
-    const w = window as unknown as { __marks: Record<string, number> }
+    const w = window as unknown as { __marks: Record<string, number>; __frames: number[] }
     w.__marks = {}
+    w.__frames = []
+    const tick = (t: number): void => {
+      if (w.__frames.length < 4000 && !('hold' in w.__marks)) w.__frames.push(t)
+      requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
     const watch = (): void => {
       const live = document.querySelector('[role="status"]')
       const btn = document.querySelector('.wipe-btn')
@@ -112,7 +118,16 @@ test('the write-on starts LEAD_MS after the first frame and holds WRITE_ON_MS la
   const m = await page.evaluate(() => ({
     first: performance.getEntriesByName('steam:first-frame')[0].startTime,
     ...(window as unknown as { __marks: { write: number; hold: number } }).__marks,
+    frames: (window as unknown as { __frames: number[] }).__frames,
   }))
-  expect(Math.abs(m.write - m.first - LEAD_MS), 'write-on start vs first frame').toBeLessThan(150)
-  expect(Math.abs(m.hold - m.write - WRITE_ON_MS), 'hold vs write-on start').toBeLessThan(150)
+  // Both marks are DOM changes that land on a frame: the renderer crosses the threshold on one frame and React commits the
+  // text on a later one, so each can be up to two frame intervals late. 150 ms was set on a 60 fps machine (two frames
+  // = 33 ms); on a slow software-GL runner frames run far longer (macos-latest run 45919673507: 162 and 222 ms off).
+  // The budget is 150 ms plus two p95 frame intervals measured in this run; the scheduling arithmetic is what is tested.
+  const gaps = m.frames.slice(1).map((t, i) => t - m.frames[i]!).sort((a, b) => a - b)
+  const p95 = gaps.length ? gaps[Math.floor(gaps.length * 0.95)]! : 16.7
+  const budget = 150 + 2 * p95
+  const info = `p95 frame ${p95.toFixed(1)} ms over ${gaps.length} frames, budget ${budget.toFixed(0)} ms`
+  expect(Math.abs(m.write - m.first - LEAD_MS), `write-on start vs first frame (${info})`).toBeLessThan(budget)
+  expect(Math.abs(m.hold - m.write - WRITE_ON_MS), `hold vs write-on start (${info})`).toBeLessThan(budget)
 })
