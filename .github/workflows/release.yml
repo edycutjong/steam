@@ -111,7 +111,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           EVENT: ${{ github.event_name }}
-          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          RUN_SHA: ${{ github.sha }} # for workflow_run, the tip of main when CI finished: every run that CI run started carries it
           REPO: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
         run: |
@@ -128,13 +128,13 @@ jobs:
           grep -q "aria-label=\"release: ${LATEST}\"" "$RUNNER_TEMP/release.svg" || { echo "::error::shields returned an unexpected badge"; exit 1; }
           # Other workflows that follow the same CI run (a deploy may check that its commit is still the tip of main) see
           # main move when the badge lands, and a GITHUB_TOKEN push starts no CI run that would deploy again. So the badge
-          # waits until every other workflow_run for this commit has finished (25 minutes at most).
+          # waits until every other run started by the same CI run has finished (25 minutes at most).
           if [ "$EVENT" = workflow_run ]; then
             for _ in $(seq 1 50); do
-              PENDING=$(gh api "repos/$REPO/actions/runs?head_sha=$SHA&event=workflow_run&per_page=100" \
+              PENDING=$(gh api "repos/$REPO/actions/runs?head_sha=$RUN_SHA&event=workflow_run&per_page=100" \
                 --jq "[.workflow_runs[] | select(.id != $RUN_ID and .status != \"completed\")] | length")
               [ "$PENDING" = 0 ] && break
-              echo "waiting for $PENDING other workflow_run run(s) on ${SHA:0:7} before moving main"
+              echo "waiting for $PENDING other workflow_run run(s) started with main at ${RUN_SHA:0:7} before moving main"
               sleep 30
             done
             git fetch --quiet origin main
