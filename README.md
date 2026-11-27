@@ -23,7 +23,7 @@
   ![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)
   [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
   [![CI](https://github.com/edycutjong/steam/actions/workflows/ci.yml/badge.svg)](https://github.com/edycutjong/steam/actions/workflows/ci.yml)
-  [![Release](https://img.shields.io/badge/release-v0.1.0-blue?logo=github)](https://github.com/edycutjong/steam/releases/tag/v0.1.0)
+  [![Release](docs/badges/release.svg)](https://github.com/edycutjong/steam/releases/latest)
 
 </div>
 
