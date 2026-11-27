@@ -4,12 +4,13 @@
   <p><em>A dead writer's hand, still writing in the steam.</em></p>
   <img src="docs/readme-hero-animated.svg" alt="Animated banner, an illustration composed from the scan: on All Hallows' night a cloud crosses the moon, a candle gutters, the fog thickens over the pot, and the writer's c. 1750 note &quot;till it Looks red &amp; smooth&quot; is written out of the steam on the window and holds; beside it, c. 1750, Wellcome MS.1810, p.23, Public Domain Mark" width="100%">
 
-  A typed copy can keep "till it Looks red & smooth" and still lose the writer's hand, the page it came from, and the moment at the stove when it matters. Her Hand in the Steam is Cook Mode for one such page, *Marmalade of Quinces* (Wellcome Collection MS.1810, p.23, c. 1750): at each step where the writer left a judgement, steam condenses on a pane of glass, the writer's own scanned ink is wiped clear of the fog, and every note links back to its region of the archive's scan. The browser runs no model; two isolated Kiro agents read the page at build time, and a code gate decides what may be published.
+  A typed copy can keep "till it Looks red & smooth" and still lose the writer's hand, the page it came from, and the moment at the stove when it matters. Her Hand in the Steam is Cook Mode for one such page, *Marmalade of Quinces* (Wellcome Collection MS.1810, p.23, c. 1750): at each step where the writer left a judgement, steam condenses on a pane of glass, the writer's own scanned ink is wiped clear of the fog, and every note links back to its region of the archive's scan. It is for anyone who would rather cook from, or check a transcription against, the writer's own hand than a retyped copy. The browser runs no model; two isolated Kiro agents read the page at build time, and a code gate decides what may be published.
 
   <br/>
 
   [![Live Demo](https://img.shields.io/badge/🚀_Try_it-live-06b6d4?style=for-the-badge)](https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=6)
   [![Demo Video](https://img.shields.io/badge/▶_Demo-Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/PWxFcwzVqFI)
+  [![For judges](https://img.shields.io/badge/For_judges-the_judge_path-1F4E79?style=for-the-badge)](JUDGE.md)
   [![Pitch Deck](https://img.shields.io/badge/📊_Pitch-Deck-f59e0b?style=for-the-badge)](https://steam.edycu.dev/deck/)
   [![Built for Kiroween 2026](https://img.shields.io/badge/Devpost-Kiroween_2026-8b5cf6?style=for-the-badge)](https://kiroween.devpost.com/)
 
@@ -166,7 +167,8 @@ bench/          frame-rate runs          docs/        KIRO, EXPERIMENTS, DX-REPO
 ## 📽️ Demo Materials
 
 - Live: https://steam.edycu.dev
-- Judge steps: [`DEMO.md`](DEMO.md)
+- For judges, one page: [`JUDGE.md`](JUDGE.md) (the 60-second path, where Kiro did the work, how to verify)
+- Judge steps in full: [`DEMO.md`](DEMO.md)
 - Architecture, box by box: [`ARCHITECTURE.md`](ARCHITECTURE.md)
 - Landing page: https://steam.edycu.dev/landing/ and pitch deck: https://steam.edycu.dev/deck/ (both mount the app's own `SteamGlass` through `site/glass.tsx`)
 - Demo video (2:21, captioned, no voice-over; every product shot is the live site): https://youtu.be/PWxFcwzVqFI
