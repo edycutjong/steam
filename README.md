@@ -18,6 +18,8 @@
   [![Cook mode](docs/badges/production-cook.svg)](https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=6)
   [![Pitch Deck](https://img.shields.io/badge/📊_Pitch-Deck-f59e0b?style=for-the-badge)](https://steam.edycu.dev/deck/)
   [![Built for Kiroween 2026](https://img.shields.io/badge/Devpost-Kiroween_2026-8b5cf6?style=for-the-badge)](https://kiroween.devpost.com/)
+  [![Track: Costume Contest](https://img.shields.io/badge/Kiroween_2026-Costume_Contest-ea7233?style=for-the-badge)](https://kiroween.devpost.com/)
+  [![Devpost entry](https://img.shields.io/badge/Devpost-Her_Hand_in_the_Steam-003E54?style=for-the-badge&logo=devpost&logoColor=white)](https://devpost.com/software/her-hand-in-the-steam)
 
   <br/>
 
