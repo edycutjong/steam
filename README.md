@@ -9,6 +9,7 @@
   <br/>
 
   [![Live Demo](https://img.shields.io/badge/🚀_Try_it-live-06b6d4?style=for-the-badge)](https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=6)
+  [![Demo Video](https://img.shields.io/badge/▶_Demo-Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/PWxFcwzVqFI)
   [![Pitch Deck](https://img.shields.io/badge/📊_Pitch-Deck-f59e0b?style=for-the-badge)](https://steam.edycu.dev/deck/)
   [![Built for Kiroween 2026](https://img.shields.io/badge/Devpost-Kiroween_2026-8b5cf6?style=for-the-badge)](https://kiroween.devpost.com/)
 
@@ -168,7 +169,7 @@ bench/          frame-rate runs          docs/        KIRO, EXPERIMENTS, DX-REPO
 - Judge steps: [`DEMO.md`](DEMO.md)
 - Architecture, box by box: [`ARCHITECTURE.md`](ARCHITECTURE.md)
 - Landing page: https://steam.edycu.dev/landing/ and pitch deck: https://steam.edycu.dev/deck/ (both mount the app's own `SteamGlass` through `site/glass.tsx`)
-- Demo video: not published yet.
+- Demo video (2:21, captioned, no voice-over; every product shot is the live site): https://youtu.be/PWxFcwzVqFI
 
 ## 📄 License
 
