@@ -17,7 +17,10 @@ describe('Shelf (R4, R2.8)', () => {
     expect(text(host.querySelector('.lede'))).toBe("Every note you'll see is the writer's own hand, photographed. The handwriting is never generated.")
     expect(host.querySelectorAll('.shelf__item').length).toBe(1)
     const img = host.querySelector('.shelf__item img')!
-    expect(img.getAttribute('loading')).toBe('lazy')
+    expect(img.getAttribute('loading')).toBeNull()
+    expect(img.getAttribute('fetchpriority')).toBe('high')
+    expect(img.getAttribute('src')).toBe('/recipes/quinces-marmalade/page.jpg')
+    expect(img.getAttribute('srcset')).toBe('/recipes/quinces-marmalade/page-480.jpg 480w, /recipes/quinces-marmalade/page-800.jpg 800w, /recipes/quinces-marmalade/page.jpg 1601w')
     expect(img.getAttribute('width')).toBe('1601')
     expect(img.getAttribute('height')).toBe('2052')
     expect(img.getAttribute('alt')).toBe('The manuscript page, MS.1810 p.23')

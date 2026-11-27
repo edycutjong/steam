@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
 import { SHELF } from '../copy/strings.ts'
 import type { LoadedRecipe } from '../data/catalog.ts'
+import { shelfThumb } from '../data/shelfThumb.ts'
 import { useApp } from './AppContext.tsx'
 import ArchiveSlip, { creditLine } from './components/ArchiveSlip.tsx'
 import { formatRoute } from './router.ts'
 import { useScreen } from './useScreen.ts'
 
 export const INTRO_KEY = 'introSeen'
+/** page.jpg's width when a bundle carries no frame (every catalogued scan has one). */
+const THUMB_FALLBACK_WIDTH = 1601
 
 /** Discards the saved session, then navigates, in that order, so the new route cannot restore the old session (design 9). */
 export async function startFresh(store: Promise<import('../data/store.ts').Store>, id: string, hash: string): Promise<void> {
@@ -29,7 +32,15 @@ function Card({ recipe, onLeave }: { recipe: LoadedRecipe; onLeave: () => void }
     <li className="shelf__item">
       <div className="shelf__thumb">
         <div className="mat">
-          <img src={`/recipes/${b.id}/page.jpg`} loading="lazy" width={b.source.frame?.width} height={b.source.frame?.height} alt={SHELF.thumbAlt(b.source.shelfmark, b.source.page)} />
+          {/* Above the fold and the page's largest paint: fetched eagerly, at high priority, and a phone gets a smaller copy of the same scan. */}
+          <img
+            {...shelfThumb(b.id, b.source.frame?.width ?? THUMB_FALLBACK_WIDTH)}
+            fetchPriority="high"
+            decoding="async"
+            width={b.source.frame?.width}
+            height={b.source.frame?.height}
+            alt={SHELF.thumbAlt(b.source.shelfmark, b.source.page)}
+          />
         </div>
       </div>
       <div className="shelf__body">
