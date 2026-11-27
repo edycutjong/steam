@@ -28,7 +28,11 @@
 
 ## 📸 See it in Action
 
-*The animated banner above is an illustration composed from the scan's ink; the live app renders the glass in WebGL2.*
+*The animated banner above is an illustration composed from the scan's ink; the clips below are the live app, which renders the glass in WebGL2.*
+
+![Live capture of steam.edycu.dev: on a fogged night window, the c. 1750 writer's own scanned ink "till it Looks red & smooth" is written out of the steam and holds, with the typed reading below](docs/broll/signature-write-on.gif)
+
+*The hero link above, captured from steam.edycu.dev frame by frame at real speed (Chrome, 2x). The ×12 badge is the app's own pot pace, not a speed-up.*
 
 **Try it:** [open the hero moment](https://steam.edycu.dev/#/r/quinces-marmalade/cook?note=till-it-looks-red-smooth&pace=12&lead=6). No install and no input: the pot runs at a visible ×12 pace and the note is written out of the fog after a 6 s lead-in. [`DEMO.md`](DEMO.md) has the exact judge steps and what to expect at each one.
 
@@ -41,6 +45,14 @@ Handwritten recipes keep the judgement calls in the writer's own hand. Typing a 
 
 ### The Solution
 Cook Mode runs the recipe's steps against a pot on a fogged window. At the step where the writer left a judgement, the lamp dips, the simmer drops, and the writer's own ink is wiped clear of the glass. The typed step stays on screen for reading and for screen readers. **The handwriting is never generated:** the ink is the scan's own ink lifted off the paper: its shape and density come from the scan and are drawn in the renderer's colour, a processed render and not a copy of the scan's pixels. `scripts/verify_provenance.py` re-fetches each note's region from the archive and checks that the bundled page crop matches it and that the displayed ink lies inside it (the bounding box of the displayed pixels, check b1). The write-on follows a traced path through that ink, so the order of strokes is ours, not the writer's. "Verify at source" opens the untouched region on the archive's server.
+
+![Live capture, Cook Mode step 1: the hand finishes "full ripe,", a drag across the glass wipes it in candlelight, the fog closes and step 2 begins](docs/broll/wipe-the-glass.gif)
+
+*Wipe the glass: `?note=full-ripe`, a scripted pointer drag across the pane (the app's own drag handler decides), captured at real speed.*
+
+![Live capture: pressing "The hand, quoted" wipes the glass and opens the page of crops cut from the manuscript scan, scrolling to "till it Looks red & smooth," and its "verify at source" link](docs/broll/hand-quoted.gif)
+
+*The hand, quoted: every note cut from the scan, each with a "verify at source ↗" link to the same region on Wellcome's image server.*
 
 ## 🏗️ Architecture & Tech Stack
 
