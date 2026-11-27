@@ -8,6 +8,9 @@ export default defineConfig({
   testDir: 'e2e',
   testMatch: '**/*.spec.ts',
   workers: 1,
+  // CI retries a failed test once; Playwright then reports it as flaky (not passed) and the E2E job summary lists it.
+  // Locally there is no retry: a failure is a failure.
+  retries: process.env.CI ? 1 : 0,
   timeout: 60_000,
   reporter: [['list']],
   use: {

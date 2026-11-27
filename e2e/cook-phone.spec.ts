@@ -70,7 +70,9 @@ test.describe('Q5 Pixel 5 Cook Mode, held note at the last step', () => {
 // Q6: the shelf is a composed hero for its one recipe
 async function heroChecks(page: Page, vw: number, vh: number, minThumb: number) {
   await openShelf(page)
-  await page.locator('.shelf__thumb img').evaluate((i) => (i as HTMLImageElement).decode())
+  // Wait for the scan to be loaded rather than calling decode() once: decode() rejects with EncodingError when React swaps
+  // the element or its src mid-decode, which a slower machine hits (macos-latest CI run 45913908581).
+  await expect.poll(() => page.locator('.shelf__thumb img').evaluate((i) => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0), { timeout: 15_000 }).toBe(true)
   const card = page.locator('.shelf__item').first()
   const thumb = (await card.locator('.shelf__thumb .mat').boundingBox())!
   const img = (await card.locator('.shelf__thumb img').boundingBox())!

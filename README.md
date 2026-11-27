@@ -131,7 +131,7 @@ Six GitHub Actions workflows run on every push to `main` (and on pull requests, 
 | Workflow | What it runs |
 |---|---|
 | [CI](.github/workflows/ci.yml) | oxlint + actionlint, typecheck, the unit + property suite on Node 22 and 24 (built first, so the dist checks run too: 1571 passed + 5 expected-fail on both), the ingestion gate, build + `check:dist` |
-| [E2E](.github/workflows/e2e.yml) | the Playwright suite against the production build, Chromium on software GL |
+| [E2E](.github/workflows/e2e.yml) | the Playwright suite against the production build, Chromium on software GL, on `macos-latest` (the platform the timing checks were measured on); in CI a failed test is retried once and a pass on retry is reported as flaky, not as passed |
 | [CodeQL](.github/workflows/codeql.yml) | `security-extended` queries over the TypeScript and over these workflows |
 | [Security](.github/workflows/security.yml) | gitleaks over the full history (pinned release, checksum checked), `npm audit` at moderate, dependency review on pull requests |
 | [Quality](.github/workflows/quality.yml) | Lighthouse CI on `/`, `/landing/`, `/deck/` (median of 5 mobile runs, budgets in `lighthouserc.json`) and a gzip budget for the code those pages load (`npm run budget`) |
