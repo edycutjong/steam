@@ -404,7 +404,7 @@ section{scroll-margin-top:18px}
     </div>
     <div>
       <h3>Design<small>a complete, intentional product</small></h3>
-      <p><b>The haunting is the interface:</b> the fog is the cue, the lamp dip draws the eye, wiping the glass says “seen” and moves on. Shelf → edition → Cook Mode → the hand, quoted → the archive. Bounded: the renderer's last scored look pass was 6.5/10 against its own 7/10 gate.</p>
+      <p><b>The haunting is the interface:</b> the fog is the cue, the lamp dip draws the eye, wiping the glass says “seen” and moves on. Shelf → edition → Cook Mode → the hand, quoted → the archive.</p>
       <ul>
         <li><a href="https://github.com/edycutjong/steam/blob/main/JUDGE.md#design-what-to-look-at">JUDGE.md: Design, what to look at</a></li>
         <li><a href="https://github.com/edycutjong/steam/blob/main/README.md#-see-it-in-action">Three live captures at real speed</a></li>
@@ -487,7 +487,7 @@ section{scroll-margin-top:18px}
       <h3>Who wrote which commit <span class="c">labelled</span></h3>
       <div class="ledger" aria-label="Commit labels">
         <div class="k"><b>304</b><span>commits labelled [kiro]</span></div>
-        <div><b>109</b><span>labelled [claude-direct]</span></div>
+        <div><b>110</b><span>labelled [claude-direct]</span></div>
         <div><b>6</b><span>unlabelled, none from Kiro</span></div>
       </div>
       <p class="ledgernote">By lines changed (<code>git log --shortstat</code>), <code>[kiro]</code> commits carry about 64k lines and <code>[claude-direct]</code> about 36k. The unlabelled ones are 4 README-badge and image clean-ups and the release workflow's automatic badge commits (one per release, two so far), listed in <a href="https://github.com/edycutjong/steam/blob/main/docs/KIRO.md">docs/KIRO.md</a>. Count it yourself: <code>git log --format=%s | grep -c '^\[kiro\]'</code>. This page is a <code>[claude-direct]</code> commit.</p>
@@ -526,7 +526,7 @@ section{scroll-margin-top:18px}
   <div class="receipts">
     <div class="rc"><div class="rc__n">1575<small>passed</small></div><p class="rc__l">unit and property tests (171 files), on Node 22 and 24 in CI, plus 5 expected-fail: a bug reproduction kept red on purpose</p><span class="src"><a href="https://github.com/edycutjong/steam/blob/main/docs/kiro-evidence/unit-run.txt">unit-run.txt</a> · <a href="https://github.com/edycutjong/steam/actions/workflows/ci.yml">CI</a></span></div>
     <div class="rc"><div class="rc__n">114<small>of 114</small></div><p class="rc__l">Playwright end-to-end tests pass in CI on macOS (114 passed, 0 flaky, in each of the last four runs before this page); CI allows one retry per failed test, and three earlier green runs each needed one</p><span class="src"><a href="https://github.com/edycutjong/steam/actions/workflows/e2e.yml">E2E workflow</a> · <a href="https://github.com/edycutjong/steam/tree/main/e2e">e2e/</a></span></div>
-    <div class="rc"><div class="rc__n">100<small>a11y · bp · SEO</small></div><p class="rc__l">Lighthouse in CI, mobile, median of 5, on the app, landing and deck; performance 100 landing, 99 deck, 95 app (the app's median has ranged 79 to 95 across CI runs: it renders after its bundle loads)</p><span class="src"><a href="https://github.com/edycutjong/steam/actions/runs/45941553037">Quality run 45941553037</a> · <a href="https://github.com/edycutjong/steam/blob/main/lighthouserc.json">lighthouserc.json</a></span></div>
+    <div class="rc"><div class="rc__n">100<small>a11y · bp · SEO</small></div><p class="rc__l">Lighthouse in CI, mobile, median of 5, on the app, landing, deck and this page; performance 100 landing, 99 deck, 97 this page, 95 app (the app's median has ranged 79 to 95 across CI runs: it renders after its bundle loads)</p><span class="src"><a href="https://github.com/edycutjong/steam/actions/runs/45972843067">Quality run 45972843067</a> (commit 2e5b235) · <a href="https://github.com/edycutjong/steam/blob/main/lighthouserc.json">lighthouserc.json</a></span></div>
     <div class="rc"><div class="rc__n">.960<small>/ .976 / .991</small></div><p class="rc__l">each note's bundled crop against a fresh fetch from the archive (NCC, threshold .90 fixed before the first run); a shifted region and a wrong page both fail</p><span class="src"><a href="https://github.com/edycutjong/steam/blob/main/docs/kiro-evidence/provenance/run-4.txt">provenance/run-4.txt</a></span></div>
     <div class="rc"><div class="rc__n">60<small>fps avg</small></div><p class="rc__l">renderer-only bench, 0 frames under 55 fps on four profiles in the recorded run (an earlier back-to-back run had 2 slow frames); Apple M1 Max, ANGLE Metal, emulated Pixel 5 included, no physical Android run; measured at renderer commit 553c771, machine not idle. Software GL (SwiftShader, not a budget row): 34.96 fps, and the governor drops to the static pane</p><span class="src"><a href="https://github.com/edycutjong/steam/blob/main/bench/results.json">bench/results.json</a></span></div>
     <div class="rc"><div class="rc__n">P1-P6<small>pass</small></div><p class="rc__l">the ingestion gate on the shelf recipe; a recipe that fails it cannot be listed</p><span class="src"><a href="https://github.com/edycutjong/steam/blob/main/content/recipes/quinces-marmalade/gate.json">gate.json</a> · <code>npm run props</code></span></div>
@@ -556,9 +556,9 @@ section{scroll-margin-top:18px}
     <h2 id="h-lim"><span class="n">vii.</span>Honest limits</h2>
     <ul class="limits">
       <li>One recipe is on the shelf.<span>The ingestion pipeline has run on that one page only. A judge cannot bring their own card.</span></li>
-      <li>The renderer missed its own look gate.<span>6.5/10 desktop and 6.5 phone at its last scored pass (look pass 2), against a 7/10 gate; the shipped pass 3 was not scored.</span></li>
+      <li>The renderer's last scored look pass missed its own gate.<span>Look pass 2 scored 6.5/10 on desktop and 6.5 on phone against a 7/10 gate. It is superseded: the shipped look pass 3 was not scored, so there is no score for what you see.</span></li>
       <li>The reading's sign-off is the builder's agent, not a person.<span>A human sign-off is still owed.</span></li>
-      <li>Our hooks were blind to most writes until we measured them.<span>The 543 is a heuristic count of shell commands, not a filesystem audit; <code>shell-gate</code> does not see a write by a script run by name, or a path built from parts, before it runs; <code>src-scan-after-shell</code> reports it after.</span></li>
+      <li>Our hooks were blind to most of Kiro's writes.<span>We found it by measuring; the two shell hooks added since were tested by 3 live probes, and no coverage figure after them was measured. The 543 is a heuristic count of shell commands, not a filesystem audit; <code>shell-gate</code> does not see a write by a script run by name, or a path built from parts, before it runs; <code>src-scan-after-shell</code> reports it after.</span></li>
       <li>Kiro ran headless through <code>kiro-cli</code>.<span>IDE-only features (Spec Correctness, checkpoints, PostTaskExec hooks) were not used, and no build-wide credit total was kept.</span></li>
       <li>Not built: an MCP server, a Power, an archivist agent, the fog A/B and the spec-vs-vibe comparison.<span>All stated in <a href="https://github.com/edycutjong/steam/blob/main/docs/KIRO.md">docs/KIRO.md</a> section 4.</span></li>
     </ul>

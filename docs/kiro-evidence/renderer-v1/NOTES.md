@@ -1,6 +1,6 @@
 # Steam renderer v1: notes
 
-Spec: `.kiro/specs/steam-renderer-v1/` (design first, then requirements, then tasks). Frames: `before/` (v0.2), `v1a/` (the first v1 frames) and `after/` (look pass 2; section below), both made by `scripts/capture-renderer-frames.ts` at a frozen clock (`?t=` ms after reveal start): desktop 1280x720, and a Pixel 5 (393x851, dpr 2.75), in software GL (SwiftShader). Nothing here is a number from a GPU run: no fps figure is claimed. `bench/results.json` is written by `npm run bench` on an idle machine and does not exist yet.
+Spec: `.kiro/specs/steam-renderer-v1/` (design first, then requirements, then tasks). Frames: `before/` (v0.2), `v1a/` (the first v1 frames) and `after/` (overwritten by look pass 3, section "Look pass 3"; the pass-2 frames are in `v1b/`), all made by `scripts/capture-renderer-frames.ts` at a frozen clock (`?t=` ms after reveal start): desktop 1280x720, and a Pixel 5 (393x851, dpr 2.75), in software GL (SwiftShader). Nothing here is a number from a GPU run: no fps figure is claimed. `bench/results.json` is written by `npm run bench`; it did not exist when this section was written (the run since recorded is described in `bench/README.md`).
 
 ## What changed, against the seven findings
 

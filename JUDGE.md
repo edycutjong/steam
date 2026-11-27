@@ -23,7 +23,6 @@ Every step with what to expect, the other deep links and the reduced-motion beha
 - **One complete product, not a renderer demo.** Shelf → edition (transcription beside the scan, the readers' disagreements marked †) → Cook Mode → "The hand, quoted" → "verify at source" on the archive's own server; after one visit it also runs offline.
 - **Nothing on the glass is faked.** The writing is the scan's own ink, never a font or a model; the type is self-hosted IM Fell English, Literata and DM Mono, and there is no handwriting font anywhere in the app.
 - **It stays usable.** The typed step stays on screen with the glass, for reading and for screen readers; with reduced motion the canvas becomes a static pane (`e2e/cook-a11y.spec.ts`); on software GL the quality governor steps down to the static pane. Lighthouse accessibility is 100 on the app, the landing page and the deck.
-- **Bounded, said plainly:** the animated renderer missed its own look gate at its last scored pass (6.5/10 against a 7/10 gate, see Honest limits).
 
 ## Kiro, impossible to miss
 
@@ -59,7 +58,7 @@ On every push GitHub Actions runs [CI](https://github.com/edycutjong/steam/actio
 - The reading's sign-off record is the builder's agent, not a person; a human sign-off is still owed.
 - The write-on follows a traced path through the ink, so the order of strokes is ours, not the writer's.
 - The manuscript gives no cooking times, so none is invented: each note arrives with its step.
-- The renderer missed its own look gate (7/10) at its last scored pass (6.5 desktop, 6.5 phone).
+- The renderer's last scored look pass missed its own gate: look pass 2 scored 6.5/10 on desktop and 6.5 on phone against a 7/10 gate. It is superseded; the shipped look pass 3 was not scored.
 - Kiro ran headless through `kiro-cli`; IDE-only features were not used, and no build-wide credit total was kept.
 
 ## Links
